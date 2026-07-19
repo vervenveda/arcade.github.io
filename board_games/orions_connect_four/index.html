@@ -1,0 +1,1017 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Khaemenes Academy - Orion's Connect Four</title>
+<style>
+  :root{
+    --cell-size:56px;
+    --disc-size:44px;
+    --gap:8px;
+    --board-radius:18px;
+    --font:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  }
+  body{
+    font-family:var(--font);
+    margin:0;
+    background:linear-gradient(90deg,#4f46e5,#a78bfa);
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+    box-sizing:border-box;
+  }
+  .container{
+    width:100%;
+    max-width:980px;
+    background:rgba(255,255,255,0.06);
+    border-radius:20px;
+    padding:18px;
+    color:#fff;
+    box-shadow:0 10px 30px rgba(0,0,0,0.35);
+  }
+  .title{
+    display:flex;
+    gap:12px;
+    align-items:baseline;
+    justify-content:space-between;
+  }
+  .title h1{
+    margin:0;
+    font-size:20px;
+    letter-spacing:0.6px;
+  }
+  .controls{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    margin:12px 0;
+    align-items:center;
+  }
+  .controls select,
+  .controls button,
+  .controls input{
+    padding:6px 10px;
+    border-radius:999px;
+    border:0;
+    font-weight:600;
+  }
+  .controls .small{
+    padding:6px 8px;
+    font-size:13px;
+  }
+  .panel{
+    display:flex;
+    gap:20px;
+    flex-wrap:wrap;
+    align-items:flex-start;
+    margin-top:12px;
+  }
+  .left{min-width:420px;}
+  .board-wrap{
+    background:rgba(0,0,0,0.18);
+    padding:18px;
+    border-radius:var(--board-radius);
+    display:inline-block;
+  }
+  .board{
+    display:grid;
+    grid-template-columns:repeat(7, var(--cell-size));
+    grid-auto-rows:var(--cell-size);
+    gap:var(--gap);
+    background:rgba(0,0,0,0.06);
+    padding:12px;
+    border-radius:12px;
+  }
+  .cell{
+    width:var(--cell-size);
+    height:var(--cell-size);
+    border-radius:50%;
+    background:rgba(255,255,255,0.15);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+    cursor:pointer;
+    user-select:none;
+  }
+  .disc{
+    width:var(--disc-size);
+    height:var(--disc-size);
+    border-radius:50%;
+    box-shadow:0 6px 12px rgba(0,0,0,0.35);
+  }
+  .disc.A{background:linear-gradient(180deg,#ef4444,#b91c1c);}
+  .disc.B{background:linear-gradient(180deg,#fbbf24,#d97706);}
+  .ghost{
+    outline:3px dashed rgba(255,255,255,0.6);
+    border-radius:50%;
+    position:absolute;
+    width:calc(var(--disc-size) + 6px);
+    height:calc(var(--disc-size) + 6px);
+    pointer-events:none;
+  }
+  .right{flex:1; min-width:260px;}
+  .panel-box{
+    background:rgba(255,255,255,0.06);
+    padding:12px;
+    border-radius:12px;
+  }
+  .q{
+    font-weight:700;
+    margin:8px 0 12px;
+  }
+  .input-row{
+    display:flex;
+    gap:8px;
+    align-items:center;
+    flex-wrap:wrap;
+  }
+  input[type="number"],
+  input[type="text"]{
+    padding:8px 10px;
+    border-radius:8px;
+    border:0;
+    width:140px;
+  }
+  .stats{
+    margin-top:12px;
+    font-size:14px;
+    opacity:0.95;
+  }
+  .hint{
+    font-size:13px;
+    opacity:0.9;
+    margin-top:8px;
+  }
+  .badge{
+    display:inline-block;
+    background:rgba(255,255,255,0.12);
+    padding:4px 8px;
+    border-radius:999px;
+    margin-right:6px;
+    margin-bottom:6px;
+    font-size:13px;
+  }
+  .small-muted{
+    font-size:12px;
+    opacity:0.85;
+  }
+  .theme-classic{background:linear-gradient(90deg,#0f172a,#1e3a8a);}
+  .theme-nebula{background:linear-gradient(90deg,#6d28d9,#06b6d4);}
+  .theme-forest{background:linear-gradient(90deg,#165e30,#7c2d12);}
+  @media (max-width:860px){
+    .left{min-width:100%}
+    .panel{flex-direction:column}
+  }
+</style>
+</head>
+<body>
+  <div class="container theme-classic" id="app">
+    <div class="title">
+      <div>
+        <h1>Khaemenes Academy — <strong>ORION'S CONNECT FOUR</strong></h1>
+        <div class="small-muted">Player A solves math to drop. Player B can be AI.</div>
+      </div>
+      <div class="small-muted">Vanilla JS • Wix-friendly</div>
+    </div>
+
+    <div class="controls">
+      <label class="small-muted">Mode
+        <select id="mode" class="small">
+          <option value="choose">Choose…</option>
+          <option value="2p">Two Players</option>
+          <option value="hybrid">Hybrid AI</option>
+        </select>
+      </label>
+
+      <label class="small-muted">Grade
+        <select id="grade" class="small">
+          <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+          <option value="4">4</option><option value="5">5</option><option value="6">6</option>
+          <option value="7">7</option><option value="8">8</option><option value="9">9</option>
+          <option value="10">10</option><option value="11">11</option><option value="12">12</option>
+        </select>
+      </label>
+
+      <label class="small-muted">Topic
+        <select id="topic" class="small">
+          <option value="addition">Addition</option>
+          <option value="subtraction">Subtraction</option>
+          <option value="multiplication">Multiplication</option>
+          <option value="division">Division</option>
+        </select>
+      </label>
+
+      <label class="small-muted">Difficulty
+        <select id="difficulty" class="small">
+          <option value="practice">Practice</option>
+          <option value="standard" selected>Standard</option>
+          <option value="challenge">Challenge</option>
+        </select>
+      </label>
+
+      <label class="small-muted">AI Depth
+        <input id="aiDepth" type="number" min="2" max="6" value="4" class="small" style="width:68px"/>
+      </label>
+
+      <label class="small-muted">Timer?
+        <input id="useTimer" type="checkbox" checked />
+      </label>
+
+      <label class="small-muted">Theme
+        <select id="theme" class="small">
+          <option value="classic">Classic</option>
+          <option value="nebula">Nebula</option>
+          <option value="forest">Forest</option>
+        </select>
+      </label>
+
+      <button id="reset" class="small">Reset Game</button>
+      <button id="clearStats" class="small">Clear Stats</button>
+    </div>
+
+    <div class="panel">
+      <div class="left">
+        <div class="board-wrap panel-box">
+          <div id="board" class="board" aria-label="Connect four board"></div>
+        </div>
+        <div class="hint small-muted">
+          Click any column to attempt a drop (Player A must answer the current math problem first).
+        </div>
+      </div>
+
+      <div class="right">
+        <div class="panel-box">
+          <div id="turnLine"><strong>Turn:</strong> <span id="turn">—</span></div>
+          <div id="winnerLine" style="margin-top:8px"></div>
+
+          <div id="questionArea" style="margin-top:12px">
+            <div class="q">Question: <span id="questionText">—</span></div>
+            <div class="input-row">
+              <input id="answerInput" type="number" placeholder="Your answer"/>
+              <button id="submitAnswer">Submit Answer</button>
+              <button id="getQuestion">New Q</button>
+            </div>
+            <div id="timerLine" class="small-muted" style="margin-top:8px"></div>
+          </div>
+
+          <div class="stats">
+            <div>XP: <span id="xp">0</span> • Streak: <span id="streak">0</span></div>
+            <div style="margin-top:8px">Badges: <span id="badges"></span></div>
+            <div style="margin-top:10px" class="small-muted">
+              Difficulty scales: every 50 XP raises problem level.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function(){
+  const ROWS = 6, COLS = 7;
+  const CELL_SIZE = 56;
+
+  // State
+  let board = Array.from({length: ROWS}, () => Array(COLS).fill(null)); // 'A' | 'B' | null
+  let currentPlayer = 'A';
+  let winner = null;    // 'A' | 'B' | 'draw' | null
+  let mode = null;      // '2p' | 'hybrid' | null
+  let grade = 1;
+  let topic = 'addition';
+  let difficulty = 'standard'; // practice | standard | challenge
+  let xp = Number(localStorage.getItem('orion_xp') || 0);
+  let badges = safeJSONParse(localStorage.getItem('orion_badges'), []);
+  let streak = Number(localStorage.getItem('orion_streak') || 0);
+  let problem = null;   // {q, a}
+  let useTimer = true;
+  let timerSec = 25;
+  let timerInterval = null;
+  let aiDepth = 4;
+
+  // gate for whether A may place a disc
+  window.__orion_canPlace = false;
+
+  // DOM
+  const boardEl      = document.getElementById('board');
+  const turnEl       = document.getElementById('turn');
+  const questionText = document.getElementById('questionText');
+  const submitAnswerBtn = document.getElementById('submitAnswer');
+  const getQuestionBtn  = document.getElementById('getQuestion');
+  const answerEl     = document.getElementById('answerInput');
+  const xpEl         = document.getElementById('xp');
+  const badgesEl     = document.getElementById('badges');
+  const streakEl     = document.getElementById('streak');
+  const winnerLine   = document.getElementById('winnerLine');
+  const modeSelect   = document.getElementById('mode');
+  const gradeSelect  = document.getElementById('grade');
+  const topicSelect  = document.getElementById('topic');
+  const difficultySelect = document.getElementById('difficulty');
+  const useTimerChk  = document.getElementById('useTimer');
+  const timerLine    = document.getElementById('timerLine');
+  const aiDepthInput = document.getElementById('aiDepth');
+  const resetBtn     = document.getElementById('reset');
+  const clearStatsBtn= document.getElementById('clearStats');
+  const themeSelect  = document.getElementById('theme');
+
+  // Helpers
+  function safeJSONParse(str, fallback){
+    try{
+      if(str === null || str === undefined || str === '') return fallback;
+      return JSON.parse(str);
+    }catch{
+      return fallback;
+    }
+  }
+  function safeNumber(val, fallback){
+    const n = Number(val);
+    return Number.isFinite(n) ? n : fallback;
+  }
+  function saveStats(){
+    localStorage.setItem('orion_xp', String(xp));
+    localStorage.setItem('orion_badges', JSON.stringify(badges));
+    localStorage.setItem('orion_streak', String(streak));
+  }
+  function randInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+
+  // Enter submits answer
+  answerEl.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter') submitAnswerBtn.click();
+  });
+
+  function effectiveLevelBoost(){
+    return Math.floor(xp / 50); // each 50 XP bumps difficulty a bit
+  }
+
+  // Math generator with grade + difficulty logic
+  function generateProblem(){
+    const g = Number(grade);
+    const boost = effectiveLevelBoost();
+    const diff = difficulty;
+    let a,b;
+
+    // Multiplication
+    if(topic === 'multiplication'){
+      let maxFactor;
+      if(g <= 2)      maxFactor = 5;
+      else if(g <= 3) maxFactor = 10;
+      else            maxFactor = 12;
+
+      if(diff === 'challenge' && g >= 7){
+        maxFactor = 12 + boost * 2;
+      }
+      maxFactor = Math.max(3, maxFactor);
+      a = randInt(1, maxFactor);
+      b = randInt(1, maxFactor);
+      return { q: `${a} × ${b} = ?`, a: a * b };
+    }
+
+    // Division
+    if(topic === 'division'){
+      let maxDivisor, maxQuotient;
+      if(g <= 3){
+        maxDivisor  = 5;  maxQuotient = 6;
+      } else if(g <= 5){
+        maxDivisor  = 10; maxQuotient = 10;
+      } else {
+        maxDivisor  = 12; maxQuotient = 12;
+      }
+
+      if(diff === 'challenge' && g >= 7){
+        maxDivisor  = 15;
+        maxQuotient = 15 + boost;
+      }
+
+      let dividend;
+      if(diff === 'challenge' && g >= 7){
+        a = randInt(2, maxDivisor);
+        b = randInt(2, maxQuotient);
+        dividend = a * b;
+      } else {
+        do{
+          a = randInt(2, maxDivisor);
+          b = randInt(2, maxQuotient);
+          dividend = a * b;
+        } while(dividend > 100);
+      }
+      return { q: `${dividend} ÷ ${a} = ?`, a: b };
+    }
+
+    // Addition / Subtraction
+    let max;
+    if(g <= 2)      max = 20;
+    else if(g <= 5) max = 40;
+    else            max = 80;
+
+    if(diff === 'challenge' && g >= 7){
+      max = 120 + boost * 10;
+    }
+
+    a = randInt(1, max);
+    b = randInt(1, max);
+
+    if(topic === 'addition'){
+      return { q: `${a} + ${b} = ?`, a: a + b };
+    }
+
+    if(a < b) [a,b] = [b,a];
+    return { q: `${a} - ${b} = ?`, a: a - b };
+  }
+
+  function renderBoard(){
+    boardEl.innerHTML = '';
+    for(let r=0;r<ROWS;r++){
+      for(let c=0;c<COLS;c++){
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        cell.style.width  = CELL_SIZE + 'px';
+        cell.style.height = CELL_SIZE + 'px';
+        cell.dataset.r = r;
+        cell.dataset.c = c;
+
+        const val = board[r][c];
+        if(val){
+          const d = document.createElement('div');
+          d.className = 'disc ' + val;
+          cell.appendChild(d);
+        }
+
+        cell.addEventListener('click', () => onColumnClick(c));
+        boardEl.appendChild(cell);
+      }
+    }
+  }
+
+  function getDropRow(col, b = board){
+    for(let r = ROWS - 1; r >= 0; r--){
+      if(b[r][col] === null) return r;
+    }
+    return null;
+  }
+
+  function checkWinnerFor(b, p){
+    for(let r=0;r<ROWS;r++){
+      for(let c=0;c<=COLS-4;c++){
+        if(b[r][c]===p && b[r][c+1]===p && b[r][c+2]===p && b[r][c+3]===p) return true;
+      }
+    }
+    for(let c=0;c<COLS;c++){
+      for(let r=0;r<=ROWS-4;r++){
+        if(b[r][c]===p && b[r+1][c]===p && b[r+2][c]===p && b[r+3][c]===p) return true;
+      }
+    }
+    for(let r=0;r<=ROWS-4;r++){
+      for(let c=0;c<=COLS-4;c++){
+        if(b[r][c]===p && b[r+1][c+1]===p && b[r+2][c+2]===p && b[r+3][c+3]===p) return true;
+      }
+    }
+    for(let r=3;r<ROWS;r++){
+      for(let c=0;c<=COLS-4;c++){
+        if(b[r][c]===p && b[r-1][c+1]===p && b[r-2][c+2]===p && b[r-3][c+3]===p) return true;
+      }
+    }
+    return false;
+  }
+
+  function simulateDrop(b, col, p){
+    const r = getDropRow(col, b);
+    if(r === null) return null;
+    const nb = b.map(row => row.slice());
+    nb[r][col] = p;
+    return { board: nb, row: r };
+  }
+
+  function scoreWindow(arr){
+    const bCount = arr.filter(x=>x==='B').length;
+    const aCount = arr.filter(x=>x==='A').length;
+    const empty  = arr.filter(x=>x===null).length;
+
+    if(bCount===4)              return 100000;
+    if(bCount===3 && empty===1) return 150;
+    if(bCount===2 && empty===2) return 12;
+    if(aCount===3 && empty===1) return -180;
+    if(aCount===2 && empty===2) return -10;
+    return 0;
+  }
+
+  function scoreBoard(b){
+    let score = 0;
+    const center = Math.floor(COLS / 2);
+    score += b.reduce((acc,row) => acc + (row[center]==='B' ? 1 : 0), 0) * 6;
+
+    for(let r=0;r<ROWS;r++){
+      for(let c=0;c<=COLS-4;c++){
+        score += scoreWindow([b[r][c],b[r][c+1],b[r][c+2],b[r][c+3]]);
+      }
+    }
+    for(let c=0;c<COLS;c++){
+      for(let r=0;r<=ROWS-4;r++){
+        score += scoreWindow([b[r][c],b[r+1][c],b[r+2][c],b[r+3][c]]);
+      }
+    }
+    for(let r=0;r<=ROWS-4;r++){
+      for(let c=0;c<=COLS-4;c++){
+        score += scoreWindow([b[r][c],b[r+1][c+1],b[r+2][c+2],b[r+3][c+3]]);
+      }
+    }
+    for(let r=3;r<ROWS;r++){
+      for(let c=0;c<=COLS-4;c++){
+        score += scoreWindow([b[r][c],b[r-1][c+1],b[r-2][c+2],b[r-3][c+3]]);
+      }
+    }
+    return score;
+  }
+
+  function getValidCols(b = board){
+    const arr = [];
+    for(let c=0;c<COLS;c++){
+      if(b[0][c] === null) arr.push(c);
+    }
+    return arr;
+  }
+
+  function isBoardFull(b = board){
+    return getValidCols(b).length === 0;
+  }
+
+  function evaluate(b){
+    if(checkWinnerFor(b,'B')) return  1000000;
+    if(checkWinnerFor(b,'A')) return -1000000;
+    return scoreBoard(b);
+  }
+
+  function minimax(b, depth, alpha, beta, isMax){
+    const valid = getValidCols(b);
+    const terminal = checkWinnerFor(b,'A') || checkWinnerFor(b,'B') || valid.length===0;
+    if(depth===0 || terminal) return evaluate(b);
+
+    if(isMax){
+      let value = -Infinity;
+      for(const c of valid){
+        const sim = simulateDrop(b,c,'B');
+        if(!sim) continue;
+        const val = minimax(sim.board, depth-1, alpha, beta, false);
+        value = Math.max(value, val);
+        alpha = Math.max(alpha, value);
+        if(alpha >= beta) break;
+      }
+      return value;
+    } else {
+      let value = Infinity;
+      for(const c of valid){
+        const sim = simulateDrop(b,c,'A');
+        if(!sim) continue;
+        const val = minimax(sim.board, depth-1, alpha, beta, true);
+        value = Math.min(value, val);
+        beta = Math.min(beta, value);
+        if(alpha >= beta) break;
+      }
+      return value;
+    }
+  }
+
+  function pickMinimaxCol(b, depth){
+    const valid = getValidCols(b);
+    if(valid.length===0) return null;
+
+    for(const c of valid){
+      const s = simulateDrop(b,c,'B');
+      if(s && checkWinnerFor(s.board,'B')) return c;
+    }
+    for(const c of valid){
+      const s = simulateDrop(b,c,'A');
+      if(s && checkWinnerFor(s.board,'A')) return c;
+    }
+
+    let best = valid[0];
+    let bestVal = -Infinity;
+    for(const c of valid){
+      const s = simulateDrop(b,c,'B');
+      if(!s) continue;
+
+      const val = minimax(s.board, depth-1, -Infinity, Infinity, false);
+      const bias = -Math.abs(c - Math.floor(COLS/2)) * 2;
+      const total = val + bias;
+
+      if(total > bestVal){
+        bestVal = total;
+        best = c;
+      }
+    }
+    return best;
+  }
+
+  function dropAiAt(col){
+    const r = getDropRow(col);
+    if(r === null) return;
+    board[r][col] = 'B';
+    renderBoard();
+
+    if(checkWinnerFor(board,'B')){
+      setWinner('B');
+      endTurn();
+      return;
+    }
+    if(isBoardFull()){
+      setDraw();
+      endTurn();
+      return;
+    }
+
+    currentPlayer = 'A';
+    window.__orion_canPlace = false;
+    updateTurnLine();
+    if(!problem) problem = generateProblem();
+    renderQuestion();
+    maybeStartTimer();
+  }
+
+  function aiMove(){
+    if(winner) return;
+    const valid = getValidCols(board);
+    if(valid.length === 0) return;
+
+    const baseDepth = Math.max(2, Math.min(6, Number(aiDepth) || 4));
+    let depth = baseDepth;
+    const diff = difficulty;
+
+    if(diff === 'practice'){
+      if(Math.random() < 0.7){
+        const col = valid[Math.floor(Math.random()*valid.length)];
+        dropAiAt(col);
+        return;
+      } else {
+        depth = 2;
+      }
+    } else if(diff === 'standard'){
+      depth = Math.min(4, baseDepth);
+    } else if(diff === 'challenge'){
+      depth = Math.max(5, baseDepth);
+    }
+
+    const col = pickMinimaxCol(board, depth);
+    if(col === null) return;
+    dropAiAt(col);
+  }
+
+  function updateTurnLine(){
+    if(winner === 'A' || winner === 'B'){
+      turnEl.textContent = '—';
+      winnerLine.innerHTML = `<strong style="color:gold">Winner: Player ${winner}</strong>`;
+    } else if(winner === 'draw'){
+      turnEl.textContent = '—';
+      winnerLine.innerHTML = '<strong style="color:gold">Draw game — well played!</strong>';
+    } else {
+      turnEl.textContent = 'Player ' + currentPlayer;
+      winnerLine.textContent = '';
+    }
+  }
+
+  function syncButtons(){
+    const solved = !!window.__orion_canPlace;
+    getQuestionBtn.disabled = solved; // don’t allow skipping after solved
+  }
+
+  function renderQuestion(){
+    if(currentPlayer !== 'A' || winner){
+      questionText.textContent = '—';
+      syncButtons();
+      return;
+    }
+
+    if(window.__orion_canPlace){
+      questionText.textContent = '✅ Correct — choose a column to drop your disc!';
+      syncButtons();
+      return;
+    }
+
+    if(!problem) problem = generateProblem();
+    questionText.textContent = problem.q;
+    syncButtons();
+  }
+
+  function updateXPUI(){
+    xpEl.textContent = String(xp);
+    streakEl.textContent = String(streak);
+    badgesEl.innerHTML = badges.map(b => `<span class="badge">${b}</span>`).join(' ');
+  }
+
+  function setWinner(p){
+    winner = p;
+    currentPlayer = null;
+    updateTurnLine();
+  }
+
+  function setDraw(){
+    winner = 'draw';
+    currentPlayer = null;
+    updateTurnLine();
+  }
+
+  function endTurn(){
+    saveStats();
+    updateXPUI();
+    updateTurnLine();
+    renderBoard();
+    renderQuestion();
+    stopTimer();
+  }
+
+  function resetGame(full=false){
+    board = Array.from({length: ROWS}, () => Array(COLS).fill(null));
+    currentPlayer = 'A';
+    winner = null;
+    problem = generateProblem();
+    window.__orion_canPlace = false;
+    stopTimer();
+
+    if(full){
+      xp = 0;
+      badges = [];
+      streak = 0;
+      saveStats();
+      updateXPUI();
+    }
+
+    renderBoard();
+    renderQuestion();
+    updateTurnLine();
+    maybeStartTimer();
+  }
+
+  function onColumnClick(col){
+    if(winner) return;
+    if(mode === null){
+      alert('Choose mode: Two Players or Hybrid AI.');
+      return;
+    }
+
+    if(currentPlayer === 'A'){
+      if(!window.__orion_canPlace){
+        alert('Player A must submit the correct answer (press Submit Answer) before placing.');
+        return;
+      }
+      const r = getDropRow(col);
+      if(r === null){
+        alert('Column full');
+        return;
+      }
+      board[r][col] = 'A';
+      window.__orion_canPlace = false;
+      renderBoard();
+
+      if(checkWinnerFor(board,'A')){
+        setWinner('A');
+        endTurn();
+        return;
+      }
+
+      xp += 10;
+      streak += 1;
+      if(streak % 5 === 0){
+        badges.push('🔥 Streak ' + streak);
+      }
+      saveStats();
+      updateXPUI();
+
+      if(isBoardFull()){
+        setDraw();
+        endTurn();
+        return;
+      }
+
+      // After a successful drop, now roll the next problem for when A returns
+      problem = generateProblem();
+
+      if(mode === 'hybrid'){
+        currentPlayer = 'B';
+        updateTurnLine();
+        stopTimer();
+        renderQuestion(); // clears while B moves
+        setTimeout(() => aiMove(), 700);
+      } else {
+        currentPlayer = 'B';
+        updateTurnLine();
+        renderQuestion();
+        stopTimer();
+      }
+    } else if(currentPlayer === 'B'){
+      if(mode === '2p'){
+        const r = getDropRow(col);
+        if(r === null) return;
+        board[r][col] = 'B';
+        renderBoard();
+
+        if(checkWinnerFor(board,'B')){
+          setWinner('B');
+          endTurn();
+          return;
+        }
+        if(isBoardFull()){
+          setDraw();
+          endTurn();
+          return;
+        }
+
+        currentPlayer = 'A';
+        window.__orion_canPlace = false;
+        renderQuestion();
+        updateTurnLine();
+        maybeStartTimer();
+      }
+    }
+  }
+
+  // Answer submit
+  submitAnswerBtn.addEventListener('click', () => {
+    if(currentPlayer !== 'A' || winner) return;
+
+    const raw = String(answerEl.value || '').trim();
+    if(raw === ''){
+      alert('Type an answer');
+      return;
+    }
+    const parsed = Number(raw);
+    if(Number.isNaN(parsed)){
+      alert('Invalid answer');
+      return;
+    }
+
+    if(problem && parsed === problem.a){
+      window.__orion_canPlace = true;
+      alert('Correct! Now click a column to drop your piece.');
+      stopTimer();
+    } else {
+      alert('Incorrect — turn lost.');
+      window.__orion_canPlace = false;
+      streak = 0;
+      saveStats();
+      updateXPUI();
+      currentPlayer = 'B';
+      updateTurnLine();
+      renderBoard();
+      stopTimer();
+      renderQuestion();
+      if(mode === 'hybrid'){
+        setTimeout(() => aiMove(), 700);
+      }
+    }
+
+    answerEl.value = '';
+
+    // Only roll a new problem if they did NOT earn placement permission
+    if(!window.__orion_canPlace){
+      problem = generateProblem();
+    }
+    renderQuestion();
+    syncButtons();
+  });
+
+  getQuestionBtn.addEventListener('click', () => {
+    if(window.__orion_canPlace) return; // safety
+    problem = generateProblem();
+    renderQuestion();
+    maybeStartTimer();
+  });
+
+  // Controls
+  modeSelect.addEventListener('change', (e) => {
+    const val = e.target.value;
+    mode = (val === 'choose') ? null : val;
+    resetGame(false);
+  });
+
+  gradeSelect.addEventListener('change', (e) => {
+    grade = Number(e.target.value);
+    resetGame(false);
+  });
+
+  topicSelect.addEventListener('change', (e) => {
+    topic = e.target.value;
+    problem = generateProblem();
+    window.__orion_canPlace = false;
+    renderQuestion();
+    maybeStartTimer();
+  });
+
+  difficultySelect.addEventListener('change', (e) => {
+    difficulty = e.target.value;
+    resetGame(false);
+  });
+
+  useTimerChk.addEventListener('change', (e) => {
+    useTimer = e.target.checked;
+    if(!useTimer){
+      stopTimer();
+    }else{
+      maybeStartTimer();
+    }
+  });
+
+  aiDepthInput.addEventListener('change', (e) => {
+    aiDepth = Number(e.target.value) || 4;
+  });
+
+  resetBtn.addEventListener('click', () => {
+    if(confirm('Reset the board?')){
+      resetGame(false);
+    }
+  });
+
+  clearStatsBtn.addEventListener('click', () => {
+    if(confirm('Clear XP & badges?')){
+      xp = 0;
+      badges = [];
+      streak = 0;
+      saveStats();
+      updateXPUI();
+    }
+  });
+
+  themeSelect.addEventListener('change', (e) => {
+    const app = document.getElementById('app');
+    app.className = 'container';
+    const v = e.target.value;
+    if(v === 'classic') app.classList.add('theme-classic');
+    if(v === 'nebula')  app.classList.add('theme-nebula');
+    if(v === 'forest')  app.classList.add('theme-forest');
+  });
+
+  // Timer
+  function maybeStartTimer(){
+    stopTimer();
+    if(!useTimer || currentPlayer !== 'A' || !mode || winner || window.__orion_canPlace){
+      timerLine.textContent = '';
+      return;
+    }
+
+    const g = Math.max(1, Number(grade));
+    timerSec = g <= 2 ? 30 : g <= 5 ? 25 : 20;
+
+    let t = timerSec;
+    timerLine.textContent = `Time left: ${t}s`;
+
+    timerInterval = setInterval(() => {
+      t--;
+      timerLine.textContent = `Time left: ${t}s`;
+      if(t <= 0){
+        clearInterval(timerInterval);
+        timerInterval = null;
+
+        alert('Time up — turn lost.');
+        window.__orion_canPlace = false;
+        streak = 0;
+        saveStats();
+        updateXPUI();
+
+        currentPlayer = 'B';
+        updateTurnLine();
+        stopTimer();
+        renderQuestion();
+
+        if(mode === 'hybrid'){
+          setTimeout(() => aiMove(), 600);
+        }
+      }
+    }, 1000);
+  }
+
+  function stopTimer(){
+    if(timerInterval){
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
+    timerLine.textContent = '';
+  }
+
+  // Init
+  function init(){
+    xp = safeNumber(localStorage.getItem('orion_xp'), 0);
+    badges = safeJSONParse(localStorage.getItem('orion_badges'), []);
+    streak = safeNumber(localStorage.getItem('orion_streak'), 0);
+
+    renderBoard();
+    problem = generateProblem();
+    window.__orion_canPlace = false;
+    renderQuestion();
+    updateXPUI();
+    updateTurnLine();
+    maybeStartTimer();
+  }
+
+  // Expose for quick console testing
+  window.orion = {
+    getBoard: () => board,
+    resetGame,
+    aiMove,
+    generateProblem
+  };
+
+  init();
+})();
+</script>
+</body>
+</html>
