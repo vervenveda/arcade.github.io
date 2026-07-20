@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Acts of Kindness — Kids Edition</title>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(120deg, #ffe778 0%, #ff9ceb 100%);
+      font-family: "Comic Sans MS","Comic Sans",cursive,Arial,sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 4vw 0;
+      box-sizing: border-box;
+    }
+    .kindness-kids-wrap {
+      background: linear-gradient(110deg, #fffbe2 60%, #ffe3d1 100%);
+      border-radius: 38px;
+      box-shadow: 0 8px 36px rgba(255,173,96,0.18),
+                  0 2.5px 18px rgba(255,193,194,0.11);
+      max-width: 420px;
+      width: 96vw;
+      margin: 0 auto;
+      padding: 38px 22px 26px 22px;
+      text-align: center;
+      position: relative;
+      border: 3.5px solid #ffc43d;
+      transition: box-shadow 0.4s;
+    }
+    h1 {
+      color: #ff7619;
+      font-size: 2.15em;
+      font-weight: 700;
+      margin: 0 0 10px 0;
+      text-shadow: 2px 2px #fff888, 0 0 10px #ffd1d1;
+      letter-spacing: 1.5px;
+    }
+    .desc {
+      color: #5b2f71;
+      font-size: 1.12em;
+      margin-bottom: 15px;
+      font-weight: bold;
+      text-shadow: 1px 1px #ffe0b2;
+    }
+    .kids-card {
+      background: #fffdd9;
+      border-radius: 22px;
+      min-height: 76px;
+      font-size: 1.22em;
+      font-weight: 600;
+      color: #194494;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2.5px 10px rgba(255,173,96,0.08);
+      padding: 28px 15px;
+      margin: 25px 0 0 0;
+      position: relative;
+      min-width: 190px;
+      border: 2.5px dashed #49b9f5;
+      transition: background 0.5s;
+      text-align: center;
+      letter-spacing: 0.5px;
+      /* animation hook */
+      opacity: 0;
+      transform: scale(0.9);
+    }
+    .kids-card.show {
+      animation: popIn 0.35s ease-out forwards;
+    }
+    @keyframes popIn {
+      0%   { opacity: 0; transform: scale(0.9); }
+      60%  { opacity: 1; transform: scale(1.05); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    .kids-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 16px;
+      margin: 26px 0 0 0;
+    }
+    .btn-kids {
+      background: linear-gradient(90deg, #ffe74b 75%, #6ee8ff 120%);
+      color: #2b0a71;
+      font-weight: bold;
+      border: none;
+      border-radius: 13px;
+      font-size: 1.09em;
+      padding: 14px 28px;
+      margin: 0;
+      cursor: pointer;
+      box-shadow: 0 2px 12px rgba(255, 222, 69, 0.12);
+      outline: none;
+      letter-spacing: 1px;
+      transition: background 0.18s, box-shadow 0.18s, transform 0.12s;
+    }
+    .btn-kids:hover,
+    .btn-kids:active {
+      background: linear-gradient(90deg,#ffd346 60%, #64cfff 130%);
+      box-shadow: 0 2px 24px rgba(120, 213, 255, 0.18);
+      transform: scale(1.04);
+    }
+    .btn-done {
+      background: #bdfd7d;
+      color: #35691a;
+      border: 2px solid #75df44;
+    }
+    .done-sticker {
+      display: inline-block;
+      background: #bfffa7;
+      color: #328f0a;
+      font-size: 1.07em;
+      border-radius: 14px;
+      padding: 4px 16px;
+      margin-top: 15px;
+      font-weight: bold;
+      border: 2px solid #6fdd51;
+      letter-spacing: 1px;
+      animation: tada 0.8s;
+    }
+    @keyframes tada {
+      0% {transform: scale(1);}
+      18% {transform: scale(1.22);}
+      36% {transform: scale(0.93);}
+      52% {transform: scale(1.09);}
+      100% {transform: scale(1);}
+    }
+
+    /* Today counter */
+    .today-counter {
+      margin-top: 10px;
+      font-size: 0.95em;
+      color: #804200;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+    .today-counter span {
+      font-weight: 800;
+    }
+    .today-counter.bump {
+      animation: bump 0.4s ease-out;
+    }
+    @keyframes bump {
+      0%   { transform: scale(1); }
+      30%  { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+
+    @media (max-width: 540px) {
+      .kindness-kids-wrap {
+        padding: 14px 2vw 12px 2vw;
+      }
+      .kids-card {
+        font-size: 1em;
+        min-width: 0;
+        padding: 22px 10px;
+      }
+      .btn-kids {
+        padding: 11px 6vw;
+        font-size: 0.97em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="kindness-kids-wrap">
+    <h1>Acts of Kindness</h1>
+    <div class="desc">
+      Tap the button for a fun kindness idea you can do today!
+    </div>
+
+    <!-- aria-live so new ideas are announced to screen readers -->
+    <div id="kidsCard"
+         class="kids-card"
+         aria-live="polite">
+    </div>
+
+    <div class="kids-actions">
+      <button class="btn-kids" id="nextKidsBtn">🎲 New Idea</button>
+      <button class="btn-kids btn-done" id="doneKidsBtn">✅ I Did This!</button>
+    </div>
+
+    <div id="doneSticker" class="done-sticker" style="display:none;">
+      Great job! 🌟
+    </div>
+
+    <div id="todayCounter" class="today-counter">
+      Today’s kindness count: <span id="todayCount">0</span> 💛
+    </div>
+  </div>
+
+  <script>
+    const KIDS_PROMPTS = [
+      "Make a picture for someone in your family.",
+      "Give a big smile to three people today!",
+      "Help clean up your room (even a little).",
+      "Make a card for your teacher or a helper.",
+      "Tell your pet (or a stuffed animal) you love them.",
+      "Pick up three pieces of litter outside.",
+      "Give a compliment to a friend or sibling.",
+      "Draw a happy face and put it in your window.",
+      "Share your favorite toy for a while.",
+      "Say 'thank you' to someone helping you today.",
+      "Write a story and read it to someone.",
+      "Give a gentle hug (with permission).",
+      "Help set the table for a meal.",
+      "Tell a joke and try to make someone laugh.",
+      "Give water to a plant or flower.",
+      "Make a bookmark and give it to someone.",
+      "Draw a rainbow and show your family.",
+      "Say 'good morning' to everyone you see.",
+      "Make a 'You Are Awesome' sign and show it.",
+      "Help someone carry something heavy.",
+      "Sing a song and invite someone to join in.",
+      "Make up a dance and show a friend.",
+      "Help a younger child with something.",
+      "Be extra polite for a whole hour!",
+      "Tell your family something you like about them.",
+      "Feed the birds or look for bugs outside.",
+      "Draw your favorite thing and talk about it.",
+      "Ask someone about their favorite food.",
+      "Make a card for someone who is sad.",
+      "Give someone a hug if they want one.",
+"Share your crayons or markers.",
+      "Help a friend tie their shoe.",
+"Say something kind about someone.",
+"Share stickers with a friend.",
+"Help clean the art table.",
+"Give a thumbs up to someone.",
+"Help stack chairs carefully.",
+"Ask a friend to join your game.",
+"Help put toys in the right bin.",
+"Say thank you to the bus driver.",
+"Help wipe the table.",
+"Give someone a gentle wave.",
+"Help carry your backpack.",
+"Share blocks during playtime.",
+"Help a friend follow the rules.",
+"Listen while someone is talking.",
+"Help return lost items.",
+"Cheer for a friend.",
+"Help wash hands together.",
+"Say good job to someone.",
+"Help put puzzles away.",
+"Invite someone to sit with you.",
+"Help organize crayons.",
+"Wait patiently for your turn.",
+"Help clean up outside.",
+"Be gentle with others.",
+"Help a friend pick up toys.",
+"Say something nice to a friend.",
+"Wave and smile at someone.",
+"Help feed a pet with an adult.",
+"Let someone else choose the game.",
+"Help set the table.",
+"Say please and thank you.",
+"Ask a friend if they want to play.",
+      "Ask if anyone needs help, then help them.",
+      "Hold hands with a friend while walking.",
+"Help put books back on the shelf.",
+"Give someone a high five.",
+"Share a snack if allowed.",
+"Help water the plants.",
+"Say good morning to someone.",
+"Help zip a friend’s jacket.",
+"Take turns during a game.",
+"Help carry something light.",
+"Tell someone you like their drawing.",
+"Help clean up after playtime.",
+"Sit with someone who is alone.",
+"Help push in chairs.",
+"Give a kind note to someone.",
+"Help feed the class pet.",
+"Say sorry if you make a mistake.",
+"Help a friend find something they lost.",
+"Clap for someone’s work.",
+"Hold the door for a teacher.",
+"Help pass out papers or supplies.",
+"Let someone go first.",
+"Help wash toys with an adult.",
+"Ask someone how they feel.",
+"Help line up nicely.",
+"Share a smile.",
+      "Say 'please' and 'thank you' all day.",
+      "Make a funny face to cheer someone up.",
+      "Help fold towels or clothes.",
+      "Give someone a 'high five' (or air high five!)."
+    ];
+
+    const COUNT_KEY = "KIDS_KINDNESS_COUNT_V1";
+
+    let lastKidsPrompt = "";
+    let todayCount = 0;
+
+    function todayString() {
+      return new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+    }
+
+    function updateCountDisplay() {
+      const span = document.getElementById("todayCount");
+      if (span) span.textContent = todayCount;
+    }
+
+    function loadTodayCount() {
+      try {
+        const raw = localStorage.getItem(COUNT_KEY);
+        if (!raw) {
+          todayCount = 0;
+        } else {
+          const data = JSON.parse(raw);
+          if (data.date === todayString() && typeof data.count === "number") {
+            todayCount = data.count;
+          } else {
+            todayCount = 0;
+          }
+        }
+      } catch (e) {
+        todayCount = 0;
+      }
+      updateCountDisplay();
+    }
+
+    function saveTodayCount() {
+      try {
+        localStorage.setItem(
+          COUNT_KEY,
+          JSON.stringify({ date: todayString(), count: todayCount })
+        );
+      } catch (e) {
+        // ignore storage errors (private mode, etc.)
+      }
+    }
+
+    function randomKidsPrompt() {
+      const card = document.getElementById("kidsCard");
+      // reset animation
+      card.classList.remove("show");
+
+      let idx = Math.floor(Math.random() * KIDS_PROMPTS.length);
+      let prompt = KIDS_PROMPTS[idx];
+
+      // avoid immediate repeat
+      while (prompt === lastKidsPrompt && KIDS_PROMPTS.length > 1) {
+        idx = Math.floor(Math.random() * KIDS_PROMPTS.length);
+        prompt = KIDS_PROMPTS[idx];
+      }
+
+      lastKidsPrompt = prompt;
+      card.textContent = prompt;
+      document.getElementById("doneSticker").style.display = "none";
+
+      // trigger animation on next frame
+      requestAnimationFrame(() => {
+        card.classList.add("show");
+      });
+    }
+
+    document.getElementById("nextKidsBtn").onclick = randomKidsPrompt;
+
+    document.getElementById("doneKidsBtn").onclick = function () {
+      document.getElementById("doneSticker").style.display = "inline-block";
+
+      todayCount += 1;
+      saveTodayCount();
+      updateCountDisplay();
+
+      const counter = document.getElementById("todayCounter");
+      counter.classList.remove("bump");
+      // re-trigger bump animation
+      void counter.offsetWidth; // force reflow
+      counter.classList.add("bump");
+    };
+
+    // initial setup
+    loadTodayCount();
+    randomKidsPrompt();
+  </script>
+</body>
+</html>
