@@ -1,0 +1,488 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Music Trivia — Mini Game (Khaemenes Academy)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg1:#070b16; --bg2:#0a1630;
+      --card:rgba(255,255,255,.06);
+      --border:rgba(255,255,255,.14);
+      --ink:#f5f7ff;
+      --muted:rgba(245,247,255,.82);
+      --accent:#6ee7ff;
+      --good:#a7f3d0;
+      --warn:#ffce8a;
+      --danger:#ff8a8a;
+      --r11:11px; --r21:21px;
+      --shadow:0 18px 45px rgba(0,0,0,.26);
+      --minFont:22px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      font-size:var(--minFont);
+      color:var(--ink);
+      background:
+        radial-gradient(900px 600px at 12% 0%, rgba(110,231,255,.14), transparent 60%),
+        radial-gradient(900px 600px at 88% 12%, rgba(167,243,208,.12), transparent 65%),
+        linear-gradient(180deg,var(--bg1),var(--bg2));
+      padding:14px;
+    }
+    .app{max-width:640px;margin:0 auto}
+    .panel{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:var(--r11);
+      box-shadow:var(--shadow);
+      padding:14px;
+      text-align:center;
+    }
+    h1{margin:6px 0 8px;font-size:clamp(28px,4vw,40px);font-weight:800}
+    .sub{margin:0 auto 10px;max-width:55ch;color:var(--muted);font-size:20px}
+    .row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;align-items:center;margin-top:10px}
+    .chip{
+      font-size:18px;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.16);
+      background:rgba(0,0,0,.14);
+      color:rgba(245,247,255,.92);
+      white-space:nowrap;
+    }
+    .chip.good{border-color:rgba(167,243,208,.35);background:rgba(167,243,208,.10)}
+    .chip.warn{border-color:rgba(255,206,138,.35);background:rgba(255,206,138,.10)}
+    .chip.accent{border-color:rgba(110,231,255,.35);background:rgba(110,231,255,.10)}
+    .card{
+      margin-top:12px;
+      padding:14px;
+      border-radius:var(--r11);
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(0,0,0,.14);
+      text-align:left;
+    }
+    .qTop{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center}
+    .qNum{font-weight:800}
+    .prompt{margin:10px 0 0;font-weight:800}
+    .choices{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+    label.choice{
+      display:flex;gap:10px;align-items:flex-start;
+      padding:10px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.06);
+      cursor:pointer;
+    }
+    label.choice:hover{background:rgba(255,255,255,.09)}
+    input[type="radio"]{transform:scale(1.2);margin-top:3px}
+    .btn{
+      appearance:none;
+      border:1px solid rgba(255,255,255,.16);
+      background:rgba(255,255,255,.07);
+      color:var(--ink);
+      border-radius:var(--r21);
+      padding:10px 14px;
+      font-size:20px;
+      cursor:pointer;
+      user-select:none;
+      transition:transform .05s ease, background .15s ease, border-color .15s ease;
+      white-space:nowrap;
+    }
+    .btn:hover{background:rgba(255,255,255,.10)}
+    .btn:active{transform:translateY(1px)}
+    .btn.primary{border-color:rgba(110,231,255,.35);background:rgba(110,231,255,.12)}
+    .btn.good{border-color:rgba(167,243,208,.35);background:rgba(167,243,208,.10)}
+    .btn.warn{border-color:rgba(255,206,138,.35);background:rgba(255,206,138,.10)}
+    .btn.danger{border-color:rgba(255,138,138,.35);background:rgba(255,138,138,.10)}
+    .tiny{font-size:18px;color:rgba(245,247,255,.80)}
+    .explain{
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(0,0,0,.12);
+      color:rgba(245,247,255,.86);
+      font-size:19px;
+      display:none;
+    }
+    .bar{
+      width:min(520px,90vw);
+      height:14px;
+      border-radius:999px;
+      background:rgba(255,255,255,.10);
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.12);
+      margin:8px auto 0;
+    }
+    .bar>div{
+      height:100%;
+      width:0%;
+      background:linear-gradient(90deg, rgba(110,231,255,.95), rgba(167,243,208,.95));
+    }
+    .divider{height:1px;background:rgba(255,255,255,.12);margin:12px 0}
+  </style>
+</head>
+<body>
+<div class="app">
+  <div class="panel">
+    <h1>🎵 Music Trivia</h1>
+    <p class="sub">20 quick questions. Learn a little, smile a little, then jump into the full course portal.</p>
+
+    <div class="row">
+      <span class="chip accent" id="qChip">Question 1/20</span>
+      <span class="chip" id="scoreChip">Score: 0</span>
+      <span class="chip good" id="bestChip">Best: 0</span>
+    </div>
+    <div class="bar" aria-label="progress"><div id="barFill"></div></div>
+
+    <div class="row" style="margin-top:12px">
+      <button class="btn" id="restartBtn">🔄 Restart</button>
+      <button class="btn good" id="reviewToggleBtn">✅ Show Explanations: Off</button>
+      <button class="btn primary" id="portalBtn">✨ Open Reading Music 101</button>
+    </div>
+  </div>
+
+  <div class="card" id="card">
+    <!-- question renders here -->
+  </div>
+
+  <div class="panel" style="margin-top:12px">
+    <div class="tiny">
+      Progress saves on this device. Perfect for home pages & quick engagement.
+    </div>
+  </div>
+</div>
+
+<script>
+/* =========================================
+   KHAEMENES — MUSIC TRIVIA MINI GAME (20 Q)
+   Wix-friendly single file, localStorage best score
+========================================= */
+
+const PORTAL_URL = "https://www.khaemenesacademy.org/music-101"; 
+// ✅ Change if your portal slug is different (e.g. /music-101)
+
+const STORE_KEY = "kha_music_trivia_v1";
+  
+  const PLAYER_KEY = "kha_music_player_v1";
+
+function loadPlayer(){
+  try{
+    return JSON.parse(localStorage.getItem(PLAYER_KEY)) || {
+      xp:0,
+      level:1,
+      streak:0,
+      stats:{} // per-question performance
+    };
+  }catch(e){
+    return {xp:0, level:1, streak:0, stats:{}};
+  }
+}
+
+function savePlayer(){
+  localStorage.setItem(PLAYER_KEY, JSON.stringify(player));
+}
+
+let player = loadPlayer();
+  
+  function addXP(correct){
+  let base = correct ? 12 : 3;
+  let bonus = player.streak * 2;
+
+  player.xp += base + bonus;
+
+  if(correct) player.streak++;
+  else player.streak = 0;
+
+  checkLevelUp();
+  savePlayer();
+}
+
+function checkLevelUp(){
+  let needed = player.level * 120;
+
+  if(player.xp >= needed){
+    player.level++;
+    player.xp = 0;
+
+    unlock(player.level);
+  }
+}
+
+function unlock(level){
+  if(level === 2) alert("⚡ Speed Mode Unlocked");
+  if(level === 3) alert("🧠 Adaptive Mode Enhanced");
+  if(level === 5) alert("🏆 Master Mode Unlocked");
+}
+
+const QUESTIONS = [
+  {p:"Treble clef marks the second line as which note?", c:["F","G","B","D"], a:1, e:"Treble clef ‘wraps’ around the G line (2nd line)."},
+  {p:"A staff has how many lines?", c:["4","5","6","8"], a:1, e:"Standard staff = 5 lines and 4 spaces."},
+  {p:"In 4/4 time, a quarter note usually equals…", c:["1 beat","2 beats","3 beats","4 beats"], a:0, e:"In 4/4, quarter note gets the beat (1)."},
+  {p:"Two eighth notes together equal…", c:["1 beat","2 beats","3 beats","4 beats"], a:0, e:"Two eighths = one quarter note’s duration (1 beat in 4/4)."},
+  {p:"Bass clef’s two dots surround the line for…", c:["G","F","C","E"], a:1, e:"Bass clef is the F-clef; dots surround F line."},
+
+  {p:"The musical alphabet goes…", c:["A–H","A–G","A–Z","G–A only"], a:1, e:"Music letter names repeat A, B, C, D, E, F, G."},
+  {p:"A sharp (♯) does what?", c:["Lowers a note","Raises a note","Cancels a note","Repeats a note"], a:1, e:"Sharp raises pitch; flat lowers pitch."},
+  {p:"A flat (♭) does what?", c:["Lowers a note","Raises a note","Speeds up tempo","Makes it louder"], a:0, e:"Flat lowers pitch."},
+  {p:"Order of sharps is…", c:["B E A D G C F","F C G D A E B","C D E F G A B","G F E D C B A"], a:1, e:"Sharps add in this order: F C G D A E B."},
+  {p:"In major scales, the step pattern is…", c:["W W H W W W H","H W H W H W H","W H W H W H W","W W W H H W H"], a:0, e:"Major scale = Whole, Whole, Half, Whole, Whole, Whole, Half."},
+
+  {p:"A tie connects…", c:["Different notes smoothly","Same pitch to extend duration","Only rests","Only loud notes"], a:1, e:"Tie = same pitch held longer across notes."},
+  {p:"Staccato usually means…", c:["Short & detached","Very loud","Very slow","Only in bass clef"], a:0, e:"Staccato dots indicate short, detached notes."},
+  {p:"Crescendo generally means…", c:["Get softer","Get louder","Repeat section","Slow down"], a:1, e:"Crescendo = gradually louder."},
+  {p:"An octave repeats the same…", c:["Rhythm","Letter name","Clef","Tempo"], a:1, e:"Octave = same letter name higher/lower."},
+  {p:"A step on the staff is usually a…", c:["2nd","4th","6th","8ve"], a:0, e:"Adjacent line/space is a 2nd (a step)."},
+
+  {p:"Counting letter names: C to G is a…", c:["3rd","4th","5th","6th"], a:2, e:"C-D-E-F-G = 5 letters → a 5th."},
+  {p:"In sight-reading, you should check first…", c:["The title","Key & time signatures","Dynamics only","How hard it looks"], a:1, e:"Key/time affect everything (notes, beat grouping)."},
+  {p:"Better sight-reading habit is…", c:["Stop for every mistake","Keep the beat moving","Always play fast","Never count out loud"], a:1, e:"Keeping beat builds flow; fix later in practice."},
+  {p:"A metronome helps you…", c:["Change key signatures","Keep a steady tempo","Make notes higher","Skip measures"], a:1, e:"Metronome supports steady timing and pulse."},
+  {p:"Daily practice that works best for beginners is often…", c:["90 min once a week","10–15 min daily","Only when inspired","Only fast playing"], a:1, e:"Short daily practice beats occasional marathons."}
+];
+
+// ---------- State ----------
+function load(){
+  const raw = localStorage.getItem(STORE_KEY);
+  if(!raw) return {i:0, score:0, answered:false, best:0, showExplain:false, order:shuffle([...Array(QUESTIONS.length).keys()])};
+  try{
+    const s = JSON.parse(raw);
+    if(!s.order || s.order.length!==QUESTIONS.length) s.order = shuffle([...Array(QUESTIONS.length).keys()]);
+    return s;
+  }catch(e){
+    return {i:0, score:0, answered:false, best:0, showExplain:false, order:shuffle([...Array(QUESTIONS.length).keys()])};
+  }
+}
+function save(){ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
+
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr;
+}
+
+let state = load();
+
+// ---------- Elements ----------
+const card = document.getElementById("card");
+const qChip = document.getElementById("qChip");
+const scoreChip = document.getElementById("scoreChip");
+const bestChip = document.getElementById("bestChip");
+const barFill = document.getElementById("barFill");
+
+document.getElementById("portalBtn").onclick = ()=> window.open(PORTAL_URL, "_blank", "noopener");
+document.getElementById("restartBtn").onclick = ()=>{
+  state.i=0; state.score=0; state.answered=false;
+  state.order = shuffle([...Array(QUESTIONS.length).keys()]);
+  save(); render();
+};
+document.getElementById("reviewToggleBtn").onclick = ()=>{
+  state.showExplain = !state.showExplain;
+  save(); render();
+};
+
+function updateTop(){
+  qChip.textContent = `Question ${Math.min(state.i+1, QUESTIONS.length)}/${QUESTIONS.length}`;
+  scoreChip.textContent = `Score: ${state.score}`;
+  bestChip.textContent = `Best: ${state.best || 0}`;
+  const pct = Math.round((state.i/QUESTIONS.length)*100);
+  barFill.style.width = pct + "%";
+  document.getElementById("reviewToggleBtn").textContent =
+    `✅ Show Explanations: ${state.showExplain ? "On" : "Off"}`;
+}
+
+function render(){
+  updateTop();
+
+  // finished screen
+  if(state.i >= QUESTIONS.length){
+    const pct = Math.round((state.score/QUESTIONS.length)*100);
+    barFill.style.width = "100%";
+    card.innerHTML = `
+      <div class="qTop">
+        <div class="qNum">🏁 Finished!</div>
+        <span class="chip good">Score: ${state.score}/${QUESTIONS.length} (${pct}%)</span>
+      </div>
+      <div class="divider"></div>
+      <div style="font-weight:800;margin-top:6px">Want to actually learn to read music?</div>
+      <p class="tiny" style="margin-top:8px">
+        Jump into the full <strong>Reading Music 101</strong> portal — lessons, practice labs, and weekly quizzes.
+      </p>
+      <div class="row">
+        <button class="btn primary" onclick="window.open('${PORTAL_URL}','_blank','noopener')">✨ Open Reading Music 101</button>
+        <button class="btn good" onclick="document.getElementById('restartBtn').click()">🔄 Play Again</button>
+      </div>
+    `;
+    return;
+  }
+
+  const qIndex = pickQuestion();
+  
+  function pickQuestion(){
+  let weights = QUESTIONS.map((q, i)=>{
+    let stat = player.stats[i] || {c:0, w:0};
+
+    let errorRate = (stat.w + 1) / (stat.c + stat.w + 2);
+
+    return errorRate; // higher error = more likely
+  });
+
+  let total = weights.reduce((a,b)=>a+b,0);
+  let r = Math.random() * total;
+
+  for(let i=0;i<weights.length;i++){
+    if(r < weights[i]) return i;
+    r -= weights[i];
+  }
+
+  return Math.floor(Math.random()*QUESTIONS.length);
+}
+  const q = QUESTIONS[qIndex];
+
+  card.innerHTML = `
+    <div class="qTop">
+      <div class="qNum">🎯 Question ${state.i+1}</div>
+      <span class="chip accent">Pick one</span>
+    </div>
+
+    <div class="prompt">${escapeHtml(q.p)}</div>
+
+    <div class="choices">
+      ${q.c.map((txt, idx)=>`
+        <label class="choice">
+          <input type="radio" name="ans" value="${idx}" ${state.answered ? "disabled" : ""}/>
+          <span>${escapeHtml(txt)}</span>
+        </label>
+      `).join("")}
+    </div>
+
+    <div class="row" style="justify-content:space-between">
+      <button class="btn ${state.answered ? "good" : ""}" id="nextBtn" ${state.answered ? "" : "disabled"}>${state.answered ? "Next ➡" : "Choose an answer"}</button>
+      <button class="btn warn" id="skipBtn" ${state.answered ? "disabled" : ""}>Skip</button>
+    </div>
+
+    <div class="explain" id="explainBox"></div>
+  `;
+
+  const explainBox = document.getElementById("explainBox");
+
+  function showExplain(correct, chosen){
+    if(!state.showExplain){
+      explainBox.style.display = "none";
+      return;
+    }
+    explainBox.style.display = "block";
+    explainBox.innerHTML = `
+      <strong>${correct ? "✅ Correct!" : "Not quite."}</strong>
+      <div style="margin-top:6px" class="tiny">
+        ${escapeHtml(q.e)}
+        ${!correct ? `<div style="margin-top:6px"><strong>Correct answer:</strong> ${escapeHtml(q.c[q.a])}</div>` : ""}
+      </div>
+    `;
+  }
+
+  card.querySelectorAll("input[name='ans']").forEach(r=>{
+    r.onchange = ()=>{
+      const chosen = parseInt(r.value,10);
+      state.answered = true;
+
+      recordAnswer(qIndex, correct);
+addXP(correct);
+      
+      function recordAnswer(index, correct){
+  if(!player.stats[index]){
+    player.stats[index] = {c:0, w:0};
+  }
+
+  if(correct) player.stats[index].c++;
+  else player.stats[index].w++;
+
+  savePlayer();
+}
+      
+      function getAdaptiveDelay(){
+  let base = 800;
+
+  if(player.level >= 3) base -= 200;
+  if(player.streak >= 5) base -= 200;
+  if(player.streak === 0) base += 300;
+
+  return Math.max(300, base);
+}
+      
+      
+      if(correct) state.score += 1;
+
+      // update best immediately if finishing later
+      if(state.i === QUESTIONS.length-1){
+        const finalScore = state.score;
+        state.best = Math.max(state.best || 0, finalScore);
+      }
+
+      save();
+      updateTop();
+
+      // lock inputs
+      card.querySelectorAll("input[name='ans']").forEach(x=>x.disabled=true);
+
+      // highlight selection + correct (simple)
+      const labels = Array.from(card.querySelectorAll("label.choice"));
+      labels.forEach((lab, idx)=>{
+        lab.style.borderColor = "rgba(255,255,255,.12)";
+        lab.style.background = "rgba(255,255,255,.06)";
+        if(idx === chosen){
+          lab.style.borderColor = correct ? "rgba(167,243,208,.55)" : "rgba(255,138,138,.55)";
+          lab.style.background = correct ? "rgba(167,243,208,.10)" : "rgba(255,138,138,.10)";
+        }
+        if(idx === q.a){
+          lab.style.borderColor = "rgba(167,243,208,.55)";
+          lab.style.background = "rgba(167,243,208,.10)";
+        }
+      });
+
+      // enable next
+      const nextBtn = document.getElementById("nextBtn");
+      nextBtn.disabled = false;
+      nextBtn.textContent = "Next ➡";
+
+      showExplain(correct, chosen);
+    };
+  });
+
+  document.getElementById("skipBtn").onclick = ()=>{
+    state.i += 1;
+    state.answered = false;
+    if(state.i >= QUESTIONS.length){
+      state.best = Math.max(state.best || 0, state.score);
+    }
+    save(); render();
+  };
+
+  document.getElementById("nextBtn").onclick = ()=>{
+    state.i += 1;
+    state.answered = false;
+
+    if(state.i >= QUESTIONS.length){
+      state.best = Math.max(state.best || 0, state.score);
+    }
+    save(); render();
+  };
+
+  // if explanations off, keep hidden
+  showExplain(false, null);
+}
+
+function escapeHtml(str){
+  return String(str).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
+}
+
+// Init
+render();
+</script>
+</body>
+</html>
