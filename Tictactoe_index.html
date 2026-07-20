@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tic Tac Toe</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    display:flex; justify-content:center; align-items:center;
+    flex-direction:column; margin:11px 24px 11px; height:77vh; background:#f0f0f0;
+  }
+  h1 { margin-bottom:24px; }
+  #settings { margin-bottom:14px; display:flex; gap:11px; align-items:center; flex-wrap:wrap; }
+  #board {
+    display:grid;
+    grid-template-columns: repeat(3, 88px);
+    grid-template-rows: repeat(3, 88px);
+    gap:6px;
+  }
+  .cell {
+    width:88px; height:88px;
+    background:#fff; display:flex; justify-content:center; align-items:center;
+    font-size:2em; cursor:pointer; border:1px solid #333; user-select:none;
+    transition:0.2s all;
+  }
+  .cell.taken { cursor:not-allowed; color:#999; }
+  .cell.win { background: #ffd700; }
+  .cell.hint { box-shadow:0 0 0 3px #22c55e inset; }
+  #message { margin-top:14px; font-size:1.2em; min-height:1.4em; text-align:center; }
+  #buttons { margin-top:11px; display:flex; gap:7px; flex-wrap:wrap; justify-content:center; }
+  #resetBtn, #hintBtn {
+    padding:7px 11px; font-size:1em; cursor:pointer;
+    border:none; border-radius:7px; background:#4c6ef5; color:white;
+  }
+  #resetBtn:hover, #hintBtn:hover { background:#6b8cff; }
+  #stats { margin-top:15px; font-size:0.95em; }
+  select { padding:3px 5px; font-size:1em; }
+</style>
+</head>
+<body>
+
+<h1>Tic Tac Toe</h1>
+
+<div id="settings">
+  <span>AI Difficulty:</span>
+  <select id="difficulty">
+    <option value="easy">Easy</option>
+    <option value="medium">Medium</option>
+    <option value="hard" selected>Hard</option>
+  </select>
+</div>
+
+<div id="board">
+  <div class="cell" data-index="0"></div>
+  <div class="cell" data-index="1"></div>
+  <div class="cell" data-index="2"></div>
+  <div class="cell" data-index="3"></div>
+  <div class="cell" data-index="4"></div>
+  <div class="cell" data-index="5"></div>
+  <div class="cell" data-index="6"></div>
+  <div class="cell" data-index="7"></div>
+  <div class="cell" data-index="8"></div>
+</div>
+
+<div id="message">Your turn!</div>
+
+<div id="buttons">
+  <button id="resetBtn">Reset Game</button>
+  <button id="hintBtn">AI Hint</button>
+</div>
+
+<div id="stats">
+  Wins: <span id="wins">0</span> |
+  Losses: <span id="losses">0</span> |
+  Draws: <span id="draws">0</span> |
+  Total: <span id="total">0</span>
+</div>
+
+<script>
+const cells = Array.from(document.querySelectorAll('.cell'));
+const message = document.getElementById('message');
+const difficultySelect = document.getElementById('difficulty');
+let board = Array(9).fill('');
+let player = 'X';
+let ai = 'O';
+let gameOver = false;
+
+// For minimax labels
+const huPlayer = 'X';
+const aiPlayer = 'O';
+
+// AI memory for hard/medium pattern-avoidance (kept from original)
+let aiMemory = JSON.parse(localStorage.getItem('ticTacToeAI') || '{}');
+
+// Game stats
+let stats = JSON.parse(localStorage.getItem('ticTacToeStats') || '{"wins":0,"losses":0,"draws":0,"total":0}');
+updateStatsDisplay();
+
+// Winning combinations
+const winCombos = [
+  [0,1,2],[3,4,5],[6,7,8],
+  [0,3,6],[1,4,7],[2,5,8],
+  [0,4,8],[2,4,6]
+];
+
+// Check win
+function checkWin(b, p){
+  for(let combo of winCombos){
+    if(combo.every(i=>b[i]===p)) return combo;
+  }
+  return null;
+}
+
+// Check draw
+function checkDraw(b){
+  return b.every(cell=>cell);
+}
+
+// Save AI memory after game
+function rememberGame(finalBoard, outcome){
+  let key = finalBoard.join('');
+  aiMemory[key] = outcome; // "win", "loss", "draw"
+  localStorage.setItem('ticTacToeAI', JSON.stringify(aiMemory));
+}
+
+// Update stats display
+function updateStatsDisplay(){
+  document.getElementById('wins').textContent = stats.wins;
+  document.getElementById('losses').textContent = stats.losses;
+  document.getElementById('draws').textContent = stats.draws;
+  document.getElementById('total').textContent = stats.total;
+  localStorage.setItem('ticTacToeStats', JSON.stringify(stats));
+}
+
+// ---------- Minimax (perfect-play AI for Hard) ----------
+function emptyIndices(b){
+  const out=[];
+  for(let i=0;i<9;i++){
+    if(!b[i]) out.push(i);
+  }
+  return out;
+}
+
+function hasWon(b, p){
+  return !!checkWin(b,p);
+}
+
+function minimax(newBoard, currentPlayer){
+  const availSpots = emptyIndices(newBoard);
+
+  if(hasWon(newBoard, huPlayer)) return {score: -10};
+  if(hasWon(newBoard, aiPlayer)) return {score: 10};
+  if(availSpots.length === 0) return {score: 0};
+
+  const moves = [];
+
+  for(let i=0;i<availSpots.length;i++){
+    const idx = availSpots[i];
+    const move = { index: idx };
+
+    newBoard[idx] = currentPlayer;
+    const result = minimax(newBoard, currentPlayer === aiPlayer ? huPlayer : aiPlayer);
+    move.score = result.score;
+    newBoard[idx] = '';
+
+    moves.push(move);
+  }
+
+  let bestMoveIndex = 0;
+  if(currentPlayer === aiPlayer){
+    let bestScore = -Infinity;
+    for(let i=0;i<moves.length;i++){
+      if(moves[i].score > bestScore){
+        bestScore = moves[i].score;
+        bestMoveIndex = i;
+      }
+    }
+  } else {
+    let bestScore = Infinity;
+    for(let i=0;i<moves.length;i++){
+      if(moves[i].score < bestScore){
+        bestScore = moves[i].score;
+        bestMoveIndex = i;
+      }
+    }
+  }
+  return moves[bestMoveIndex];
+}
+
+// Choose AI move index according to difficulty
+function chooseAiMoveIndex(){
+  const empty = board.reduce((arr,val,i)=>{ if(!val) arr.push(i); return arr;},[]);
+  if(!empty.length) return null;
+  const difficulty = difficultySelect.value;
+
+  // Easy: purely random
+  if(difficulty === 'easy'){
+    return empty[Math.floor(Math.random()*empty.length)];
+  }
+
+  // Medium & Hard share: try immediate win
+  for(const idx of empty){
+    const testBoard = board.slice();
+    testBoard[idx] = ai;
+    if(checkWin(testBoard, ai)) return idx;
+  }
+
+  // Block player win
+  for(const idx of empty){
+    const testBoard = board.slice();
+    testBoard[idx] = player;
+    if(checkWin(testBoard, player)) return idx;
+  }
+
+  // Medium: use memory to avoid known-losing patterns, then random
+  if(difficulty === 'medium'){
+    const safeMoves = empty.filter(idx=>{
+      const testBoard = board.slice();
+      testBoard[idx] = ai;
+      const key = testBoard.join('');
+      return aiMemory[key] !== 'loss';
+    });
+    const pool = safeMoves.length ? safeMoves : empty;
+    return pool[Math.floor(Math.random()*pool.length)];
+  }
+
+  // Hard: full minimax perfect play
+  const best = minimax(board.slice(), aiPlayer);
+  if(best && typeof best.index === 'number') return best.index;
+
+  // Fallback random
+  return empty[Math.floor(Math.random()*empty.length)];
+}
+
+// AI move
+function aiMove(){
+  if(gameOver) return;
+  const idx = chooseAiMoveIndex();
+  if(idx === null || idx === undefined) return;
+  const cell = cells[idx];
+  play(cell, ai);
+}
+
+// AI hint (highlight best move)
+function aiHint(){
+  if(gameOver) return;
+  const idx = chooseAiMoveIndex();
+  if(idx === null || idx === undefined){
+    message.textContent = "No hint available.";
+    return;
+  }
+  cells.forEach(c=>c.classList.remove('hint'));
+  const cell = cells[idx];
+  cell.classList.add('hint');
+  message.textContent = "AI suggests this square in green.";
+}
+
+// Play move
+function play(cell, p){
+  if(gameOver || cell.textContent) return;
+
+  // Clear any previous hint highlight
+  cells.forEach(c=>c.classList.remove('hint'));
+
+  cell.textContent = p;
+  cell.classList.add('taken');
+  board[cell.dataset.index] = p;
+
+  const winCombo = checkWin(board, p);
+  if(winCombo){
+    gameOver = true;
+    winCombo.forEach(i=>cells[i].classList.add('win'));
+    message.textContent = p === player ? "You win!" : "AI wins!";
+    if(p===player){
+      stats.wins++;
+      rememberGame(board, 'loss'); // loss for AI
+    } else {
+      stats.losses++;
+      rememberGame(board, 'win');
+    }
+    stats.total++;
+    updateStatsDisplay();
+  } else if(checkDraw(board)){
+    gameOver = true;
+    message.textContent = "Draw!";
+    stats.draws++; stats.total++;
+    rememberGame(board, 'draw');
+    updateStatsDisplay();
+  } else {
+    if(p===player){
+      message.textContent = "AI's turn...";
+      setTimeout(aiMove, 400);
+    } else {
+      message.textContent = "Your turn!";
+    }
+  }
+}
+
+// Reset game
+document.getElementById('resetBtn').onclick = () => {
+  board.fill('');
+  cells.forEach(c=>{
+    c.textContent='';
+    c.classList.remove('taken','win','hint');
+  });
+  gameOver = false;
+  message.textContent = "Your turn!";
+};
+
+// Player click
+cells.forEach(cell=>{
+  cell.addEventListener('click',()=>play(cell,player));
+});
+
+// Hint button
+document.getElementById('hintBtn').onclick = aiHint;
+</script>
+
+</body>
+</html>
