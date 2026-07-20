@@ -1,0 +1,568 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Quick Bible Quiz — Verve N Veda</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#070b12;
+      --card: rgba(255,255,255,0.06);
+      --stroke: rgba(255,255,255,0.14);
+      --text:#f2f4f8;
+      --muted:#c7cfdd;
+      --accent:#86f0d7;
+      --accent2:#7fb3ff;
+      --good:#7CFFB2;
+      --bad:#ff8a8a;
+      --warn:#ffd27d;
+      --r11:11px;
+      --r21:21px;
+      --shadow: 0 18px 55px rgba(0,0,0,0.35);
+      --base:22px; /* never smaller than 22px */
+    }
+    html,body{height:88%;}
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      font-size: var(--base);
+      line-height: 1.35;
+      color: var(--text);
+      background:
+        radial-gradient(900px 420px at 20% 10%, rgba(134,240,215,0.12), transparent 60%),
+        radial-gradient(900px 420px at 80% 15%, rgba(127,179,255,0.12), transparent 60%),
+        linear-gradient(180deg, #050712, #0b1220 45%, #0f1b2f);
+      overflow-x:hidden;
+    }
+
+    .wrap{
+      width: min(94vw, 520px); /* home-page friendly */
+      margin: 14px auto;
+      padding: 12px;
+    }
+
+    .panel{
+      background: var(--card);
+      border: 1px solid var(--stroke);
+      border-radius: var(--r21);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+
+    header{
+      padding: 14px 14px 10px;
+      text-align:center;
+      border-bottom: 1px solid rgba(255,255,255,0.10);
+    }
+    .title{
+      margin:0;
+      font-size: 30px;
+      font-weight: 800;
+      letter-spacing: 0.2px;
+    }
+    .sub{
+      margin: 8px auto 0;
+      color: var(--muted);
+      font-size: 18px;
+      max-width: 46ch;
+    }
+
+    .body{
+      padding: 14px;
+    }
+
+    .stats{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      margin-bottom: 12px;
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    .bar{
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.10);
+      overflow:hidden;
+      border: 1px solid rgba(255,255,255,0.12);
+      margin: 6px 0 14px;
+    }
+    .bar > div{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, rgba(134,240,215,0.9), rgba(127,179,255,0.9));
+    }
+
+    .card{
+      background: rgba(255,255,255,0.055);
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: var(--r21);
+      padding: 12px 14px;
+    }
+
+    .qline{
+      font-weight: 800;
+      font-size: 22px;
+      margin: 0 0 10px;
+    }
+
+    .ref{
+      color: var(--muted);
+      font-size: 18px;
+      margin-top: 6px;
+    }
+    .ref a{ color: var(--accent2); text-decoration:none; }
+    .ref a:hover{ text-decoration:underline; }
+
+    .options{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      margin-top: 12px;
+    }
+
+    .opt{
+      text-align:left;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(0,0,0,0.10);
+      border-radius: var(--r21);
+      padding: 12px 12px;
+      cursor:pointer;
+      color: var(--text);
+      font-size: 20px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      user-select:none;
+      transition: transform .08s ease, border-color .12s ease, background .12s ease;
+    }
+    .opt:hover{ transform: translateY(-1px); border-color: rgba(255,255,255,0.24); background: rgba(255,255,255,0.06);}
+    .opt:active{ transform: translateY(0px); }
+
+    .pill{
+      font-size: 16px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.16);
+      color: var(--muted);
+      background: rgba(0,0,0,0.12);
+      white-space:nowrap;
+    }
+
+    .feedback{
+      margin-top: 12px;
+      border-radius: var(--r21);
+      padding: 12px 14px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(0,0,0,0.10);
+      color: var(--muted);
+      font-size: 19px;
+      display:none;
+    }
+    .feedback.good{ border-color: rgba(124,255,178,0.30); color: var(--good); background: rgba(124,255,178,0.06); }
+    .feedback.bad{ border-color: rgba(255,138,138,0.30); color: var(--bad); background: rgba(255,138,138,0.06); }
+
+    .row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:center;
+      margin-top: 12px;
+    }
+
+    .btn{
+      border:1px solid var(--stroke);
+      background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.04));
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: var(--r21);
+      cursor:pointer;
+      font-size: 20px;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.18);
+      user-select:none;
+      text-decoration:none;
+    }
+    .btn:hover{transform: translateY(-1px); border-color: rgba(255,255,255,0.24);}
+    .btn:active{transform: translateY(0px);}
+
+    .btn.primary{
+      border-color: rgba(134,240,215,0.35);
+      background: linear-gradient(180deg, rgba(134,240,215,0.16), rgba(255,255,255,0.05));
+    }
+    .btn.secondary{
+      background: rgba(255,255,255,0.05);
+    }
+
+    .footerNote{
+      text-align:center;
+      color: var(--muted);
+      font-size: 18px;
+      margin-top: 12px;
+      opacity: 0.95;
+    }
+
+    /* Confetti canvas overlay */
+    canvas#confetti{
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      z-index:9999;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="confetti"></canvas>
+
+  <div class="wrap">
+    <div class="panel">
+      <header>
+        <h1 class="title">Bible Knowledge Pop-Quiz</h1>
+        <div class="sub">20 questions • self-paced • instant feedback • then jump into the full class portal</div>
+      </header>
+
+      <div class="body" id="app">
+        <!-- injected -->
+      </div>
+    </div>
+
+    <div class="footerNote">
+      Built for Verve N Veda • Progress saves on this device
+    </div>
+  </div>
+
+<script>
+/* =========================
+   CONFIG
+========================= */
+const PORTAL_URL = "https://www.khaemenesacademy.org/faith-knowledge"; // <-- replace this
+
+const STORAGE_KEY = "verve_quick_bible_quiz_v1";
+
+/* =========================
+   QUESTIONS (20)
+   - No full verse text (translation licensing varies)
+   - Uses references + simple knowledge prompts
+========================= */
+const QUESTIONS = [
+  { type:"mc", q:"Who built the ark?", ref:"Genesis 6–9", options:["Moses","Noah","Abraham","David"], a:1, explain:"Noah built the ark at God’s instruction (Genesis 6–9)." },
+  { type:"mc", q:"In the beginning, God created the…", ref:"Genesis 1:1", options:["Temple","Heavens and the earth","Mountains only","Animals first"], a:1, explain:"Genesis 1:1 says God created the heavens and the earth." },
+  { type:"tf", q:"The Ten Commandments were given to Moses.", ref:"Exodus 20", a:true, explain:"Exodus 20 records the Ten Commandments given to Moses." },
+  { type:"mc", q:"Who led Israel out of Egypt?", ref:"Exodus 3–14", options:["Joshua","Moses","Solomon","Elijah"], a:1, explain:"Moses led Israel out of Egypt (Exodus 3–14)." },
+  { type:"mc", q:"David defeated Goliath using a…", ref:"1 Samuel 17", options:["Sword","Sling","Spear","Bow"], a:1, explain:"David used a sling and a stone (1 Samuel 17)." },
+
+  { type:"tf", q:"The Psalms are mostly songs and prayers.", ref:"Psalms", a:true, explain:"Psalms is a collection of songs, prayers, and worship poems." },
+  { type:"mc", q:"Which book is known for wisdom sayings (proverbs)?", ref:"Proverbs", options:["Leviticus","Proverbs","Judges","Hosea"], a:1, explain:"Proverbs contains wisdom sayings and practical guidance." },
+  { type:"tf", q:"Jonah was swallowed by a great fish.", ref:"Jonah 1–2", a:true, explain:"Jonah 1–2 describes Jonah being swallowed by a great fish." },
+
+  { type:"mc", q:"Jesus was born in…", ref:"Matthew 1–2; Luke 1–2", options:["Nazareth","Jerusalem","Bethlehem","Capernaum"], a:2, explain:"Jesus’ birth is recorded in Bethlehem (Matthew 2; Luke 2)." },
+  { type:"mc", q:"How many Gospels are in the New Testament?", ref:"Matthew–John", options:["2","3","4","5"], a:2, explain:"There are four Gospels: Matthew, Mark, Luke, John." },
+  { type:"tf", q:"Jesus chose 12 apostles.", ref:"Matthew 10; Mark 3; Luke 6", a:true, explain:"The Gospels record Jesus appointing twelve apostles." },
+  { type:"mc", q:"The Lord’s Prayer is found in…", ref:"Matthew 6; Luke 11", options:["Matthew 6","Romans 8","Revelation 21","Acts 2"], a:0, explain:"The Lord’s Prayer appears in Matthew 6 (and also Luke 11)." },
+
+  { type:"tf", q:"The parable of the Good Samaritan is in the Gospel of Luke.", ref:"Luke 10:25–37", a:true, explain:"Luke 10:25–37 contains the Good Samaritan parable." },
+  { type:"mc", q:"What did Jesus turn into wine at a wedding?", ref:"John 2:1–11", options:["Milk","Water","Oil","Honey"], a:1, explain:"Jesus turned water into wine (John 2:1–11)." },
+
+  { type:"mc", q:"After Jesus’ resurrection, He appeared to many witnesses; this is emphasized in…", ref:"1 Corinthians 15", options:["James 1","1 Corinthians 15","Philemon","3 John"], a:1, explain:"1 Corinthians 15 highlights the resurrection witnesses." },
+  { type:"tf", q:"The Holy Spirit came upon believers at Pentecost in Acts 2.", ref:"Acts 2", a:true, explain:"Acts 2 describes Pentecost and the Spirit’s coming." },
+  { type:"mc", q:"Paul’s dramatic conversion is recorded in…", ref:"Acts 9", options:["Acts 9","Matthew 5","Genesis 12","Revelation 2"], a:0, explain:"Acts 9 records Saul/Paul’s conversion." },
+
+  { type:"tf", q:"Ephesians 2 teaches we are saved by grace through faith.", ref:"Ephesians 2:8–10", a:true, explain:"Ephesians 2:8–10 says salvation is by grace through faith." },
+  { type:"mc", q:"“Love is patient, love is kind…” is found in…", ref:"1 Corinthians 13", options:["Romans 12","1 Corinthians 13","Galatians 5","Hebrews 11"], a:1, explain:"1 Corinthians 13 contains the famous love passage." },
+  { type:"mc", q:"Revelation 21 describes…", ref:"Revelation 21:1–5", options:["The birth of Jesus","A new heaven and new earth","The Exodus","The Ten Commandments"], a:1, explain:"Revelation 21 describes the new heaven and new earth." },
+];
+
+/* =========================
+   STATE
+========================= */
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return null;
+    return JSON.parse(raw);
+  }catch(e){ return null; }
+}
+function saveState(st){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(st));
+}
+function newGame(){
+  const order = shuffle([...Array(QUESTIONS.length).keys()]);
+  return {
+    i: 0,
+    order,
+    score: 0,
+    answered: 0,
+    best: (loadState()?.best ?? 0),
+    done: false,
+    lastResult: null
+  };
+}
+
+let state = loadState() || newGame();
+
+/* =========================
+   RENDER
+========================= */
+const app = document.getElementById("app");
+const confettiCanvas = document.getElementById("confetti");
+const ctx = confettiCanvas.getContext("2d");
+let confettiPieces = [];
+let confettiOn = false;
+
+function render(){
+  const total = QUESTIONS.length;
+
+  if(state.done){
+    const pct = Math.round((state.score / total) * 100);
+    const best = Math.max(state.best, state.score);
+
+    app.innerHTML = `
+      <div class="stats">
+        <div><span class="pill">Finished</span></div>
+        <div>Best: <b>${best} / ${total}</b></div>
+      </div>
+
+      <div class="bar"><div style="width:100%"></div></div>
+
+      <div class="card">
+        <div class="qline">Your Score: <span style="color:var(--accent);">${state.score} / ${total}</span> (${pct}%)</div>
+        <div style="color:var(--muted); font-size:19px;">
+          Want the full experience? Enter the guided, self-paced <b>Foundations of Faith</b> class portal with weekly lessons + homework.
+        </div>
+
+        <div class="row" style="margin-top:14px;">
+          <a class="btn primary" href="${escapeHtml(PORTAL_URL)}" target="_blank" rel="noopener">✨ Enter the Class Portal</a>
+          <button class="btn secondary" id="playAgain">🔁 Play Again</button>
+        </div>
+
+        <div style="margin-top:12px; color:var(--muted); font-size:18px;">
+          Tip: Share this page with friends — it’s quick, friendly, and builds momentum.
+        </div>
+      </div>
+    `;
+
+    document.getElementById("playAgain").onclick = () => {
+      state = newGame();
+      saveState(state);
+      render();
+      window.scrollTo({top:0, behavior:"smooth"});
+    };
+    return;
+  }
+
+  const totalAnswered = state.answered;
+  const progressPct = Math.round((totalAnswered / total) * 100);
+
+  const qIndex = state.order[state.i];
+  const q = QUESTIONS[qIndex];
+
+  app.innerHTML = `
+    <div class="stats">
+      <div><span class="pill">Question ${state.answered + 1} / ${total}</span></div>
+      <div>Score: <b>${state.score}</b></div>
+      <div><a class="btn secondary" style="padding:8px 12px; font-size:18px;" href="${escapeHtml(PORTAL_URL)}" target="_blank" rel="noopener">Open Portal</a></div>
+    </div>
+
+    <div class="bar"><div style="width:${progressPct}%"></div></div>
+
+    <div class="card">
+      <div class="qline">${escapeHtml(q.q)}</div>
+
+      <div class="options" id="options"></div>
+
+      <div class="ref">
+        Reference: <b>${escapeHtml(q.ref)}</b>
+        &nbsp;•&nbsp;
+        <a target="_blank" rel="noopener" href="https://www.biblegateway.com/passage/?search=${encodeURIComponent(q.ref)}">Open passage</a>
+      </div>
+
+      <div class="feedback" id="feedback"></div>
+
+      <div class="row">
+        <button class="btn secondary" id="skip">Skip</button>
+        <button class="btn secondary" id="restart">↺ Restart</button>
+      </div>
+    </div>
+  `;
+
+  // build options
+  const optionsEl = document.getElementById("options");
+  const feedbackEl = document.getElementById("feedback");
+
+  const options = (q.type === "tf") ? ["True","False"] : q.options;
+  options.forEach((opt, idx) => {
+    const b = document.createElement("button");
+    b.className = "opt";
+    b.type = "button";
+    b.innerHTML = `<span class="pill">${String.fromCharCode(65 + idx)}</span> <span>${escapeHtml(opt)}</span>`;
+    b.onclick = () => answer(idx);
+    optionsEl.appendChild(b);
+  });
+
+  document.getElementById("skip").onclick = () => {
+    showFeedback("Skipped. You can catch it next round.", "neutral");
+    nextQuestion();
+  };
+  document.getElementById("restart").onclick = () => {
+    state = newGame();
+    saveState(state);
+    render();
+    window.scrollTo({top:0, behavior:"smooth"});
+  };
+
+  // show feedback from last action if any
+  if(state.lastResult){
+    showFeedback(state.lastResult.msg, state.lastResult.kind);
+  }
+
+  function showFeedback(msg, kind){
+    feedbackEl.style.display = "block";
+    feedbackEl.className = "feedback";
+    feedbackEl.textContent = msg;
+
+    if(kind === "good") feedbackEl.classList.add("good");
+    if(kind === "bad") feedbackEl.classList.add("bad");
+  }
+
+  function answer(choiceIdx){
+    const correctIdx = (q.type === "tf") ? (q.a ? 0 : 1) : q.a;
+    const ok = (choiceIdx === correctIdx);
+
+    state.answered++;
+    if(ok) state.score++;
+
+    state.lastResult = {
+      kind: ok ? "good" : "bad",
+      msg: ok
+        ? `Correct ✅ ${q.explain}`
+        : `Not quite ❌ Correct answer: ${options[correctIdx]}. ${q.explain}`
+    };
+
+    // save best
+    state.best = Math.max(state.best || 0, state.score);
+    saveState(state);
+
+    // fun confetti on strong streaks
+    if(ok && (state.score === total || (state.score > 0 && state.score % 5 === 0))){
+      burstConfetti();
+    }
+
+    nextQuestion();
+  }
+
+  function nextQuestion(){
+    // move i forward; if reached end -> finish
+    state.i++;
+    state.lastResult = null; // clear per-screen (we already show it before next)
+    saveState(state);
+
+    if(state.i >= state.order.length){
+      state.done = true;
+      state.best = Math.max(state.best || 0, state.score);
+      saveState(state);
+      // big confetti if high score
+      if(state.score >= Math.ceil(total * 0.8)) burstConfetti(120);
+      render();
+      window.scrollTo({top:0, behavior:"smooth"});
+      return;
+    }
+
+    // render next question
+    render();
+    window.scrollTo({top:0, behavior:"smooth"});
+  }
+}
+
+/* =========================
+   HELPERS
+========================= */
+function shuffle(arr){
+  for(let i = arr.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+function escapeHtml(str){
+  return String(str ?? "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+/* =========================
+   CONFETTI (lightweight)
+========================= */
+function resizeConfetti(){
+  confettiCanvas.width = window.innerWidth * devicePixelRatio;
+  confettiCanvas.height = window.innerHeight * devicePixelRatio;
+  ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+}
+window.addEventListener("resize", resizeConfetti);
+resizeConfetti();
+
+function burstConfetti(count=70){
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+  for(let i=0;i<count;i++){
+    confettiPieces.push({
+      x: w * (0.2 + Math.random()*0.6),
+      y: -10,
+      vx: (Math.random()*2 - 1) * 3.2,
+      vy: 3.2 + Math.random()*4.4,
+      r: 3 + Math.random()*5,
+      rot: Math.random()*Math.PI,
+      vr: (Math.random()*2 - 1) * 0.15,
+      life: 90 + Math.random()*60
+    });
+  }
+  if(!confettiOn){
+    confettiOn = true;
+    requestAnimationFrame(tickConfetti);
+  }
+}
+
+function tickConfetti(){
+  ctx.clearRect(0,0,window.innerWidth, window.innerHeight);
+  confettiPieces = confettiPieces.filter(p => p.life > 0);
+
+  for(const p of confettiPieces){
+    p.life--;
+    p.x += p.vx;
+    p.y += p.vy;
+    p.rot += p.vr;
+    p.vy += 0.03; // gravity
+
+    // draw simple rectangles (no custom colors specified)
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    ctx.rotate(p.rot);
+    ctx.fillRect(-p.r, -p.r/2, p.r*2, p.r);
+    ctx.restore();
+  }
+
+  if(confettiPieces.length){
+    requestAnimationFrame(tickConfetti);
+  }else{
+    confettiOn = false;
+    ctx.clearRect(0,0,window.innerWidth, window.innerHeight);
+  }
+}
+
+/* =========================
+   INIT
+========================= */
+render();
+</script>
+</body>
+</html>
