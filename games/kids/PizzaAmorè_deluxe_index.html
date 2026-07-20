@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>🍕 PizzAmoré Deluxe — Language Learning Edition v2</title>
+<style>
+html,body{
+  margin:11px;padding:11px;height:88%;overflow:flex;
+  font-family:"Comic Sans MS",cursive;
+  background:url("YOUR_ITALIAN_FLAG_IMAGE.webp") no-repeat center/cover;
+}
+body::before{
+  content:"";position:fixed;inset:0;
+  background:rgba(0,0,0,.10);z-index:0;pointer-events:none;
+}
+h1{
+  position:relative;z-index:3;text-align:center;
+  font-size:66px;color:#fff;text-shadow:7px 3px 7px #000;margin:7px 0;
+}
+#soundToggle{
+  position:absolute;top:24px;right:24px;z-index:4;
+  font-size:24px;color:#fff;text-shadow:2px 2px 4px #000;cursor:pointer;
+}
+#gameArea{
+  display:flex;justify-content:center;align-items:flex-start;
+  gap:24px;flex-wrap:wrap;position:relative;z-index:2;
+}
+#lampGlow{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:700px;height:700px;border-radius:50%;
+  background:radial-gradient(circle at 50% 40%,rgba(255,220,150,.9)0%,rgba(255,160,60,0)70%);
+  opacity:.7;pointer-events:none;transition:opacity 1s;
+}
+@keyframes glowPulse{0%,100%{opacity:.7;}50%{opacity:1;}}
+canvas{
+  background:#fdf6e3;border-radius:50%;
+  border:14px solid #444;box-shadow:0 0 40px rgba(0,0,0,.6);
+}
+#controls{margin-top:15px;display:flex;justify-content:center;flex-wrap:wrap;gap:15px;}
+button,select{
+  background:#6cc24a;border:none;border-radius:20px;
+  padding:20px 40px;font-size:40px;color:#fff;
+  box-shadow:3px 3px 6px rgba(0,0,0,.3);cursor:pointer;
+}
+button:hover,select:hover{filter:brightness(1.15);}
+#msg{
+  font-size:40px;color:#fff;margin-top:10px;text-shadow:2px 2px 4px #000;
+  text-align:center;max-width:1000px;margin-inline:auto;z-index:3;position:relative;
+}
+.sparkle{position:absolute;width:10px;height:10px;background:#ffd93d;border-radius:50%;animation:spark .6s ease-out forwards;}
+@keyframes spark{0%{opacity:1;}100%{opacity:0;transform:translateY(-50px)scale(.6);}}
+.steam{position:absolute;width:12px;height:60px;background:rgba(255,255,255,.8);border-radius:50%;animation:steam 2s linear forwards;}
+@keyframes steam{0%{opacity:.8;transform:translateY(0);}100%{opacity:0;transform:translateY(-120px);}}
+#infoPanel {
+  background: rgba(255,255,255,0.9);
+  border-radius: 20px;
+  padding: 20px;
+  font-size: 26px;
+  color: #333;
+  box-shadow: 3px 3px 8px rgba(0,0,0,0.3);
+  width: 250px;z-index:3;
+}
+#infoPanel h2 { text-align:center; font-size:32px; color:#333; }
+#toppingTray {
+  display:flex;justify-content:center;gap:15px;margin-bottom:15px;
+}
+.toppingItem {font-size:50px;cursor:grab;user-select:none;transition:transform 0.2s;}
+.toppingItem:active {transform:scale(1.2);}
+#translator{
+  position:fixed;bottom:30px;left:50%;transform:translateX(-50%);
+  background:rgba(255,255,255,0.95);color:#222;font-size:28px;
+  border-radius:16px;padding:10px 24px;box-shadow:0 4px 12px rgba(0,0,0,0.3);
+  text-align:center;display:none;z-index:5;
+}
+/* modal */
+#vocabModal{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);
+  z-index:10;justify-content:center;align-items:center;
+}
+#vocabModal .inner{
+  background:#fff;padding:30px;border-radius:20px;
+  max-width:500px;text-align:center;font-size:30px;
+  box-shadow:0 4px 20px rgba(0,0,0,.4);
+}
+</style>
+</head>
+<body>
+<h1>🍕 PizzAmoré Deluxe</h1>
+<div id="soundToggle">🔊 Sound ON</div>
+
+<div id="gameArea">
+  <div id="lampGlow"></div>
+
+  <div>
+    <div id="toppingTray">
+      <div class="toppingItem" draggable="true" data-type="pepperoni">🔴</div>
+      <div class="toppingItem" draggable="true" data-type="mushroom">🍄</div>
+      <div class="toppingItem" draggable="true" data-type="pepper">🌶️</div>
+      <div class="toppingItem" draggable="true" data-type="onion">🧅</div>
+      <div class="toppingItem" draggable="true" data-type="olive">🫒</div>
+    </div>
+    <canvas id="pizzaCanvas" width="600" height="600"></canvas>
+  </div>
+
+  <div id="infoPanel">
+    <h2>🍕 Pizza Info</h2>
+    <p><strong>Fraction:</strong> <span id="fracDisplay">1⁄4</span></p>
+    <p><strong>Mode:</strong> <span id="modeDisplay">Creative</span></p>
+    <p><strong>Toppings:</strong> <span id="toppingCount">0</span></p>
+  </div>
+</div>
+
+<div id="controls">
+  <select id="mode">
+    <option value="creative" selected>🎨 Creative Mode</option>
+    <option value="challenge">🧠 Chef Challenge Mode</option>
+  </select>
+  <select id="fractionSelect">
+    <option value="2">½ Pizza</option>
+    <option value="4" selected>¼ Pizza</option>
+    <option value="6">⅙ Pizza</option>
+    <option value="8">⅛ Pizza</option>
+    <option value="10">1⁄10 Pizza</option>
+    <option value="12">1⁄12 Pizza</option>
+  </select>
+  <select id="ingredientMenu">
+    <option selected disabled>🧑‍🍳 Choose Ingredient</option>
+    <option value="sauce">🫕 Add Sauce</option>
+    <option value="cheese">🧀 Add Cheese</option>
+  </select>
+  <button id="bake">🔥 Bake</button>
+  <button id="reset">🧽 Reset</button>
+  <button id="learnBtn">📖 Learn Italian</button>
+</div>
+
+<div id="msg">Welcome Chef — start with Sauce and Cheese, then drag toppings!</div>
+<div id="translator"></div>
+
+<div id="vocabModal">
+  <div class="inner">
+    <h2>🇮🇹 Learn Italian Words</h2>
+    <div id="cardArea"></div>
+    <button id="closeVocab" style="margin-top:20px;background:#6cc24a;color:#fff;font-size:26px;border:none;padding:10px 20px;border-radius:12px;cursor:pointer;">Close</button>
+  </div>
+</div>
+
+<audio id="music" loop autoplay>
+ <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_60be20b0c5.mp3?filename=accordion-italian-10754.mp3" type="audio/mpeg">
+</audio>
+<audio id="crackle" loop>
+ <source src="https://cdn.pixabay.com/download/audio/2021/10/13/audio_d7c2c85e5f.mp3?filename=fireplace-crackle-ambient-11072.mp3" type="audio/mpeg">
+</audio>
+<audio id="ding">
+ <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_20b8b556e5.mp3?filename=oven-timer-ding-1-10749.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+const canvas=document.getElementById("pizzaCanvas"),ctx=canvas.getContext("2d");
+const msg=document.getElementById("msg");
+let slices=4,toppings=[],hasSauce=false,hasCheese=false,baking=false;
+const lamp=document.getElementById("lampGlow");
+const music=document.getElementById("music"),crackle=document.getElementById("crackle"),ding=document.getElementById("ding");
+let soundOn=true;let mode="creative";
+
+/* ---------- Chef Voice + Translator ---------- */
+function speakChef(line){
+  if(!soundOn)return;
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(line);
+  u.lang="it-IT";u.rate=0.9;u.pitch=1.1;
+  const v=speechSynthesis.getVoices();
+  const soft=v.find(vo=>/it|female/i.test(vo.lang+vo.name))||v[0];
+  if(soft)u.voice=soft;
+  speechSynthesis.speak(u);
+  const dict={"Molto bene":"Very good!","Perfetto":"Perfect!","Bravissimo":"Excellent job!","Attenzione":"Careful!","Ancora una volta":"One more time!","Forno caldo":"Hot oven!","Che fame":"I'm hungry!","Buon appetito":"Enjoy your meal!","Delizioso":"Delicious!","Andiamo":"Let's go!","Salsa":"Sauce","Formaggio":"Cheese"};
+  const m=Object.entries(dict).find(([it])=>line.includes(it));
+  const tr=document.getElementById("translator");
+  if(m){tr.innerHTML=`<strong>${m[0]}</strong> — <em>${m[1]}</em>`;tr.style.display="block";setTimeout(()=>{tr.style.display="none";},4000);}
+}
+
+/* ---------- Draw Pizza ---------- */
+function drawPizza(){
+  ctx.clearRect(0,0,600,600);
+  ctx.beginPath();ctx.arc(300,300,280,0,Math.PI*2);ctx.fillStyle="#ffcc66";ctx.fill();
+  if(hasSauce){ctx.beginPath();ctx.arc(300,300,250,0,Math.PI*2);ctx.fillStyle="#e63946";ctx.fill();}
+  if(hasCheese){ctx.beginPath();ctx.arc(300,300,240,0,Math.PI*2);ctx.fillStyle="#ffd93d";ctx.fill();}
+  ctx.strokeStyle="#b0413e";ctx.lineWidth=4;
+  for(let i=0;i<slices;i++){const a=(2*Math.PI/slices)*i;ctx.beginPath();ctx.moveTo(300,300);ctx.lineTo(300+240*Math.cos(a),300+240*Math.sin(a));ctx.stroke();}
+  toppings.forEach(t=>{ctx.beginPath();ctx.arc(t.x,t.y,t.size,0,Math.PI*2);ctx.fillStyle=t.color;ctx.fill();});
+  document.getElementById("fracDisplay").textContent="1⁄"+slices;
+  document.getElementById("toppingCount").textContent=toppings.length;
+  document.getElementById("modeDisplay").textContent=mode==="creative"?"Creative":"Chef Challenge";
+}
+
+/* ---------- Ingredient Menu ---------- */
+const ingredientMenu=document.getElementById("ingredientMenu");
+ingredientMenu.onchange=e=>{
+  const c=e.target.value;
+  if(c==="sauce"){hasSauce=true;msg.textContent="Sauce added — bellissimo!";speakChef("Salsa aggiunta! Molto bene!");}
+  if(c==="cheese"){
+    if(!hasSauce){msg.textContent="Add sauce first!";speakChef("Prima la salsa, poi il formaggio!");e.target.value="🧑‍🍳 Choose Ingredient";return;}
+    hasCheese=true;msg.textContent="Cheese melting… buonissimo!";speakChef("Formaggio! Che profumo!");}
+  drawPizza();e.target.value="🧑‍🍳 Choose Ingredient";
+};
+
+/* ---------- Drag & Drop ---------- */
+let draggedType=null;
+document.querySelectorAll('.toppingItem').forEach(i=>i.addEventListener('dragstart',e=>{draggedType=e.target.dataset.type;}));
+canvas.addEventListener('dragover',e=>e.preventDefault());
+canvas.addEventListener('drop',e=>{
+  e.preventDefault();
+  const r=canvas.getBoundingClientRect();
+  const x=e.clientX-r.left,y=e.clientY-r.top;
+  if(!hasSauce)return msg.textContent="Add sauce first!";
+  if(!hasCheese)return msg.textContent="Add cheese before toppings!";
+  const colorMap={pepperoni:"#d62828",mushroom:"#c8a27e",pepper:"#6cc24a",onion:"#b57edc",olive:"#000"};
+  const sizeMap={pepperoni:15,mushroom:14,pepper:10,onion:12,olive:9};
+  toppings.push({x,y,color:colorMap[draggedType],size:sizeMap[draggedType]||12});
+  drawPizza();
+});
+
+/* ---------- Bake Timer ---------- */
+function showSteam(){for(let i=0;i<15;i++){const s=document.createElement("div");s.className="steam";s.style.left=(canvas.offsetLeft+280+Math.random()*40)+"px";s.style.top=(canvas.offsetTop+100)+"px";document.body.appendChild(s);setTimeout(()=>s.remove(),2000);}}
+document.getElementById("bake").onclick=()=>{
+  if(baking)return;baking=true;lamp.style.animation="glowPulse 2s infinite";
+  if(soundOn){music.volume=0.3;crackle.volume=0.7;crackle.play();}
+  speakChef("Forno caldo! Il forno è pronto!");
+  let t=0;msg.textContent="Baking… count to 10!";
+  const timer=setInterval(()=>{
+    t++;msg.textContent="⏱️ "+t+" seconds…";
+    if(t===3)showSteam();
+    if(t>=10){clearInterval(timer);lamp.style.animation="none";
+      if(soundOn){crackle.pause();ding.play();music.volume=1;}
+      speakChef("Buon appetito! Pizza pronta!");msg.textContent="Ding! Pizza’s ready!";baking=false;}
+  },1000);
+};
+
+/* ---------- Misc Controls ---------- */
+document.getElementById("reset").onclick=()=>{toppings=[];hasSauce=false;hasCheese=false;drawPizza();msg.textContent="Reset! Start again!";};
+document.getElementById("fractionSelect").onchange=e=>{
+  const valid=[2,4,6,8,10,12];
+  slices=parseInt(e.target.value);
+  if(!valid.includes(slices))slices=4;
+  drawPizza();
+  msg.textContent="Divided into "+slices+" parts!";
+};
+document.getElementById("soundToggle").onclick=()=>{
+  soundOn=!soundOn;[music,crackle,ding].forEach(a=>a.muted=!soundOn);
+  const st=document.getElementById("soundToggle");
+  st.textContent=soundOn?"🔊 Sound ON":"🔇 Sound OFF";
+};
+
+/* ---------- Learn Italian Cards ---------- */
+const vocab=[{it:"Molto bene",en:"Very good"},{it:"Perfetto",en:"Perfect"},{it:"Bravissimo",en:"Excellent job"},{it:"Attenzione",en:"Careful"},{it:"Ancora una volta",en:"One more time"},{it:"Forno caldo",en:"Hot oven"},{it:"Che fame",en:"I'm hungry"},{it:"Buon appetito",en:"Enjoy your meal"},{it:"Delizioso",en:"Delicious"},{it:"Andiamo",en:"Let's go"},{it:"Salsa",en:"Sauce"},{it:"Formaggio",en:"Cheese"}];
+const learnBtn=document.getElementById("learnBtn");
+const modal=document.getElementById("vocabModal");
+const closeVocab=document.getElementById("closeVocab");
+const cardArea=document.getElementById("cardArea");
+learnBtn.onclick=()=>{cardArea.innerHTML="";vocab.forEach(v=>{const c=document.createElement("div");c.style.cssText="margin:10px;padding:10px;background:#fdf6e3;border-radius:12px;border:2px solid #6cc24a;";c.innerHTML=`<strong>${v.it}</strong> — <em>${v.en}</em>`;cardArea.appendChild(c);});modal.style.display="flex";};
+closeVocab.onclick=()=>modal.style.display="none";
+
+drawPizza();
+</script>
+</body>
+</html>
