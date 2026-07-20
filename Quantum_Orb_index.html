@@ -1,0 +1,742 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Quantum Story Seed Orb</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    :root{
+      --bg-deep:#050713;
+      --bg-soft:#120f23;
+      --accent:#f5d37a;
+      --accent-soft:#ffe8a9;
+      --ink:#fdf7ec;
+      --muted:#9da3c4;
+      --card:#161525;
+      --card-soft:#1e1c33;
+      --chip:#25223c;
+      --radius:14px;
+    }
+    *{box-sizing:border-box;}
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+      background:
+        radial-gradient(circle at top,#27235a 0,#050713 55%,#02020a 100%);
+      color:var(--ink);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:16px;
+    }
+    #qs-app{
+      width:100%;
+      max-width:900px;
+      background:radial-gradient(circle at top,#221f3f 0,var(--bg-soft) 60%);
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,0.08);
+      box-shadow:
+        0 0 0 2px rgba(255,255,255,0.04),
+        0 18px 40px rgba(0,0,0,0.7);
+      padding:18px 18px 20px;
+      display:grid;
+      grid-template-columns:280px minmax(0,1fr);
+      gap:16px;
+      position:relative;
+      overflow:hidden;
+    }
+    @media(max-width:780px){
+      #qs-app{
+        grid-template-columns: minmax(0,1fr);
+      }
+    }
+
+    /* Tiny star field */
+    #qs-app::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      background-image:
+        radial-gradient(circle at 10% 20%,rgba(255,255,255,0.15) 0,transparent 55%),
+        radial-gradient(circle at 80% 10%,rgba(255,255,255,0.10) 0,transparent 55%),
+        radial-gradient(circle at 70% 80%,rgba(255,255,255,0.10) 0,transparent 55%);
+      opacity:0.4;
+      mix-blend-mode:screen;
+    }
+    #qs-inner{
+      position:relative;
+      z-index:1;
+      display:contents;
+    }
+
+    /* Left: Orb + counters */
+    .qs-left{
+      padding:10px;
+      border-radius:var(--radius);
+      background:linear-gradient(145deg,#17152a,#211f3e);
+      border:1px solid rgba(255,255,255,0.08);
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .qs-brand{
+      text-align:center;
+      margin-bottom:4px;
+    }
+    .qs-brand-title{
+      font-family:"Cinzel","Times New Roman",serif;
+      letter-spacing:0.16em;
+      font-size:14px;
+      text-transform:uppercase;
+      color:var(--accent-soft);
+    }
+    .qs-brand-sub{
+      font-size:11px;
+      color:var(--muted);
+      margin-top:2px;
+    }
+
+    .qs-orb-wrap{
+      margin-top:8px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .qs-orb{
+      width:180px;
+      height:180px;
+      border-radius:50%;
+      background:
+        radial-gradient(circle at 30% 20%,#fff 0,#ffe7a6 10%,#f7c96b 22%,#f3a947 32%,#8b4bd6 60%,#050713 100%);
+      box-shadow:
+        0 0 30px rgba(245,211,122,0.6),
+        0 0 70px rgba(139,75,214,0.9),
+        inset 0 0 18px rgba(0,0,0,0.7);
+      position:relative;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      transition:transform 0.2s ease, box-shadow 0.3s ease;
+    }
+    .qs-orb-ring{
+      position:absolute;
+      width:140%;
+      height:140%;
+      border-radius:50%;
+      border:1px dashed rgba(245,211,122,0.3);
+      box-shadow:0 0 20px rgba(245,211,122,0.3);
+      animation:slow-spin 16s linear infinite;
+      pointer-events:none;
+    }
+    .qs-orb-inner-dot{
+      width:18px;
+      height:18px;
+      border-radius:50%;
+      background:rgba(0,0,0,0.6);
+      box-shadow:0 0 8px rgba(255,255,255,0.7);
+    }
+    .qs-orb:hover{
+      transform:scale(1.03);
+      box-shadow:
+        0 0 40px rgba(245,211,122,0.9),
+        0 0 110px rgba(139,75,214,1);
+    }
+    .qs-orb.qs-spin{
+      animation:pulse 0.6s ease-out;
+    }
+
+    @keyframes slow-spin{
+      from{transform:rotate(0deg);}
+      to{transform:rotate(360deg);}
+    }
+    @keyframes pulse{
+      0%{transform:scale(1);box-shadow:0 0 30px rgba(245,211,122,0.6),0 0 70px rgba(139,75,214,0.9);}
+      50%{transform:scale(1.07);box-shadow:0 0 60px rgba(245,211,122,1),0 0 120px rgba(139,75,214,1);}
+      100%{transform:scale(1);box-shadow:0 0 30px rgba(245,211,122,0.6),0 0 70px rgba(139,75,214,0.9);}
+    }
+
+    .qs-orb-label{
+      margin-top:8px;
+      text-align:center;
+      font-size:11px;
+      color:var(--muted);
+    }
+    .qs-orb-label span{
+      color:var(--accent-soft);
+    }
+
+    .qs-metrics{
+      margin-top:8px;
+      padding:8px;
+      border-radius:10px;
+      background:rgba(0,0,0,0.35);
+      border:1px solid rgba(255,255,255,0.06);
+      font-size:11px;
+      color:var(--muted);
+    }
+    .qs-metrics-row{
+      display:flex;
+      justify-content:space-between;
+      margin-bottom:2px;
+    }
+    .qs-metrics-row strong{
+      color:var(--accent-soft);
+      font-weight:500;
+    }
+
+    .qs-left-footer{
+      margin-top:6px;
+      font-size:10px;
+      color:var(--muted);
+      text-align:center;
+    }
+
+    /* Right: Current seed + log */
+    .qs-right{
+      padding:10px;
+      border-radius:var(--radius);
+      background:radial-gradient(circle at top,#282549,#17152b 55%);
+      border:1px solid rgba(255,255,255,0.09);
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .qs-section-title{
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:0.18em;
+      color:var(--muted);
+    }
+
+    .qs-current-card{
+      margin-top:4px;
+      padding:12px;
+      border-radius:var(--radius);
+      background:var(--card);
+      box-shadow:0 0 0 1px rgba(255,255,255,0.03),
+                 0 10px 24px rgba(0,0,0,0.7);
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    .qs-chip-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+    }
+    .qs-chip{
+      padding:5px 9px;
+      border-radius:999px;
+      font-size:11px;
+      background:var(--chip);
+      color:var(--accent-soft);
+      border:1px solid rgba(255,255,255,0.08);
+      display:inline-flex;
+      align-items:center;
+      gap:4px;
+    }
+    .qs-chip-label{
+      text-transform:uppercase;
+      font-size:9px;
+      letter-spacing:0.14em;
+      color:var(--muted);
+    }
+
+    .qs-quest{
+      font-size:12px;
+      line-height:1.5;
+      color:#f8f2df;
+      border-radius:10px;
+      background:linear-gradient(135deg,#262141,#322a4d);
+      padding:8px 10px;
+    }
+    .qs-quest strong{
+      color:var(--accent-soft);
+      font-weight:600;
+    }
+
+    .qs-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:4px;
+    }
+    .qs-btn{
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,0.2);
+      background:rgba(0,0,0,0.4);
+      color:var(--ink);
+      font-size:11px;
+      padding:7px 12px;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      gap:4px;
+      transition:background 0.16s ease, transform 0.05s ease, box-shadow 0.16s ease;
+    }
+    .qs-btn.primary{
+      background:linear-gradient(135deg,#f5d37a,#f3a947);
+      color:#1a1020;
+      box-shadow:0 0 18px rgba(245,211,122,0.5);
+      border-color:rgba(0,0,0,0.5);
+    }
+    .qs-btn.primary:hover{
+      box-shadow:0 0 26px rgba(245,211,122,0.8);
+    }
+    .qs-btn:hover{
+      background:rgba(255,255,255,0.08);
+      box-shadow:0 4px 12px rgba(0,0,0,0.6);
+    }
+    .qs-btn:active{
+      transform:translateY(1px);
+      box-shadow:none;
+    }
+
+    .qs-log-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-top:4px;
+      font-size:11px;
+      color:var(--muted);
+    }
+    .qs-log-list{
+      margin-top:4px;
+      max-height:190px;
+      overflow-y:auto;
+      padding-right:2px;
+    }
+    .qs-log-item{
+      margin-bottom:5px;
+      padding:6px 8px;
+      border-radius:10px;
+      background:var(--card-soft);
+      border:1px solid rgba(255,255,255,0.06);
+      font-size:11px;
+    }
+    .qs-log-top{
+      display:flex;
+      justify-content:space-between;
+      gap:6px;
+      margin-bottom:3px;
+      color:var(--muted);
+    }
+    .qs-log-title{
+      font-weight:500;
+      color:var(--accent-soft);
+    }
+    .qs-log-tags{
+      font-size:10px;
+      opacity:0.9;
+    }
+    .qs-log-body{
+      font-size:11px;
+      color:#f7f1df;
+    }
+    .qs-log-body span{
+      color:var(--accent-soft);
+    }
+    .qs-log-actions{
+      margin-top:4px;
+      display:flex;
+      gap:6px;
+      justify-content:flex-end;
+    }
+    .qs-log-actions button{
+      font-size:10px;
+      padding:3px 7px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,0.18);
+      background:rgba(0,0,0,0.4);
+      color:var(--muted);
+      cursor:pointer;
+    }
+    .qs-log-actions button:hover{
+      background:rgba(255,255,255,0.08);
+      color:var(--accent-soft);
+    }
+
+    .qs-footer-note{
+      margin-top:4px;
+      font-size:10px;
+      color:var(--muted);
+      text-align:right;
+    }
+  </style>
+</head>
+<body>
+<div id="qs-app">
+  <div id="qs-inner">
+    <!-- LEFT: ORB -->
+    <section class="qs-left">
+      <div class="qs-brand">
+        <div class="qs-brand-title">Quantum Orb</div>
+        <div class="qs-brand-sub">Tiny Sovereign Story Seed Engine</div>
+      </div>
+
+      <div class="qs-orb-wrap">
+        <div id="qs-orb" class="qs-orb" title="Tap to spin a new quantum seed">
+          <div class="qs-orb-ring"></div>
+          <div class="qs-orb-inner-dot"></div>
+        </div>
+      </div>
+      <div class="qs-orb-label">
+        Tap the orb to spin a <span>new seed</span>.<br/>
+        Each spin = one tiny adventure.
+      </div>
+
+      <div class="qs-metrics">
+        <div class="qs-metrics-row">
+          <span>Seeds spun today</span>
+          <strong id="qs-count-today">0</strong>
+        </div>
+        <div class="qs-metrics-row">
+          <span>Favorite seeds saved</span>
+          <strong id="qs-count-faves">0</strong>
+        </div>
+        <div class="qs-metrics-row">
+          <span>Lifetime spins</span>
+          <strong id="qs-count-total">0</strong>
+        </div>
+      </div>
+
+      <div class="qs-left-footer">
+        No accounts · No ads · No tracking.<br/>
+        Everything lives only in this browser.
+      </div>
+    </section>
+
+    <!-- RIGHT: CURRENT SEED + LOG -->
+    <section class="qs-right">
+      <div class="qs-section-title">Current Seed</div>
+      <article class="qs-current-card">
+        <div class="qs-chip-row">
+          <div class="qs-chip">
+            <span class="qs-chip-label">Tone</span>
+            <span id="qs-tone">—</span>
+          </div>
+          <div class="qs-chip">
+            <span class="qs-chip-label">World</span>
+            <span id="qs-world">—</span>
+          </div>
+          <div class="qs-chip">
+            <span class="qs-chip-label">Focus</span>
+            <span id="qs-focus">—</span>
+          </div>
+          <div class="qs-chip">
+            <span class="qs-chip-label">Twist</span>
+            <span id="qs-twist">—</span>
+          </div>
+        </div>
+
+        <div class="qs-quest" id="qs-quest">
+          Tap the orb to receive your first quantum quest.
+        </div>
+
+        <div class="qs-actions">
+          <button class="qs-btn primary" id="qs-new-seed-btn">New Seed</button>
+          <button class="qs-btn" id="qs-save-seed-btn">Save to Favorites</button>
+          <button class="qs-btn" id="qs-clear-today-btn">Reset Today Counter</button>
+        </div>
+      </article>
+
+      <div class="qs-log-header">
+        <span>Favorites Log</span>
+        <button class="qs-btn" id="qs-clear-faves-btn" style="padding:4px 9px;font-size:10px;">Clear All</button>
+      </div>
+      <div id="qs-log-list" class="qs-log-list"></div>
+
+      <div class="qs-footer-note">
+        Try: 3 minutes per seed — one paragraph, one doodle, or one small scene.
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  const orb          = document.getElementById("qs-orb");
+  const btnNew       = document.getElementById("qs-new-seed-btn");
+  const btnSave      = document.getElementById("qs-save-seed-btn");
+  const btnClearDay  = document.getElementById("qs-clear-today-btn");
+  const btnClearAll  = document.getElementById("qs-clear-faves-btn");
+
+  const toneEl   = document.getElementById("qs-tone");
+  const worldEl  = document.getElementById("qs-world");
+  const focusEl  = document.getElementById("qs-focus");
+  const twistEl  = document.getElementById("qs-twist");
+  const questEl  = document.getElementById("qs-quest");
+  const logEl    = document.getElementById("qs-log-list");
+
+  const todayEl  = document.getElementById("qs-count-today");
+  const totalEl  = document.getElementById("qs-count-total");
+  const favesEl  = document.getElementById("qs-count-faves");
+
+  const K = {
+    FAVES: "qs_seed_faves_v1",
+    COUNTS: "qs_seed_counts_v1"
+  };
+
+  const TONES = [
+    "soft + reflective",
+    "playful + mischievous",
+    "epic + cinematic",
+    "sacred + still",
+    "quietly hopeful",
+    "sharp + analytical",
+    "dreamlike",
+    "grounded + practical",
+    "mysterious",
+    "joyful + bright"
+  ];
+  const WORLDS = [
+    "a near-future city",
+    "an ancient library under the sea",
+    "a quiet suburban kitchen at midnight",
+    "a floating market between dimensions",
+    "a small Florida town in the rain",
+    "a classroom orbiting the Earth",
+    "a sanctuary built inside a mountain",
+    "a digital archive that became self-aware",
+    "an abandoned amusement park",
+    "a starship with only plants for crew"
+  ];
+  const FOCUS = [
+    "a difficult choice",
+    "a conversation that almost happens",
+    "someone finally telling the truth",
+    "a promise that was broken and repaired",
+    "learning to rest instead of quit",
+    "a tiny act of rebellion",
+    "a simple ritual that changes everything",
+    "a secret that refuses to stay hidden",
+    "someone receiving unexpected help",
+    "a letter that arrives late"
+  ];
+  const TWISTS = [
+    "time loops back three minutes.",
+    "the main character realizes the story is about someone else.",
+    "the smallest detail becomes the most important.",
+    "someone the reader trusted is quietly lying.",
+    "an object in the room begins to glow.",
+    "the scene is being watched from the future.",
+    "the power goes out at the worst moment.",
+    "a child understands what the adults cannot see.",
+    "the setting itself is trying to communicate.",
+    "the story ends one sentence earlier than expected."
+  ];
+
+  let currentSeed = null;
+  let faves = [];
+  let counts = {
+    today: 0,
+    total: 0,
+    lastDay: currentDate()
+  };
+
+  /* ---------- Helpers ---------- */
+  function currentDate(){
+    return new Date().toISOString().slice(0,10);
+  }
+  function rand(arr){
+    return arr[Math.floor(Math.random() * arr.length)];
+  }
+
+  function loadState(){
+    try{
+      const rawF = localStorage.getItem(K.FAVES);
+      if(rawF) faves = JSON.parse(rawF);
+    }catch(e){ faves = []; }
+
+    try{
+      const rawC = localStorage.getItem(K.COUNTS);
+      if(rawC){
+        counts = JSON.parse(rawC);
+        // reset daily if day changed
+        const today = currentDate();
+        if(counts.lastDay !== today){
+          counts.today = 0;
+          counts.lastDay = today;
+        }
+      }
+    }catch(e){}
+    updateCounters();
+    renderFaves();
+  }
+
+  function saveState(){
+    try{
+      localStorage.setItem(K.FAVES, JSON.stringify(faves));
+    }catch(e){}
+    try{
+      localStorage.setItem(K.COUNTS, JSON.stringify(counts));
+    }catch(e){}
+  }
+
+  function updateCounters(){
+    todayEl.textContent = counts.today || 0;
+    totalEl.textContent = counts.total || 0;
+    favesEl.textContent = faves.length;
+  }
+
+  function createSeed(){
+    const seed = {
+      id: Date.now(),
+      tone: rand(TONES),
+      world: rand(WORLDS),
+      focus: rand(FOCUS),
+      twist: rand(TWISTS),
+      createdAt: new Date().toISOString()
+    };
+    currentSeed = seed;
+    applySeed(seed);
+    bumpCounts();
+  }
+
+  function bumpCounts(){
+    const today = currentDate();
+    if(counts.lastDay !== today){
+      counts.today = 0;
+      counts.lastDay = today;
+    }
+    counts.today++;
+    counts.total++;
+    updateCounters();
+    saveState();
+  }
+
+  function applySeed(seed){
+    toneEl.textContent  = seed.tone;
+    worldEl.textContent = seed.world;
+    focusEl.textContent = seed.focus;
+    twistEl.textContent = seed.twist;
+    questEl.innerHTML =
+      "<strong>3-minute quest:</strong> Write, sketch, or daydream one tiny scene set in "+
+      "<strong>"+seed.world+"</strong>, with a "+seed.tone+
+      " feeling. Focus on <strong>"+seed.focus+
+      "</strong>, and then let this happen at the end: <strong>"+seed.twist+"</strong>";
+  }
+
+  function renderFaves(){
+    logEl.innerHTML = "";
+    if(!faves.length){
+      logEl.innerHTML = "<div class='qs-log-item'><div class='qs-log-body'>No favorite seeds yet. Save one that makes your heart light up.</div></div>";
+      return;
+    }
+    const recent = faves.slice().sort((a,b)=>b.id - a.id).slice(0,16);
+    recent.forEach((seed, index)=>{
+      const item = document.createElement("div");
+      item.className = "qs-log-item";
+
+      const top = document.createElement("div");
+      top.className = "qs-log-top";
+      const title = document.createElement("div");
+      title.className = "qs-log-title";
+      title.textContent = "Seed #" + (faves.indexOf(seed)+1);
+      const date = document.createElement("div");
+      date.textContent = new Date(seed.createdAt).toLocaleString();
+      top.appendChild(title);
+      top.appendChild(date);
+
+      const tags = document.createElement("div");
+      tags.className = "qs-log-tags";
+      tags.textContent = seed.tone+" · "+seed.world;
+
+      const body = document.createElement("div");
+      body.className = "qs-log-body";
+      body.innerHTML =
+        "<span>Focus:</span> "+seed.focus+"<br/>"+
+        "<span>Twist:</span> "+seed.twist;
+
+      const actions = document.createElement("div");
+      actions.className = "qs-log-actions";
+      const useBtn = document.createElement("button");
+      useBtn.textContent = "Use";
+      useBtn.onclick = ()=> {
+        currentSeed = seed;
+        applySeed(seed);
+        smoothScrollIntoView();
+      };
+      const delBtn = document.createElement("button");
+      delBtn.textContent = "Remove";
+      delBtn.onclick = ()=> {
+        faves = faves.filter(x=>x.id !== seed.id);
+        saveState();
+        updateCounters();
+        renderFaves();
+      };
+      actions.appendChild(useBtn);
+      actions.appendChild(delBtn);
+
+      item.appendChild(top);
+      item.appendChild(tags);
+      item.appendChild(body);
+      item.appendChild(actions);
+      logEl.appendChild(item);
+    });
+  }
+
+  function smoothScrollIntoView(){
+    try{
+      document.querySelector(".qs-current-card").scrollIntoView({behavior:"smooth", block:"center"});
+    }catch(e){}
+  }
+
+  /* ---------- Events ---------- */
+  function spinOrb(){
+    orb.classList.remove("qs-spin");
+    // force reflow to restart animation
+    void orb.offsetWidth;
+    orb.classList.add("qs-spin");
+    createSeed();
+  }
+
+  orb.addEventListener("click", spinOrb);
+  btnNew.addEventListener("click", spinOrb);
+
+  btnSave.addEventListener("click", function(){
+    if(!currentSeed){
+      questEl.textContent = "Spin the orb first to generate a seed.";
+      return;
+    }
+    if(!faves.some(s=>s.id === currentSeed.id)){
+      faves.push(currentSeed);
+      saveState();
+      updateCounters();
+      renderFaves();
+      questEl.innerHTML += "<br/><br/><strong>Saved.</strong> This seed is now in your favorites log.";
+    }else{
+      questEl.innerHTML += "<br/><br/><strong>Already saved.</strong> This seed is waiting for you in the log.";
+    }
+  });
+
+  btnClearDay.addEventListener("click", function(){
+    if(!confirm("Reset today's spin counter? Your favorites will stay safe.")) return;
+    counts.today = 0;
+    counts.lastDay = currentDate();
+    saveState();
+    updateCounters();
+  });
+
+  btnClearAll.addEventListener("click", function(){
+    if(!faves.length) return;
+    if(!confirm("Clear all favorite seeds? This cannot be undone.")) return;
+    faves = [];
+    saveState();
+    updateCounters();
+    renderFaves();
+  });
+
+  /* ---------- Init ---------- */
+  loadState();
+  // soft first seed so it's not empty
+  createSeed();
+})();
+</script>
+</body>
+</html>
