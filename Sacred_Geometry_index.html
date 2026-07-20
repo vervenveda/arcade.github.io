@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>PLERA Sacred Geometry Sanctuary</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Cormorant+Garamond:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ivory:#f7f3ea;
+    --ivory-soft:#f0e9dc;
+    --midnight:#0f0f1f;
+    --gold:#d9b878;
+    --ink:#1f1c18;
+
+    /* Sacred sizes */
+    --h1:33px; --h2:27px; --base:18px; --sm:15px;
+    --r-sm:9px; --r-md:11px; --r-lg:21px;
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:"Cormorant Garamond",serif;
+    font-size:var(--base); line-height:1.44; color:var(--ink);
+    background:
+      radial-gradient(1200px 600px at 60% -10%, #1a2346 0%, #0f142c 55%, #000 100%),
+      #0b0f20;
+    display:flex; justify-content:center; min-height:100vh;
+  }
+
+  .wrap{
+    width:min(92vw, 864px);
+    background:var(--ivory);
+    border:1px solid rgba(0,0,0,.08);
+    border-radius:var(--r-lg);
+    box-shadow:0 9px 27px rgba(0,0,0,.18);
+    margin:27px 0;
+    overflow:hidden;
+  }
+
+  header{
+    padding:21px;
+    text-align:center;
+    background:linear-gradient(180deg, var(--ivory) 0%, var(--ivory-soft) 100%);
+    border-bottom:1px solid rgba(0,0,0,.06);
+  }
+  h1{
+    margin:0;
+    font-family:"Cinzel",serif;
+    font-size:var(--h1);
+    letter-spacing:.06em;
+    color:#2a261f;
+  }
+  .sub{
+    margin:7px 0 0 0; color:#5b5245; font-size:var(--sm);
+  }
+
+  main{ padding:21px; }
+
+  /* Controls row */
+  .row{ display:grid; gap:14px; grid-template-columns:1fr auto; align-items:end; }
+  @media (max-width:720px){ .row{ grid-template-columns:1fr; } }
+
+  label{ font-family:"Cinzel",serif; font-size:var(--sm); color:#2a261f; }
+  input[type="text"], select, input[type="color"]{
+    width:100%; padding:11px 14px; border-radius:var(--r-md);
+    border:1px solid rgba(0,0,0,.2); background:#fff; font-size:var(--sm);
+  }
+  .btn{
+    appearance:none; border:none; cursor:pointer;
+    padding:11px 21px; border-radius:var(--r-md);
+    font-family:"Cinzel",serif; font-size:var(--sm);
+    background:var(--gold); color:#111; border:1px solid #b89252;
+    box-shadow:0 3px 7px rgba(0,0,0,.10);
+  }
+  .btn.secondary{ background:var(--ivory-soft); border-color:rgba(0,0,0,.12); }
+  .btn.dark{ background:var(--midnight); color:var(--ivory); border-color:#000; }
+  .btn:disabled{ opacity:.6; cursor:not-allowed; }
+
+  .tools{ display:flex; flex-wrap:wrap; gap:12px; }
+
+  /* Canvas */
+  #plera-geometry{
+    display:flex; justify-content:center; align-items:center;
+    padding:21px; margin:14px 0 0 0;
+    background:#fff; border:1px solid rgba(0,0,0,.08); border-radius:var(--r-lg);
+    min-height:333px;
+  }
+  /* Make SVG responsive inside the ivory card */
+  #plera-geometry svg{
+    max-width:100%;
+    height:auto;
+    display:block;
+  }
+
+  /* Builder */
+  .grid3{ display:grid; gap:14px; grid-template-columns:repeat(3,1fr); }
+  @media (max-width:720px){ .grid3{ grid-template-columns:1fr; } }
+
+  h2{
+    margin:21px 0 7px 0;
+    font-family:"Cinzel",serif; font-size:var(--h2);
+    color:#25221d;
+  }
+  .desc{ font-style:italic; color:#5b5245; margin:7px 0 0 0; }
+
+  /* Battle */
+  #battle-status{
+    margin-top:8px;
+    font-size:var(--sm);
+    color:#3b3428;
+    font-family:"Cinzel",serif;
+  }
+  #battle-log{
+    margin-top:12px; padding:12px; border-radius:var(--r-sm);
+    background:#fff; border:1px solid rgba(0,0,0,.08);
+    white-space:pre-line; max-height:222px; overflow:auto; font-size:var(--sm);
+  }
+
+  /* Make sure WIX doesn't inject junk headers */
+  header::before, header::after{ content:none !important; }
+</style>
+</head>
+<body>
+  <div class="wrap" id="app">
+    <header>
+      <h1>PLERA Sacred Geometry Sanctuary</h1>
+      <p class="sub">Build your mandala • Seed color from intention • Export SVG • Duel in Geometry Battle</p>
+    </header>
+
+    <main>
+      <!-- Intention + actions -->
+      <section aria-labelledby="intention-title">
+        <h2 id="intention-title">Intention</h2>
+        <div class="row">
+          <div>
+            <label for="intent">Sacred intention</label>
+            <input id="intent" type="text" placeholder="e.g., Courage & Clarity" />
+          </div>
+          <div class="tools">
+            <button class="btn" id="manifest-btn">Manifest</button>
+            <button class="btn secondary" id="clear-btn" title="Remove all layers & reset">Clear Mandala</button>
+            <button class="btn dark" id="export-btn">Export Geometry (SVG)</button>
+          </div>
+        </div>
+
+        <div id="plera-geometry" aria-label="Mandala canvas"></div>
+      </section>
+
+      <!-- Builder -->
+      <section aria-labelledby="builder-title">
+        <h2 id="builder-title">Build Your Mandala</h2>
+        <div class="grid3">
+          <div>
+            <label for="mandala-theme">Theme</label>
+            <select id="mandala-theme">
+              <option value="healing">Healing</option>
+              <option value="courage">Courage</option>
+              <option value="focus">Focus</option>
+              <option value="love">Love</option>
+              <option value="clarity">Clarity</option>
+            </select>
+          </div>
+          <div>
+            <label for="mandala-shape">Shape</label>
+            <select id="mandala-shape">
+              <option value="circle">Circle</option>
+              <option value="triangle">Triangle</option>
+              <option value="hexagon">Hexagon</option>
+              <option value="star">Star</option>
+              <option value="lotus">Lotus</option>
+              <option value="spiral">Spiral</option>
+            </select>
+          </div>
+          <div>
+            <label for="mandala-color">Color</label>
+            <input id="mandala-color" type="color" value="#d9b878" />
+          </div>
+        </div>
+        <div class="tools" style="margin-top:12px;">
+          <button class="btn" id="add-layer-btn">Add Layer</button>
+        </div>
+        <p class="desc" id="mandala-desc"></p>
+      </section>
+
+      <!-- Battle -->
+      <section aria-labelledby="battle-title">
+        <h2 id="battle-title">Geometry Battle</h2>
+        <div class="row">
+          <div>
+            <label for="battle-shape">Choose your shape</label>
+            <select id="battle-shape">
+              <option value="circle">Circle</option>
+              <option value="triangle">Triangle</option>
+              <option value="square">Square</option>
+              <option value="spiral">Spiral</option>
+            </select>
+          </div>
+          <div class="tools">
+            <button class="btn" id="battle-btn">Start Battle</button>
+          </div>
+        </div>
+        <div id="battle-status">You: 50 / 50 • AI: 50 / 50</div>
+        <div id="battle-log" aria-live="polite"></div>
+      </section>
+    </main>
+  </div>
+
+<script>
+/* =====================================
+   PLERA Sacred Geometry Sanctuary v2.1
+   - SVG stroke colors fixed (no CSS vars in attributes)
+   - SVG responsive inside the ivory card
+   ===================================== */
+
+/* ---------- Mandala State ---------- */
+const mandalaLayers = [];
+let pulseTheta = 0;
+let seededColor = "#d9b878";
+
+const geometryBox = document.getElementById("plera-geometry");
+const descEl = document.getElementById("mandala-desc");
+const colorEl = document.getElementById("mandala-color");
+
+const intentInput = document.getElementById("intent");
+const manifestBtn = document.getElementById("manifest-btn");
+const clearBtn = document.getElementById("clear-btn");
+const addLayerBtn = document.getElementById("add-layer-btn");
+const exportBtn = document.getElementById("export-btn");
+
+const themeSelect = document.getElementById("mandala-theme");
+const shapeSelect = document.getElementById("mandala-shape");
+
+/* SVG references */
+const SVG_SIZE = 360;
+let svgRoot = null;
+let haloCircle = null;
+let layersGroup = null;
+
+/* Anim loop handle */
+let animationId = null;
+
+/* ---------- Geometry utils ---------- */
+function hslToHex(h,s,l){
+  s /= 100; l /= 100;
+  const c = (1 - Math.abs(2*l - 1)) * s;
+  const x = c * (1 - Math.abs((h/60) % 2 - 1));
+  const m = l - c/2;
+  let r=0,g=0,b=0;
+  if (0<=h && h<60) [r,g,b] = [c,x,0];
+  else if (60<=h && h<120) [r,g,b] = [x,c,0];
+  else if (120<=h && h<180) [r,g,b] = [0,c,x];
+  else if (180<=h && h<240) [r,g,b] = [0,x,c];
+  else if (240<=h && h<300) [r,g,b] = [x,0,c];
+  else [r,g,b] = [c,0,x];
+  const R = Math.round((r+m)*255);
+  const G = Math.round((g+m)*255);
+  const B = Math.round((b+m)*255);
+  return "#" + [R,G,B].map(v=>v.toString(16).padStart(2,"0")).join("");
+}
+
+function seededPastelFromString(str){
+  let hash = 0;
+  for (let i=0;i<str.length;i++){
+    hash = (hash*31 + str.charCodeAt(i)) >>> 0;
+  }
+  const hue = hash % 360;
+  return hslToHex(hue, 60, 80);
+}
+
+/* ---------- SVG construction ---------- */
+function initSvg(){
+  const ns = "http://www.w3.org/2000/svg";
+  svgRoot = document.createElementNS(ns,"svg");
+  svgRoot.setAttribute("width", SVG_SIZE);
+  svgRoot.setAttribute("height", SVG_SIZE);
+  svgRoot.setAttribute("viewBox", `0 0 ${SVG_SIZE} ${SVG_SIZE}`);
+
+  haloCircle = document.createElementNS(ns,"circle");
+  haloCircle.setAttribute("cx", SVG_SIZE/2);
+  haloCircle.setAttribute("cy", SVG_SIZE/2);
+  haloCircle.setAttribute("r", 24);
+  haloCircle.setAttribute("fill", seededColor);
+  haloCircle.setAttribute("opacity", "0.75");
+  svgRoot.appendChild(haloCircle);
+
+  layersGroup = document.createElementNS(ns,"g");
+  svgRoot.appendChild(layersGroup);
+
+  geometryBox.innerHTML = "";
+  geometryBox.appendChild(svgRoot);
+}
+
+function createShapeElement(x,y,radius,shapeType,color){
+  const ns = "http://www.w3.org/2000/svg";
+  let el;
+  switch(shapeType){
+    case "circle":{
+      el = document.createElementNS(ns,"circle");
+      el.setAttribute("cx",x); el.setAttribute("cy",y); el.setAttribute("r",radius);
+    } break;
+    case "triangle":{
+      el = document.createElementNS(ns,"polygon");
+      const h = radius*Math.sqrt(3);
+      el.setAttribute("points", `${x},${y-radius} ${x-radius},${y+h/2} ${x+radius},${y+h/2}`);
+    } break;
+    case "hexagon":{
+      el = document.createElementNS(ns,"polygon");
+      let pts=[];
+      for(let i=0;i<6;i++){
+        const a=Math.PI/3*i;
+        pts.push(`${x+radius*Math.cos(a)},${y+radius*Math.sin(a)}`);
+      }
+      el.setAttribute("points", pts.join(" "));
+    } break;
+    case "star":{
+      el = document.createElementNS(ns,"polygon");
+      let pts=[];
+      for(let i=0;i<10;i++){
+        const a=i*Math.PI/5;
+        const r=i%2===0?radius:radius/2;
+        pts.push(`${x+r*Math.cos(a)},${y+r*Math.sin(a)}`);
+      }
+      el.setAttribute("points", pts.join(" "));
+    } break;
+    case "lotus":{
+      el = document.createElementNS(ns,"polygon");
+      let pts=[];
+      for(let i=0;i<8;i++){
+        const a=i*Math.PI/4;
+        const r=i%2===0?radius:radius/2;
+        pts.push(`${x+r*Math.cos(a)},${y+r*Math.sin(a)}`);
+      }
+      el.setAttribute("points", pts.join(" "));
+    } break;
+    case "spiral":{
+      el = document.createElementNS(ns,"path");
+      let d=`M ${x} ${y}`;
+      for(let t=0;t<6;t++){
+        const a=t*0.55;
+        const r=radius*t*0.55;
+        const nx=x+r*Math.cos(a);
+        const ny=y+r*Math.sin(a);
+        d+=` L ${nx} ${ny}`;
+      }
+      el.setAttribute("d", d);
+      el.setAttribute("fill","none");
+    } break;
+  }
+  const strokeBase = "#0f0f1f"; // matches --midnight
+  el.setAttribute("stroke", strokeBase);
+  el.setAttribute("stroke-width", 2);
+  if (shapeType === "spiral"){
+    el.setAttribute("stroke", color || strokeBase);
+    // fill already set to none above
+  } else {
+    el.setAttribute("fill", color || "#d9b878"); // matches --gold
+  }
+  el.style.transformBox = "fill-box";
+  el.style.transformOrigin = "50% 50%";
+  return el;
+}
+
+/* Build layers once (no animation inside) */
+function renderMandalaStatic(){
+  if(!svgRoot) initSvg();
+  layersGroup.innerHTML = "";
+  const cx = SVG_SIZE/2;
+  const cy = SVG_SIZE/2;
+
+  mandalaLayers.forEach((layer,i)=>{
+    const baseRadius = 40 + i*22;
+    const shapeEl = createShapeElement(cx,cy,baseRadius,layer.shape,layer.color);
+    shapeEl.dataset.index = String(i);
+    layersGroup.appendChild(shapeEl);
+  });
+}
+
+/* Layer description */
+function describeLayer(num, theme, shape){
+  descEl.textContent = `Layer ${num}: ${shape} carrying “${theme}”.`;
+}
+
+/* ---------- Animation loop (lightweight) ---------- */
+function updateAnimationFrame(){
+  if(!svgRoot || !haloCircle) return;
+  const hasLayers = mandalaLayers.length > 0;
+
+  if(!hasLayers){
+    // Keep a calm halo when empty
+    haloCircle.setAttribute("r","24");
+    return;
+  }
+
+  pulseTheta += 0.035;
+
+  const haloR = 24 + 6*Math.sin(pulseTheta*0.8);
+  haloCircle.setAttribute("r", haloR.toFixed(2));
+
+  const children = layersGroup.children;
+  for(let i=0;i<children.length;i++){
+    const el = children[i];
+    const rot = (i*12) + pulseTheta*20;
+    const scale = 1 + 0.06*Math.sin(pulseTheta + i*0.8);
+    el.style.transform = `rotate(${rot}deg) scale(${scale})`;
+  }
+}
+
+function ensureAnimation(){
+  if(animationId !== null) return;
+  const loop = ()=>{
+    updateAnimationFrame();
+    animationId = requestAnimationFrame(loop);
+  };
+  animationId = requestAnimationFrame(loop);
+}
+
+function stopAnimationIfEmpty(){
+  if(mandalaLayers.length === 0 && animationId !== null){
+    cancelAnimationFrame(animationId);
+    animationId = null;
+    pulseTheta = 0;
+    updateAnimationFrame();
+  }
+}
+
+/* ---------- Mandala actions ---------- */
+manifestBtn.addEventListener("click", ()=>{
+  const text = (intentInput.value || "").trim();
+  const seedBase = text || "PLERA";
+  seededColor = seededPastelFromString(seedBase);
+  if(!svgRoot) initSvg();
+  haloCircle.setAttribute("fill", seededColor);
+  colorEl.value = seededColor;
+  renderMandalaStatic();
+  if(mandalaLayers.length) ensureAnimation();
+});
+
+clearBtn.addEventListener("click", ()=>{
+  mandalaLayers.length = 0;
+  pulseTheta = 0;
+  seededColor = seededPastelFromString("PLERA");
+  if(!svgRoot) initSvg();
+  haloCircle.setAttribute("fill", seededColor);
+  colorEl.value = seededColor;
+  renderMandalaStatic();
+  stopAnimationIfEmpty();
+  logLine("Cleared mandala.");
+  descEl.textContent = "";
+});
+
+addLayerBtn.addEventListener("click", ()=>{
+  const theme = themeSelect.value;
+  const shape = shapeSelect.value;
+  const color = colorEl.value;
+  const idx = mandalaLayers.length + 1;
+  mandalaLayers.push({theme,shape,color});
+  describeLayer(idx, theme, shape);
+  renderMandalaStatic();
+  ensureAnimation();
+});
+
+/* Export */
+exportBtn.addEventListener("click", ()=>{
+  if(!svgRoot || mandalaLayers.length === 0){
+    alert("No geometry to export yet.");
+    return;
+  }
+  const serializer = new XMLSerializer();
+  const source = serializer.serializeToString(svgRoot);
+  const blob = new Blob([source], {type:"image/svg+xml"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "plera-sacred-mandala.svg";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+});
+
+/* ---------- Geometry Battle ---------- */
+const MAX_HP = 50;
+let playerHealth = MAX_HP;
+let aiHealth = MAX_HP;
+
+const shapesAttributes = {
+  circle:{attack:5,  defense:10, regen:3},
+  triangle:{attack:12, defense:5, regen:2},
+  square:{attack:8, defense:12, regen:1},
+  spiral:{attack:7, defense:4, regen:6}
+};
+
+const battleShapeSelect = document.getElementById("battle-shape");
+const battleBtn = document.getElementById("battle-btn");
+const battleLog = document.getElementById("battle-log");
+const battleStatus = document.getElementById("battle-status");
+
+function logLine(t){
+  battleLog.textContent += (battleLog.textContent ? "\n" : "") + t;
+  battleLog.scrollTop = battleLog.scrollHeight;
+}
+
+function updateBattleStatus(){
+  const p = Math.max(0, Math.round(playerHealth));
+  const a = Math.max(0, Math.round(aiHealth));
+  battleStatus.textContent = `You: ${p} / ${MAX_HP} • AI: ${a} / ${MAX_HP}`;
+}
+
+function calculateMandalaBonus(){
+  let attackBonus=0, defenseBonus=0, regenBonus=0;
+  mandalaLayers.forEach(layer=>{
+    switch(layer.shape){
+      case 'circle': defenseBonus+=2; break;
+      case 'triangle': attackBonus+=3; break;
+      case 'square': defenseBonus+=3; break;
+      case 'spiral': regenBonus+=2; break;
+      case 'star': attackBonus+=2; defenseBonus+=1; break;
+      case 'lotus': regenBonus+=3; break;
+      case 'hexagon': attackBonus+=1; defenseBonus+=1; break;
+    }
+    switch(layer.theme){
+      case 'healing': regenBonus+=2; break;
+      case 'courage': attackBonus+=2; break;
+      case 'focus': defenseBonus+=2; break;
+      case 'love': regenBonus+=1; defenseBonus+=1; break;
+      case 'clarity': attackBonus+=1; defenseBonus+=1; break;
+    }
+  });
+  return {attackBonus, defenseBonus, regenBonus};
+}
+
+function battleRound(playerShape, aiShape){
+  const p = shapesAttributes[playerShape];
+  const a = shapesAttributes[aiShape];
+  const b = calculateMandalaBonus();
+
+  const basePlayerDamage = Math.max(p.attack + b.attackBonus - a.defense/2, 1);
+  const baseAiDamage = Math.max(a.attack - (p.defense + b.defenseBonus)/2, 1);
+
+  const varianceP = 0.8 + Math.random()*0.4; // 0.8–1.2
+  const varianceA = 0.8 + Math.random()*0.4;
+
+  const playerDamage = Math.max(1, Math.round(basePlayerDamage * varianceP));
+  const aiDamage = Math.max(1, Math.round(baseAiDamage * varianceA));
+
+  playerHealth -= aiDamage;
+  aiHealth -= playerDamage;
+  playerHealth += b.regenBonus;
+
+  if(playerHealth > MAX_HP) playerHealth = MAX_HP;
+  if(aiHealth > MAX_HP) aiHealth = MAX_HP;
+
+  logLine(`You chose ${playerShape}, AI chose ${aiShape}.
+You dealt ${playerDamage}, AI dealt ${aiDamage}.
+Your mandala regen: +${b.regenBonus} HP.`);
+  updateBattleStatus();
+}
+
+battleBtn.addEventListener("click", ()=>{
+  // If duel ended, reset first
+  if(playerHealth <= 0 || aiHealth <= 0){
+    playerHealth = MAX_HP;
+    aiHealth = MAX_HP;
+    battleLog.textContent = "New duel begun. HP reset to 50 for both.\n";
+    updateBattleStatus();
+    return;
+  }
+
+  const playerShape = battleShapeSelect.value;
+  const aiOptions = Object.keys(shapesAttributes);
+  const aiShape = aiOptions[Math.floor(Math.random()*aiOptions.length)];
+
+  battleRound(playerShape, aiShape);
+
+  if(playerHealth <= 0 && aiHealth <= 0){
+    logLine("It’s a cosmic draw — both geometries collapse at once.");
+  } else if(playerHealth <= 0){
+    logLine("You were defeated. Click “Start Battle” again to begin a new duel.");
+  } else if(aiHealth <= 0){
+    logLine("Victory! Your mandala outshone the AI. Click “Start Battle” again to reset.");
+  }
+});
+
+/* ---------- Init ---------- */
+function initSanctuary(){
+  seededColor = seededPastelFromString("PLERA");
+  initSvg();
+  haloCircle.setAttribute("fill", seededColor);
+  colorEl.value = seededColor;
+  renderMandalaStatic();
+  updateBattleStatus();
+}
+initSanctuary();
+ensureAnimation(); // keep the loop ready; halo stays calm until layers are added
+</script>
+</body>
+</html>
