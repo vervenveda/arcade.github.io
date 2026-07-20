@@ -1,0 +1,513 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Signal Garden — Cozy Logic × Runes (Single‑File MVP)</title>
+<style>
+  :root{
+    --bg: #0e1322;
+    --panel: #121a2b;
+    --ink: #eaf2ff;
+    --muted:#bcd0ff;
+    --accent:#67e8f9;
+    --accent2:#a7f3d0;
+    --warm:#ffd166;
+    --good:#31d07b;
+    --bad:#ff5a5a;
+    --radius:16px;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; background: radial-gradient(1200px 800px at 50% -10%, #17233f, var(--bg));
+    color:var(--ink); font-family: system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+  }
+  .wrap{max-width:1100px;margin:16px auto;padding:0 12px}
+  h1{margin:0;font-weight:900;letter-spacing:.02em}
+  .sub{color:var(--muted);margin:6px 0 12px}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .topbar{display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:10px}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .chip,button,select,label.btn{border:1px solid #223a66;background:#0f1a33;color:var(--ink);border-radius:999px;padding:8px 12px;font-weight:600;cursor:pointer}
+  .chip.badge{background:#0e162b;color:var(--muted)}
+  button.primary{background:linear-gradient(180deg,#1dd0ff,#14b8a6);color:#05202a;border-color:transparent}
+  button.good{background:linear-gradient(180deg,#34d399,#10b981);color:#062116;border-color:transparent}
+  button.warn{background:linear-gradient(180deg,#fbbf24,#f59e0b);color:#261b04;border-color:transparent}
+  button.ghost{background:#0f1a3300}
+  .grid{display:grid;gap:12px;grid-template-columns:1fr;}
+  @media(min-width:980px){ .grid{grid-template-columns: 600px 1fr;} }
+  .panel{background:rgba(10,16,32,.7);border:1px solid #1c2b52;border-radius:var(--radius);padding:12px;box-shadow:0 12px 40px rgba(0,0,0,.35)}
+  /* Canvas board */
+  #boardWrap{display:grid;gap:10px}
+  #board{width:100%;aspect-ratio:1/1;background:#0c142a;border-radius:18px;border:2px solid #20345f;box-shadow:inset 0 0 0 2px #0b1630, 0 10px 30px rgba(0,0,0,.5)}
+  .legend{display:flex;gap:8px;flex-wrap:wrap}
+  .legend .marker{display:inline-flex;align-items:center;gap:6px;background:#0b162d;padding:6px 10px;border-radius:999px;border:1px solid #233c6b}
+  .dot{width:14px;height:14px;border-radius:50%}
+  .dot.green{background:#5eead4}
+  .dot.blue{background:#60a5fa}
+  .dot.red{background:#f87171}
+  .counts{display:flex;gap:8px;flex-wrap:wrap;color:var(--muted)}
+  .counts b{color:#fff}
+
+  /* Rune composer */
+  #runes{display:grid;grid-template-columns: 1fr;gap:10px}
+  .rune-pool{display:flex;gap:8px;flex-wrap:wrap;min-height:38px}
+  .tile{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border-radius:12px;background:#0b1a34;border:1px solid #2a406f;font-weight:800;letter-spacing:.02em;cursor:grab;user-select:none}
+  .slotRow{display:flex;gap:8px;align-items:center}
+  .slot{flex:1;min-height:42px;display:flex;align-items:center;justify-content:center;background:#0a1225;border:2px dashed #2a406f;border-radius:12px}
+  .slot.filled{border-style:solid;background:#0f1f3e}
+  .effect{font-size:.95rem;color:var(--muted)}
+
+  /* Garden + noise */
+  .progress{height:12px;background:#0a1329;border:1px solid #1e2f57;border-radius:999px;overflow:hidden}
+  .bar{height:100%;background:linear-gradient(90deg,#ef4444,#f59e0b,#22c55e,#06b6d4);width:100%}
+  .garden{display:grid;grid-template-columns: repeat(auto-fill,minmax(170px,1fr));gap:10px}
+  .plant{background:#0a142c;border:1px solid #21335c;border-radius:12px;padding:10px}
+  .plant h4{margin:0 0 6px}
+
+  /* Mini dialogs */
+  dialog{border:none;border-radius:14px;background:#0e1a33;color:#e5f2ff;box-shadow:0 20px 70px rgba(0,0,0,.6)}
+  dialog .row{justify-content:flex-end}
+
+  /* High contrast & readability */
+  .high-contrast { filter: saturate(1.15) contrast(1.15) }
+  .readable { letter-spacing:.2px; line-height:1.5 }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <div>
+      <h1>Signal Garden</h1>
+      <div class="sub">Cozy logic × runes • sovereign, offline‑first • fair seeded RNG</div>
+    </div>
+    <div class="chips">
+      <span class="chip badge">Seed: <span id="seedText"></span></span>
+      <button id="dailyBtn" class="chip">Daily Seed</button>
+      <button id="newBtn" class="chip">New Run</button>
+      <button id="exportBtn" class="chip">Export</button>
+      <button id="importBtn" class="chip">Import</button>
+      <label class="btn"><input id="coopChk" type="checkbox"/> Co‑op</label>
+      <label class="btn"><input id="contrastChk" type="checkbox"/> High Contrast</label>
+      <label class="btn"><input id="readableChk" type="checkbox"/> Readable Font</label>
+      <label class="btn"><input id="nofailChk" type="checkbox"/> No‑fail</label>
+    </div>
+  </div>
+
+  <div class="grid">
+    <!-- LEFT: Puzzle Board -->
+    <section class="panel" id="boardPanel">
+      <div class="row" style="justify-content:space-between;align-items:flex-end">
+        <div>
+          <div class="legend">
+            <span class="marker"><span class="dot green"></span>Leaf (G)</span>
+            <span class="marker"><span class="dot blue"></span>Bloom (B)</span>
+            <span class="marker"><span class="dot red"></span>No two Blue orthogonal</span>
+          </div>
+          <div class="counts" id="counts"></div>
+        </div>
+        <div class="chips">
+          <button id="hintBtn" class="ghost">Hint</button>
+          <button id="clearBtn" class="ghost">Clear</button>
+        </div>
+      </div>
+      <canvas id="board" width="600" height="600" aria-label="4×4 tuning board"></canvas>
+      <div class="row" style="justify-content:space-between">
+        <div id="pStatus" class="sub">Place tokens to satisfy constraints.</div>
+        <button id="solveBtn" class="primary" disabled>Puzzle Solved ✓</button>
+      </div>
+    </section>
+
+    <!-- RIGHT: Runes & Channeling -->
+    <section class="panel">
+      <h3 style="margin:0 0 8px">Rune Composer</h3>
+      <div id="runes">
+        <div>
+          <div class="sub">Drag one from each pool into the slots</div>
+          <div class="rune-pool" id="verbs"></div>
+          <div class="rune-pool" id="preps"></div>
+          <div class="rune-pool" id="nouns"></div>
+          <div class="slotRow">
+            <div class="slot" data-slot="verb" aria-label="verb slot"></div>
+            <div class="slot" data-slot="prep" aria-label="preposition slot"></div>
+            <div class="slot" data-slot="noun" aria-label="noun slot"></div>
+          </div>
+          <div class="effect" id="effectText">Effect: —</div>
+          <div class="row" style="margin-top:8px;justify-content:space-between">
+            <div class="sub" id="coopHint">Solo mode: you do both. (Co‑op lets Player A tune; Player B crafts runes.)</div>
+            <button id="channelBtn" class="good" disabled>Channel ✨</button>
+          </div>
+        </div>
+      </div>
+
+      <hr style="border-color:#21335c;border-style:solid;border-width:1px 0 0;margin:12px 0"/>
+
+      <div class="row" style="align-items:center;gap:10px">
+        <span class="chip badge">Noise</span>
+        <div class="progress" style="flex:1"><div id="noiseBar" class="bar"></div></div>
+      </div>
+
+      <h3 style="margin:12px 0 6px">Garden</h3>
+      <div class="garden" id="garden"></div>
+    </section>
+  </div>
+</div>
+
+<!-- Import/Export Dialogs -->
+<dialog id="exportDlg">
+  <h3>Export Save</h3>
+  <textarea id="exportText" style="width:540px;max-width:90vw;height:180px"></textarea>
+  <div class="row"><button id="closeExport" class="chip">Close</button></div>
+</dialog>
+<dialog id="importDlg">
+  <h3>Import Save</h3>
+  <textarea id="importText" style="width:540px;max-width:90vw;height:180px" placeholder='Paste save JSON here'></textarea>
+  <div class="row"><button id="doImport" class="good">Import</button><button id="closeImport" class="chip">Cancel</button></div>
+</dialog>
+
+<script>
+// ===== Utilities & RNG =====
+const $ = sel => document.querySelector(sel);
+const $$ = sel => Array.from(document.querySelectorAll(sel));
+function hashStr(s){ let h=2166136261>>>0; for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h = Math.imul(h,16777619); } return h>>>0; }
+function mulberry32(a){ return function(){ let t=a+=0x6D2B79F5; t=Math.imul(t^t>>>15,t|1); t^=t+Math.imul(t^t>>>7,t|61); return ((t^t>>>14)>>>0)/4294967296; } }
+function choice(rng,arr){ return arr[Math.floor(rng()*arr.length)] }
+
+// ===== Global State =====
+const STORAGE_KEY = 'signal_garden_save_v1';
+let seed = '';
+let rng = mulberry32(1);
+let settings = { coop:false, highContrast:false, readable:false, nofail:false };
+let noise = 100; // 0..100
+let garden = []; // {id, hue, phrase, effect}
+
+// ===== Puzzle (4x4) =====
+const S = 4; // board size
+// 0 empty, 1=leaf(G), 2=bloom(B)
+let board = Array.from({length:S},()=>Array(S).fill(0));
+let req = { G: 6, B: 6 }; // required counts (can vary by seed)
+let solved = false;
+
+const canvas = document.getElementById('board');
+const ctx = canvas.getContext('2d');
+let cellSize = 0;
+
+function seedFrom(str){ seed=str; rng = mulberry32(hashStr(str)); $('#seedText').textContent = str; return rng; }
+
+function initPuzzleFromSeed(){
+  // derive requirements from seed but keep friendly bounds
+  const g = 5 + Math.floor(rng()*4); // 5..8
+  const b = 5 + Math.floor(rng()*4); // 5..8
+  req = { G: Math.min(8,g), B: Math.min(8,b) };
+  board = Array.from({length:S},()=>Array(S).fill(0));
+  solved=false; updateCounts(); drawBoard(); $('#pStatus').textContent = 'Place tokens to satisfy constraints.';
+  $('#solveBtn').disabled = true; $('#channelBtn').disabled = true;
+}
+
+function updateCounts(){
+  const g = board.flat().filter(v=>v===1).length;
+  const b = board.flat().filter(v=>v===2).length;
+  $('#counts').innerHTML = `
+    <span>Placed: <b>Leaf ${g}</b> / <b>Bloom ${b}</b></span>
+    <span>Needed: <b>Leaf ${req.G}</b> / <b>Bloom ${req.B}</b></span>`;
+}
+
+function drawBoard(){
+  const W = canvas.width, H = canvas.height; ctx.clearRect(0,0,W,H);
+  cellSize = Math.floor((W-40)/S);
+  // grid backdrop
+  ctx.fillStyle = '#0a1225'; ctx.fillRect(10,10, cellSize*S+20, cellSize*S+20);
+  for(let r=0;r<S;r++){
+    for(let c=0;c<S;c++){
+      const x = 20 + c*cellSize, y = 20 + r*cellSize;
+      // cell
+      ctx.fillStyle = '#0c1833';
+      ctx.strokeStyle = '#20345f'; ctx.lineWidth = 2;
+      ctx.fillRect(x,y,cellSize-4,cellSize-4);
+      ctx.strokeRect(x,y,cellSize-4,cellSize-4);
+      // token
+      const v = board[r][c];
+      if(v){
+        const cx = x + (cellSize-4)/2, cy = y + (cellSize-4)/2;
+        const rad = (cellSize-4)*0.28;
+        if(v===1){ // leaf: green circle with leaf mark
+          const grad = ctx.createRadialGradient(cx-6,cy-6,rad*0.2,cx,cy,rad*1.1);
+          grad.addColorStop(0,'#a7f3d0'); grad.addColorStop(1,'#10b981');
+          ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(cx,cy,rad,0,Math.PI*2); ctx.fill();
+          ctx.strokeStyle = 'rgba(255,255,255,.25)'; ctx.lineWidth=2; ctx.stroke();
+        }else if(v===2){ // bloom: blue diamond
+          ctx.save(); ctx.translate(cx,cy); ctx.rotate(Math.PI/4);
+          const g = ctx.createLinearGradient(-rad,-rad,rad,rad);
+          g.addColorStop(0,'#bfdbfe'); g.addColorStop(1,'#3b82f6');
+          ctx.fillStyle=g; ctx.fillRect(-rad,-rad,rad*2,rad*2);
+          ctx.restore();
+          ctx.strokeStyle = 'rgba(255,255,255,.25)'; ctx.lineWidth=2; ctx.strokeRect(x+8,y+8,cellSize-20,cellSize-20);
+        }
+      }
+    }
+  }
+  // violations overlay
+  highlightViolations();
+}
+
+function cellFromXY(mx,my){
+  const startX=20, startY=20;
+  const c = Math.floor((mx-startX)/cellSize), r = Math.floor((my-startY)/cellSize);
+  if(r>=0 && r<S && c>=0 && c<S) return {r,c};
+  return null;
+}
+
+canvas.addEventListener('click', ev=>{
+  if(solved) return;
+  const rect = canvas.getBoundingClientRect();
+  const mx = (ev.clientX - rect.left) * (canvas.width / canvas.clientWidth);
+  const my = (ev.clientY - rect.top)  * (canvas.height/ canvas.clientHeight);
+  const hit = cellFromXY(mx,my); if(!hit) return;
+  // cycle empty->G->B->empty but cap by required counts when exceeded
+  const g = board.flat().filter(v=>v===1).length;
+  const b = board.flat().filter(v=>v===2).length;
+  let v = board[hit.r][hit.c];
+  v = (v+1) % 3; // 0->1->2->0
+  if(v===1 && g>=req.G) v=2; // if greens full, jump to blue
+  if(v===2 && b>=req.B) v=0; // if blues full, clear
+  board[hit.r][hit.c] = v;
+  updateCounts(); drawBoard(); checkSolved();
+});
+
+function clearBoard(){ board = Array.from({length:S},()=>Array(S).fill(0)); updateCounts(); drawBoard(); solved=false; $('#solveBtn').disabled=true; $('#channelBtn').disabled=true; $('#pStatus').textContent='Cleared.'; }
+
+function violations(){
+  // Rule: no two BLUE (2) orthogonally adjacent; counts must not exceed required
+  const errs = [];
+  for(let r=0;r<S;r++){
+    for(let c=0;c<S;c++){
+      if(board[r][c]===2){
+        const nbors = [[1,0],[-1,0],[0,1],[0,-1]];
+        for(const [dr,dc] of nbors){
+          const rr=r+dr, cc=c+dc; if(rr<0||cc<0||rr>=S||cc>=S) continue;
+          if(board[rr][cc]===2) errs.push({r,c});
+        }
+      }
+    }
+  }
+  const g = board.flat().filter(v=>v===1).length;
+  const b = board.flat().filter(v=>v===2).length;
+  if(g>req.G) errs.push({msg:'Too many Leaf tokens'});
+  if(b>req.B) errs.push({msg:'Too many Bloom tokens'});
+  return errs;
+}
+
+function highlightViolations(){
+  const errs = violations();
+  if(!errs.length) return;
+  for(const e of errs){
+    if(e.r==null) continue;
+    const x = 20 + e.c*cellSize, y = 20 + e.r*cellSize;
+    ctx.strokeStyle = '#ef4444'; ctx.lineWidth=3;
+    ctx.strokeRect(x+2,y+2,cellSize-8,cellSize-8);
+  }
+}
+
+function hint(){
+  // Suggest a safe Blue placement (no adj blues) if we still need blues, else a Leaf
+  const needB = board.flat().filter(v=>v===2).length < req.B;
+  for(let r=0;r<S;r++){
+    for(let c=0;c<S;c++){
+      if(board[r][c]!==0) continue;
+      if(needB){
+        // safe if no orthogonal neighbor is blue
+        const nbors=[[1,0],[-1,0],[0,1],[0,-1]];
+        let bad=false; for(const [dr,dc] of nbors){ const rr=r+dr, cc=c+dc; if(rr<0||cc<0||rr>=S||cc>=S) continue; if(board[rr][cc]===2){bad=true;break;} }
+        if(!bad){ flashCell(r,c,'#60a5fa'); return; }
+      }else{
+        flashCell(r,c,'#22c55e'); return;
+      }
+    }
+  }
+}
+function flashCell(r,c,color){
+  const x = 20 + c*cellSize, y = 20 + r*cellSize; let t=0;
+  const id = setInterval(()=>{ t++; ctx.save(); ctx.strokeStyle=color; ctx.lineWidth=3+Math.sin(t*0.4)*2; ctx.strokeRect(x+3,y+3,cellSize-10,cellSize-10); ctx.restore(); if(t>16){clearInterval(id); drawBoard();}}, 30);
+}
+
+function checkSolved(){
+  const g = board.flat().filter(v=>v===1).length;
+  const b = board.flat().filter(v=>v===2).length;
+  const anyEmpty = board.flat().some(v=>v===0);
+  const errs = violations();
+  if(!anyEmpty && !errs.length && g===req.G && b===req.B){
+    solved=true; $('#solveBtn').disabled=false; $('#pStatus').textContent='Beautiful tuning — ready to Channel!'; enableChannelReady(); return true;
+  }else{
+    $('#solveBtn').disabled=true; $('#channelBtn').disabled=true; return false;
+  }
+}
+
+// ===== Runes =====
+const POOLS = {
+  verbs:   ['Calm','Shield','Cleanse','Multiply','Anchor','Guide'],
+  preps:   ['Within','At','Around','Across','Toward','Through'],
+  nouns:   ['Roots','Canal','Petals','Canopy','Lantern','Hearth']
+};
+let slots = {verb:null, prep:null, noun:null};
+
+function buildPools(){
+  ['verbs','preps','nouns'].forEach(k=>{
+    const host = document.getElementById(k);
+    host.innerHTML = '';
+    POOLS[k].forEach(w=>{
+      const el = document.createElement('div'); el.className='tile'; el.draggable=true; el.textContent=w; el.dataset.word=w; el.dataset.kind=k.slice(0,-1); // verb/prep/noun
+      el.addEventListener('dragstart', e=>{ e.dataTransfer.setData('text/plain', JSON.stringify({word:w, kind:el.dataset.kind})); });
+      host.appendChild(el);
+    });
+  });
+  $$('.slot').forEach(s=>{
+    s.ondragover = e=>{ e.preventDefault(); };
+    s.ondrop = e=>{ e.preventDefault(); const data = JSON.parse(e.dataTransfer.getData('text/plain')); const need = s.dataset.slot; if(data.kind!==need) return; s.textContent = data.word; s.classList.add('filled'); slots[need]=data.word; updateEffect(); };
+    s.addEventListener('click',()=>{ s.textContent=''; s.classList.remove('filled'); slots[s.dataset.slot]=null; updateEffect(); });
+  });
+}
+
+function effectFromSlots(){
+  const {verb,prep,noun} = slots; if(!verb||!prep||!noun) return null;
+  const key = `${verb}|${prep}|${noun}`;
+  // a few bespoke mappings; otherwise rule-based description
+  const table = {
+    'Calm|Within|Roots': 'Clean aura around roots (−Noise 12)',
+    'Shield|At|Canal': 'Barrier ring at canals (−Noise 10, adds resist)',
+    'Multiply|Across|Petals': 'Cloning blossoms (−Noise 8, next channel +1 hue)',
+    'Cleanse|Through|Lantern': 'Purify pulse (−Noise 14)'
+  };
+  if(table[key]) return table[key];
+  const verbs = {Calm:'soften', Shield:'guard', Cleanse:'purify', Multiply:'amplify', Anchor:'steady', Guide:'focus'};
+  const phr  = `${verb} ${prep.toLowerCase()} ${noun} — ${verbs[verb]||'shape'} the signal.`;
+  return phr + ' (−Noise 9)';
+}
+
+function updateEffect(){
+  const fx = effectFromSlots();
+  $('#effectText').textContent = 'Effect: ' + (fx || '—');
+  $('#channelBtn').disabled = !(solved && !!fx);
+}
+
+function enableChannelReady(){ updateEffect(); }
+
+// ===== Channeling / Audio =====
+let audioCtx = null;
+function ensureAudio(){ if(!audioCtx){ audioCtx = new (window.AudioContext||window.webkitAudioContext)(); } }
+
+function channel(){
+  if(!solved) return;
+  const fx = effectFromSlots(); if(!fx) return;
+  // compute hue from board complexion: more blue => higher tone
+  const g = board.flat().filter(v=>v===1).length; const b = board.flat().filter(v=>v===2).length;
+  const frac = (b+1)/(g+b+2); // 0..1
+  const hue = 160 + Math.round(frac*120); // visual hue (not used in CSS here but store)
+  pulseAudio(frac);
+  // Garden entry
+  const phrase = `${slots.verb} • ${slots.prep} • ${slots.noun}`;
+  const effect = fx;
+  const plant = { id: Date.now(), hue, phrase, effect };
+  garden.push(plant); renderGarden();
+  // Reduce noise
+  let delta = 9; if(fx.includes('12')) delta=12; else if(fx.includes('14')) delta=14; else if(fx.includes('10')) delta=10; else if(fx.includes('+1 hue')) delta=8;
+  if(settings.nofail) delta += 4;
+  noise = Math.max(0, noise - delta); renderNoise();
+  // reset for next puzzle
+  initPuzzleFromSeed(); slots={verb:null,prep:null,noun:null}; $$('.slot').forEach(s=>{s.textContent=''; s.classList.remove('filled')}); updateEffect();
+}
+
+function pulseAudio(frac){
+  ensureAudio(); const ctxA = audioCtx; const now = ctxA.currentTime;
+  const base = 200 + Math.floor(frac*400); // 200..600 Hz
+  const dur = settings.coop ? 0.9 : 0.7;
+  const o1 = ctxA.createOscillator(); const g1 = ctxA.createGain(); o1.type='sine'; o1.frequency.setValueAtTime(base, now);
+  const o2 = ctxA.createOscillator(); const g2 = ctxA.createGain(); o2.type='triangle'; o2.frequency.setValueAtTime(base*1.5, now);
+  g1.gain.setValueAtTime(0.0001, now); g1.gain.exponentialRampToValueAtTime(0.2, now+0.05); g1.gain.exponentialRampToValueAtTime(0.0001, now+dur);
+  g2.gain.setValueAtTime(0.0001, now); g2.gain.exponentialRampToValueAtTime(0.12, now+0.12); g2.gain.exponentialRampToValueAtTime(0.0001, now+dur);
+  o1.connect(g1).connect(ctxA.destination); o2.connect(g2).connect(ctxA.destination);
+  o1.start(now); o2.start(now+0.03); o1.stop(now+dur); o2.stop(now+dur+0.02);
+  // Canvas pulse animation
+  const W = canvas.width, H=canvas.height; const cx=W/2, cy=H/2; let t=0; const id=setInterval(()=>{ t++; drawBoard(); ctx.save(); ctx.globalAlpha = Math.max(0, 1 - t/18); ctx.strokeStyle = '#22d3ee'; ctx.lineWidth = 3 + t*0.4; ctx.beginPath(); ctx.arc(cx,cy, 20+t*18, 0, Math.PI*2); ctx.stroke(); ctx.restore(); if(t>18){clearInterval(id);}}, 30);
+}
+
+// ===== Garden / Noise UI =====
+function renderGarden(){
+  const host = $('#garden'); host.innerHTML='';
+  garden.slice(-10).reverse().forEach(p=>{
+    const card = document.createElement('div'); card.className='plant';
+    card.innerHTML = `<h4>Plant ${(''+p.id).slice(-4)}</h4>
+      <div class="sub">${p.phrase}</div>
+      <div style="height:6px;border-radius:999px;background:#071022;margin:8px 0"><div style="height:6px;border-radius:999px;background:linear-gradient(90deg,#22c55e,#06b6d4);width:100%"></div></div>
+      <div class="effect">${p.effect}</div>`;
+    host.appendChild(card);
+  });
+}
+function renderNoise(){ $('#noiseBar').style.width = noise+'%'; }
+
+// ===== Save / Load =====
+function save(){ const data={seed,settings,noise,garden}; localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+function load(){ try{ const raw=localStorage.getItem(STORAGE_KEY); if(!raw) return false; const d=JSON.parse(raw); seedFrom(d.seed||makeSeed()); settings=Object.assign(settings,d.settings||{}); noise = d.noise??100; garden = d.garden||[]; return true; }catch{ return false; } }
+
+// ===== Seeds =====
+function makeSeed(){ const adj=['silver','quiet','lunar','amber','violet','mossy','sunlit','tidal','hollow']; const n=['harbor','thicket','lantern','petal','canal','cinder','meadow','prism']; return choice(Math.random,adj)+'-'+choice(Math.random,n)+'-'+Math.floor(1000+Math.random()*9000); }
+function dailySeed(){ const d=new Date(); const s = d.getFullYear()+('-'+(d.getMonth()+1)).padStart(3,'0')+('-'+d.getDate()).padStart(3,'0'); return 'daily-'+s; }
+
+// ===== Wiring =====
+function boot(withDaily=false){
+  if(!load()) seedFrom(makeSeed());
+  if(withDaily) seedFrom(dailySeed());
+  // apply settings
+  $('#coopChk').checked=settings.coop; $('#contrastChk').checked=settings.highContrast; $('#readableChk').checked=settings.readable; $('#nofailChk').checked=settings.nofail;
+  document.body.classList.toggle('high-contrast', settings.highContrast);
+  document.body.classList.toggle('readable', settings.readable);
+  renderNoise(); renderGarden();
+  initPuzzleFromSeed(); buildPools(); save();
+}
+
+// Resize canvas to look crisp on DPR
+function fitCanvas(){ const r = window.devicePixelRatio||1; const css = Math.min(600, $('#boardPanel').clientWidth - 24); canvas.style.width = css+'px'; canvas.style.height = css+'px'; canvas.width = Math.floor(css*r); canvas.height = Math.floor(css*r); drawBoard(); }
+window.addEventListener('resize', fitCanvas);
+
+// Buttons
+$('#newBtn').addEventListener('click', ()=>{ seedFrom(makeSeed()); initPuzzleFromSeed(); save(); });
+$('#dailyBtn').addEventListener('click', ()=>{ seedFrom(dailySeed()); initPuzzleFromSeed(); save(); });
+$('#clearBtn').addEventListener('click', clearBoard);
+$('#hintBtn').addEventListener('click', hint);
+$('#solveBtn').addEventListener('click', ()=>{}); // purely informative here
+$('#channelBtn').addEventListener('click', ()=>{ channel(); save(); });
+
+$('#exportBtn').addEventListener('click', ()=>{ const dlg=$('#exportDlg'); $('#exportText').value = localStorage.getItem(STORAGE_KEY)||''; dlg.showModal(); });
+$('#closeExport').addEventListener('click', ()=>$('#exportDlg').close());
+$('#importBtn').addEventListener('click', ()=>$('#importDlg').showModal());
+$('#closeImport').addEventListener('click', ()=>$('#importDlg').close());
+$('#doImport').addEventListener('click', ()=>{ try{ const d=JSON.parse($('#importText').value); localStorage.setItem(STORAGE_KEY, JSON.stringify(d)); $('#importDlg').close(); location.reload(); }catch{ alert('Invalid JSON'); } });
+
+$('#coopChk').addEventListener('change', e=>{ settings.coop=e.target.checked; save(); $('#coopHint').textContent = settings.coop? 'Co‑op: Player A tunes • Player B crafts runes' : 'Solo mode: you do both.'; });
+$('#contrastChk').addEventListener('change', e=>{ settings.highContrast=e.target.checked; document.body.classList.toggle('high-contrast', settings.highContrast); save(); });
+$('#readableChk').addEventListener('change', e=>{ settings.readable=e.target.checked; document.body.classList.toggle('readable', settings.readable); save(); });
+$('#nofailChk').addEventListener('change', e=>{ settings.nofail=e.target.checked; save(); });
+
+// Keyboard helpers: 1=Leaf 2=Bloom, C=clear
+window.addEventListener('keydown', (e)=>{
+  if(['1','2','c','C'].includes(e.key)){
+    const r = Math.floor((S-1)/2), c = Math.floor((S-1)/2); // center as fallback
+    if(e.key==='1'){ autoPlace(1); }
+    if(e.key==='2'){ autoPlace(2); }
+    if(e.key==='c' || e.key==='C'){ clearBoard(); }
+  }
+});
+function autoPlace(val){ // place on first empty safe cell for val
+  for(let r=0;r<S;r++) for(let c=0;c<S;c++){
+    if(board[r][c]!==0) continue; if(val===2){ // blue: ensure safe
+      const nbors=[[1,0],[-1,0],[0,1],[0,-1]]; let bad=false; for(const [dr,dc] of nbors){ const rr=r+dr, cc=c+dc; if(rr<0||cc<0||rr>=S||cc>=S) continue; if(board[rr][cc]===2){bad=true;break;} } if(bad) continue;
+    }
+    board[r][c]=val; updateCounts(); drawBoard(); checkSolved(); return;
+  }
+}
+
+// Boot
+fitCanvas(); boot(false);
+</script>
+</body>
+</html>
