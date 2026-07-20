@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sovereign Arts Trivia — Gallery Edition</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg1: #0d1b2a;
+    --bg2: #1b263b;
+    --text: #f5f3f0;
+    --accent1: #f78da7;
+    --accent2: #00c9a7;
+    --accent3: #f9ca24;
+    --accent4: #9b59b6;
+  }
+
+  body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background: radial-gradient(circle at top left, var(--bg2), var(--bg1));
+    color: var(--text);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    background-attachment: fixed;
+  }
+
+  .container {
+    text-align: center;
+    max-width: 680px;
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 1.5rem;
+    box-shadow: 0 0 40px rgba(0,0,0,0.4);
+    backdrop-filter: blur(10px);
+    animation: fadeIn 1.2s ease;
+  }
+
+  h1 {
+    font-size: 2.2rem;
+    letter-spacing: 1px;
+    margin-bottom: 1rem;
+  }
+
+  p {
+    font-size: 1rem;
+    opacity: 0.85;
+    margin-bottom: 1rem;
+  }
+
+  .meta {
+    font-size: 0.9rem;
+    opacity: 0.8;
+    margin-bottom: 0.75rem;
+  }
+
+  .options {
+    display: grid;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  button {
+    background: linear-gradient(90deg, var(--accent1), var(--accent2), var(--accent3), var(--accent4));
+    background-size: 400% 400%;
+    border: none;
+    color: #fff;
+    font-size: 1rem;
+    padding: 0.75rem 2rem;
+    border-radius: 50px;
+    cursor: pointer;
+    animation: gradientShift 6s ease infinite;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 15px var(--accent2);
+  }
+
+  .option-btn {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 0.75rem;
+    padding: 0.75rem;
+    color: var(--text);
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    animation: none;
+    background-size: auto;
+  }
+
+  .option-btn:hover {
+    background: rgba(255,255,255,0.2);
+    transform: translateY(-3px);
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+  }
+
+  .feedback {
+    margin-top: 1rem;
+    font-weight: 600;
+    min-height: 1.5rem;
+  }
+
+  .score {
+    margin-top: 0.5rem;
+    font-size: 1rem;
+    opacity: 0.9;
+  }
+
+  .footer {
+    position: absolute;
+    bottom: 15px;
+    width: 100%;
+    text-align: center;
+    font-size: 0.8rem;
+    opacity: 0.6;
+  }
+
+  .fade {
+    animation: fadeIn 0.8s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(25px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  .icon {
+    width: 70px;
+    height: 70px;
+    object-fit: contain;
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(255,255,255,0.2);
+    margin-bottom: 0.5rem;
+  }
+
+  @media (max-width: 600px) {
+    body {
+      padding: 1rem;
+      align-items: flex-start;
+    }
+    .container {
+      margin-top: 1.5rem;
+      padding: 1.5rem;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="container fade" id="gameContainer">
+  <h1>Sovereign Arts Trivia</h1>
+  <p>Choose your creative realm — let sound, color, and memory guide you.</p>
+  <div class="options">
+    <button onclick="startCategory('artists')">🎨 Famous Artists</button>
+    <button onclick="startCategory('therapy')">🌈 Color & Sound Therapy</button>
+    <button onclick="startCategory('history')">📜 Art History</button>
+    <button onclick="startCategory('techniques')">🖌️ Art Techniques</button>
+  </div>
+</div>
+
+<div class="footer">© 2025 My Art Gallery — All Rights Reserved</div>
+
+<!-- Ambient background and sound effects -->
+<audio id="ambient" src="https://cdn.pixabay.com/audio/2022/11/15/audio_d1a76eea7b.mp3" loop></audio>
+<audio id="chime" src="https://cdn.pixabay.com/audio/2022/03/15/audio_6e89a86106.mp3"></audio>
+<audio id="brush" src="https://cdn.pixabay.com/audio/2022/03/31/audio_8e8a52b4f3.mp3"></audio>
+
+<script>
+/* ==========================
+   QUESTION POOLS
+   ========================== */
+const categories = {
+  artists: [
+    { question: "Who painted 'The Scream'?", options: ["Edvard Munch", "Paul Klee", "René Magritte", "Joan Miró"], answer: 0 },
+    { question: "Which Mexican painter is known for her self-portraits?", options: ["Frida Kahlo", "Georgia O’Keeffe", "Tamara de Lempicka", "Yayoi Kusama"], answer: 0 },
+    { question: "Who painted 'Girl with a Pearl Earring'?", options: ["Rembrandt", "Johannes Vermeer", "Caravaggio", "Jan van Eyck"], answer: 1 },
+    { question: "Which artist is known for drip painting techniques?", options: ["Jackson Pollock", "Mark Rothko", "Willem de Kooning", "Franz Kline"], answer: 0 },
+    { question: "Who painted 'The Birth of Venus'?", options: ["Sandro Botticelli", "Leonardo da Vinci", "Raphael", "Giotto"], answer: 0 },
+    { question: "Which sculptor created 'The Thinker'?", options: ["Auguste Rodin", "Donatello", "Michelangelo", "Bernini"], answer: 0 },
+    { question: "Which artist was known for geometric abstract paintings like 'Composition with Red, Blue and Yellow'?", options: ["Piet Mondrian", "Kazimir Malevich", "Paul Klee", "Joan Miró"], answer: 0 },
+    { question: "Who is considered the founder of the Impressionist movement?", options: ["Claude Monet", "Édouard Manet", "Camille Pissarro", "Renoir"], answer: 0 },
+    { question: "Which artist is famous for 'The Kiss'?", options: ["Gustav Klimt", "Egon Schiele", "Franz Marc", "Paul Gauguin"], answer: 0 },
+    { question: "Who painted 'American Gothic'?", options: ["Grant Wood", "Edward Hopper", "Norman Rockwell", "Andrew Wyeth"], answer: 0 },
+    { question: "Which artist is known for the 'Blue Period'?", options: ["Pablo Picasso", "Henri Matisse", "Marc Chagall", "Paul Cézanne"], answer: 0 },
+    { question: "Who created the 'Campbell’s Soup Cans' silkscreen prints?", options: ["Andy Warhol", "Roy Lichtenstein", "David Hockney", "Keith Haring"], answer: 0 },
+    { question: "Which artist painted 'Las Meninas'?", options: ["Diego Velázquez", "Francisco Goya", "El Greco", "Murillo"], answer: 0 },
+    { question: "Who is known as the father of modern sculpture?", options: ["Auguste Rodin", "Constantin Brâncuși", "Henry Moore", "Jean Arp"], answer: 0 },
+    { question: "Which artist’s large flower paintings are iconic?", options: ["Georgia O’Keeffe", "Mary Cassatt", "Helen Frankenthaler", "Louise Bourgeois"], answer: 0 },
+    { question: "Who painted 'The Night Watch'?", options: ["Rembrandt", "Vermeer", "Rubens", "Titian"], answer: 0 },
+    { question: "Which street artist is known for works with social and political messages?", options: ["Banksy", "Shepard Fairey", "Basquiat", "Warhol"], answer: 0 },
+    { question: "Who painted 'Nighthawks'?", options: ["Edward Hopper", "Norman Rockwell", "Thomas Hart Benton", "Grant Wood"], answer: 0 },
+    { question: "Which artist pioneered pointillism?", options: ["Georges Seurat", "Henri Rousseau", "Paul Signac", "Cézanne"], answer: 0 },
+    { question: "Who created the 'David' sculpture?", options: ["Michelangelo", "Donatello", "Bernini", "Rodin"], answer: 0 },
+    { question: "Which artist’s work is known for melting clocks?", options: ["Salvador Dalí", "René Magritte", "Max Ernst", "Man Ray"], answer: 0 },
+    { question: "Which artist created giant balloon animal sculptures?", options: ["Jeff Koons", "Damien Hirst", "Takashi Murakami", "Yayoi Kusama"], answer: 0 }
+  ],
+
+  therapy: [
+    { question: "Which color is most commonly associated with calm and relaxation?", options: ["Blue", "Red", "Yellow", "Orange"], answer: 0 },
+    { question: "Which color is believed to stimulate appetite and energy?", options: ["Green", "Blue", "Red", "Purple"], answer: 2 },
+    { question: "In color therapy, green represents:", options: ["Healing and balance", "Anger and strength", "Love and passion", "Sadness and calm"], answer: 0 },
+    { question: "What frequency range is considered most soothing in sound therapy?", options: ["528 Hz", "900 Hz", "2000 Hz", "50 Hz"], answer: 0 },
+    { question: "Which color is associated with creativity and warmth?", options: ["Orange", "Blue", "Gray", "Violet"], answer: 0 },
+    { question: "The 'Solfeggio frequency' 528 Hz is often called the frequency of:", options: ["Love", "Fear", "Courage", "Focus"], answer: 0 },
+    { question: "Which sound is often used to align brain waves into deep relaxation?", options: ["Binaural beats", "White noise", "Rain sounds", "Ocean waves"], answer: 0 },
+    { question: "What does yellow symbolize in color psychology?", options: ["Optimism", "Sadness", "Calm", "Mystery"], answer: 0 },
+    { question: "Which chakra is associated with the color red?", options: ["Root", "Heart", "Crown", "Throat"], answer: 0 },
+    { question: "What color light is often used in therapy for depression?", options: ["Blue", "Green", "White", "Yellow"], answer: 2 },
+    { question: "Sound therapy aims to:", options: ["Balance mind and body", "Increase heart rate", "Block emotions", "Reduce sleep"], answer: 0 },
+    { question: "The color purple is linked to which quality?", options: ["Spiritual awareness", "Fear", "Anger", "Energy"], answer: 0 },
+    { question: "Which color is said to reduce stress?", options: ["Blue", "Red", "Yellow", "Brown"], answer: 0 },
+    { question: "What does the frequency 432 Hz promote?", options: ["Natural harmony", "Stress", "Chaos", "Aggression"], answer: 0 },
+    { question: "Orange light therapy is often used for:", options: ["Boosting mood", "Inducing sleep", "Calming anger", "Relieving pain"], answer: 0 },
+    { question: "What color represents the throat chakra?", options: ["Blue", "Green", "Yellow", "Red"], answer: 0 },
+    { question: "Which instrument is often used in sound healing?", options: ["Singing bowls", "Electric guitars", "Drums", "Violins"], answer: 0 },
+    { question: "Which color is linked to compassion and love?", options: ["Pink", "Black", "Gray", "Brown"], answer: 0 },
+    { question: "Which type of wave helps improve sleep and relaxation?", options: ["Delta waves", "Beta waves", "Gamma waves", "Alpha waves"], answer: 0 },
+    { question: "Chromotherapy is another name for:", options: ["Color therapy", "Sound therapy", "Light refraction", "Music healing"], answer: 0 },
+    { question: "Which sound frequency is called the 'miracle tone'?", options: ["528 Hz", "640 Hz", "111 Hz", "300 Hz"], answer: 0 },
+    { question: "Red light therapy can help with:", options: ["Circulation and energy", "Sleep", "Calmness", "Digestive issues"], answer: 0 },
+    { question: "Blue light exposure can suppress:", options: ["Melatonin", "Adrenaline", "Serotonin", "Endorphins"], answer: 0 },
+    { question: "Which color represents transformation and intuition?", options: ["Indigo", "Yellow", "Green", "Red"], answer: 0 },
+    { question: "Music tuned to 432 Hz is said to create:", options: ["Harmony with the universe", "Discomfort", "Fatigue", "Distraction"], answer: 0 },
+    { question: "White noise helps by:", options: ["Masking distractions", "Exciting the mind", "Causing stress", "Reducing memory"], answer: 0 },
+    { question: "Which chakra corresponds with the color violet?", options: ["Crown", "Root", "Heart", "Solar Plexus"], answer: 0 },
+    { question: "What does color therapy primarily use to influence mood?", options: ["Light frequencies", "Temperature", "Motion", "Pressure"], answer: 0 },
+    { question: "The sound of rain is used for:", options: ["Calming the nervous system", "Increasing alertness", "Boosting adrenaline", "Waking up"], answer: 0 },
+    { question: "What color represents energy and vitality?", options: ["Red", "Blue", "White", "Silver"], answer: 0 }
+  ],
+
+  history: [
+    { question: "What period is known as the 'rebirth' of art, science, and culture in Europe?", options: ["Renaissance", "Baroque", "Romanticism", "Modernism"], answer: 0 },
+    { question: "Which city is considered the birthplace of the Renaissance?", options: ["Florence", "Paris", "Rome", "Venice"], answer: 0 },
+    { question: "The Impressionist movement began in which country?", options: ["France", "Italy", "Germany", "Netherlands"], answer: 0 },
+    { question: "Which movement emphasized emotion and individualism over reason?", options: ["Romanticism", "Realism", "Cubism", "Minimalism"], answer: 0 },
+    { question: "Who painted the frescoes in the Sistine Chapel?", options: ["Michelangelo", "Raphael", "Leonardo da Vinci", "Giotto"], answer: 0 },
+    { question: "Which era came immediately after the Renaissance?", options: ["Baroque", "Gothic", "Rococo", "Neoclassicism"], answer: 0 },
+    { question: "The term 'Avant-Garde' refers to artists who:", options: ["Experiment with new ideas", "Copy traditional art", "Avoid innovation", "Focus on landscapes"], answer: 0 },
+    { question: "The use of light and dark to create depth is known as:", options: ["Chiaroscuro", "Sfumato", "Impasto", "Fresco"], answer: 0 },
+    { question: "Which art movement was founded by André Breton?", options: ["Surrealism", "Futurism", "Expressionism", "Dadaism"], answer: 0 },
+    { question: "Ancient Egyptian art often focused on:", options: ["Afterlife and gods", "Nature scenes", "Abstract shapes", "Romantic love"], answer: 0 },
+    { question: "The 'Venus of Willendorf' is an example of art from which era?", options: ["Prehistoric", "Classical", "Medieval", "Renaissance"], answer: 0 },
+    { question: "Which art style features bold brushwork and visible emotion?", options: ["Expressionism", "Cubism", "Realism", "Minimalism"], answer: 0 },
+    { question: "What does 'Fresco' refer to?", options: ["Painting on wet plaster", "Engraving on stone", "Weaving with silk", "Sculpting in marble"], answer: 0 },
+    { question: "Which style of art is Salvador Dalí most associated with?", options: ["Surrealism", "Cubism", "Futurism", "Pop Art"], answer: 0 },
+    { question: "Who is considered the founder of Cubism along with Picasso?", options: ["Georges Braque", "Henri Matisse", "Paul Cézanne", "Juan Gris"], answer: 0 },
+    { question: "What characterized Baroque art?", options: ["Drama and grandeur", "Simplicity and calm", "Flat perspective", "Muted colors"], answer: 0 },
+    { question: "Which period focused on idealized depictions of gods and athletes?", options: ["Classical Greek", "Medieval", "Romantic", "Modern"], answer: 0 },
+    { question: "What is the main subject of Gothic cathedral art?", options: ["Biblical stories", "Portraits of royalty", "Mythological scenes", "Still life"], answer: 0 },
+    { question: "The Bauhaus school emphasized the unity of:", options: ["Art, craft, and technology", "Religion and art", "Emotion and nature", "Music and sculpture"], answer: 0 },
+    { question: "Pop Art emerged during which decade?", options: ["1950s", "1940s", "1930s", "1920s"], answer: 0 },
+    { question: "Who painted the 'School of Athens'?", options: ["Raphael", "Michelangelo", "Titian", "Leonardo da Vinci"], answer: 0 },
+    { question: "Which art movement reacted against Industrialization and sought to return to nature?", options: ["Romanticism", "Impressionism", "Dadaism", "Baroque"], answer: 0 },
+    { question: "The technique of painting with thick layers of paint is called:", options: ["Impasto", "Glazing", "Sfumato", "Etching"], answer: 0 },
+    { question: "Which 20th-century art movement embraced randomness and absurdity?", options: ["Dada", "Cubism", "Futurism", "Minimalism"], answer: 0 },
+    { question: "Which artist’s work helped define the Abstract Expressionist movement?", options: ["Jackson Pollock", "Paul Klee", "Piet Mondrian", "Edward Hopper"], answer: 0 },
+    { question: "What is 'Sfumato'?", options: ["Blending tones to create softness", "A sculpture technique", "A painting on wood", "Etching metal plates"], answer: 0 },
+    { question: "Which period followed the fall of the Roman Empire?", options: ["Medieval", "Baroque", "Renaissance", "Neoclassical"], answer: 0 },
+    { question: "Which Japanese art style influenced Impressionism?", options: ["Ukiyo-e", "Origami", "Shodo", "Ikebana"], answer: 0 },
+    { question: "The 'Art Nouveau' style is known for:", options: ["Flowing lines and nature motifs", "Straight geometry", "Muted tones", "Minimalist design"], answer: 0 },
+    { question: "Which movement is associated with artists like Monet, Renoir, and Degas?", options: ["Impressionism", "Expressionism", "Cubism", "Realism"], answer: 0 }
+  ],
+
+  techniques: [
+    { question: "What is the technique of mixing colors directly on the canvas called?", options: ["Alla Prima", "Glazing", "Dry Brush", "Pointillism"], answer: 0 },
+    { question: "Which technique involves creating an image by scratching through a surface layer to reveal a contrasting color underneath?", options: ["Sgraffito", "Impasto", "Chiaroscuro", "Scumbling"], answer: 0 },
+    { question: "The term 'Impasto' refers to:", options: ["Thick application of paint", "Smooth blending of tones", "Layering transparent glazes", "Using powdered pigment"], answer: 0 },
+    { question: "What tool is traditionally used to spread and mix paint on a palette?", options: ["Palette knife", "Brush", "Stylus", "Spatula"], answer: 0 },
+    { question: "Which medium uses pigment mixed with wax and applied hot?", options: ["Encaustic", "Tempera", "Acrylic", "Gouache"], answer: 0 },
+    { question: "What does 'mixed media' art refer to?", options: ["Using more than one material", "Digital-only art", "Black and white drawing", "Monochrome painting"], answer: 0 },
+    { question: "The gradual blending of tones or colors is called:", options: ["Gradient", "Contrast", "Chiaroscuro", "Fresco"], answer: 0 },
+    { question: "Which surface is most commonly used for watercolor painting?", options: ["Paper", "Canvas", "Wood panel", "Glass"], answer: 0 },
+    { question: "What is a monochrome artwork?", options: ["One color with variations in tone", "Using every primary color", "Painted in black only", "A grayscale sketch"], answer: 0 },
+    { question: "Which technique involves applying small dots of color that visually blend from a distance?", options: ["Pointillism", "Hatching", "Crosshatching", "Sfumato"], answer: 0 },
+    { question: "What is the purpose of gesso on a canvas?", options: ["To prime and prepare the surface", "To add color contrast", "To seal the painting", "To create texture only"], answer: 0 },
+    { question: "Which art technique involves cutting and assembling images from magazines or paper?", options: ["Collage", "Decoupage", "Assemblage", "Mosaic"], answer: 0 },
+    { question: "In drawing, 'hatching' refers to:", options: ["Parallel lines to create shading", "Layering color washes", "Outlining the subject", "Erasing to add highlights"], answer: 0 },
+    { question: "What is the difference between gouache and watercolor?", options: ["Gouache is opaque, watercolor is transparent", "Gouache uses oil, watercolor uses water", "They are identical", "Watercolor dries slower"], answer: 0 },
+    { question: "Which technique uses acid to etch designs into a metal plate?", options: ["Etching", "Embossing", "Carving", "Lithography"], answer: 0 },
+    { question: "Which method of sculpture involves removing material to reveal the form?", options: ["Carving", "Casting", "Modeling", "Assemblage"], answer: 0 },
+    { question: "What is 'underpainting'?", options: ["A first layer that guides later colors", "The final glaze coat", "A painting done on wood", "A hidden signature"], answer: 0 },
+    { question: "What is 'negative space' in an artwork?", options: ["The empty space around or between subjects", "A section painted in black", "An unfinished area", "The background color"], answer: 0 },
+    { question: "Which painting medium dries the fastest?", options: ["Acrylic", "Oil", "Tempera", "Gouache"], answer: 0 },
+    { question: "The term 'plein air' painting refers to art created:", options: ["Outdoors, from life", "Inside a studio", "Using only natural pigments", "With minimal tools"], answer: 0 },
+    { question: "Which drawing material is made from burned wood?", options: ["Charcoal", "Graphite", "Pastel", "Ink"], answer: 0 },
+    { question: "What is 'glazing' in painting?", options: ["Applying thin transparent layers over dry paint", "Adding thick texture", "Mixing all pigments together", "Painting in one session"], answer: 0 },
+    { question: "A digital artist might use which tool to simulate a paintbrush?", options: ["Stylus and tablet", "Palette knife", "Roller", "Pencil"], answer: 0 },
+    { question: "The technique of using torn paper to create images is called:", options: ["Collage", "Rubbing", "Stencil", "Impression"], answer: 0 },
+    { question: "Which technique involves dripping or splattering paint onto a surface?", options: ["Action painting", "Pointillism", "Underpainting", "Trompe-l'œil"], answer: 0 },
+    { question: "In printmaking, what is a 'relief print'?", options: ["Ink is applied to raised surfaces", "Ink fills carved grooves", "Paint is sprayed evenly", "An image is projected on paper"], answer: 0 },
+    { question: "What is the main ingredient in oil paints?", options: ["Linseed oil", "Water", "Acrylic polymer", "Wax"], answer: 0 },
+    { question: "Which process involves melting metal and pouring it into a mold?", options: ["Casting", "Forging", "Carving", "Molding"], answer: 0 },
+    { question: "What is a 'triptych'?", options: ["An artwork divided into three panels", "A sculpture made of three materials", "A painting with three colors", "A three-dimensional mural"], answer: 0 },
+    { question: "Which tool is used to smooth and burnish pencil drawings?", options: ["Blending stump", "Palette knife", "Ruler", "Stylus"], answer: 0 }
+  ]
+};
+
+/* ==========================
+   GAME STATE & HELPERS
+   ========================== */
+
+// How many questions per playthrough
+const QUESTIONS_PER_GAME = 10;
+
+// Fisher–Yates shuffle
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+let currentCategory = [];
+let currentQuestion = 0;
+let score = 0;
+
+const container = document.getElementById("gameContainer");
+const ambient = document.getElementById("ambient");
+const chime = document.getElementById("chime");
+const brush = document.getElementById("brush");
+
+/* ==========================
+   START & QUESTION FLOW
+   ========================== */
+
+function startCategory(cat) {
+  const pool = categories[cat];
+  if (!pool || !pool.length) return;
+
+  // make a shuffled copy of the full pool
+  const shuffledPool = shuffle([...pool]);
+  // take a random subset for this run
+  currentCategory = shuffledPool.slice(
+    0,
+    Math.min(QUESTIONS_PER_GAME, shuffledPool.length)
+  );
+
+  currentQuestion = 0;
+  score = 0;
+  ambient.volume = 0.3;
+  ambient.play().catch(()=>{});
+  showQuestion();
+}
+
+function showQuestion() {
+  const q = currentCategory[currentQuestion];
+  if (!q) return;
+
+  // build a shuffled list of option indices [0,1,2,3...]
+  const optionIndices = shuffle(q.options.map((_, i) => i));
+
+  container.classList.remove("fade");
+  void container.offsetWidth; // restart animation
+  container.classList.add("fade");
+  brush.currentTime = 0;
+  brush.play().catch(()=>{});
+
+  const optionsHtml = optionIndices
+    .map(optIndex => `
+      <button class="option-btn" onclick="checkAnswer(${optIndex})">
+        ${q.options[optIndex]}
+      </button>
+    `)
+    .join('');
+
+  container.innerHTML = `
+    <h1>${q.question}</h1>
+    <p class="meta">Question ${currentQuestion + 1} of ${currentCategory.length}</p>
+    <div class="options">
+      ${optionsHtml}
+    </div>
+    <div class="feedback" id="feedback"></div>
+    <div class="score">Score: ${score} / ${currentCategory.length}</div>
+  `;
+}
+
+function checkAnswer(selected) {
+  const feedback = document.getElementById("feedback");
+  const correctIndex = currentCategory[currentQuestion].answer;
+
+  if (selected === correctIndex) {
+    chime.currentTime = 0;
+    chime.play().catch(()=>{});
+    feedback.textContent = "✅ Correct!";
+    feedback.style.color = "#00c9a7";
+    score++;
+  } else {
+    feedback.textContent = "❌ Try Again!";
+    feedback.style.color = "#f78da7";
+    return; // let them pick again
+  }
+
+  currentQuestion++;
+  if (currentQuestion < currentCategory.length) {
+    setTimeout(showQuestion, 1000);
+  } else {
+    setTimeout(endGame, 1000);
+  }
+}
+
+function endGame() {
+  ambient.pause();
+  const totalScore = parseInt(localStorage.getItem("totalScore") || "0", 10) + score;
+  localStorage.setItem("totalScore", totalScore);
+
+  container.innerHTML = `
+    <h1>✨ Well Done ✨</h1>
+    <p>You scored ${score} / ${currentCategory.length} this round.</p>
+    <p>Total Mastery Points: ${totalScore}</p>
+    <div class="options">
+      <button onclick="goHome()">🏛 Back to Gallery</button>
+      <button onclick="replay()">🔁 Play Again</button>
+    </div>
+  `;
+}
+
+function goHome() {
+  container.innerHTML = `
+    <h1>Sovereign Arts Trivia</h1>
+    <p>Choose your creative realm — let sound, color, and memory guide you.</p>
+    <div class="options">
+      <button onclick="startCategory('artists')">🎨 Famous Artists</button>
+      <button onclick="startCategory('therapy')">🌈 Color & Sound Therapy</button>
+      <button onclick="startCategory('history')">📜 Art History</button>
+      <button onclick="startCategory('techniques')">🖌️ Art Techniques</button>
+    </div>
+  `;
+}
+
+function replay() {
+  // Just send them home so they can choose the same or a different realm
+  goHome();
+}
+</script>
+</body>
+</html>
