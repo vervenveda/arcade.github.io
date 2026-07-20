@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Canon & Variants Trivia — 20 Questions</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#0b1220; --card:#111a2a; --ink:#f5f1e7; --muted:#c7c0b3;
+      --accent:#7dd3fc; --gold:#f7d38c; --border:rgba(255,255,255,.14);
+      --r:18px; --shadow:0 16px 40px rgba(0,0,0,.35);
+    }
+    body{margin:0; font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial; background: radial-gradient(900px 500px at 20% -10%, rgba(125,211,252,.18), transparent 55%), var(--bg); color:var(--ink);}
+    .wrap{max-width:820px; margin:0 auto; padding:16px}
+    .hero{
+      border:1px solid var(--border); border-radius:var(--r); background: linear-gradient(180deg, rgba(17,26,42,.85), rgba(17,26,42,.65));
+      box-shadow:var(--shadow); padding:18px; text-align:center;
+    }
+    h1{margin:0; font-family:Cinzel,serif; letter-spacing:.4px; font-size:22px}
+    .sub{color:var(--muted); margin-top:8px}
+    .row{display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:12px}
+    .btn{
+      font: inherit; border:1px solid var(--border); background: rgba(255,255,255,.06); color:var(--ink);
+      border-radius:999px; padding:10px 14px; cursor:pointer;
+    }
+    .btn.primary{border-color: rgba(125,211,252,.35); background: rgba(125,211,252,.10)}
+    .btn.gold{border-color: rgba(247,211,140,.35); background: rgba(247,211,140,.10)}
+    .card{margin-top:14px; border:1px solid var(--border); border-radius:var(--r); background: rgba(17,26,42,.75); box-shadow:var(--shadow); padding:16px}
+    .q{border:1px solid var(--border); border-radius:14px; padding:12px; margin:10px 0; background: rgba(0,0,0,.18)}
+    .qt{font-weight:700; margin-bottom:8px}
+    label{display:block; margin:6px 0; cursor:pointer}
+    .score{margin-top:12px; padding:10px 12px; border:1px solid var(--border); border-radius:14px; background: rgba(125,211,252,.08)}
+    .muted{color:var(--muted)}
+    a{color:var(--accent); text-decoration:none}
+    a:hover{text-decoration:underline}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hero">
+    <h1>Canon & Variants Trivia</h1>
+    <div class="sub">20 quick questions • learn the basics • then jump into the full portal</div>
+    <div class="row">
+      <button class="btn gold" id="start">Start</button>
+      <button class="btn" id="shuffle">Shuffle</button>
+      <button class="btn primary" id="grade">Grade</button>
+      <button class="btn" id="reset">Reset</button>
+      <button class="btn primary" id="goPortal">Go to Full Course Portal →</button>
+    </div>
+  </div>
+
+  <div class="card" id="game" style="display:none"></div>
+  <div class="card score" id="scoreBox" style="display:none"></div>
+</div>
+
+<script>
+  // ✅ Set this to your Wix portal page URL
+  const PORTAL_URL = "www.khaemenesacademy.org/faith-knowledge";
+
+  const Q = [
+    {t:"tf", p:"Matthew 17:21 is absent in many key early manuscripts (often footnoted).", a:true},
+    {t:"tf", p:"All Bible manuscripts are perfectly identical in every verse.", a:false},
+    {t:"mc", p:"A textual footnote usually indicates…", o:["a secret code","a manuscript/translation note","a modern rewrite","a printing mistake"], ai:1},
+    {t:"mc", p:"In Mark 9:29, many manuscripts add ‘and fasting,’ but some notes argue it’s…", o:["earlier","a later expansion","impossible Greek","a modern invention"], ai:1},
+    {t:"tf", p:"Even if ‘fasting’ is disputed in one verse, Scripture still teaches fasting elsewhere.", a:true},
+
+    {t:"mc", p:"Matthew 6:13 doxology (‘For yours is the kingdom…’) is often treated as…", o:["universally original","a later liturgical addition in many manuscripts","a Roman law","a Hebrew-only line"], ai:1},
+    {t:"tf", p:"Acts 8:37 is commonly footnoted because it’s missing in many important witnesses.", a:true},
+    {t:"mc", p:"Mark 16:9–20 is notable because…", o:["it has multiple endings in manuscripts","it was written in the 1900s","it replaces all Gospels","it’s only in Latin"], ai:0},
+    {t:"mc", p:"John 7:53–8:11 is sometimes bracketed because…", o:["it never existed","it has complex manuscript placement/history","Greek has no word for sin","John is fake"], ai:1},
+    {t:"tf", p:"Bracketed passages usually mean editors are hiding the Bible from you.", a:false},
+
+    {t:"mc", p:"A good ‘doctrine’ method is to…", o:["build on one disputed phrase only","use multiple clear passages together","avoid Scripture","avoid prayer"], ai:1},
+    {t:"tf", p:"Scribes sometimes harmonized one Gospel toward another.", a:true},
+    {t:"mc", p:"1 Timothy 3:16 is famous for a variant like…", o:["‘God’ vs ‘who’","‘fish’ vs ‘bread’","‘Jerusalem’ vs ‘Rome’","‘king’ vs ‘queen’"], ai:0},
+    {t:"mc", p:"The ‘Comma Johanneum’ refers to…", o:["a later expansion in some 1 John 5 traditions","a city in Judea","a psalm title","a Dead Sea Scroll"], ai:0},
+    {t:"tf", p:"It’s possible to study variants honestly without losing faith.", a:true},
+
+    {t:"mc", p:"‘Canon’ most directly means…", o:["a weapon","a recognized standard/list","a hymn book","a translation"], ai:1},
+    {t:"tf", p:"Different Christian traditions have differed on some Old Testament book lists.", a:true},
+    {t:"mc", p:"A calm next step when you see a footnote is…", o:["panic","read the note + compare translations","declare fraud","stop praying"], ai:1},
+    {t:"tf", p:"Every variant is equally important and changes the whole message.", a:false},
+    {t:"mc", p:"A respectful way to discuss these topics is to…", o:["name evidence, not enemies","mock questions","assume motives","refuse sources"], ai:0},
+  ];
+
+  let order = [...Array(Q.length)].map((_,i)=>i);
+
+  function shuffle(a){
+    for(let i=a.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i],a[j]]=[a[j],a[i]];
+    }
+    return a;
+  }
+
+  function render(){
+    const game = document.getElementById("game");
+    game.style.display = "block";
+    game.innerHTML = "";
+    order.forEach((qi, idx)=>{
+      const q = Q[qi];
+      const id = "q_"+idx;
+      const wrap = document.createElement("div");
+      wrap.className = "q";
+      wrap.innerHTML = `<div class="qt">Q${idx+1}. ${q.p}</div>`;
+      if(q.t==="tf"){
+        wrap.innerHTML += `
+          <label><input type="radio" name="${id}" value="true"> True</label>
+          <label><input type="radio" name="${id}" value="false"> False</label>
+        `;
+      }else{
+        q.o.forEach((opt, oi)=>{
+          wrap.innerHTML += `<label><input type="radio" name="${id}" value="${oi}"> ${opt}</label>`;
+        });
+      }
+      game.appendChild(wrap);
+    });
+    document.getElementById("scoreBox").style.display = "none";
+  }
+
+  function grade(){
+    let correct=0;
+    order.forEach((qi, idx)=>{
+      const q = Q[qi];
+      const id = "q_"+idx;
+      const pick = document.querySelector(`input[name="${id}"]:checked`);
+      if(!pick) return;
+      if(q.t==="tf"){
+        const ans = q.a ? "true" : "false";
+        if(pick.value === ans) correct++;
+      }else{
+        if(String(pick.value) === String(q.ai)) correct++;
+      }
+    });
+    const total = Q.length;
+    const pct = Math.round((correct/total)*100);
+    const box = document.getElementById("scoreBox");
+    box.style.display = "block";
+    box.innerHTML = `<div><strong>Score:</strong> ${correct}/${total} (${pct}%)</div>
+                     <div class="muted" style="margin-top:6px">Want the full lessons + notes + homework? Use the portal button above.</div>`;
+  }
+
+  document.getElementById("start").onclick = ()=> render();
+  document.getElementById("shuffle").onclick = ()=>{
+    order = shuffle(order);
+    render();
+  };
+  document.getElementById("grade").onclick = ()=> grade();
+  document.getElementById("reset").onclick = ()=>{
+    order = [...Array(Q.length)].map((_,i)=>i);
+    document.getElementById("game").style.display="none";
+    document.getElementById("scoreBox").style.display="none";
+  };
+  document.getElementById("goPortal").onclick = ()=>{
+    if(PORTAL_URL === "YOUR_PORTAL_URL_HERE"){
+      alert("Set PORTAL_URL in the code first (your Wix portal page link).");
+      return;
+    }
+    window.location.href = PORTAL_URL;
+  };
+</script>
+</body>
+</html>
