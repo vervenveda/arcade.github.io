@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Progressive Hangman (Canvas Edition)</title>
+<style>
+  :root{
+    --ink:#111827;
+    --bg:#e5edff;
+    --card:#ffffff;
+    --accent:#2563eb;
+    --muted:#6b7280;
+    --danger:#b91c1c;
+    --win:#065f46;
+  }
+  *{box-sizing:border-box}
+
+  body{
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+    margin:0;
+    min-height:100vh;
+    background:
+      radial-gradient(circle at 0% 0%, #e0edff 0, #f9fafb 38%, #eef2ff 100%);
+    color:var(--ink);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:18px 12px 28px;
+  }
+
+  h1{
+    margin:.2rem 0 .25rem;
+    font-size:1.7rem;
+    letter-spacing:.03em;
+  }
+  .tagline{
+    font-size:.9rem;
+    color:var(--muted);
+    margin-bottom:12px;
+    text-align:center;
+  }
+
+  #game-container{
+    background:var(--card);
+    border-radius:18px;
+    box-shadow:0 10px 26px rgba(15,23,42,.14);
+    padding:14px 14px 18px;
+    width:min(720px,94vw);
+    text-align:center;
+  }
+
+  .topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    margin-bottom:10px;
+    flex-wrap:wrap;
+  }
+
+  .levelBox{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    gap:3px;
+  }
+  .levelLabel{
+    font-size:.75rem;
+    text-transform:uppercase;
+    letter-spacing:.12em;
+    color:var(--muted);
+  }
+  #levelSelect{
+    padding:6px 12px;
+    border-radius:999px;
+    border:1px solid #d1d5db;
+    font-size:.9rem;
+    background:#f9fafb;
+    cursor:pointer;
+  }
+
+  .row{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    justify-content:flex-end;
+    align-items:center;
+  }
+
+  .ctrl-btn{
+    padding:7px 12px;
+    cursor:pointer;
+    font-size:.88rem;
+    border-radius:999px;
+    border:1px solid #e5e7eb;
+    background:#f9fafb;
+    color:#111827;
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    transition:background .15s, box-shadow .15s, transform .1s;
+  }
+  .ctrl-btn:hover{
+    background:#eef2ff;
+    box-shadow:0 1px 4px rgba(15,23,42,.12);
+    transform:translateY(-1px);
+  }
+  .ctrl-btn.danger{
+    border-color:#fecaca;
+    color:#7f1d1d;
+    background:#fef2f2;
+  }
+  .ctrl-btn.danger:hover{
+    background:#fee2e2;
+  }
+
+  .canvasWrap{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    margin:6px 0 2px;
+  }
+  canvas{
+    width:320px;
+    height:240px;
+    max-width:92vw;
+    border-radius:14px;
+    background:#fff;
+    box-shadow:inset 0 0 0 1px rgba(148,163,184,.25);
+  }
+
+  .word{
+    font-size:2rem;
+    letter-spacing:10px;
+    margin:12px 0 6px;
+    font-weight:600;
+  }
+
+  #misses{
+    margin-top:4px;
+    color:var(--muted);
+    font-size:.9rem;
+    min-height:1.1em;
+  }
+
+  .letters{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(34px, 1fr));
+    gap:6px;
+    margin-top:10px;
+  }
+  .letters button{
+    padding:8px 0;
+    font-size:.98rem;
+    cursor:pointer;
+    border:1px solid #e5e7eb;
+    border-radius:9px;
+    background:#f9fafb;
+    transition:background .12s, transform .08s, box-shadow .12s, opacity .1s;
+  }
+  .letters button:hover:not(:disabled){
+    background:#e0edff;
+    box-shadow:0 0 0 1px rgba(37,99,235,.25);
+    transform:translateY(-1px);
+  }
+  .letters button:disabled{
+    opacity:.45;
+    cursor:default;
+  }
+
+  .hintRow{
+    display:flex;
+    justify-content:center;
+    margin-top:12px;
+  }
+  .hint-btn{
+    padding:8px 14px;
+    cursor:pointer;
+    font-size:.9rem;
+    border-radius:999px;
+    border:1px solid #c7d2fe;
+    background:#eef2ff;
+    color:#1d4ed8;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    transition:background .12s, box-shadow .12s, transform .08s, opacity .1s;
+  }
+  .hint-btn:hover:not(:disabled){
+    background:#e0ecff;
+    box-shadow:0 0 0 1px rgba(59,130,246,.3);
+    transform:translateY(-1px);
+  }
+  .hint-btn:disabled{
+    opacity:.5;
+    cursor:default;
+  }
+
+  #message{
+    margin-top:10px;
+    font-size:1.02rem;
+    min-height:1.4em;
+    transition:color .12s;
+  }
+  #message.win{color:var(--win);}
+  #message.lose{color:var(--danger);}
+
+  .stats{
+    margin-top:10px;
+    font-size:.9rem;
+    color:#374151;
+  }
+
+  @media (max-width:540px){
+    #game-container{
+      padding:12px 10px 16px;
+      border-radius:16px;
+    }
+    .topbar{
+      align-items:flex-start;
+    }
+    .word{
+      font-size:1.7rem;
+      letter-spacing:8px;
+    }
+  }
+</style>
+</head>
+<body>
+<h1>Progressive Hangman</h1>
+<div class="tagline">Unique word lab · Level up from Easy → Medium → Hard</div>
+
+<div id="game-container">
+  <div class="topbar">
+    <div class="levelBox">
+      <div class="levelLabel">Level</div>
+      <select id="levelSelect">
+        <option value="easy">Easy</option>
+        <option value="medium">Medium</option>
+        <option value="hard">Hard</option>
+      </select>
+    </div>
+    <div class="row">
+      <button class="ctrl-btn" id="newGameBtn" title="Skip to a new word">
+        ⤴︎ New word
+      </button>
+      <button class="ctrl-btn danger" id="resetStatsBtn" title="Reset stats">
+        Reset stats
+      </button>
+    </div>
+  </div>
+
+  <div class="canvasWrap">
+    <canvas id="hangmanCanvas" width="320" height="240" aria-label="hangman"></canvas>
+  </div>
+
+  <div class="word" id="displayWord"></div>
+  <div id="misses"></div>
+
+  <div class="letters" id="letterButtons"></div>
+
+  <div class="hintRow">
+    <button class="hint-btn" id="hintBtn">
+      💡 Smart hint
+    </button>
+  </div>
+
+  <div id="message"></div>
+  <div class="stats" id="stats"></div>
+</div>
+
+<script>
+// ---------- Word Pools (kept exactly as yours) ----------
+const easyWords = [
+  "ball","stair","step","window","tree","cat","sheep","couch","paint","mirror","piano", "dog","light","junk","stool","pencil","glass","plane","smile","leaf","coat","wood","table","horse","plant","sheep","dear","accept","three","bridge","fuel","cat","cozey","sphere","lizard","destiny","happy",
+  "sudden","frontier","beast","irony","friend","moon","item","dog","jazzy","sun","king",
+  "bean","soul","love","milk","book","cancer","beard","house","tree","bottom","editor",
+  "fuzed","cactus","before","depend","books","fish","zebra","debate","active","bird",
+  "ball","zooks","choky","wacky","cake","coded","border","rain","yucky"
+];
+const mediumWords = [
+  "guitar","curtains","thirst","tuxedo","hunger","feather","scissors","gallery","change","elephant","happiness","health","rhyme","believe","weather","seperate","neccessary","rhythm","understand","chocolate","smoothy","editorial","deserve","carnival","similar","systematic","graduate","faucet","twibble","bridge","jowly","border","planet","flower","pazzazz","jazzily","prithee","guitar","easels","factor","dacite",
+  "jalopy","kanone","nailed","tactus","values","zester","abjure","zombify","jackpot",
+  "woozily","zymogen","squushy","qawwali","haggle","nachos","tagrag","yatter","veejays",
+  "wizened","abates","talkbox","skyways","payback","jollify","hawkish","foozled","bridge",
+  "window","blanket","library","kitchen","bottle","diamond"
+];
+const hardWords = [
+  "javascript","algorithm","quayage","kopiyka","chimpanzee","deoxidizer","hefeweizen",
+  "hydromancy","skiagraphy","ruggedized","pickleworm","prejudiced","pauperizer",
+  "quickwater","snazziness","symptomize","jackfruits","piwakawaka","subjacency",
+  "unjoyfully","magazinish","paralyzing","zoomorphic","hyponym","sovereignty",
+  "hypozeuxis","razzmatazz","whizzingly","jazzersize","kaleidoscope","quizzical",
+  "xylophone","labyrinth","juxtapose","onomatopoeia","chivalrous"
+];
+
+// ---------- State ----------
+let currentLevel = "easy";
+let pool = [...easyWords];
+let currentWord = "";
+let guessed = new Set();
+let wrong = new Set();
+let displayWord = "";
+let incorrectGuesses = 0;
+const MAX_ERRORS = 7; // 0..7 (8 frames)
+
+// ---------- Stats (persisted) ----------
+let stats = JSON.parse(localStorage.getItem('hangman_stats_canvas') || "null") || {
+  easy:{wins:0,losses:0},
+  medium:{wins:0,losses:0},
+  hard:{wins:0,losses:0}
+};
+
+// ---------- DOM ----------
+const displayEl   = document.getElementById('displayWord');
+const lettersEl   = document.getElementById('letterButtons');
+const messageEl   = document.getElementById('message');
+const statsEl     = document.getElementById('stats');
+const hintBtn     = document.getElementById('hintBtn');
+const missesEl    = document.getElementById('misses');
+const newGameBtn  = document.getElementById('newGameBtn');
+const resetStatsBtn = document.getElementById('resetStatsBtn');
+const levelSelect = document.getElementById('levelSelect');
+
+// ---------- Canvas (HiDPI-safe) ----------
+const canvas = document.getElementById('hangmanCanvas');
+let ctx = setupHiDPI(canvas);
+window.addEventListener('resize', () => {
+  ctx = setupHiDPI(canvas);
+  drawHangman(ctx, incorrectGuesses);
+});
+
+function setupHiDPI(cv){
+  const cssW = cv.clientWidth || 320;
+  const cssH = cv.clientHeight || 240;
+  const dpr = Math.max(1, window.devicePixelRatio || 1);
+  cv.width = Math.round(cssW * dpr);
+  cv.height = Math.round(cssH * dpr);
+  const c = cv.getContext('2d');
+  c.setTransform(dpr,0,0,dpr,0,0);
+  return c;
+}
+
+function drawHangman(ctx, step=0){
+  const W = canvas.clientWidth || 320;
+  const H = canvas.clientHeight || 240;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  ctx.fillStyle = "#fbfbfd";
+  ctx.fillRect(0,0,W,H);
+
+  const u = Math.min(W, H) / 20;
+  const baseY = H - 1.5*u;
+  const centerX = W*0.35;
+
+  ctx.strokeStyle = "#1f2a44";
+  ctx.lineWidth = Math.max(2, u/4);
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+
+  const L = (x1,y1,x2,y2)=>{
+    ctx.beginPath();
+    ctx.moveTo(x1,y1);
+    ctx.lineTo(x2,y2);
+    ctx.stroke();
+  };
+
+  // Scaffold (0..4)
+  if(step>=0) L(centerX-10*u, baseY, centerX+10*u, baseY);
+  if(step>=1) L(centerX-7*u, baseY, centerX-2*u, baseY);
+  if(step>=2) L(centerX-6*u, baseY, centerX-6*u, baseY-14*u);
+  if(step>=3) L(centerX-6*u, baseY-14*u, centerX+6.5*u, baseY-14*u);
+  if(step>=4) L(centerX+6.5*u, baseY-14*u, centerX+6.5*u, baseY-10*u);
+
+  const rx = centerX+6.5*u;
+  const ry = baseY-10*u;
+
+  // Person (5..7)
+  if(step>=5){
+    ctx.beginPath();
+    ctx.arc(rx, ry+2*u, 2*u, 0, Math.PI*2);
+    ctx.stroke();
+  }
+  if(step>=6){
+    L(rx, ry+4*u, rx, ry+9*u);
+    L(rx, ry+5.5*u, rx-3*u, ry+7.5*u);
+    L(rx, ry+5.5*u, rx+3*u, ry+7.5*u);
+  }
+  if(step>=7){
+    L(rx, ry+9*u, rx-3*u, ry+13*u);
+    L(rx, ry+9*u, rx+3*u, ry+13*u);
+  }
+
+  ctx.strokeStyle = "rgba(31,42,68,.15)";
+  L(centerX-10*u, baseY+u/4, centerX+10*u, baseY+u/4);
+}
+
+// ---------- Helpers ----------
+function normalizeWord(w){
+  return w.replace(/[^A-Za-z]/g,"").toUpperCase();
+}
+
+function setMessage(text, cls=""){
+  messageEl.className="";
+  if(cls) messageEl.classList.add(cls);
+  messageEl.textContent = text;
+}
+
+function saveStats(){
+  localStorage.setItem('hangman_stats_canvas', JSON.stringify(stats));
+}
+
+function updateStats(){
+  const st = stats[currentLevel];
+  const totalWords =
+    currentLevel==="easy"   ? easyWords.length :
+    currentLevel==="medium" ? mediumWords.length :
+    hardWords.length;
+  const used = totalWords - pool.length;
+  const niceLevel = currentLevel.charAt(0).toUpperCase()+currentLevel.slice(1);
+  statsEl.textContent =
+    `${niceLevel} · Wins: ${st.wins} · Losses: ${st.losses} · Words played: ${used}/${totalWords} · Left: ${pool.length}`;
+}
+
+function updateDisplay(){
+  displayEl.textContent = displayWord.split("").join(" ");
+  if(wrong.size){
+    missesEl.textContent =
+      `Misses (${wrong.size}/${MAX_ERRORS}): ${[...wrong].join(" ")}`;
+  } else {
+    missesEl.textContent = "No misses yet. Stay sharp. 🧠";
+  }
+}
+
+// ---------- Level + Pool ----------
+function setLevel(level){
+  currentLevel = level;
+  pool =
+    level==="easy"   ? [...easyWords] :
+    level==="medium" ? [...mediumWords] :
+                       [...hardWords];
+  if(levelSelect.value !== level){
+    levelSelect.value = level;
+  }
+}
+
+// ---------- UI ----------
+function createLetterButtons(){
+  lettersEl.innerHTML = "";
+  for(let i=65;i<=90;i++){
+    const ch = String.fromCharCode(i);
+    const btn = document.createElement("button");
+    btn.textContent = ch;
+    btn.disabled = guessed.has(ch) || wrong.has(ch);
+    btn.onclick = ()=>{
+      btn.disabled = true;
+      btn.style.opacity = 0.6;
+      guessLetter(ch);
+    };
+    lettersEl.appendChild(btn);
+  }
+}
+
+function disableAllLetterButtons(){
+  lettersEl.querySelectorAll("button").forEach(b=> b.disabled = true);
+}
+
+// ---------- Game Flow ----------
+function startGame(newLevel=null){
+  if(newLevel){
+    setLevel(newLevel);
+  }
+  // if pool exhausted, auto-step up; after hard, celebrate and stop until user picks a level
+  if(pool.length===0){
+    if(currentLevel==="easy"){
+      setLevel("medium");
+    }else if(currentLevel==="medium"){
+      setLevel("hard");
+    }else{
+      setMessage("🎉 You completed all levels! Pick any level to play again.", "win");
+      displayEl.textContent="";
+      lettersEl.innerHTML="";
+      missesEl.textContent="";
+      drawHangman(ctx, 0);
+      hintBtn.style.display="none";
+      updateStats();
+      return;
+    }
+  }
+
+  hintBtn.style.display="inline-flex";
+  hintBtn.disabled = false;
+  hintBtn.style.opacity = 1;
+
+  const idx = Math.floor(Math.random()*pool.length);
+  currentWord = normalizeWord(pool[idx]);
+  pool.splice(idx,1);
+
+  guessed.clear();
+  wrong.clear();
+  incorrectGuesses = 0;
+  displayWord = currentWord.replace(/./g,"_");
+
+  setMessage("");
+  updateDisplay();
+  createLetterButtons();
+  drawHangman(ctx, incorrectGuesses);
+  updateStats();
+}
+
+function guessLetter(letter){
+  letter = letter.toUpperCase();
+  if(!currentWord) return;
+  if(guessed.has(letter) || wrong.has(letter)) return;
+
+  if(currentWord.includes(letter)){
+    guessed.add(letter);
+    let out = "";
+    for(let i=0;i<currentWord.length;i++){
+      const ch = currentWord[i];
+      out += guessed.has(ch) ? ch : "_";
+    }
+    displayWord = out;
+    updateDisplay();
+
+    if(!displayWord.includes("_")){
+      setMessage("✅ Correct! New word loading…", "win");
+      stats[currentLevel].wins++;
+      saveStats();
+      disableAllLetterButtons();
+      setTimeout(()=> startGame(), 1100);
+    }
+  } else {
+    wrong.add(letter);
+    incorrectGuesses = Math.min(MAX_ERRORS, incorrectGuesses+1);
+    drawHangman(ctx, incorrectGuesses);
+    updateDisplay();
+
+    if(incorrectGuesses >= MAX_ERRORS){
+      setMessage(`❌ You lost! The word was: ${currentWord}`, "lose");
+      stats[currentLevel].losses++;
+      saveStats();
+      disableAllLetterButtons();
+      setTimeout(()=> startGame(), 1500);
+    }
+  }
+
+  const btn = [...lettersEl.querySelectorAll("button")]
+    .find(b => b.textContent === letter);
+  if(btn){
+    btn.disabled = true;
+    btn.style.opacity = .6;
+  }
+  updateStats();
+}
+
+// ---------- Hint ----------
+function provideHint(){
+  if(!currentWord) return;
+  const remaining = currentWord.split("").filter(ch=>!guessed.has(ch));
+  if(!remaining.length) return;
+
+  // "Smart-ish" hint: prefer letters that appear more than once,
+  // otherwise pick a random remaining letter.
+  const freq = {};
+  for(const ch of remaining){
+    freq[ch] = (freq[ch] || 0) + 1;
+  }
+  const multi = Object.entries(freq)
+    .filter(([_,n])=>n>1)
+    .map(([ch])=>ch);
+  const poolLetters = multi.length ? multi : remaining;
+  const hintLetter = poolLetters[Math.floor(Math.random()*poolLetters.length)];
+
+  guessLetter(hintLetter);
+  hintBtn.disabled = true;
+  hintBtn.style.opacity = .6;
+}
+
+// ---------- Controls ----------
+hintBtn.onclick = provideHint;
+newGameBtn.onclick = ()=> startGame();
+resetStatsBtn.onclick = ()=>{
+  if(confirm("Reset stats for all levels?")){
+    stats = {
+      easy:{wins:0,losses:0},
+      medium:{wins:0,losses:0},
+      hard:{wins:0,losses:0}
+    };
+    saveStats();
+    updateStats();
+    setMessage("Stats cleared. Fresh start!");
+  }
+};
+levelSelect.addEventListener('change', e=>{
+  startGame(e.target.value);
+});
+
+// Keyboard: type A–Z to guess
+window.addEventListener('keydown', (e)=>{
+  if(e.key.length===1 && /[a-z]/i.test(e.key)){
+    guessLetter(e.key.toUpperCase());
+  }
+});
+
+// ---------- Boot ----------
+setLevel("easy");
+startGame();
+</script>
+</body>
+</html>
