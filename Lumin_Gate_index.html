@@ -1,0 +1,1563 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>LUMIN GATE — Aurora Puzzles</title>
+<style>
+  :root{
+    --bg1:#02061a;
+    --bg2:#07143a;
+    --accent:#7be7ff;
+    --accent2:#b88dff;
+    --muted:#9fb3c8;
+    --card: rgba(255,255,255,0.02);
+    --glass: rgba(255,255,255,0.03);
+    --radius:14px;
+  }
+  html,body{
+    height:100%;
+    margin:0;
+    font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto;
+    color:#e6f9ff;
+    background:radial-gradient(900px 500px at 10% 20%, #08112b 0%, var(--bg1) 30%, var(--bg2) 100%);
+    -webkit-font-smoothing:antialiased;
+  }
+  .app{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:22px;
+    box-sizing:border-box;
+  }
+  .shell{
+    width:1120px;
+    max-width:96vw;
+    border-radius:var(--radius);
+    padding:16px;
+    background:linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.01));
+    box-shadow:0 18px 60px rgba(2,6,23,0.7);
+    border:1px solid rgba(255,255,255,0.02);
+    display:grid;
+    grid-template-columns: 320px 1fr 320px;
+    gap:14px;
+    align-items:start;
+  }
+  header{
+    grid-column:1/-1;
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+  h1{
+    margin:0;
+    font-size:20px;
+  }
+  .muted{
+    color:var(--muted);
+    font-size:13px;
+  }
+  .left, .right{
+    background:var(--card);
+    border-radius:12px;
+    padding:12px;
+    min-height:360px;
+  }
+  .center{
+    background:var(--card);
+    border-radius:12px;
+    padding:12px;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    align-items:center;
+  }
+  canvas#aurora{
+    width:100%;
+    height:200px;
+    border-radius:10px;
+    display:block;
+  }
+  canvas#puzzle{
+    width:100%;
+    height:520px;
+    border-radius:10px;
+    background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.02));
+  }
+  .controls{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+  button{
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+    color:#042;
+    border:none;
+    padding:8px 12px;
+    border-radius:9px;
+    cursor:pointer;
+    font-weight:700;
+  }
+  button.ghost{
+    background:transparent;
+    border:1px solid rgba(255,255,255,0.04);
+    color:#dff6ff;
+  }
+  button.small{
+    padding:6px 8px;
+    font-size:13px;
+    border-radius:8px;
+  }
+  .slot{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:8px;
+    border-radius:8px;
+    background:rgba(255,255,255,0.01);
+    margin-bottom:8px;
+  }
+  .rune{
+    width:64px;
+    height:64px;
+    border-radius:10px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:800;
+    font-size:22px;
+    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border:1px solid rgba(255,255,255,0.03);
+  }
+  .banner{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    padding:10px;
+    border-radius:10px;
+    background:linear-gradient(90deg, rgba(123, 227, 255,0.06), rgba(184,141,255,0.03));
+    border:1px solid rgba(255,255,255,0.02);
+  }
+  .leaderboard{
+    max-height:180px;
+    overflow:auto;
+  }
+  .share-area{
+    display:flex;
+    gap:8px;
+    align-items:center;
+    flex-wrap:wrap;
+  }
+  .hint-list{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  footer{
+    grid-column:1/-1;
+    text-align:center;
+    color:var(--muted);
+    font-size:13px;
+    margin-top:8px;
+  }
+
+  /* HOW TO PLAY MODAL */
+  .modal-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(2,6,23,0.78);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:9999;
+    backdrop-filter:blur(10px);
+  }
+  .modal-overlay.show{
+    display:flex;
+  }
+  .modal-panel{
+    width:min(680px,92vw);
+    max-height:80vh;
+    overflow:auto;
+    background:rgba(5,15,40,0.96);
+    border-radius:14px;
+    border:1px solid rgba(255,255,255,0.06);
+    box-shadow:0 18px 60px rgba(0,0,0,0.75);
+    padding:16px 18px 18px;
+  }
+  .modal-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:10px;
+  }
+  .modal-header h2{
+    margin:0;
+    font-size:18px;
+  }
+  .modal-body h3{
+    margin:10px 0 6px;
+    font-size:14px;
+  }
+  .modal-body p,
+  .modal-body li{
+    font-size:13px;
+    line-height:1.5;
+  }
+
+  @media (max-width:980px){
+    .shell{grid-template-columns:1fr}
+    canvas#puzzle{height:420px}
+  }
+</style>
+</head>
+<body>
+<div class="app" role="application" aria-label="Lumin Gate">
+  <div class="shell" id="shell">
+    <header>
+      <div>
+        <h1>LUMIN GATE</h1>
+        <div class="muted">Aurora puzzles — tutorial, leaderboard, invites & rewards</div>
+      </div>
+      <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+        <label style="display:inline-flex;align-items:center;gap:8px" class="muted">
+          Voice <input id="voiceToggle" type="checkbox" checked style="transform:scale(1.1)">
+        </label>
+        <button id="replayTutorial" class="small ghost">Replay Tutorial</button>
+        <button id="exportAll" class="small ghost">Export</button>
+        <button id="importAll" class="small ghost">Import</button>
+      </div>
+    </header>
+
+    <!-- LEFT toolbar -->
+    <aside class="left" aria-hidden="false">
+      <div class="banner">
+        <div style="font-size:16px;font-weight:800">First Gate</div>
+        <div style="margin-left:auto" class="muted">Tutorial Ready</div>
+      </div>
+
+      <div style="height:12px"></div>
+
+      <div class="slot">
+        <div>
+          <div class="muted">Current Gate</div>
+          <div id="gateName" style="font-weight:800">—</div>
+          <div id="gateHint" class="muted" style="font-size:12px">—</div>
+        </div>
+        <div style="text-align:right">
+          <div class="muted">Seed</div>
+          <div id="seedLabel" style="font-family:monospace;color:#a7f0ff">—</div>
+        </div>
+      </div>
+
+      <div class="slot">
+        <div>
+          <div class="muted">Time</div>
+          <div id="timeLabel" style="font-weight:800">00:00</div>
+          <div class="muted" style="font-size:12px">Current</div>
+        </div>
+        <div style="text-align:right">
+          <div class="muted">Best</div>
+          <div id="bestLabel" style="font-weight:800">—</div>
+        </div>
+      </div>
+
+      <div style="height:8px"></div>
+
+      <div>
+        <div class="muted">Tools & Hints</div>
+        <div style="height:8px"></div>
+        <div class="hint-list">
+          <button id="toolReveal" class="small ghost">🔍 Reveal Hint (10 Light)</button>
+          <button id="toolAutoThread" class="small ghost">🧵 Auto-Thread (15 Light)</button>
+          <button id="toolStabilize" class="small ghost">🜂 Stabilize (20 Light)</button>
+          <button id="toolRemoveNoise" class="small ghost">🌫 Remove Noise (12 Light)</button>
+        </div>
+        <div style="height:12px"></div>
+        <div class="muted">Light: <span id="lightCount">0</span> • XP: <span id="xpCount">0</span></div>
+      </div>
+
+      <div style="height:12px"></div>
+
+      <div>
+        <div class="muted">Invitation</div>
+        <div style="height:8px"></div>
+        <div style="display:flex;gap:8px">
+          <input id="inviteCodeInput" placeholder="Invite code" style="flex:1;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.03)" />
+          <button id="redeemInvite" class="small">Redeem</button>
+        </div>
+        <div style="height:8px"></div>
+        <div class="muted">Your Code</div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <div id="myInvite" style="font-family:monospace;padding:6px 8px;border-radius:8px;background:rgba(255,255,255,0.02)">—</div>
+          <button id="copyInvite" class="small ghost">Copy</button>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- CENTER: aurora + puzzle -->
+    <main class="center" role="main">
+      <canvas id="aurora" width="720" height="200" aria-hidden="true"></canvas>
+      <canvas id="puzzle" width="720" height="520" aria-label="Puzzle canvas"></canvas>
+
+      <div style="display:flex;gap:8px;align-items:center;justify-content:space-between;width:100%;margin-top:4px">
+        <div class="muted">
+          Rotate sigils (drag / Shift+drag), hold Alt and drag to weave threads to runes, then press Check.
+        </div>
+        <div style="display:flex;gap:8px">
+          <button id="hintBtn" class="small ghost">Hint</button>
+          <button id="checkBtn" class="small">Check</button>
+          <button id="nextBtn" class="small ghost">Next Gate</button>
+        </div>
+      </div>
+
+      <div style="margin-top:8px;display:flex;gap:8px;align-items:center;width:100%;justify-content:space-between">
+        <div class="muted">Mode: <span id="modeLabel">Adaptive</span></div>
+        <div>
+          <button id="howToPlayBtn" class="small ghost">How to Play</button>
+          <button id="shareBtn" class="small ghost">Share Score</button>
+          <button id="leaderBtn" class="small ghost">Leaderboard</button>
+        </div>
+      </div>
+    </main>
+
+    <!-- RIGHT: palette, leaderboard, social -->
+    <aside class="right">
+      <div>
+        <div class="muted">Rune Palette</div>
+        <div id="runePalette" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px"></div>
+      </div>
+
+      <div style="height:12px"></div>
+
+      <div>
+        <div class="muted">Aurora Threads</div>
+        <div id="threadPalette" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"></div>
+      </div>
+
+      <div style="height:12px"></div>
+
+      <div>
+        <div class="muted">Leaderboard (Local)</div>
+        <div class="leaderboard" id="leaderboard"></div>
+        <div style="height:8px"></div>
+        <div style="display:flex;gap:8px">
+          <input id="playerName" placeholder="Your name" style="flex:1;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.03)" />
+          <button id="saveScore" class="small">Save</button>
+        </div>
+      </div>
+
+      <div style="height:12px"></div>
+
+      <div>
+        <div class="muted">Share & Invite</div>
+        <div style="height:8px"></div>
+        <div class="share-area">
+          <button id="shareX" class="small ghost">Share X</button>
+          <button id="shareLink" class="small ghost">Copy Link</button>
+          <button id="shareImage" class="small ghost">Share Image</button>
+        </div>
+      </div>
+
+    </aside>
+
+    <footer>© Lumin Gate — Local-first. Invite friends for rewards.</footer>
+
+    <!-- HOW TO PLAY MODAL -->
+    <div id="howToPlayModal" class="modal-overlay" aria-hidden="true">
+      <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="howToPlayTitle">
+        <div class="modal-header">
+          <h2 id="howToPlayTitle">How to Play LUMIN GATE</h2>
+          <button id="closeHowToPlay" class="small ghost">Close</button>
+        </div>
+        <div class="modal-body">
+          <p><strong>Goal:</strong> Rotate glowing sigils and weave light threads so each rune tile at the bottom only receives threads from sigils whose rotated symbol matches that rune’s symbol.</p>
+
+          <h3>Basic Controls</h3>
+          <ul>
+            <li><strong>Move a sigil:</strong> Click and drag a sigil to reposition it in the aurora field.</li>
+            <li><strong>Rotate a sigil:</strong> Hold <strong>Shift</strong> and drag around the sigil (or use right-click + drag on some devices) to rotate it.</li>
+            <li><strong>Weave a thread:</strong> Hold <strong>Alt</strong>, then click and drag from a sigil toward a rune tile to create or remove a light thread.</li>
+          </ul>
+
+          <h3>Winning the Gate</h3>
+          <ul>
+            <li>Each rune tile should have at least one thread attached.</li>
+            <li><strong>All</strong> threads going into a rune must come from sigils whose rotated symbol matches that rune’s symbol.</li>
+            <li>When every rune satisfies those rules, press <strong>Check</strong> to solve the Gate.</li>
+          </ul>
+
+          <h3>Light, XP & Difficulty</h3>
+          <ul>
+            <li>Solving Gates earns you <strong>Light</strong> and <strong>XP</strong> — faster solves earn more.</li>
+            <li>Recent solve times adjust the difficulty automatically in <strong>Adaptive</strong> mode.</li>
+            <li>Your best time and currency are saved locally on this device.</li>
+          </ul>
+
+          <h3>Tools</h3>
+          <ul>
+            <li><strong>🔍 Reveal Hint (10 Light):</strong> Highlights a shard that needs attention.</li>
+            <li><strong>🧵 Auto-Thread (15 Light):</strong> Weaves a helpful thread between a shard and a rune.</li>
+            <li><strong>🜂 Stabilize (20 Light):</strong> Rotates a shard so it better fits its connected runes.</li>
+            <li><strong>🌫 Remove Noise (12 Light):</strong> Removes a thread that’s carrying the wrong symbol into a rune.</li>
+          </ul>
+
+          <h3>Invites & Sharing</h3>
+          <ul>
+            <li>Use your invite code to let friends join and earn bonus Light when a code is redeemed.</li>
+            <li>Share your score or a gate image using the Share buttons on the right panel.</li>
+          </ul>
+
+          <p class="muted" style="margin-top:8px">
+            Tip: Start by stabilizing one rune at a time — match its symbol, clear bad threads, then move on.
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* Full LUMIN GATE — Integrated features:
+   - Interactive tutorial with ethereal guide voice + toggle
+   - Tuned difficulty mapping
+   - Persistent local leaderboard
+   - Invitation codes & reward redeem
+   - Tools, hints, Light currency, XP
+   - Social sharing (basic)
+   - Export/Import of session
+   - "How to Play" modal
+   - All client-side, vanilla JS
+*/
+(function(){
+  'use strict';
+  const K = {
+    STATE: 'LUMIN_STATE_v2',
+    PROGRESS: 'LUMIN_PROGRESS_v2',
+    LEADER: 'LUMIN_LEADER_v2',
+    INVITES: 'LUMIN_INVITES_v2',
+    SETTINGS: 'LUMIN_SETTINGS_v2'
+  };
+
+  function uid(prefix='id'){ return prefix + '_' + Math.random().toString(36).slice(2,9); }
+  function persist(key, value){ try{ localStorage.setItem(key, JSON.stringify(value)); }catch(e){ console.warn(e);} }
+  function retrieve(key, fallback){ try{ const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }catch(e){ return fallback; } }
+  function now(){ return Date.now(); }
+  function formatTime(ms){
+    if(ms === undefined || ms === null) return '00:00';
+    const s = Math.floor(ms/1000);
+    const m = Math.floor(s/60);
+    return m + ':' + String(s%60).padStart(2,'0');
+  }
+
+  const UI = {
+    aurora: document.getElementById('aurora'),
+    puzzle: document.getElementById('puzzle'),
+    gateName: document.getElementById('gateName'),
+    gateHint: document.getElementById('gateHint'),
+    seedLabel: document.getElementById('seedLabel'),
+    timeLabel: document.getElementById('timeLabel'),
+    bestLabel: document.getElementById('bestLabel'),
+    lightCount: document.getElementById('lightCount'),
+    xpCount: document.getElementById('xpCount'),
+    hintBtn: document.getElementById('hintBtn'),
+    checkBtn: document.getElementById('checkBtn'),
+    nextBtn: document.getElementById('nextBtn'),
+    replayTutorial: document.getElementById('replayTutorial'),
+    voiceToggle: document.getElementById('voiceToggle'),
+    toolReveal: document.getElementById('toolReveal'),
+    toolAutoThread: document.getElementById('toolAutoThread'),
+    toolStabilize: document.getElementById('toolStabilize'),
+    toolRemoveNoise: document.getElementById('toolRemoveNoise'),
+    runePalette: document.getElementById('runePalette'),
+    threadPalette: document.getElementById('threadPalette'),
+    leaderboard: document.getElementById('leaderboard'),
+    playerName: document.getElementById('playerName'),
+    saveScore: document.getElementById('saveScore'),
+    shareBtn: document.getElementById('shareBtn'),
+    shareX: document.getElementById('shareX'),
+    shareLink: document.getElementById('shareLink'),
+    shareImage: document.getElementById('shareImage'),
+    exportAll: document.getElementById('exportAll'),
+    importAll: document.getElementById('importAll'),
+    myInvite: document.getElementById('myInvite'),
+    copyInvite: document.getElementById('copyInvite'),
+    inviteCodeInput: document.getElementById('inviteCodeInput'),
+    redeemInvite: document.getElementById('redeemInvite'),
+    modeLabel: document.getElementById('modeLabel'),
+    leaderBtn: document.getElementById('leaderBtn'),
+    howToPlayBtn: document.getElementById('howToPlayBtn'),
+    howToPlayModal: document.getElementById('howToPlayModal'),
+    closeHowToPlay: document.getElementById('closeHowToPlay')
+  };
+
+  const PALETTE = ['#7ce7ff','#8bd3ff','#b88dff','#ffd38a','#ffa3d1'];
+  const RUNE_SYMBOLS = ['△','✦','✺','◇','○','✶','✷','⌖','✹'];
+  const DEFAULT_SETTINGS = { voiceOn:true, narrator:'ethereal', mode:'adaptive' };
+
+  let settings = retrieve(K.SETTINGS, DEFAULT_SETTINGS);
+  let progress = retrieve(K.PROGRESS, {
+    bestTime:null,
+    recent:[],
+    streak:0,
+    light:50,
+    xp:0,
+    lore:[],
+    redeemedInvites:[]
+  });
+  let leader = retrieve(K.LEADER, []);
+  let invites = retrieve(K.INVITES, { myCode:null, usedCodes:[] });
+
+  if(!invites.myCode){
+    invites.myCode = generateInviteCode();
+    persist(K.INVITES, invites);
+  }
+  UI.myInvite.textContent = invites.myCode;
+
+  function renderStats(){
+    UI.lightCount.textContent = progress.light || 0;
+    UI.xpCount.textContent = progress.xp || 0;
+    UI.bestLabel.textContent = progress.bestTime ? formatTime(progress.bestTime) : '—';
+  }
+  renderStats();
+
+  // Voice helpers
+  let voices = [];
+  function populateVoices(){
+    voices = (window.speechSynthesis && speechSynthesis.getVoices()) || [];
+  }
+  if('speechSynthesis' in window){
+    populateVoices();
+    if('onvoiceschanged' in speechSynthesis){
+      speechSynthesis.onvoiceschanged = populateVoices;
+    }
+  }
+
+  function speak(text, opts){
+    if(!settings.voiceOn) return;
+    if(!('speechSynthesis' in window)) return;
+    const options = Object.assign({rate:0.95,pitch:1.02,lang:'en-US'}, opts || {});
+    try{
+      const u = new SpeechSynthesisUtterance(text);
+      u.rate = options.rate;
+      u.pitch = options.pitch;
+      u.lang = options.lang;
+      const prefer = voices.find(v => /Samantha|Serena|Google UK English Female|Alloy/i.test(v.name));
+      if(prefer) u.voice = prefer;
+      speechSynthesis.cancel();
+      speechSynthesis.speak(u);
+    }catch(e){
+      console.warn('speak failed', e);
+    }
+  }
+
+  UI.voiceToggle.checked = settings.voiceOn;
+  UI.voiceToggle.addEventListener('change', ()=>{
+    settings.voiceOn = UI.voiceToggle.checked;
+    persist(K.SETTINGS, settings);
+  });
+
+  const canvas = UI.puzzle;
+  const ctx = canvas.getContext('2d');
+  const aur = UI.aurora;
+  const aCtx = aur.getContext('2d');
+
+  function resizeCanvas(){
+    const DPR = window.devicePixelRatio || 1;
+    aur.width = aur.clientWidth * DPR;
+    aur.height = aur.clientHeight * DPR;
+    canvas.width = canvas.clientWidth * DPR;
+    canvas.height = canvas.clientHeight * DPR;
+    drawAurora();
+    drawPuzzle();
+  }
+  window.addEventListener('resize', resizeCanvas);
+
+  let GATE = { seed:null, title:'', hint:'', difficulty:2, sigils:[], runes:[], threads:[] };
+  let session = { startTime:null, solving:false, currentTime:0, lastScore:null };
+
+  function seededRNG(seed){
+    let t = seed >>> 0;
+    return function(){
+      t += 0x6D2B79F5;
+      let r = Math.imul(t ^ (t >>> 15), t | 1);
+      r ^= r + Math.imul(r ^ (r >>> 7), r | 61);
+      return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  function generateGate(opts){
+    const seed = opts && typeof opts.seed === 'number'
+      ? opts.seed
+      : Math.floor(Math.random()*1e9);
+    const difficulty = opts && opts.difficulty ? opts.difficulty : 2;
+    const rng = seededRNG(seed);
+
+    GATE.seed = seed;
+    GATE.difficulty = difficulty;
+    GATE.sigils = [];
+    GATE.runes = [];
+    GATE.threads = [];
+
+    const DPR = window.devicePixelRatio || 1;
+    const W = canvas.width / DPR;
+    const H = canvas.height / DPR;
+    const centerX = W*0.5;
+    const centerY = H*0.4;
+
+    const sigilCount = 3 + Math.floor(GATE.difficulty * 1.2);
+    const runeCount = 2 + Math.floor(GATE.difficulty * 0.6);
+
+    const ring = Math.min(W,H) * 0.35;
+    for(let i=0;i<sigilCount;i++){
+      const a = (i/sigilCount)*Math.PI*2 + (rng()-0.5)*0.6;
+      const x = centerX + Math.cos(a)*ring + (rng()-0.5)*60;
+      const y = centerY + Math.sin(a)*ring + (rng()-0.5)*40;
+      const sides = 3 + Math.floor(rng()*4);
+      const rotation = Math.round(rng()*360);
+      const rsize = 40 + Math.round(rng()*36);
+      const color = PALETTE[Math.floor(rng()*PALETTE.length)];
+      const value = RUNE_SYMBOLS[Math.floor(rng()*RUNE_SYMBOLS.length)];
+      GATE.sigils.push({ id:uid('s'), x,y, sides, rotation, r:rsize, color, base:value });
+    }
+
+    const left = W*0.08;
+    const areaW = W*0.84;
+    for(let i=0;i<runeCount;i++){
+      const x = left + i*(areaW/runeCount) + (rng()-0.5)*24;
+      const y = centerY + ring*0.9 + (rng()-0.5)*28;
+      const w = 74;
+      const h = 74;
+      const base = GATE.sigils[Math.floor(rng()*GATE.sigils.length)].base;
+      GATE.runes.push({ id:uid('r'), x,y,w,h, value:base });
+    }
+
+    /* --- NEW: structured threads with a real solution --- */
+
+    // 1) Guaranteed correct mapping: each rune gets at least one "good" sigil
+    GATE.runes.forEach(r => {
+      // find sigil whose base symbol equals rune value
+      let candidate = GATE.sigils.find(s => s.base === r.value);
+      if (!candidate) {
+        candidate = GATE.sigils[Math.floor(rng() * GATE.sigils.length)];
+      }
+      GATE.threads.push({
+        id: uid('t'),
+        from: candidate.id,
+        to: r.id,
+        color: candidate.color,
+        strength: 1
+      });
+    });
+
+    // 2) Optional noise threads (wrong connections the player should clean up)
+    const noiseCount = Math.floor(GATE.difficulty * 1.5);
+    for (let i = 0; i < noiseCount; i++) {
+      const r = GATE.runes[Math.floor(rng() * GATE.runes.length)];
+      const s = GATE.sigils[Math.floor(rng() * GATE.sigils.length)];
+      // skip if base already matches rune value; we want deliberate "wrong" ones
+      if (s.base === r.value) continue;
+      GATE.threads.push({
+        id: uid('t'),
+        from: s.id,
+        to: r.id,
+        color: s.color,
+        strength: 1
+      });
+    }
+
+    const names = ['Gate of Quiet','Gate of Threads','Gate of Echoes','Gate of Lumen','Gate of Veils'];
+    GATE.title = names[Math.floor(rng()*names.length)] + ' • ' + (Math.abs(seed)%1000);
+    GATE.hint = [
+      'Rotate sigils so their rotated symbol matches runes.',
+      'Connect sigils to runes to pass the pattern.',
+      'Balance light across runes to decode.'
+    ][Math.floor(rng()*3)];
+
+    persist(K.STATE, GATE);
+    UI.gateName.textContent = GATE.title;
+    UI.gateHint.textContent = GATE.hint;
+    UI.seedLabel.textContent = String(seed);
+
+    session.startTime = Date.now();
+    session.solving = true;
+    session.currentTime = 0;
+    startTimer();
+    drawPuzzle();
+  }
+
+  function drawAurora(){
+    const DPR = window.devicePixelRatio || 1;
+    const W = aur.clientWidth * DPR;
+    const H = aur.clientHeight * DPR;
+    aur.width = W;
+    aur.height = H;
+
+    aCtx.clearRect(0,0,W,H);
+    const g = aCtx.createLinearGradient(0,0,0,H);
+    g.addColorStop(0,'#041028');
+    g.addColorStop(1,'#021029');
+    aCtx.fillStyle = g;
+    aCtx.fillRect(0,0,W,H);
+
+    const t = Date.now()/8000;
+    function band(y,color,alpha,amp,speed){
+      aCtx.save();
+      aCtx.globalAlpha = alpha;
+      aCtx.beginPath();
+      aCtx.moveTo(0,y);
+      for(let x=0;x<W;x+=6){
+        const vy = Math.sin((x/100) + t*speed)*amp;
+        aCtx.lineTo(x, y+vy);
+      }
+      aCtx.lineTo(W,H);
+      aCtx.lineTo(0,H);
+      aCtx.closePath();
+      const grad = aCtx.createLinearGradient(0,y,0,H);
+      grad.addColorStop(0,color);
+      grad.addColorStop(1,'transparent');
+      aCtx.fillStyle = grad;
+      aCtx.fill();
+      aCtx.restore();
+    }
+    band(H*0.22, '#59f0ff', 0.08, 30, 0.5);
+    band(H*0.4, '#8bd3ff', 0.06, 18, 0.8);
+    band(H*0.65, '#d6b6ff', 0.04, 24, 0.3);
+  }
+
+  function drawPuzzle(){
+    const DPR = window.devicePixelRatio || 1;
+    const W = canvas.width / DPR;
+    const H = canvas.height / DPR;
+
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.save();
+    ctx.scale(DPR,DPR);
+
+    // Threads
+    GATE.threads.forEach(t=>{
+      const s = GATE.sigils.find(x=>x.id===t.from);
+      const r = GATE.runes.find(x=>x.id===t.to);
+      if(!s || !r) return;
+      ctx.beginPath();
+      ctx.moveTo(s.x, s.y);
+      const mx = (s.x + r.x)/2;
+      const my = (s.y + r.y)/2 - 40;
+      ctx.quadraticCurveTo(mx,my,r.x,r.y);
+      ctx.lineWidth = 3 * t.strength;
+      ctx.strokeStyle = t.color;
+      ctx.globalAlpha = 0.75;
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+    });
+
+    // Sigils
+    GATE.sigils.forEach(s=>{
+      ctx.save();
+      ctx.translate(s.x, s.y);
+      ctx.rotate(((s.rotation || 0) * Math.PI) / 180);
+
+      ctx.beginPath();
+      for(let i=0;i<s.sides;i++){
+        const ang = (i/s.sides)*Math.PI*2;
+        const px = Math.cos(ang)*s.r;
+        const py = Math.sin(ang)*s.r;
+        if(i===0) ctx.moveTo(px,py);
+        else ctx.lineTo(px,py);
+      }
+      ctx.closePath();
+      const grad = ctx.createRadialGradient(0,0,s.r*0.2,0,0,s.r*1.2);
+      grad.addColorStop(0,'rgba(255,255,255,0.03)');
+      grad.addColorStop(1, s.color + '22');
+      ctx.fillStyle = grad;
+      ctx.fill();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = s.color;
+      ctx.stroke();
+
+      ctx.fillStyle = '#00181f';
+      ctx.font = '22px serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(s.base, 0, 0);
+
+      ctx.restore();
+    });
+
+    // Runes
+    GATE.runes.forEach(r=>{
+      ctx.save();
+      ctx.translate(r.x, r.y);
+      ctx.fillStyle = 'rgba(0,0,0,0.03)';
+      ctx.fillRect(-r.w/2,-r.h/2,r.w,r.h);
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#9adfff';
+      ctx.strokeRect(-r.w/2,-r.h/2,r.w,r.h);
+      ctx.fillStyle = '#b8f2ff';
+      ctx.font = '28px serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(r.value, 0, 0);
+      ctx.restore();
+    });
+
+    ctx.restore();
+  }
+
+  let dragging = null;
+  let dragOffset = {x:0,y:0};
+  let rotating = null;
+  let drawingLine = null;
+
+  function hitSigil(x,y){
+    for(let i=GATE.sigils.length-1;i>=0;i--){
+      const s = GATE.sigils[i];
+      const dx = x - s.x;
+      const dy = y - s.y;
+      if(Math.hypot(dx,dy) <= s.r + 10) return s;
+    }
+    return null;
+  }
+  function hitRune(x,y){
+    for(let i=0;i<GATE.runes.length;i++){
+      const r = GATE.runes[i];
+      if(
+        x >= r.x - r.w/2 && x <= r.x + r.w/2 &&
+        y >= r.y - r.h/2 && y <= r.y + r.h/2
+      ) return r;
+    }
+    return null;
+  }
+
+  /* --- NEW pointerdown: Alt+drag to weave thread, Shift/right-click to rotate, plain drag to move --- */
+  canvas.addEventListener('pointerdown', e => {
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const s = hitSigil(x, y);
+
+    if (s) {
+      // Shift or right-click → rotate
+      if (e.shiftKey || e.button === 2) {
+        rotating = {
+          id: s.id,
+          startAngle: Math.atan2(y - s.y, x - s.x),
+          startRotation: s.rotation || 0
+        };
+      }
+      // Alt + drag → draw/remove thread
+      else if (e.altKey) {
+        drawingLine = {
+          from: s.id,
+          startX: s.x,
+          startY: s.y,
+          curX: x,
+          curY: y
+        };
+      }
+      // Plain drag → move sigil
+      else {
+        dragging = s;
+        dragOffset.x = x - s.x;
+        dragOffset.y = y - s.y;
+      }
+    }
+  });
+
+  canvas.addEventListener('pointermove', e=>{
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    if(dragging){
+      dragging.x = x - dragOffset.x;
+      dragging.y = y - dragOffset.y;
+      drawPuzzle();
+    }
+    if(rotating){
+      const s = GATE.sigils.find(u=>u.id===rotating.id);
+      if(!s) return;
+      const angleNow = Math.atan2(y - s.y, x - s.x);
+      const delta = (angleNow - rotating.startAngle) * 180 / Math.PI;
+      s.rotation = (rotating.startRotation + delta) % 360;
+      drawPuzzle();
+    }
+    if(drawingLine){
+      drawingLine.curX = x;
+      drawingLine.curY = y;
+      drawPuzzle();
+
+      const DPR = window.devicePixelRatio || 1;
+      ctx.save();
+      ctx.scale(DPR,DPR);
+      ctx.beginPath();
+      ctx.moveTo(drawingLine.startX, drawingLine.startY);
+      const mx = (drawingLine.startX + drawingLine.curX)/2;
+      const my = (drawingLine.startY + drawingLine.curY)/2 - 40;
+      ctx.quadraticCurveTo(mx,my, drawingLine.curX, drawingLine.curY);
+      ctx.strokeStyle = '#aef0ff';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+      ctx.restore();
+    }
+  });
+
+  canvas.addEventListener('pointerup', e=>{
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    if(dragging){
+      persist(K.STATE, GATE);
+      dragging = null;
+      drawPuzzle();
+      return;
+    }
+    if(rotating){
+      rotating = null;
+      persist(K.STATE, GATE);
+      drawPuzzle();
+      return;
+    }
+    if(drawingLine){
+      const r = hitRune(x,y);
+      if(r){
+        const exists = GATE.threads.find(
+          t => t.from === drawingLine.from && t.to === r.id
+        );
+        if(!exists){
+          const s = GATE.sigils.find(sg => sg.id === drawingLine.from);
+          if(s){
+            GATE.threads.push({
+              id:uid('t'),
+              from:s.id,
+              to:r.id,
+              color:s.color,
+              strength:1
+            });
+          }
+        } else {
+          GATE.threads = GATE.threads.filter(
+            t => !(t.from === drawingLine.from && t.to === r.id)
+          );
+        }
+        persist(K.STATE, GATE);
+      }
+      drawingLine = null;
+      drawPuzzle();
+    }
+  });
+
+  canvas.addEventListener('contextmenu', e=>e.preventDefault());
+
+  function valueForSigil(s){
+    const idx = RUNE_SYMBOLS.indexOf(s.base) >= 0
+      ? RUNE_SYMBOLS.indexOf(s.base)
+      : 0;
+    const quant = RUNE_SYMBOLS.length;
+    const rotOffset = Math.round(((s.rotation || 0) % 360) / (360/quant));
+    const newIdx = (idx + rotOffset) % quant;
+    return RUNE_SYMBOLS[newIdx];
+  }
+
+  /* --- NEW evaluate(): rune must have ≥1 thread AND all threads must match its symbol --- */
+  function evaluate(){
+    const map = {};
+    GATE.runes.forEach(r => map[r.id] = []);
+
+    // Collect incoming "values" for each rune
+    GATE.threads.forEach(t => {
+      const s = GATE.sigils.find(x => x.id === t.from);
+      if (!s) return;
+      map[t.to].push(valueForSigil(s));
+    });
+
+    const results = GATE.runes.map(r => {
+      const incoming = map[r.id];
+      const hasThreads = incoming.length > 0;
+      const allMatch = hasThreads && incoming.every(v => v === r.value);
+      return {
+        rune: r.id,
+        ok: allMatch,
+        connected: incoming
+      };
+    });
+
+    return results;
+  }
+
+  let timerInterval = null;
+  function startTimer(){
+    if(timerInterval) clearInterval(timerInterval);
+    session.startTime = session.startTime || Date.now();
+    timerInterval = setInterval(()=>{
+      session.currentTime = Date.now() - session.startTime;
+      UI.timeLabel.textContent = formatTime(session.currentTime);
+    }, 250);
+  }
+  function stopTimer(){
+    if(timerInterval) clearInterval(timerInterval);
+    timerInterval = null;
+  }
+
+  function tunedDifficulty(){
+    const arr = progress.recent || [];
+    if(!arr.length) return 2;
+    const avg = arr.reduce((s,x)=>s+x,0)/arr.length;
+    if(avg < 6000) return 6;
+    if(avg < 12000) return 5;
+    if(avg < 22000) return 4;
+    if(avg < 42000) return 3;
+    if(avg < 90000) return 2;
+    return 1;
+  }
+
+  function unlockLore(seed){
+    progress.lore = progress.lore || [];
+    if(!progress.lore.includes(seed)){
+      progress.lore.push(seed);
+      persist(K.PROGRESS, progress);
+    }
+  }
+
+  UI.checkBtn.addEventListener('click', ()=>{
+    const results = evaluate();
+    const allOk = results.every(r => r.ok);
+
+    if(allOk){
+      stopTimer();
+      const ms = session.currentTime;
+
+      progress.recent = progress.recent || [];
+      progress.recent.push(ms);
+      if(progress.recent.length > 8) progress.recent.shift();
+
+      if(!progress.bestTime || ms < progress.bestTime){
+        progress.bestTime = ms;
+      }
+
+      progress.streak = (progress.streak || 0) + 1;
+
+      const lightGain = Math.max(8, Math.round(12000 / (ms+3000)));
+      const xpGain = Math.max(12, Math.round(20000 / (ms+3000)));
+
+      progress.light = (progress.light || 0) + lightGain;
+      progress.xp = (progress.xp || 0) + xpGain;
+
+      unlockLore(GATE.seed);
+
+      persist(K.PROGRESS, progress);
+      renderStats();
+
+      const msg = `Solved • Time ${formatTime(ms)} • +${lightGain} Light • +${xpGain} XP`;
+      speak('Gate solved. ' + msg);
+      alert(msg);
+
+      session.lastScore = {
+        score: Math.max(1000, Math.round(100000 / (ms+1000))),
+        ms,
+        seed:GATE.seed
+      };
+
+      const nextDiff = tunedDifficulty();
+      generateGate({ seed: Math.floor(Math.random()*1e9), difficulty: nextDiff });
+    } else {
+      progress.streak = 0;
+      persist(K.PROGRESS, progress);
+      renderStats();
+      speak('Not yet aligned. Try rotating sigils or connecting more threads.');
+      alert('Not aligned yet — ensure each rune only receives matching light.');
+    }
+  });
+
+  function spendLight(cost){
+    if((progress.light || 0) < cost){
+      alert('Not enough Light');
+      return false;
+    }
+    progress.light -= cost;
+    persist(K.PROGRESS, progress);
+    renderStats();
+    return true;
+  }
+
+  UI.toolReveal.addEventListener('click', ()=>{
+    if(!spendLight(10)) return;
+    const res = evaluate();
+    const bad = res.find(r => !r.ok);
+    if(!bad){
+      alert('All runes are already satisfied.');
+      return;
+    }
+    const rune = GATE.runes.find(r => r.id === bad.rune);
+    const candidate = GATE.sigils.find(s => valueForSigil(s) === rune.value) || GATE.sigils[0];
+    highlightSigil(candidate.id);
+    speak('A hint: adjust the highlighted shard.');
+  });
+
+  UI.toolAutoThread.addEventListener('click', ()=>{
+    if(!spendLight(15)) return;
+    const res = evaluate();
+    const bad = res.find(r => !r.ok);
+    const rune = bad ? GATE.runes.find(x => x.id === bad.rune) : GATE.runes[0];
+    let candidate = GATE.sigils.find(s => valueForSigil(s) === rune.value);
+    if(!candidate){
+      candidate = GATE.sigils[Math.floor(Math.random()*GATE.sigils.length)];
+    }
+    GATE.threads.push({
+      id:uid('t'),
+      from:candidate.id,
+      to:rune.id,
+      color:candidate.color,
+      strength:1
+    });
+    persist(K.STATE, GATE);
+    drawPuzzle();
+    speak('A thread has been woven.');
+  });
+
+  UI.toolStabilize.addEventListener('click', ()=>{
+    if(!spendLight(20)) return;
+    if(!GATE.runes.length || !GATE.sigils.length) return;
+
+    const rune = GATE.runes[0];
+    const candidate = GATE.sigils[0];
+
+    if(candidate){
+      let bestRot = candidate.rotation || 0;
+      let bestScore = -1;
+      for(let r=0;r<360;r+=10){
+        candidate.rotation = r;
+        const score = GATE.runes.reduce((acc,rr)=>{
+          const hasThread = GATE.threads.some(t => t.from === candidate.id && t.to === rr.id);
+          if(!hasThread) return acc;
+          return acc + (valueForSigil(candidate) === rr.value ? 1 : 0);
+        }, 0);
+        if(score > bestScore){
+          bestScore = score;
+          bestRot = r;
+        }
+      }
+      candidate.rotation = bestRot;
+      persist(K.STATE, GATE);
+      drawPuzzle();
+      speak('A shard has stabilized.');
+    }
+  });
+
+  UI.toolRemoveNoise.addEventListener('click', ()=>{
+    if(!spendLight(12)) return;
+
+    const badThreads = GATE.threads.filter(t=>{
+      const s = GATE.sigils.find(x => x.id === t.from);
+      const rr = GATE.runes.find(x => x.id === t.to);
+      return s && rr && valueForSigil(s) !== rr.value;
+    });
+    if(badThreads.length){
+      const rem = badThreads[Math.floor(Math.random()*badThreads.length)];
+      GATE.threads = GATE.threads.filter(t => t.id !== rem.id);
+      persist(K.STATE, GATE);
+      drawPuzzle();
+      speak('Noise removed.');
+    } else {
+      alert('No noisy threads to remove.');
+    }
+  });
+
+  function highlightSigil(sid){
+    const s = GATE.sigils.find(x=>x.id===sid);
+    if(!s) return;
+    const original = s.color;
+    let flashes = 0;
+    const iv = setInterval(()=>{
+      s.color = (flashes % 2 === 0) ? '#fff59b' : original;
+      flashes++;
+      drawPuzzle();
+      if(flashes > 5){
+        clearInterval(iv);
+        s.color = original;
+        drawPuzzle();
+      }
+    }, 300);
+  }
+
+  const tutorialSteps = [
+    { action:'narrate', text:'Welcome, traveler. I am the aurora guide. I will show you how to pass your first Gate.' },
+    { action:'wait', ms:800 },
+    { action:'showSigil', text:'This shard can be moved. Drag it into place.' },
+    { action:'awaitMove', timeout:12000 },
+    { action:'narrate', text:'Now rotate the shard. Hold shift and drag to rotate.' },
+    { action:'awaitRotate', timeout:12000 },
+    { action:'narrate', text:'Connect a thread from a shard to a rune. Hold Alt and drag from shard to rune.' },
+    { action:'awaitThread', timeout:12000 },
+    { action:'narrate', text:'If you get stuck, use a hint tool. You just learned the basics.' },
+    { action:'complete', text:'Tutorial complete. You have been awarded some Light.' }
+  ];
+
+  function wait(ms){ return new Promise(res => setTimeout(res, ms)); }
+
+  function waitForUserMove(timeout){
+    return new Promise(res=>{
+      const initial = JSON.stringify(GATE.sigils.map(s => ({x:s.x,y:s.y})));
+      let done = false;
+      const check = setInterval(()=>{
+        const nowState = JSON.stringify(GATE.sigils.map(s => ({x:s.x,y:s.y})));
+        if(nowState !== initial){
+          done = true;
+          clearInterval(check);
+          res(true);
+        }
+      }, 200);
+      setTimeout(()=>{
+        if(!done){
+          clearInterval(check);
+          res(false);
+        }
+      }, timeout || 10000);
+    });
+  }
+
+  function waitForUserRotate(timeout){
+    return new Promise(res=>{
+      const initial = JSON.stringify(GATE.sigils.map(s => s.rotation || 0));
+      let done = false;
+      const check = setInterval(()=>{
+        const nowState = JSON.stringify(GATE.sigils.map(s => s.rotation || 0));
+        if(nowState !== initial){
+          done = true;
+          clearInterval(check);
+          res(true);
+        }
+      }, 200);
+      setTimeout(()=>{
+        if(!done){
+          clearInterval(check);
+          res(false);
+        }
+      }, timeout || 10000);
+    });
+  }
+
+  function waitForUserThread(timeout){
+    return new Promise(res=>{
+      const initial = GATE.threads.length;
+      let done = false;
+      const check = setInterval(()=>{
+        if(GATE.threads.length !== initial){
+          done = true;
+          clearInterval(check);
+          res(true);
+        }
+      }, 200);
+      setTimeout(()=>{
+        if(!done){
+          clearInterval(check);
+          res(false);
+        }
+      }, timeout || 10000);
+    });
+  }
+
+  async function runTutorial(){
+    const seed = 20251114;
+    generateGate({ seed, difficulty:1 });
+    speak('Welcome. Let us begin the tutorial.');
+
+    for(const step of tutorialSteps){
+      if(step.action === 'narrate'){
+        speak(step.text);
+        await wait(step.ms || 1300);
+      } else if(step.action === 'wait'){
+        await wait(step.ms);
+      } else if(step.action === 'showSigil'){
+        const s = GATE.sigils[0];
+        highlightSigil(s.id);
+        await wait(1000);
+      } else if(step.action === 'awaitMove'){
+        await waitForUserMove(step.timeout || 12000);
+      } else if(step.action === 'awaitRotate'){
+        await waitForUserRotate(step.timeout || 12000);
+      } else if(step.action === 'awaitThread'){
+        await waitForUserThread(step.timeout || 12000);
+      } else if(step.action === 'complete'){
+        progress.light = (progress.light || 0) + 25;
+        progress.xp = (progress.xp || 0) + 100;
+        persist(K.PROGRESS, progress);
+        renderStats();
+        speak(step.text);
+        alert(step.text);
+      }
+    }
+  }
+
+  UI.replayTutorial.addEventListener('click', ()=>{
+    if(confirm('Replay the interactive tutorial?')){
+      runTutorial();
+    }
+  });
+
+  function renderLeaderboard(){
+    const list = retrieve(K.LEADER, []);
+    const mutedColor = getComputedStyle(document.documentElement).getPropertyValue('--muted') || '#9fb3c8';
+    UI.leaderboard.innerHTML =
+      list
+        .slice()
+        .sort((a,b)=>b.score - a.score)
+        .slice(0,12)
+        .map(u => (
+          '<div style="padding:8px;border-bottom:1px dashed rgba(255,255,255,0.02)">' +
+          '<strong>' + escapeHtml(u.name) + '</strong> — ' + u.score + ' pts' +
+          '<div style="font-size:12px;color:' + mutedColor + '">Fastest: ' + formatTime(u.fastest) + ' • Gates: ' + u.gates + '</div>' +
+          '</div>'
+        ))
+        .join('') || '<div style="color:var(--muted)">No scores yet</div>';
+  }
+  renderLeaderboard();
+
+  UI.saveScore.addEventListener('click', ()=>{
+    const name = UI.playerName.value.trim() || 'Anonymous';
+    const score = (session.lastScore && session.lastScore.score)
+      ? session.lastScore.score
+      : Math.max(100, Math.round(Math.random()*500));
+    const gates = 1;
+    const fastest = session.lastScore ? session.lastScore.ms : 0;
+    const arr = retrieve(K.LEADER, []);
+    arr.push({ name, score, gates, fastest, last:new Date().toISOString() });
+    persist(K.LEADER, arr);
+    renderLeaderboard();
+    alert('Saved locally');
+  });
+
+  UI.shareLink.addEventListener('click', ()=>{
+    const url = window.location.href;
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(url);
+      alert('Link copied');
+    } else {
+      alert('Share this URL: ' + url);
+    }
+  });
+
+  UI.shareX.addEventListener('click', ()=>{
+    const text = `I mastered ${GATE.title} in ${UI.timeLabel.textContent} — try LUMIN GATE!`;
+    const shareUrl = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(text);
+    window.open(shareUrl, '_blank');
+  });
+
+  UI.shareImage.addEventListener('click', async ()=>{
+    try{
+      const dataUrl = canvas.toDataURL('image/png');
+      if(navigator.share && navigator.canShare && navigator.canShare({ files: [] })){
+        const blob = dataURLtoBlob(dataUrl);
+        const file = new File([blob], 'lumin_gate.png', { type:'image/png' });
+        await navigator.share({
+          files:[file],
+          title:'Lumin Gate',
+          text:`I solved ${GATE.title} in ${UI.timeLabel.textContent}`
+        });
+      } else {
+        if(navigator.clipboard && navigator.clipboard.writeText){
+          await navigator.clipboard.writeText(dataUrl);
+          alert('Image copied (data URL) — paste somewhere to share.');
+        } else {
+          alert('Sharing not supported on this device.');
+        }
+      }
+    } catch(err){
+      alert('Share failed');
+      console.warn(err);
+    }
+  });
+
+  function dataURLtoBlob(dataurl){
+    const parts = dataurl.split(',');
+    const mime = parts[0].match(/:(.*?);/)[1];
+    const bstr = atob(parts[1]);
+    const n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    for(let i=0;i<n;i++) u8arr[i] = bstr.charCodeAt(i);
+    return new Blob([u8arr], { type:mime });
+  }
+
+  function generateInviteCode(){
+    const chars = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+    let s = '';
+    for(let i=0;i<6;i++) s += chars[Math.floor(Math.random()*chars.length)];
+    return s;
+  }
+
+  UI.copyInvite.addEventListener('click', ()=>{
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(invites.myCode);
+      alert('Code copied');
+    } else {
+      alert('Invite code: ' + invites.myCode);
+    }
+  });
+
+  UI.redeemInvite.addEventListener('click', ()=>{
+    const code = UI.inviteCodeInput.value.trim().toUpperCase();
+    if(!code) return alert('Enter a code');
+    if(code === invites.myCode) return alert('Cannot redeem own code.');
+    const used = invites.usedCodes || [];
+    if(used.includes(code)) return alert('Code already used.');
+
+    invites.usedCodes.push(code);
+    persist(K.INVITES, invites);
+    progress.light = (progress.light || 0) + 30;
+    persist(K.PROGRESS, progress);
+    renderStats();
+    progress.redeemedInvites = progress.redeemedInvites || [];
+    progress.redeemedInvites.push(code);
+    persist(K.PROGRESS, progress);
+    alert('Invite redeemed — +30 Light');
+  });
+
+  UI.exportAll.addEventListener('click', ()=>{
+    const payload = {
+      exportedAt: new Date().toISOString(),
+      GATE,
+      progress,
+      leader,
+      invites,
+      settings
+    };
+    const blob = new Blob([JSON.stringify(payload,null,2)], { type:'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'lumin_export.json';
+    a.click();
+  });
+
+  UI.importAll.addEventListener('click', ()=>{
+    const inp = document.createElement('input');
+    inp.type = 'file';
+    inp.accept = '.json';
+    inp.onchange = async (e)=>{
+      const f = e.target.files[0];
+      if(!f) return;
+      try{
+        const txt = await f.text();
+        const obj = JSON.parse(txt);
+        if(obj.progress) progress = obj.progress;
+        if(obj.leader) leader = obj.leader;
+        if(obj.invites) invites = obj.invites;
+        if(obj.settings) settings = obj.settings;
+        persist(K.PROGRESS, progress);
+        persist(K.LEADER, leader);
+        persist(K.INVITES, invites);
+        persist(K.SETTINGS, settings);
+        UI.myInvite.textContent = invites.myCode;
+        renderLeaderboard();
+        renderStats();
+        alert('Imported');
+      } catch(err){
+        alert('Import failed');
+      }
+    };
+    inp.click();
+  });
+
+  function escapeHtml(s){
+    return String(s || '').replace(/[&<>"']/g, c => ({
+      '&':'&amp;',
+      '<':'&lt;',
+      '>':'&gt;',
+      '"':'&quot;',
+      "'":'&#39;'
+    })[c]);
+  }
+
+  function buildPalettes(){
+    UI.runePalette.innerHTML = '';
+    for(let i=0;i<6;i++){
+      const div = document.createElement('div');
+      div.className = 'rune';
+      div.textContent = RUNE_SYMBOLS[i % RUNE_SYMBOLS.length];
+      UI.runePalette.appendChild(div);
+    }
+    UI.threadPalette.innerHTML = '';
+    PALETTE.forEach(c=>{
+      const d = document.createElement('div');
+      d.style.width = '36px';
+      d.style.height = '36px';
+      d.style.borderRadius = '8px';
+      d.style.background = c;
+      d.style.border = '1px solid rgba(255,255,255,0.03)';
+      UI.threadPalette.appendChild(d);
+    });
+  }
+  buildPalettes();
+
+  UI.nextBtn.addEventListener('click', ()=>{
+    const seed = Math.floor(Math.random()*1e9);
+    const diff = tunedDifficulty();
+    generateGate({ seed, difficulty:diff });
+  });
+
+  UI.hintBtn.addEventListener('click', ()=> UI.toolReveal.click());
+  UI.shareBtn.addEventListener('click', ()=> UI.shareX.click());
+
+  // How To Play modal
+  function openHowToPlay(){
+    UI.howToPlayModal.classList.add('show');
+    UI.howToPlayModal.setAttribute('aria-hidden','false');
+    speak('Here is how to play Lumin Gate. Scroll to read the instructions.');
+  }
+  function closeHowToPlay(){
+    UI.howToPlayModal.classList.remove('show');
+    UI.howToPlayModal.setAttribute('aria-hidden','true');
+  }
+  UI.howToPlayBtn.addEventListener('click', openHowToPlay);
+  UI.closeHowToPlay.addEventListener('click', closeHowToPlay);
+  UI.howToPlayModal.addEventListener('click', e=>{
+    if(e.target === UI.howToPlayModal) closeHowToPlay();
+  });
+  document.addEventListener('keydown', e=>{
+    if(e.key === 'Escape' && UI.howToPlayModal.classList.contains('show')){
+      closeHowToPlay();
+    }
+  });
+
+  UI.leaderBtn.addEventListener('click', ()=>{
+    renderLeaderboard();
+    alert('Leaderboard (local) updated — enter your name and Save Score to add your result.');
+  });
+
+  window.addEventListener('beforeunload', ()=>{
+    persist(K.PROGRESS, progress);
+    persist(K.LEADER, leader);
+    persist(K.INVITES, invites);
+    persist(K.SETTINGS, settings);
+  });
+
+  function boot(){
+    resizeCanvas();
+    const saved = retrieve(K.STATE, null);
+    if(saved && saved.seed){
+      GATE = saved;
+      UI.gateName.textContent = GATE.title;
+      UI.gateHint.textContent = GATE.hint;
+      UI.seedLabel.textContent = GATE.seed;
+      session.startTime = Date.now();
+      startTimer();
+      drawPuzzle();
+    } else {
+      generateGate({ seed: Math.floor(Math.random()*1e9), difficulty:2 });
+    }
+    if(!localStorage.getItem('LUMIN_TUTORIAL_DONE')){
+      runTutorial();
+      localStorage.setItem('LUMIN_TUTORIAL_DONE','1');
+    }
+  }
+
+  boot();
+
+  window.LuminGate = { generateGate, GATE, progress, leader, invites, speak };
+})();
+</script>
+</body>
+</html>
