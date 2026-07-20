@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Pocket Arcade — Soft Mini Game Portal</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cormorant+Garamond:wght@400;500&family=Montserrat:wght@300;500;600&display=swap" rel="stylesheet">
+
+<style>
+/* ===== Plera Soft Arcade Theme ===== */
+html,body{
+  margin:0;
+  padding:0;
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* Theme variables live on body so we can toggle */
+body{
+  --bg: radial-gradient(circle at 15% 0%, #263047 0%, transparent 55%),
+        radial-gradient(circle at 85% 0%, #472a60 0%, transparent 52%),
+        linear-gradient(180deg,#050714,#141826 63%,#1e2230 100%);
+  --card-bg: linear-gradient(180deg,#f7f3ea,#f0e9dc);
+  --header-text:#f7f3ea;
+  --text:#241a16;
+  --accent:#8f7adf;
+  --accent-soft:#f6b7c6;
+  --shadow:0 18px 40px rgba(0,0,0,0.45);
+  --radius-card:21px;
+  --radius-pill:777px;
+
+  font-family:'Cormorant Garamond',serif;
+  background:var(--bg);
+  color:var(--text);
+}
+
+/* Optional light mode (if you want to use the toggle) */
+body.light{
+  --bg: linear-gradient(180deg,#f7f3ea,#ecdec7);
+  --card-bg: #ffffff;
+  --header-text:#241a16;
+}
+
+/* Wrapper */
+.arcade-wrap{
+  max-width:420px;
+  margin:22px auto 32px auto;
+  padding:0 14px 24px 14px;
+  box-sizing:border-box;
+}
+
+/* Halo orb + header */
+.arcade-orb-wrap{
+  display:flex;
+  justify-content:center;
+  margin-bottom:8px;
+}
+.arcade-orb{
+  width:72px;
+  height:72px;
+  border-radius:50%;
+  background:
+    radial-gradient(circle at 30% 20%, #ffffff, #f7f3ea 18%, transparent 60%),
+    radial-gradient(circle at 70% 80%, #f6b7ff66, transparent 70%),
+    radial-gradient(circle at 50% 50%, #8f7adf, #4a5cff 70%);
+  box-shadow:
+    0 0 30px rgba(255,255,255,0.85),
+    0 0 60px rgba(179,126,255,0.72);
+}
+
+.arcade-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:10px;
+}
+.arcade-title-block{
+  text-align:center;
+  flex:1;
+}
+.arcade-title{
+  font-family:'Cinzel',serif;
+  margin:0;
+  font-size:22px;
+  letter-spacing:0.16em;
+  text-transform:uppercase;
+  color:var(--header-text);
+}
+.arcade-subtitle{
+  margin-top:4px;
+  font-size:11px;
+  letter-spacing:0.18em;
+  text-transform:uppercase;
+  color:rgba(247,243,234,0.85);
+}
+
+/* Theme toggle btn */
+.theme-toggle{
+  border-radius:var(--radius-pill);
+  border:1px solid rgba(247,243,234,0.6);
+  background:rgba(5,7,20,0.25);
+  color:#f7f3ea;
+  font-family:'Montserrat',sans-serif;
+  font-size:10px;
+  letter-spacing:0.13em;
+  text-transform:uppercase;
+  padding:5px 12px;
+  cursor:pointer;
+  margin-left:auto;
+  margin-right:-2px;
+}
+body.light .theme-toggle{
+  background:rgba(255,255,255,0.7);
+  color:#241a16;
+}
+
+/* Intro card + game list wrapper */
+.arcade-card{
+  background:var(--card-bg);
+  border-radius:var(--radius-card);
+  padding:16px 16px 18px 16px;
+  box-shadow:var(--shadow);
+}
+
+/* Section divider line */
+.arcade-divider{
+  height:1px;
+  background:linear-gradient(90deg,transparent,#c0a98a,transparent);
+  margin:8px 0 12px 0;
+}
+
+/* Small label */
+.arcade-label{
+  font-size:11px;
+  font-family:'Montserrat',sans-serif;
+  letter-spacing:0.16em;
+  text-transform:uppercase;
+  color:#7b6653;
+  margin-bottom:3px;
+}
+
+/* Description text */
+.arcade-text{
+  font-size:14px;
+  color:#3b2a21;
+  line-height:1.5;
+}
+
+/* ===== Game Cards ===== */
+#games{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  margin-top:14px;
+}
+
+/* Game card styling */
+.gameBox{
+  width:100%;
+  box-sizing:border-box;
+  padding:14px 13px 13px 13px;
+  border-radius:18px;
+  background:#fbf5ea;
+  box-shadow:0 9px 20px rgba(0,0,0,0.16);
+  border:1px solid rgba(150,120,90,0.35);
+  backdrop-filter:blur(3px);
+  transition:transform .18s, box-shadow .18s;
+}
+.gameBox:hover{
+  transform:translateY(-1px);
+  box-shadow:0 14px 26px rgba(0,0,0,0.22);
+}
+
+.gameBox h3{
+  margin:0 0 4px 0;
+  font-size:17px;
+  font-weight:600;
+  font-family:'Cinzel',serif;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  color:#4a3726;
+}
+.gameBox p{
+  margin:0 0 6px 0;
+  font-size:13px;
+  color:#5b4533;
+}
+
+/* Buttons (soft, smaller, centered) */
+.gameBox .btn,
+.theme-toggle{
+  font-family:'Montserrat',sans-serif;
+}
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:6px 16px;
+  border-radius:var(--radius-pill);
+  border:1px solid rgba(40,28,26,0.38);
+  background:linear-gradient(135deg,var(--accent),var(--accent-soft));
+  color:#050714;
+  font-size:11px;
+  font-weight:500;
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  cursor:pointer;
+  margin-top:6px;
+  transition:transform .1s, box-shadow .16s, background .16s;
+}
+.btn.subtle{
+  background:linear-gradient(135deg,#fdf8f0,#e7dbcf);
+}
+.btn:active{
+  transform:scale(0.97);
+}
+.btn-row{
+  display:flex;
+  justify-content:flex-start;
+  gap:7px;
+  flex-wrap:wrap;
+}
+
+/* Reaction message bubble */
+#reactionMsg{
+  padding:7px 9px;
+  border-radius:11px;
+  background:#f3e6d7;
+  font-size:13px;
+}
+
+/* 2048 grid */
+#grid2048{
+  display:grid;
+  grid-template-columns:repeat(4, 56px);
+  gap:6px;
+  margin-top:8px;
+}
+.tile{
+  width:56px;
+  height:56px;
+  border-radius:13px;
+  background:#e0d7c9;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:17px;
+  font-weight:600;
+  color:#3b2a21;
+}
+.tile[data-val="0"]{
+  background:#f0e7da;
+}
+.tile[data-val="4"]{ background:#f3ddbe; }
+.tile[data-val="8"]{ background:#f6c998; }
+.tile[data-val="16"]{ background:#f7b77b; }
+.tile[data-val="32"]{ background:#f59363; }
+.tile[data-val="64"]{ background:#f57c5f; }
+.tile[data-val="128"]{ background:#edcf72; }
+.tile[data-val="256"]{ background:#edcc61; }
+.tile[data-val="512"]{ background:#edc850; }
+.tile[data-val="1024"]{ background:#edc53f; }
+.tile[data-val="2048"]{ background:#edc22e; }
+
+/* Falling dots canvas */
+#catchCanvas{
+  width:100%;
+  max-width:320px;
+  height:320px;
+  border-radius:18px;
+  background:#050714;
+  margin-top:8px;
+  border:1px solid rgba(0,0,0,0.4);
+}
+
+/* Footer hint */
+.arcade-footnote{
+  margin-top:8px;
+  font-size:10px;
+  font-family:'Montserrat',sans-serif;
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  text-align:center;
+  color:#ad9bcc;
+}
+
+/* Mobile tweaks */
+@media (max-width:420px){
+  .arcade-card{
+    padding:14px 12px 16px 12px;
+  }
+  #grid2048{
+    grid-template-columns:repeat(4, 52px);
+  }
+  .tile{
+    width:52px;
+    height:52px;
+  }
+}
+</style>
+</head>
+
+<body>
+<div class="arcade-wrap">
+  <div class="arcade-orb-wrap">
+    <div class="arcade-orb"></div>
+  </div>
+
+  <div class="arcade-header">
+    <div style="width:64px;"></div>
+    <div class="arcade-title-block">
+      <h1 class="arcade-title">Pocket Arcade</h1>
+      <!-- membership wording removed here -->
+      <div class="arcade-subtitle">Soft Focus · Mobile First</div>
+    </div>
+    <button id="themeToggle" class="theme-toggle">Glow</button>
+  </div>
+
+  <div class="arcade-card">
+    <div class="arcade-label">Tiny Game Shelf</div>
+    <p class="arcade-text">
+      Quick-play mini games designed for gentle focus breaks. Tap a card below,
+      play a round, and return to your day a little lighter.
+    </p>
+    <div class="arcade-divider"></div>
+
+    <div id="games">
+
+      <!-- Reaction Test -->
+      <div class="gameBox">
+        <h3>⚡ Reaction Test</h3>
+        <p id="reactionMsg">Tap “Begin” and wait for the card to glow.</p>
+        <div class="btn-row">
+          <button id="reactionStart" class="btn subtle">Begin</button>
+        </div>
+      </div>
+
+      <!-- Mini 2048 -->
+      <div class="gameBox">
+        <h3>🧮 2048 Mini</h3>
+        <p>Swipe / use arrow keys to slide tiles and combine numbers.</p>
+        <div id="grid2048"></div>
+        <div class="btn-row">
+          <button id="reset2048" class="btn subtle">Reset Board</button>
+        </div>
+      </div>
+
+      <!-- Falling Dots -->
+      <div class="gameBox">
+        <h3>🔵 Falling Dots</h3>
+        <p>Move the bar to catch the falling stars. (Drag or move your finger across the canvas.)</p>
+        <canvas id="catchCanvas" width="320" height="320"></canvas>
+        <div class="btn-row">
+          <button id="startCatch" class="btn subtle">Start Round</button>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="arcade-footnote">
+      Designed for phones first · Will simply appear centered on tablet or desktop
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===== Theme toggle (optional “Glow” mode) ===== */
+const themeToggle = document.getElementById('themeToggle');
+themeToggle.addEventListener('click', () => {
+  document.body.classList.toggle('light');
+  themeToggle.textContent = document.body.classList.contains('light') ? 'Night' : 'Glow';
+});
+
+/* ===== Reaction Time Game (button-based, mobile friendly) ===== */
+const reactionMsg = document.getElementById('reactionMsg');
+const reactionBtn = document.getElementById('reactionStart');
+
+let reactionState = 'idle'; // 'idle' | 'waiting' | 'ready'
+let reactionTimeoutId;
+let readyTime = 0;
+
+reactionBtn.addEventListener('click', () => {
+  if (reactionState === 'idle') {
+    // Start new trial
+    reactionMsg.style.background = '#f3e6d7';
+    reactionMsg.textContent = 'Wait for the card to glow…';
+    reactionBtn.textContent = '…';
+    reactionBtn.disabled = true;
+    reactionState = 'waiting';
+
+    const delay = 1000 + Math.random() * 2000;
+    reactionTimeoutId = setTimeout(() => {
+      reactionMsg.style.background = '#c7f5d2';
+      reactionMsg.textContent = 'Now tap the button!';
+      readyTime = performance.now();
+      reactionBtn.textContent = 'Tap!';
+      reactionBtn.disabled = false;
+      reactionState = 'ready';
+    }, delay);
+
+  } else if (reactionState === 'waiting') {
+    // Clicked too soon
+    clearTimeout(reactionTimeoutId);
+    reactionMsg.style.background = '#f8d3cf';
+    reactionMsg.textContent = 'Too soon. Breathe, then try again.';
+    reactionBtn.textContent = 'Begin';
+    reactionBtn.disabled = false;
+    reactionState = 'idle';
+
+  } else if (reactionState === 'ready') {
+    // Measure reaction
+    const rt = Math.round(performance.now() - readyTime);
+    reactionMsg.style.background = '#e4f2ff';
+    reactionMsg.textContent = `Your reaction: ${rt} ms`;
+    reactionBtn.textContent = 'Again';
+    reactionState = 'idle';
+  }
+});
+
+/* ===== 2048 Mini (fully working arrows, compact grid) ===== */
+const gridEl = document.getElementById('grid2048');
+let tiles = [];
+
+function init2048(){
+  tiles = Array(16).fill(0);
+  spawnTile();
+  spawnTile();
+  renderTiles();
+}
+
+function spawnTile(){
+  const empty = tiles.map((v,i)=>v===0?i:-1).filter(i=>i>=0);
+  if(!empty.length) return;
+  const idx = empty[Math.floor(Math.random()*empty.length)];
+  tiles[idx] = Math.random() < 0.9 ? 2 : 4;
+}
+
+function renderTiles(){
+  gridEl.innerHTML = '';
+  tiles.forEach(v=>{
+    const div = document.createElement('div');
+    div.className = 'tile';
+    div.dataset.val = v;
+    div.textContent = v || '';
+    gridEl.appendChild(div);
+  });
+}
+
+function slideRow(row){
+  // remove zeros
+  let arr = row.filter(v=>v!==0);
+  // merge
+  for(let i=0;i<arr.length-1;i++){
+    if(arr[i] === arr[i+1]){
+      arr[i] *= 2;
+      arr[i+1] = 0;
+    }
+  }
+  arr = arr.filter(v=>v!==0);
+  while(arr.length<4) arr.push(0);
+  return arr;
+}
+
+function moveLeft(){
+  let moved = false;
+  for(let r=0;r<4;r++){
+    const row = tiles.slice(r*4,r*4+4);
+    const slid = slideRow(row);
+    for(let c=0;c<4;c++){
+      if(tiles[r*4+c] !== slid[c]){
+        tiles[r*4+c] = slid[c];
+        moved = true;
+      }
+    }
+  }
+  return moved;
+}
+
+function moveRight(){
+  let moved = false;
+  for(let r=0;r<4;r++){
+    const row = tiles.slice(r*4,r*4+4).reverse();
+    const slid = slideRow(row).reverse();
+    for(let c=0;c<4;c++){
+      if(tiles[r*4+c] !== slid[c]){
+        tiles[r*4+c] = slid[c];
+        moved = true;
+      }
+    }
+  }
+  return moved;
+}
+
+function moveUp(){
+  let moved = false;
+  for(let c=0;c<4;c++){
+    const col = [tiles[c],tiles[c+4],tiles[c+8],tiles[c+12]];
+    const slid = slideRow(col);
+    for(let r=0;r<4;r++){
+      if(tiles[r*4+c] !== slid[r]){
+        tiles[r*4+c] = slid[r];
+        moved = true;
+      }
+    }
+  }
+  return moved;
+}
+
+function moveDown(){
+  let moved = false;
+  for(let c=0;c<4;c++){
+    const col = [tiles[c],tiles[c+4],tiles[c+8],tiles[c+12]].reverse();
+    const slid = slideRow(col).reverse();
+    for(let r=0;r<4;r++){
+      if(tiles[r*4+c] !== slid[r]){
+        tiles[r*4+c] = slid[r];
+        moved = true;
+      }
+    }
+  }
+  return moved;
+}
+
+function handleMove(dir){
+  let moved = false;
+  if(dir==='left') moved = moveLeft();
+  else if(dir==='right') moved = moveRight();
+  else if(dir==='up') moved = moveUp();
+  else if(dir==='down') moved = moveDown();
+  if(moved){
+    spawnTile();
+    renderTiles();
+  }
+}
+
+document.addEventListener('keydown', e=>{
+  const key = e.key;
+  if(key === 'ArrowLeft') handleMove('left');
+  else if(key === 'ArrowRight') handleMove('right');
+  else if(key === 'ArrowUp') handleMove('up');
+  else if(key === 'ArrowDown') handleMove('down');
+});
+
+document.getElementById('reset2048').addEventListener('click', init2048);
+init2048();
+
+/* ===== Falling Dots Game (mouse + touch) ===== */
+const catchCanvas = document.getElementById('catchCanvas');
+const ctx = catchCanvas.getContext('2d');
+let boxX = catchCanvas.width / 2;
+let dots = [];
+let catchInterval;
+
+function setBoxFromClientX(clientX){
+  const rect = catchCanvas.getBoundingClientRect();
+  const x = clientX - rect.left;
+  boxX = Math.max(28, Math.min(catchCanvas.width - 28, x));
+}
+
+catchCanvas.addEventListener('mousemove', e=>{
+  setBoxFromClientX(e.clientX);
+});
+catchCanvas.addEventListener('touchmove', e=>{
+  if(e.touches && e.touches[0]){
+    setBoxFromClientX(e.touches[0].clientX);
+    e.preventDefault();
+  }
+},{passive:false});
+
+document.getElementById('startCatch').addEventListener('click', () => {
+  dots = [];
+  if(catchInterval) clearInterval(catchInterval);
+
+  let score = 0;
+  const maxMissY = catchCanvas.height + 20;
+  const startTime = performance.now();
+
+  catchInterval = setInterval(()=>{
+    ctx.clearRect(0,0,catchCanvas.width,catchCanvas.height);
+
+    // Paddle
+    ctx.fillStyle = '#f7f3ea';
+    ctx.fillRect(boxX-28, catchCanvas.height-24, 56, 10);
+
+    // Sometimes spawn new dot
+    if(Math.random() < 0.06){
+      dots.push({x:Math.random()*catchCanvas.width, y:0});
+    }
+
+    ctx.fillStyle = '#8f7adf';
+    dots.forEach(d=>{
+      d.y += 3;
+      ctx.beginPath();
+      ctx.arc(d.x, d.y, 6, 0, Math.PI*2);
+      ctx.fill();
+
+      // Collision with paddle
+      if(d.y >= catchCanvas.height-24 && d.y <= catchCanvas.height-14 &&
+         d.x >= boxX-28 && d.x <= boxX+28){
+        score++;
+        d.y = maxMissY+1; // mark as off-screen
+      }
+    });
+
+    // Remove missed
+    dots = dots.filter(d=>d.y < maxMissY);
+
+    // Soft score text
+    ctx.fillStyle = '#f7f3ea';
+    ctx.font = '14px "Montserrat", sans-serif';
+    ctx.fillText('Score: '+score, 10, 20);
+
+    // End round after ~45 seconds
+    if(performance.now() - startTime > 45000){
+      clearInterval(catchInterval);
+      ctx.fillStyle = 'rgba(5,7,20,0.75)';
+      ctx.fillRect(0,0,catchCanvas.width,catchCanvas.height);
+      ctx.fillStyle = '#f7f3ea';
+      ctx.font = '16px "Cinzel", serif';
+      ctx.fillText('Round Complete', 80, 150);
+      ctx.font = '14px "Montserrat", sans-serif';
+      ctx.fillText('Final Score: '+score, 120, 175);
+    }
+
+  }, 20);
+});
+</script>
+</body>
+</html>
