@@ -49,4 +49,11 @@ The first player to get 6 in a row (horizontal, vertical, or diagonal) wins.
 
 If the board fills up and nobody has 6 in a row, the game is a draw.
 
+
+hangman
+​
+ Hangman transforms from a child's pastime into a stark meditation on language, consequence, and the shared human struggle against looming, unspoken threats, turning pencil and paper into a stage for life's most profound dramas. 
+
+​
+
 Use Undo to step back a move during local play and experiment with strategies.
