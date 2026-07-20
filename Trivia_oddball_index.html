@@ -1,0 +1,1532 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Oddball Trivia Vault — 75 Bank / 25 Random</title>
+<style>
+  :root{
+    --bg1:#585F6A; --bg2:#585F6A; --card:#ffffff; --ink:#12212b; --muted:#5b6b76;
+    --line:#e6edf2; --accent:#ff7a59; --accent2:#4aa3ff; --good:#20b486; --warn:#ffb13a; --bad:#ff5a5a;
+    --shadow:0 10px 30px rgba(0,0,0,.08); --r:18px;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; min-height:100vh;
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+    color:var(--ink);
+    background:linear-gradient(180deg,var(--bg1),var(--bg2));
+  }
+  .wrap{max-width:1100px;margin:0 auto;padding:14px}
+  .top{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    padding:12px;border:1px solid var(--line);border-radius:var(--r);
+    background:rgba(255,255,255,.86);box-shadow:var(--shadow);
+  }
+  .brand{display:flex;align-items:center;gap:10px}
+  .logo{
+    width:44px;height:44px;border-radius:14px;
+    background: radial-gradient(circle at 30% 30%, #ffd28a, #ff7a59 55%, #ff4d6d 100%);
+    box-shadow: var(--shadow);
+  }
+  h1{margin:0;font-size:1.05rem}
+  .sub{margin:2px 0 0 0;color:var(--muted);font-size:.9rem}
+  .pill{
+    font-size:.78rem;color:var(--muted);
+    border:1px solid var(--line);background:#fff;
+    padding:4px 9px;border-radius:999px;
+    white-space:nowrap;
+  }
+  .btn{
+    border:1px solid var(--line); background:#fff; color:var(--ink);
+    border-radius:14px; padding:10px 12px; font-size:.95rem; cursor:pointer;
+    display:inline-flex; align-items:center; gap:8px; user-select:none;
+    transition: transform .06s ease, box-shadow .12s ease, border-color .12s ease;
+    text-decoration:none;
+  }
+  .btn:hover{box-shadow:0 6px 18px rgba(0,0,0,.08); border-color:#d6e1ea}
+  .btn:active{transform:translateY(1px)}
+  .btn.primary{border-color: rgba(255,122,89,.35); background: rgba(255,122,89,.10)}
+  .btn.blue{border-color: rgba(74,163,255,.35); background: rgba(74,163,255,.10)}
+  .btn.good{border-color: rgba(32,180,134,.35); background: rgba(32,180,134,.10)}
+  .btn.warn{border-color: rgba(255,177,58,.45); background: rgba(255,177,58,.12)}
+  .btn.bad{border-color: rgba(255,90,90,.45); background: rgba(255,90,90,.10)}
+  .btn.small{padding:8px 10px;border-radius:12px;font-size:.9rem}
+  .bar{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;align-items:center}
+
+  .card{
+    margin-top:12px;
+    background:var(--card); border:1px solid var(--line); border-radius:var(--r);
+    box-shadow:var(--shadow); overflow:hidden;
+  }
+  .head{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:12px;border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg,#fff,#fbfdff);
+  }
+  .head b{font-size:.95rem}
+  .body{padding:14px}
+  .muted{color:var(--muted)}
+  .grid{
+    display:grid; gap:12px;
+    grid-template-columns: 1.25fr .75fr;
+    align-items:start;
+  }
+  @media (max-width: 980px){ .grid{grid-template-columns:1fr} }
+
+  .panel{
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:12px;
+    background:#fff;
+  }
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .row .sp{flex:1}
+  .kpi{display:flex;gap:10px;flex-wrap:wrap}
+  .kpi .box{
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:10px 11px;
+    background:#fbfdff;
+    min-width:140px;
+  }
+  .kpi .box b{display:block;font-size:1.05rem}
+  .kpi .box span{color:var(--muted);font-size:.85rem}
+
+  .progress{
+    height:10px;border-radius:999px;background:#eef3f7;overflow:hidden;border:1px solid var(--line);
+  }
+  .progress > div{height:100%;width:0%;background:linear-gradient(90deg,var(--accent2),var(--accent));transition:width .25s ease}
+
+  .qTitle{font-size:1.15rem;line-height:1.35;margin:10px 0 0 0}
+  .choices{display:grid;gap:10px;margin-top:12px}
+  .choice{
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:12px;
+    background:#fff;
+    cursor:pointer;
+    transition: transform .06s ease, box-shadow .12s ease, border-color .12s ease;
+    display:flex;gap:10px;align-items:flex-start;
+  }
+  .choice:hover{box-shadow:0 6px 18px rgba(0,0,0,.07); border-color:#d6e1ea}
+  .choice:active{transform:translateY(1px)}
+  .badge{
+    min-width:26px; height:26px; border-radius:9px;
+    border:1px solid var(--line); background:#fbfdff;
+    display:flex;align-items:center;justify-content:center;
+    font-weight:700; color:#2b3a45; font-size:.92rem;
+  }
+  .choice.correct{border-color: rgba(32,180,134,.55); background: rgba(32,180,134,.08)}
+  .choice.wrong{border-color: rgba(255,90,90,.55); background: rgba(255,90,90,.08)}
+  .choice.disabled{opacity:.72; cursor:default}
+
+  .tag{
+    display:inline-flex;gap:6px;align-items:center;
+    padding:3px 9px;border-radius:999px;border:1px solid var(--line);background:#fff;
+    color:var(--muted);font-size:.78rem;margin-right:6px;margin-top:6px;
+  }
+
+  .reveal{
+    margin-top:12px;border:1px solid var(--line);border-radius:16px;padding:12px;background:#fbfdff;
+  }
+  .reveal b{display:block;margin-bottom:6px}
+
+  /* 255px mode */
+  .phoneShell{
+    margin:12px auto 0 auto;
+    width:min(100%, 980px);
+    border:1px dashed #d7e3ec;
+    border-radius:18px;
+    padding:10px;
+    background:rgba(255,255,255,.45);
+  }
+  .phoneInner{margin:0 auto;width:100%;max-width:980px;transition:max-width .2s ease}
+  .phoneInner.phone255{max-width:255px}
+  .phoneHint{font-size:.82rem;color:var(--muted);margin-top:8px}
+
+  /* modal */
+  .modalBack{
+    position:fixed; inset:0; background:rgba(10,18,24,.45);
+    display:none; align-items:center; justify-content:center; padding:14px; z-index:50;
+  }
+  .modal{
+    width:min(980px, 96vw);
+    max-height:86vh; overflow:auto;
+    background:#fff; border:1px solid var(--line); border-radius:18px; box-shadow:0 16px 50px rgba(0,0,0,.22);
+  }
+  .modal .mhead{padding:12px;border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:center;justify-content:space-between}
+  .modal .mbody{padding:12px}
+  textarea{
+    width:100%;
+    min-height:220px;
+    resize:vertical;
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:12px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    font-size:.88rem;
+    line-height:1.35;
+    outline:none;
+    background:#fff;
+  }
+  textarea:focus{border-color: rgba(74,163,255,.55); box-shadow:0 0 0 4px rgba(74,163,255,.12)}
+  .toast{
+    position:fixed; left:50%; bottom:18px; transform:translateX(-50%);
+    background:#0c1720; color:#fff;
+    padding:10px 12px; border-radius:14px;
+    box-shadow:0 10px 25px rgba(0,0,0,.22);
+    opacity:0; pointer-events:none;
+    transition: opacity .18s ease, transform .18s ease;
+    max-width:min(92vw,900px); font-size:.95rem;
+    z-index:60;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(-3px)}
+  .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="brand">
+      <div class="logo" aria-hidden="true"></div>
+      <div>
+        <h1>Oddball Trivia Vault</h1>
+        <div class="sub">75 weird facts • 25 random per run • Monte Carlo seed • local-only mini cloud (Vault)</div>
+      </div>
+    </div>
+    <div class="bar">
+      <span class="pill" id="storagePill">Storage: checking…</span>
+      <span class="pill" id="bankPill">Bank: —</span>
+      <button class="btn small" id="phoneBtn">📱 255px Mode</button>
+      <button class="btn small" id="vaultBtn">🗂️ Vault</button>
+      <button class="btn small" id="statsBtn">📈 Stats</button>
+      <button class="btn small" id="adminBtn">🛠️ Admin</button>
+    </div>
+  </div>
+
+  <div class="phoneShell">
+    <div class="phoneInner" id="phoneInner">
+
+      <!-- HOME -->
+      <div class="card" id="homeCard">
+        <div class="head">
+          <b>Start</b>
+          <span class="pill" id="bestPill">Best: —</span>
+        </div>
+        <div class="body">
+          <div class="grid">
+            <div class="panel">
+              <b style="display:block;margin-bottom:8px;">What you’re playing</b>
+              <div class="muted" style="line-height:1.55">
+                A vault of 75 “off-the-wall” trivia facts. Every run draws <b>25 new random questions</b>.
+                Your run is saved into the <b>local Vault directory</b>.
+              </div>
+
+              <div style="height:10px"></div>
+              <div class="row">
+                <button class="btn good" id="startBtn">▶ Play (25)</button>
+                <button class="btn" id="practiceBtn">🎯 Practice (10)</button>
+                <button class="btn blue" id="reshuffleBtn" title="Prepare a new random seed for the next run">🎲 New Shuffle</button>
+                <span class="sp"></span>
+                <button class="btn warn" id="resetBtn">🧼 Reset Stats</button>
+              </div>
+
+              <div style="height:12px"></div>
+              <div class="muted" style="font-size:.92rem;line-height:1.55">
+                <span class="tag">No outside dependencies</span>
+                <span class="tag">No network calls</span>
+                <span class="tag">LocalStorage only</span>
+                <span class="tag">Export/Import Vault</span>
+              </div>
+
+              <div class="phoneHint" id="phoneHint" style="display:none">
+                255px mode is ON — Wix/mobile stress test view.
+              </div>
+            </div>
+
+            <div class="panel">
+              <b style="display:block;margin-bottom:8px;">Local Mini Cloud</b>
+              <div class="kpi">
+                <div class="box"><b id="qCount">—</b><span>Questions</span></div>
+                <div class="box"><b id="runCount">—</b><span>Saved runs</span></div>
+              </div>
+              <div style="height:10px"></div>
+              <div class="muted" style="font-size:.92rem;line-height:1.55">
+                Vault paths:
+                <div class="mono" style="margin-top:8px">
+                  /vault/stats.json<br/>
+                  /vault/runs/*.json<br/>
+                  /vault/bank.json
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- GAME -->
+      <div class="card" id="gameCard" style="display:none">
+        <div class="head">
+          <b>Play</b>
+          <div class="row">
+            <span class="pill" id="qPill">Q — / —</span>
+            <span class="pill" id="catPill">Category: —</span>
+            <span class="pill" id="seedPill">Seed: —</span>
+            <span class="pill" id="scorePill">Score: 0</span>
+            <button class="btn small" id="quitBtn">⟵ Quit</button>
+          </div>
+        </div>
+        <div class="body">
+          <div class="progress"><div id="bar"></div></div>
+
+          <div class="panel" style="margin-top:12px">
+            <div class="muted" style="margin-bottom:8px">
+              <span class="tag" id="diffTag">Difficulty: —</span>
+              <span class="tag" id="streakTag">Streak: 0</span>
+              <span class="tag" id="chanceTag">Chance: ×—</span>
+            </div>
+
+            <div class="qTitle" id="questionText">—</div>
+            <div class="choices" id="choices"></div>
+
+            <div class="reveal" id="reveal" style="display:none">
+              <b id="revealTitle">—</b>
+              <div class="muted" id="revealText" style="line-height:1.55"></div>
+              <div class="row" style="margin-top:10px">
+                <button class="btn good" id="nextBtn">Next ➜</button>
+                <span class="sp"></span>
+                <button class="btn" id="toggleExplainBtn">📌 Toggle Explanation</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- RESULTS -->
+      <div class="card" id="resultCard" style="display:none">
+        <div class="head">
+          <b>Results</b>
+          <div class="row">
+            <span class="pill" id="finalPill">—</span>
+            <button class="btn small" id="playAgainBtn">▶ Play Again</button>
+            <button class="btn small" id="homeBtn">🏠 Home</button>
+          </div>
+        </div>
+        <div class="body">
+          <div class="grid">
+            <div class="panel">
+              <b style="display:block;margin-bottom:8px;">Your run</b>
+              <div class="kpi" id="runKpis"></div>
+              <div style="height:10px"></div>
+              <div class="muted" id="runSummary" style="line-height:1.55"></div>
+              <div style="height:10px"></div>
+              <button class="btn blue" id="exportRunBtn">⬇️ Export Run (JSON)</button>
+            </div>
+            <div class="panel">
+              <b style="display:block;margin-bottom:8px;">Vault note</b>
+              <div class="muted" style="line-height:1.55">
+                This app stores everything locally. If Wix clears storage, use Vault → Export Vault.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modalBack" id="modalBack" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div class="mhead">
+      <b id="modalTitle">—</b>
+      <button class="btn small" id="closeModalBtn">✕ Close</button>
+    </div>
+    <div class="mbody" id="modalBody"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(() => {
+  const $ = (id)=>document.getElementById(id);
+
+  /* =========================
+     Local-only Storage Wrapper
+     ========================= */
+  const Store = (() => {
+    let mode = "memory";
+    const mem = new Map();
+    function canLS(){
+      try{ const k="__t"; localStorage.setItem(k,"1"); localStorage.removeItem(k); return true; }catch{ return false; }
+    }
+    function init(){
+      mode = canLS() ? "localStorage" : "memory";
+      $("storagePill").textContent = mode==="localStorage" ? "Storage: localStorage ✅" : "Storage: MEMORY ONLY ⚠️";
+    }
+    function get(k){ return mode==="localStorage" ? localStorage.getItem(k) : (mem.has(k) ? mem.get(k) : null); }
+    function set(k,v){ mode==="localStorage" ? localStorage.setItem(k,v) : mem.set(k,v); }
+    function del(k){ mode==="localStorage" ? localStorage.removeItem(k) : mem.delete(k); }
+    function keys(prefix=""){
+      if(mode==="localStorage"){
+        const out=[];
+        for(let i=0;i<localStorage.length;i++){
+          const k = localStorage.key(i);
+          if(k && k.startsWith(prefix)) out.push(k);
+        }
+        return out.sort();
+      }else{
+        return Array.from(mem.keys()).filter(k=>k.startsWith(prefix)).sort();
+      }
+    }
+    return {init,get,set,del,keys,mode:()=>mode};
+  })();
+
+  /* =========================
+     Toast + Modal
+     ========================= */
+  const toastEl = $("toast");
+  let toastTimer=null;
+  function toast(msg){
+    toastEl.textContent = msg;
+    toastEl.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer=setTimeout(()=>toastEl.classList.remove("show"), 1400);
+  }
+
+  const modalBack = $("modalBack");
+  const modalTitle = $("modalTitle");
+  const modalBody  = $("modalBody");
+  function openModal(title, html){
+    modalTitle.textContent = title;
+    modalBody.innerHTML = html;
+    modalBack.style.display = "flex";
+  }
+  function closeModal(){
+    modalBack.style.display = "none";
+    modalTitle.textContent = "—";
+    modalBody.innerHTML = "";
+  }
+  $("closeModalBtn").onclick = closeModal;
+  modalBack.addEventListener("click",(e)=>{ if(e.target===modalBack) closeModal(); });
+
+  /* =========================
+     Monte Carlo RNG (seeded)
+     ========================= */
+  function makeSeed(){
+    return (Date.now().toString(16) + Math.random().toString(16).slice(2)).slice(0,14);
+  }
+  function seedToInt(seed){
+    let h = 2166136261 >>> 0;
+    for(let i=0;i<seed.length;i++){
+      h ^= seed.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    return h >>> 0;
+  }
+  function mulberry32(seedInt){
+    let a = seedInt >>> 0;
+    return function(){
+      a |= 0;
+      a = (a + 0x6D2B79F5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function shuffle(arr, rng){
+    for(let i=arr.length-1;i>0;i--){
+      const j = Math.floor(rng()*(i+1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+  }
+  function chanceMultiplier(rng){
+    const r = rng();
+    // fun Monte Carlo: mostly 1.0, sometimes spicy
+    if(r < 0.08) return 1.70;
+    if(r < 0.22) return 1.30;
+    if(r < 0.72) return 1.00;
+    return 0.85;
+  }
+
+  /* =========================
+     Vault "Mini Cloud" + Directory + Pseudo Server
+     =========================
+     - Everything stored in localStorage under "otv:vault"
+     - Files have paths, timestamps, and content
+  ========================= */
+  const KEYS = {
+    vault:"otv:vault:v1",
+    adminHash:"otv:adminhash:v1",
+    nextSeed:"otv:nextseed:v1"
+  };
+
+  function nowISO(){ return new Date().toISOString(); }
+
+  function loadVault(){
+    const raw = Store.get(KEYS.vault);
+    if(!raw) return { version:"v1", updatedAt: nowISO(), files:{} };
+    try{
+      const v = JSON.parse(raw);
+      if(!v || typeof v!=="object" || !v.files) throw new Error("bad vault");
+      return v;
+    }catch{
+      return { version:"v1", updatedAt: nowISO(), files:{} };
+    }
+  }
+  function saveVault(v){
+    v.updatedAt = nowISO();
+    Store.set(KEYS.vault, JSON.stringify(v));
+  }
+  function vWrite(path, content){
+    const v = loadVault();
+    v.files[path] = { updatedAt: nowISO(), content };
+    saveVault(v);
+  }
+  function vRead(path){
+    const v = loadVault();
+    return v.files[path] ? v.files[path].content : null;
+  }
+  function vMeta(path){
+    const v = loadVault();
+    return v.files[path] ? { updatedAt: v.files[path].updatedAt, bytes: JSON.stringify(v.files[path].content).length } : null;
+  }
+  function vList(prefix="/vault/"){
+    const v = loadVault();
+    return Object.keys(v.files).filter(p=>p.startsWith(prefix)).sort();
+  }
+  function vDelete(path){
+    const v = loadVault();
+    delete v.files[path];
+    saveVault(v);
+  }
+
+  // Pseudo server: internal "endpoints" for your own app logic
+  const LocalServer = {
+    async get(url){
+      // No network. Pure local routing.
+      if(url==="/api/bank"){
+        return { ok:true, json: async()=> (vRead("/vault/bank.json") || DEFAULT_BANK) };
+      }
+      if(url==="/api/stats"){
+        return { ok:true, json: async()=> (vRead("/vault/stats.json") || defaultStats()) };
+      }
+      if(url==="/api/runs"){
+        const paths = vList("/vault/runs/");
+        const runs = paths.map(p=>({ path:p, meta:vMeta(p) }));
+        return { ok:true, json: async()=> runs };
+      }
+      return { ok:false, status:404, json: async()=>({error:"Not found"}) };
+    }
+  };
+
+  /* =========================
+     Question Bank (75)
+     =========================
+     { id, category, difficulty(1-3), q, choices[4], aIndex, explain }
+  ========================= */
+  function q(id, category, difficulty, text, choices, aIndex, explain){
+    return { id, category, difficulty, q:text, choices, aIndex, explain };
+  }
+
+  const DEFAULT_BANK = {
+    name:"Oddball 75",
+    version:"1.0",
+    questions:[
+      q("q001","animals",1,"Which animal is famous for producing cube-shaped poop?",
+        ["Koala","Wombat","Platypus","Otter"],1,
+        "Wombats produce cube-shaped droppings, likely to help mark territory without rolling away."
+      ),
+      q("q002","space",2,"On which planet is a single day longer than its year?",
+        ["Mars","Venus","Jupiter","Mercury"],1,
+        "Venus rotates so slowly that it takes longer to spin once than to orbit the Sun."
+      ),
+      q("q003","food",1,"What food has been found in ancient tombs still edible (in principle) because it doesn’t spoil easily?",
+        ["Butter","Honey","Bread","Cheese"],1,
+        "Honey’s low moisture and acidity can preserve it for a very long time when sealed."
+      ),
+      q("q004","animals",1,"How many hearts does an octopus have?",
+        ["1","2","3","8"],2,
+        "Octopuses have three hearts: two for gills and one for the rest of the body."
+      ),
+      q("q005","language",1,"What is the tiny dot over the letters i and j called?",
+        ["Tittle","Nib","Glyph","Apex"],0,
+        "That dot is called a tittle."
+      ),
+      q("q006","history",2,"The shortest recorded war is often cited as lasting about:",
+        ["38 minutes","6 hours","2 days","1 week"],0,
+        "The Anglo–Zanzibar War (1896) is commonly cited as ~38 minutes long."
+      ),
+      q("q007","nature",2,"What phenomenon makes the Eiffel Tower measurably taller in summer?",
+        ["Wind pressure","Thermal expansion","Rust swelling","Earth tides"],1,
+        "Metal expands when heated, so the Tower can grow slightly in summer."
+      ),
+      q("q008","animals",2,"Which tiny creature can survive extreme conditions and is famous for tolerating vacuum and radiation better than most?",
+        ["Fruit fly","Tardigrade","Earthworm","Fire ant"],1,
+        "Tardigrades (water bears) can enter a cryptobiotic state to survive extremes."
+      ),
+      q("q009","biology",2,"Which animal can regenerate large parts of its body, including its brain tissue, remarkably well?",
+        ["Axolotl","Rabbit","Falcon","Giraffe"],0,
+        "Axolotls are famous for extreme regeneration (limbs, spinal cord, and more)."
+      ),
+      q("q010","space",2,"What color is most of the Universe 'glowing' in, according to studies about the cosmic optical background?",
+        ["Bright green","Cosmic latte (beige-ish)","Deep purple","Neon blue"],1,
+        "A famous analysis jokingly named the average color of the Universe 'cosmic latte.'"
+      ),
+
+      q("q011","animals",1,"Which bird is known for having eyes larger than its brain (by volume)?",
+        ["Ostrich","Crow","Pigeon","Robin"],0,
+        "Ostrich eyes are enormous—bigger than its brain."
+      ),
+      q("q012","science",2,"What is the only letter that doesn’t appear in the periodic table’s element symbols (as a symbol letter)?",
+        ["J","Q","Z","V"],0,
+        "No element symbol includes the letter J."
+      ),
+      q("q013","animals",2,"Which animal has fingerprints so similar to humans that they can confuse forensic investigations?",
+        ["Koala","Cat","Goat","Dolphin"],0,
+        "Koala fingerprints can resemble human prints closely."
+      ),
+      q("q014","biology",2,"What part of the human body has no blood supply (so it must absorb oxygen from the air)?",
+        ["Cornea","Liver","Femur","Tongue"],0,
+        "The cornea is avascular and gets oxygen directly from the air."
+      ),
+      q("q015","history",2,"Which is older: Oxford University or the Aztec Empire?",
+        ["Aztec Empire","Oxford University","They began the same year","Neither; both are modern"],1,
+        "Oxford teaching existed by the late 1000s; the Aztec Empire began in the 1300s."
+      ),
+      q("q016","food",1,"Botanically speaking, bananas are:",
+        ["Berries","Nuts","Roots","Pods"],0,
+        "Bananas qualify as berries; strawberries do not (botanically)."
+      ),
+      q("q017","animals",2,"Which animal has blue blood because it uses copper-based hemocyanin?",
+        ["Octopus","Lion","Frog","Eagle"],0,
+        "Many cephalopods (including octopus) have copper-based blood that can appear blue."
+      ),
+      q("q018","science",2,"Which gas makes a squeaky voice when inhaled (dangerous, do not try)?",
+        ["Carbon dioxide","Helium","Oxygen","Nitrogen"],1,
+        "Helium changes vocal resonance. (Don’t inhale gases—serious risk.)"
+      ),
+      q("q019","animals",2,"What is a group of flamingos commonly called?",
+        ["A brigade","A flamboyance","A storm","A crown"],1,
+        "A group of flamingos is often called a flamboyance."
+      ),
+      q("q020","history",2,"Cleopatra lived closer in time to:",
+        ["The building of the Great Pyramid","The first iPhone","The first dinosaurs","The first printing press"],1,
+        "Cleopatra lived far after the pyramids; she’s closer to modern times than to pyramid construction."
+      ),
+
+      q("q021","nature",2,"What causes some lakes to look pink (like Lake Hillier, famously)?",
+        ["Glowing algae/bacteria and salt-loving microbes","Pink sand dissolving","Volcanic ash","Copper dust"],0,
+        "Certain microbes and algae pigments in salty environments can tint water pink."
+      ),
+      q("q022","animals",1,"Which animal is known for playing dead as a defense (famous example)?",
+        ["Oppossum","Cheetah","Moose","Penguin"],0,
+        "Opossums can enter a 'playing dead' state called thanatosis."
+      ),
+      q("q023","science",2,"What is the name for animals that are active during twilight (dawn and dusk)?",
+        ["Nocturnal","Crepuscular","Diurnal","Abyssal"],1,
+        "Crepuscular animals are most active at dawn and dusk."
+      ),
+      q("q024","language",1,"What do you call a word that’s spelled the same backward and forward?",
+        ["Palindrome","Homophone","Anagram","Acronym"],0,
+        "Palindrome: e.g., 'racecar.'"
+      ),
+      q("q025","biology",2,"What’s the largest internal organ in the human body?",
+        ["Heart","Liver","Kidney","Lung"],1,
+        "The liver is the largest internal organ."
+      ),
+      q("q026","animals",2,"Which animal is famous for giving birth through a 'pouch' and is a marsupial?",
+        ["Platypus","Kangaroo","Hedgehog","Sloth"],1,
+        "Kangaroos are marsupials; their young develop in a pouch."
+      ),
+      q("q027","history",2,"What was used as early 'chewing gum' thousands of years ago in some cultures?",
+        ["Tree resin/pitch","Powdered chalk","Dried fish skin","Clay"],0,
+        "Archaeology suggests some people chewed birch pitch or other resins."
+      ),
+      q("q028","science",3,"Which metal is liquid at (or near) room temperature?",
+        ["Iron","Mercury","Aluminum","Copper"],1,
+        "Mercury is liquid at standard room temperatures."
+      ),
+      q("q029","animals",2,"Which creature has a tongue that can shoot out about the length of its body?",
+        ["Chameleon","Camel","Koi fish","Goose"],0,
+        "Chameleon tongues can extend rapidly to snag prey."
+      ),
+      q("q030","space",2,"Where is the largest volcano in the Solar System located?",
+        ["Earth (Hawaii)","Mars (Olympus Mons)","Venus","Io"],1,
+        "Olympus Mons on Mars is the largest volcano known in the Solar System."
+      ),
+
+      q("q031","animals",2,"What is the only mammal capable of sustained true flight?",
+        ["Flying squirrel","Bat","Sugar glider","Colugo"],1,
+        "Bats are the only mammals with true powered flight; others glide."
+      ),
+      q("q032","biology",2,"What’s the name of the bone in your ear that is the smallest in the human body?",
+        ["Stapes","Femur","Ulna","Mandible"],0,
+        "The stapes (stirrup) is the smallest bone."
+      ),
+      q("q033","nature",2,"What causes the smell after rain (that earthy scent)?",
+        ["Petrichor","Ozone dust","Salt mist","Coal ash"],0,
+        "Petrichor is the scent from compounds released by soil and plants."
+      ),
+      q("q034","animals",2,"Which animal can rotate its head up to around 270 degrees?",
+        ["Owl","Parrot","Swan","Chicken"],0,
+        "Owls have specialized neck anatomy allowing extreme rotation."
+      ),
+      q("q035","science",2,"What is the term for a material that has a negative Poisson’s ratio (gets thicker when stretched)?",
+        ["Auxetic","Elastic","Ionic","Brittle"],0,
+        "Auxetic materials expand laterally when stretched."
+      ),
+      q("q036","history",2,"Which ancient material was used for writing before paper became common?",
+        ["Papyrus","Neon plastic","Chrome foil","Rubber bark only"],0,
+        "Papyrus (and parchment) were used long before modern paper."
+      ),
+      q("q037","animals",2,"Which animal famously has a 'built-in' compass and can sense Earth’s magnetic field?",
+        ["Sea turtle","Goldfish","House cat","Hamster"],0,
+        "Sea turtles (and many migrators) use magnetoreception for navigation."
+      ),
+      q("q038","space",3,"Which planet has the largest number of known moons (as counts have shifted over time)?",
+        ["Earth","Mars","Jupiter","Neptune"],2,
+        "Jupiter is often cited as having the most known moons (counts can change with discoveries)."
+      ),
+      q("q039","food",2,"What chemical compound gives chili peppers their 'heat'?",
+        ["Capsaicin","Gluten","Sucrose","Pectin"],0,
+        "Capsaicin triggers heat/pain receptors."
+      ),
+      q("q040","language",2,"What do you call a word that looks like it sounds (e.g., 'buzz', 'bang')?",
+        ["Onomatopoeia","Synonym","Etymology","Dialect"],0,
+        "Onomatopoeia imitates sounds."
+      ),
+
+      q("q041","animals",2,"Which animal has teeth on its tongue (tiny tooth-like structures called denticles)?",
+        ["Shark","Catfish","Snail","Frog"],2,
+        "Many snails have a radula—a tongue-like organ with tiny teeth."
+      ),
+      q("q042","science",2,"What is the hottest part of a candle flame?",
+        ["The blue region near the base","The red tip","The smoke above","The wick itself"],0,
+        "The blue region indicates more complete combustion and higher temperature."
+      ),
+      q("q043","history",2,"What did ancient Romans sometimes use as a form of toothpaste ingredient?",
+        ["Crushed charcoal and abrasives","Liquid gold","Syrup","Perfume only"],0,
+        "Historical recipes included abrasives like charcoal or other gritty substances."
+      ),
+      q("q044","nature",2,"Which is the only continent with no native ants?",
+        ["Africa","Antarctica","Australia","South America"],1,
+        "Antarctica has no native ant species."
+      ),
+      q("q045","biology",2,"What’s the name of the process where a starfish can regrow limbs?",
+        ["Regeneration","Photosynthesis","Metamorphosis","Fermentation"],0,
+        "Regeneration is the regrowth of tissues/limbs."
+      ),
+      q("q046","space",2,"What’s the name of the galaxy we live in?",
+        ["Andromeda","Whirlpool","Milky Way","Sombrero"],2,
+        "Earth is in the Milky Way galaxy."
+      ),
+      q("q047","animals",2,"Which animal can sleep with one half of its brain at a time?",
+        ["Dolphin","Horse","Panda","Kangaroo"],0,
+        "Dolphins can use unihemispheric sleep to keep breathing and stay alert."
+      ),
+      q("q048","science",3,"What’s the term for a sound frequency above human hearing?",
+        ["Infra-sound","Ultrasound","Echo","Resonance"],1,
+        "Ultrasound is above the typical human range."
+      ),
+      q("q049","history",2,"What was the first 'computer bug' famously associated with?",
+        ["A moth","A spider","A mouse","A beetle"],0,
+        "A moth in a relay was documented as a 'bug' in early computing lore."
+      ),
+      q("q050","animals",2,"Which animal’s milk is famously pink-ish due to certain pigments and fat content?",
+        ["Hippo","Elephant","Cow","Camel"],0,
+        "Hippo 'milk' has been reported as pinkish due to pigments and composition."
+      ),
+
+      q("q051","science",2,"What’s the name of the process that turns grapes into raisins?",
+        ["Fermentation","Dehydration","Crystallization","Sublimation"],1,
+        "Raisins form mainly by dehydration (drying)."
+      ),
+      q("q052","animals",2,"Which animal is known for having a prehensile tail (tail that can grip) among these?",
+        ["Seahorse","Opossum","Giraffe","Penguin"],1,
+        "Opossums have a prehensile tail useful for gripping."
+      ),
+      q("q053","nature",2,"What is bioluminescence?",
+        ["Light produced by chemical reactions in living organisms","Light reflected by mirrors","Heat glow from rocks","Electricity in batteries"],0,
+        "Some organisms emit light through biochemical reactions."
+      ),
+      q("q054","space",2,"What is the name of the boundary where the Sun’s solar wind slows against interstellar space?",
+        ["Event Horizon","Heliopause","Stratosphere","Magnetopause"],1,
+        "The heliopause marks where solar wind pressure balances interstellar medium."
+      ),
+      q("q055","language",2,"What’s the name for a phrase that contradicts itself (e.g., 'deafening silence')?",
+        ["Oxymoron","Metaphor","Alliteration","Hyperbole"],0,
+        "An oxymoron pairs seemingly contradictory terms."
+      ),
+      q("q056","animals",2,"Which sea creature has a donut-shaped brain around its esophagus?",
+        ["Octopus","Sea urchin","Seahorse","Lobster"],0,
+        "Octopus anatomy is famously unusual; its central nervous system is distributed."
+      ),
+      q("q057","history",2,"What did people historically use as an early 'refrigerator' in some climates?",
+        ["Ice houses / cellars","Hot sand pits","Metal ovens","Salt lamps"],0,
+        "Ice houses and cool cellars were used to store ice/food."
+      ),
+      q("q058","science",2,"Which is the only planet not named after a Roman/Greek god?",
+        ["Mars","Venus","Earth","Neptune"],2,
+        "Earth’s name comes from Germanic/Old English roots, not a deity."
+      ),
+      q("q059","animals",2,"Which animal can taste with its feet?",
+        ["Butterfly","Snake","Dog","Falcon"],0,
+        "Butterflies have taste receptors on their feet."
+      ),
+      q("q060","nature",2,"What’s the name of a rock that floats on water due to trapped gas bubbles?",
+        ["Granite","Pumice","Basalt","Marble"],1,
+        "Pumice can float because it’s full of air pockets."
+      ),
+
+      q("q061","science",2,"What is the term for water boiling at a lower temperature at high altitude?",
+        ["Pressure effect / lower boiling point due to lower pressure","Magnetic boiling","Solar boiling","Frozen boiling"],0,
+        "Lower atmospheric pressure means water boils at a lower temperature."
+      ),
+      q("q062","animals",2,"Which animal has a 'built-in' natural antifreeze in its blood to survive freezing conditions?",
+        ["Wood frog","Rabbit","Peacock","Zebra"],0,
+        "Wood frogs can survive partial freezing with cryoprotectants."
+      ),
+      q("q063","history",2,"What was used as money in some places at certain times?",
+        ["Cowrie shells","Chewing gum","Feathers only","Leaves only"],0,
+        "Cowrie shells were used as currency in various regions historically."
+      ),
+      q("q064","language",2,"What do you call the fear of long words (ironically)?",
+        ["Hippopotomonstrosesquipedaliophobia","Arachnophobia","Acrophobia","Nyctophobia"],0,
+        "It’s famously long and ironic: hippopotomonstrosesquipedaliophobia."
+      ),
+      q("q065","animals",2,"Which animal is known for having 'glass' bones in folklore but actually has pneumatic (air-filled) bones?",
+        ["Birds","Sharks","Frogs","Turtles"],0,
+        "Many birds have air-filled bones that reduce weight for flight."
+      ),
+      q("q066","science",3,"What is the name of the rare phenomenon where ice can form at temperatures above 0°C under pressure changes and impurities (supercooling related)?",
+        ["Supercooling / freezing from supercooled water","Reverse melting","Heat snow","Solar frost"],0,
+        "Supercooled water can remain liquid below freezing and then suddenly crystallize."
+      ),
+      q("q067","animals",2,"Which animal has been observed using tools (like carrying sponges) to protect itself?",
+        ["Octopus","Goldfish","Camel","Rabbit"],0,
+        "Some octopuses carry coconut shells or wear sponges as protection."
+      ),
+      q("q068","nature",2,"What’s the term for a river that disappears underground and re-emerges later?",
+        ["Karst river / subterranean river","Sky river","Glacier river","Tide river"],0,
+        "Karst landscapes can swallow rivers into caves and springs."
+      ),
+      q("q069","history",2,"What was a surprisingly common ancient writing surface besides papyrus?",
+        ["Clay tablets","Soap bars","Glass sheets","Rubber mats"],0,
+        "Cuneiform was written on clay tablets in ancient Mesopotamia."
+      ),
+      q("q070","science",2,"What’s the name for the study of flags?",
+        ["Vexillology","Ichthyology","Entomology","Etymology"],0,
+        "Vexillology is the study of flags."
+      ),
+
+      q("q071","animals",2,"Which animal can regrow its entire body from a small fragment (in many cases)?",
+        ["Planarian flatworm","Housefly","Goldfinch","Penguin"],0,
+        "Planarian flatworms are famous for extreme regeneration capabilities."
+      ),
+      q("q072","space",2,"What is a 'rogue planet'?",
+        ["A planet not orbiting a star","A planet made of diamonds","A planet with rings","A planet with life"],0,
+        "Rogue planets drift through space without orbiting a star."
+      ),
+      q("q073","language",2,"What do you call a word that is formed by imitating a sound (like 'cuckoo')?",
+        ["Onomatopoeia","Palindrome","Portmanteau","Euphemism"],0,
+        "Onomatopoeia imitates or suggests the source sound."
+      ),
+      q("q074","science",2,"Which part of the body produces most earwax?",
+        ["Sebaceous and ceruminous glands in the ear canal","The eardrum","The inner ear bones","The cochlea"],0,
+        "Earwax is produced by glands in the outer ear canal."
+      ),
+      q("q075","history",2,"Which is sometimes called the world’s oldest known 'board game' (very broadly)?",
+        ["Senet","Monopoly","Chess","Checkers"],0,
+        "Senet is among the oldest known board games from ancient Egypt."
+      )
+    ]
+  };
+
+  /* =========================
+     Stats
+     ========================= */
+  function defaultStats(){
+    return { runs:0, correct:0, wrong:0, best:0, updatedAt: nowISO() };
+  }
+
+  function loadStats(){
+    return vRead("/vault/stats.json") || defaultStats();
+  }
+  function saveStats(s){
+    s.updatedAt = nowISO();
+    vWrite("/vault/stats.json", s);
+  }
+
+  /* =========================
+     Admin gating
+     ========================= */
+  async function sha256Hex(str){
+    const enc = new TextEncoder().encode(str);
+    const buf = await crypto.subtle.digest("SHA-256", enc);
+    const arr = Array.from(new Uint8Array(buf));
+    return arr.map(b=>b.toString(16).padStart(2,"0")).join("");
+  }
+  async function ensureAdminPass(){
+    const existing = Store.get(KEYS.adminHash);
+    if(existing) return true;
+    const p1 = prompt("Create an Admin passphrase (local-only).");
+    if(!p1) return false;
+    const p2 = prompt("Repeat passphrase.");
+    if(p1 !== p2){ toast("Passphrases did not match."); return false; }
+    Store.set(KEYS.adminHash, await sha256Hex(p1));
+    toast("Admin passphrase set.");
+    return true;
+  }
+  async function verifyAdminPass(){
+    const ok = await ensureAdminPass();
+    if(!ok) return false;
+    const hx = Store.get(KEYS.adminHash);
+    const p = prompt("Enter Admin passphrase:");
+    if(!p) return false;
+    const test = await sha256Hex(p);
+    if(test !== hx){ toast("Incorrect passphrase."); return false; }
+    return true;
+  }
+
+  /* =========================
+     UI Elements
+     ========================= */
+  const homeCard = $("homeCard");
+  const gameCard = $("gameCard");
+  const resultCard = $("resultCard");
+
+  const qPill = $("qPill");
+  const catPill = $("catPill");
+  const seedPill = $("seedPill");
+  const scorePill = $("scorePill");
+
+  const barEl = $("bar");
+  const diffTag = $("diffTag");
+  const streakTag = $("streakTag");
+  const chanceTag = $("chanceTag");
+  const questionText = $("questionText");
+  const choicesEl = $("choices");
+
+  const reveal = $("reveal");
+  const revealTitle = $("revealTitle");
+  const revealText = $("revealText");
+
+  const nextBtn = $("nextBtn");
+
+  /* =========================
+     App State
+     ========================= */
+  let bank = null;
+  let stats = null;
+
+  let state = {
+    total:25,
+    seed:"—",
+    rng:null,
+    deck:[],
+    idx:0,
+    score:0,
+    correct:0,
+    wrong:0,
+    streak:0,
+    chance:1.0,
+    runPath:null,
+    runLog:[]
+  };
+
+  /* =========================
+     Bank load/save to Vault
+     ========================= */
+  function validateBank(obj){
+    if(!obj || typeof obj!=="object") throw new Error("Bank is not an object.");
+    if(!Array.isArray(obj.questions)) throw new Error("Bank.questions must be an array.");
+    if(obj.questions.length < 10) throw new Error("Question bank is too small.");
+    obj.questions.forEach((qq,i)=>{
+      if(!qq || typeof qq!=="object") throw new Error("Bad question at index "+i);
+      if(!qq.id) throw new Error("Missing id at index "+i);
+      if(!qq.q) throw new Error("Missing question text at index "+i);
+      if(!Array.isArray(qq.choices) || qq.choices.length!==4) throw new Error("choices must be an array of 4 at index "+i);
+      if(!(Number.isInteger(qq.aIndex) && qq.aIndex>=0 && qq.aIndex<4)) throw new Error("Invalid aIndex at index "+i);
+      qq.difficulty = Math.max(1, Math.min(3, Number(qq.difficulty)||1));
+      qq.category = String(qq.category||"odd").slice(0,24);
+    });
+    return obj;
+  }
+
+  async function loadBank(){
+    // First preference: vault
+    const fromVault = vRead("/vault/bank.json");
+    if(fromVault){
+      try{ return validateBank(fromVault); }catch{ /* fallthrough */ }
+    }
+    // fallback: default hardwired
+    const b = validateBank(DEFAULT_BANK);
+    vWrite("/vault/bank.json", b);
+    return b;
+  }
+
+  function updateHomeUI(){
+    $("qCount").textContent = String(bank.questions.length);
+    $("bankPill").textContent = `Bank: ${bank.questions.length} Qs`;
+    const runs = vList("/vault/runs/").length;
+    $("runCount").textContent = String(runs);
+
+    const best = (stats.best||0);
+    $("bestPill").textContent = best ? ("Best: " + best.toLocaleString()) : "Best: —";
+  }
+
+  function showHome(){
+    homeCard.style.display = "";
+    gameCard.style.display = "none";
+    resultCard.style.display = "none";
+  }
+  function showGame(){
+    homeCard.style.display = "none";
+    gameCard.style.display = "";
+    resultCard.style.display = "none";
+  }
+  function showResults(){
+    homeCard.style.display = "none";
+    gameCard.style.display = "none";
+    resultCard.style.display = "";
+  }
+
+  /* =========================
+     Scoring (fun + simple)
+     ========================= */
+  function basePoints(difficulty){
+    return [0, 120, 190, 270][difficulty] || 150;
+  }
+
+  /* =========================
+     Build a 25-question deck
+     ========================= */
+  function buildDeck(total, rng){
+    const all = bank.questions.slice();
+    shuffle(all, rng);
+    return all.slice(0, Math.min(total, all.length));
+  }
+
+  /* =========================
+     Game flow
+     ========================= */
+  function startGame(total){
+    state.total = total;
+    state.idx = 0;
+    state.score = 0;
+    state.correct = 0;
+    state.wrong = 0;
+    state.streak = 0;
+    state.runLog = [];
+
+    reveal.style.display = "none";
+    revealText.style.display = "block";
+
+    const prepared = Store.get(KEYS.nextSeed);
+    state.seed = prepared || makeSeed();
+    Store.del(KEYS.nextSeed);
+
+    state.rng = mulberry32(seedToInt(state.seed));
+    state.deck = buildDeck(state.total, state.rng);
+
+    if(!state.deck.length){
+      toast("No questions available.");
+      return;
+    }
+    state.runPath = `/vault/runs/run_${nowISO().replaceAll(":","-")}.json`;
+    showGame();
+    renderQuestion();
+  }
+
+  function renderQuestion(){
+    const qq = state.deck[state.idx];
+    if(!qq){ endGame(); return; }
+
+    state.chance = chanceMultiplier(state.rng);
+
+    qPill.textContent = `Q ${state.idx+1} / ${state.total}`;
+    catPill.textContent = `Category: ${titleCase(qq.category)}`;
+    seedPill.textContent = `Seed: ${state.seed}`;
+    scorePill.textContent = `Score: ${Math.round(state.score).toLocaleString()}`;
+
+    diffTag.textContent = `Difficulty: ${qq.difficulty}`;
+    streakTag.textContent = `Streak: ${state.streak}`;
+    chanceTag.textContent = `Chance: ×${state.chance.toFixed(2)}`;
+
+    barEl.style.width = Math.round((state.idx/state.total)*100) + "%";
+    questionText.textContent = qq.q;
+
+    reveal.style.display = "none";
+    choicesEl.innerHTML = "";
+
+    const order = [0,1,2,3];
+    shuffle(order, state.rng);
+
+    order.forEach((choiceIdx, k)=>{
+      const div = document.createElement("div");
+      div.className = "choice";
+      div.setAttribute("role","button");
+      div.tabIndex = 0;
+      div.innerHTML = `<div class="badge">${String.fromCharCode(65+k)}</div><div style="flex:1">${escapeHtml(qq.choices[choiceIdx])}</div>`;
+      const handler = ()=> chooseAnswer(qq, choiceIdx, div, order);
+      div.addEventListener("click", handler);
+      div.addEventListener("keydown",(e)=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); handler(); } });
+      choicesEl.appendChild(div);
+    });
+  }
+
+  function chooseAnswer(qq, pickedIdx, pickedEl, order){
+    Array.from(choicesEl.children).forEach(el=>{
+      el.classList.add("disabled");
+      el.style.pointerEvents = "none";
+    });
+
+    const correct = (pickedIdx === qq.aIndex);
+    const base = basePoints(qq.difficulty);
+    const delta = correct
+      ? base * state.chance
+      : -Math.max(40, base * 0.35);
+
+    if(correct){
+      state.correct++;
+      state.streak++;
+    }else{
+      state.wrong++;
+      state.streak = 0;
+    }
+    state.score = Math.max(0, state.score + delta);
+
+    scorePill.textContent = `Score: ${Math.round(state.score).toLocaleString()}`;
+    streakTag.textContent = `Streak: ${state.streak}`;
+
+    const correctPos = order.indexOf(qq.aIndex);
+    const correctEl = choicesEl.children[correctPos];
+    if(correctEl) correctEl.classList.add("correct");
+    if(!correct) pickedEl.classList.add("wrong");
+
+    reveal.style.display = "";
+    revealTitle.textContent = correct ? `✅ Correct (+${Math.round(delta)})` : `❌ Nope (${Math.round(delta)})`;
+    revealText.textContent = qq.explain || "—";
+
+    state.runLog.push({
+      id: qq.id,
+      picked: pickedIdx,
+      correct: qq.aIndex,
+      ok: correct,
+      scoreAfter: Math.round(state.score)
+    });
+  }
+
+  function nextQuestion(){
+    state.idx++;
+    if(state.idx >= state.total){
+      endGame();
+      return;
+    }
+    renderQuestion();
+  }
+
+  function endGame(){
+    barEl.style.width = "100%";
+
+    const finalScore = Math.round(state.score);
+
+    // update stats
+    stats = loadStats();
+    stats.runs++;
+    stats.correct += state.correct;
+    stats.wrong += state.wrong;
+    if(finalScore > (stats.best||0)) stats.best = finalScore;
+    saveStats(stats);
+
+    // save run into vault
+    const runDoc = {
+      seed: state.seed,
+      total: state.total,
+      correct: state.correct,
+      wrong: state.wrong,
+      score: finalScore,
+      finishedAt: nowISO(),
+      log: state.runLog
+    };
+    vWrite(state.runPath, runDoc);
+
+    renderResults(finalScore, runDoc);
+    updateHomeUI();
+    showResults();
+  }
+
+  function renderResults(finalScore, runDoc){
+    $("finalPill").textContent = `Score: ${finalScore.toLocaleString()} • Correct: ${state.correct}/${state.total}`;
+
+    const runKpis = $("runKpis");
+    runKpis.innerHTML = "";
+    runKpis.appendChild(kpiBox("Score", finalScore.toLocaleString()));
+    runKpis.appendChild(kpiBox("Correct", `${state.correct}/${state.total}`));
+    runKpis.appendChild(kpiBox("Best", (stats.best||0).toLocaleString()));
+    runKpis.appendChild(kpiBox("Saved", state.runPath.split("/").pop()));
+
+    const acc = Math.round((state.correct/state.total)*100);
+    $("runSummary").textContent =
+      `Accuracy: ${acc}%. This run was saved into your local Vault. Seed: ${state.seed}.`;
+
+    $("exportRunBtn").onclick = ()=> {
+      const blob = new Blob([JSON.stringify(runDoc, null, 2)], {type:"application/json;charset=utf-8"});
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "oddball_trivia_run.json";
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 0);
+      toast("Run exported.");
+    };
+  }
+
+  function kpiBox(label, value){
+    const div = document.createElement("div");
+    div.className = "box";
+    div.innerHTML = `<b>${escapeHtml(value)}</b><span>${escapeHtml(label)}</span>`;
+    return div;
+  }
+
+  /* =========================
+     Vault UI
+     ========================= */
+  function openVault(){
+    const paths = vList("/vault/");
+    const rows = paths.map(p=>{
+      const meta = vMeta(p);
+      const when = meta ? meta.updatedAt : "—";
+      const bytes = meta ? meta.bytes : 0;
+      return `
+        <tr>
+          <td class="mono" style="padding:8px;border-bottom:1px solid var(--line)">${escapeHtml(p)}</td>
+          <td style="padding:8px;border-bottom:1px solid var(--line);color:var(--muted)">${escapeHtml(when)}</td>
+          <td style="padding:8px;border-bottom:1px solid var(--line);color:var(--muted)">${bytes}</td>
+          <td style="padding:8px;border-bottom:1px solid var(--line);text-align:right">
+            <button class="btn small" data-open="${escapeHtml(p)}">Open</button>
+            <button class="btn small" data-dl="${escapeHtml(p)}">Download</button>
+            <button class="btn small bad" data-del="${escapeHtml(p)}">Delete</button>
+          </td>
+        </tr>`;
+    }).join("");
+
+    const html = `
+      <div class="row" style="margin-bottom:10px">
+        <button class="btn blue" id="exportVaultBtn">⬇️ Export Entire Vault</button>
+        <label class="btn" style="gap:10px;cursor:pointer">
+          ⬆️ Import Vault <input id="importVault" type="file" accept="application/json" style="display:none"/>
+        </label>
+        <span class="sp"></span>
+        <button class="btn warn" id="vaultRefreshBtn">↻ Refresh</button>
+      </div>
+
+      <div class="panel">
+        <b>Directory</b>
+        <div class="muted" style="margin:6px 0 10px 0">Everything below is stored locally in your browser.</div>
+        <div style="overflow:auto;border:1px solid var(--line);border-radius:14px">
+          <table style="border-collapse:collapse;width:100%;min-width:720px">
+            <thead>
+              <tr style="background:#fbfdff">
+                <th style="text-align:left;padding:8px;border-bottom:1px solid var(--line)">Path</th>
+                <th style="text-align:left;padding:8px;border-bottom:1px solid var(--line)">Updated</th>
+                <th style="text-align:left;padding:8px;border-bottom:1px solid var(--line)">Bytes</th>
+                <th style="text-align:right;padding:8px;border-bottom:1px solid var(--line)">Actions</th>
+              </tr>
+            </thead>
+            <tbody>${rows || `<tr><td colspan="4" style="padding:10px;color:var(--muted)">No files yet.</td></tr>`}</tbody>
+          </table>
+        </div>
+      </div>
+
+      <div style="height:12px"></div>
+      <div class="panel">
+        <b>Preview</b>
+        <textarea id="vaultPreview" placeholder="Select a file to preview..." spellcheck="false"></textarea>
+      </div>
+    `;
+    openModal("Vault — Local Mini Cloud", html);
+    setTimeout(wireVault, 0);
+  }
+
+  function wireVault(){
+    const preview = document.getElementById("vaultPreview");
+
+    document.getElementById("vaultRefreshBtn").onclick = ()=>{ closeModal(); openVault(); };
+
+    document.getElementById("exportVaultBtn").onclick = ()=>{
+      const v = loadVault();
+      const blob = new Blob([JSON.stringify(v, null, 2)], {type:"application/json;charset=utf-8"});
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "oddball_trivia_vault.json";
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 0);
+      toast("Vault exported.");
+    };
+
+    document.getElementById("importVault").onchange = async (e)=>{
+      const f = e.target.files && e.target.files[0];
+      if(!f) return;
+      try{
+        const imported = JSON.parse(await f.text());
+        if(!imported || !imported.files) throw new Error("Not a vault export.");
+        saveVault(imported);
+        toast("Vault imported.");
+        closeModal();
+        bank = await loadBank();
+        stats = loadStats();
+        updateHomeUI();
+      }catch(err){
+        alert("Import error: " + (err?.message || String(err)));
+      }finally{ e.target.value=""; }
+    };
+
+    // actions
+    modalBody.querySelectorAll("button[data-open]").forEach(btn=>{
+      btn.onclick = ()=>{
+        const path = btn.getAttribute("data-open");
+        const content = vRead(path);
+        preview.value = JSON.stringify(content, null, 2);
+      };
+    });
+    modalBody.querySelectorAll("button[data-dl]").forEach(btn=>{
+      btn.onclick = ()=>{
+        const path = btn.getAttribute("data-dl");
+        const content = vRead(path);
+        const blob = new Blob([JSON.stringify(content, null, 2)], {type:"application/json;charset=utf-8"});
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = path.split("/").pop() || "vault_file.json";
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 0);
+        toast("File downloaded.");
+      };
+    });
+    modalBody.querySelectorAll("button[data-del]").forEach(btn=>{
+      btn.onclick = ()=>{
+        const path = btn.getAttribute("data-del");
+        if(!confirm("Delete " + path + " ?")) return;
+        vDelete(path);
+        toast("Deleted.");
+        closeModal();
+        openVault();
+        updateHomeUI();
+      };
+    });
+  }
+
+  /* =========================
+     Stats modal
+     ========================= */
+  function openStats(){
+    const s = loadStats();
+    const total = (s.correct + s.wrong) || 0;
+    const acc = total ? Math.round((s.correct/total)*100) : 0;
+
+    const html = `
+      <div class="kpi">
+        <div class="box"><b>${(s.runs||0).toLocaleString()}</b><span>Runs</span></div>
+        <div class="box"><b>${(s.best||0).toLocaleString()}</b><span>Best</span></div>
+        <div class="box"><b>${acc}%</b><span>Overall Accuracy</span></div>
+      </div>
+      <div style="height:12px"></div>
+      <button class="btn blue" id="exportStatsBtn">⬇️ Export Stats</button>
+    `;
+    openModal("Stats", html);
+    setTimeout(()=>{
+      const btn=document.getElementById("exportStatsBtn");
+      if(btn){
+        btn.onclick=()=>{
+          const blob = new Blob([JSON.stringify(s,null,2)], {type:"application/json;charset=utf-8"});
+          const a = document.createElement("a");
+          a.href = URL.createObjectURL(blob);
+          a.download = "oddball_trivia_stats.json";
+          document.body.appendChild(a);
+          a.click();
+          setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },0);
+          toast("Stats exported.");
+        };
+      }
+    },0);
+  }
+
+  /* =========================
+     Admin (edit bank)
+     ========================= */
+  async function openAdmin(){
+    const allowed = await verifyAdminPass();
+    if(!allowed) return;
+
+    const html = `
+      <div class="muted" style="line-height:1.55">
+        Edit the bank locally. Must be valid JSON with <span class="mono">questions</span>.
+        Each question must have 4 choices and a valid <span class="mono">aIndex</span>.
+      </div>
+
+      <div style="height:12px"></div>
+      <div class="panel">
+        <b>Bank JSON</b>
+        <textarea id="bankArea" spellcheck="false">${escapeHtml(JSON.stringify(bank, null, 2))}</textarea>
+        <div class="row" style="margin-top:10px">
+          <button class="btn good" id="saveBankBtn">💾 Save Bank</button>
+          <button class="btn warn" id="restoreBankBtn">🧾 Restore Default 75</button>
+          <span class="sp"></span>
+          <button class="btn blue" id="exportBankBtn">⬇️ Export Bank</button>
+          <label class="btn" style="gap:10px;cursor:pointer">
+            ⬆️ Import Bank <input id="importBank" type="file" accept="application/json" style="display:none"/>
+          </label>
+        </div>
+      </div>
+
+      <div style="height:12px"></div>
+      <div class="panel">
+        <b>Developer note</b>
+        <div class="muted" style="line-height:1.55">
+          Internal pseudo server endpoints (no network):
+          <div class="mono" style="margin-top:8px">
+            LocalServer.get("/api/bank")<br/>
+            LocalServer.get("/api/stats")<br/>
+            LocalServer.get("/api/runs")
+          </div>
+        </div>
+      </div>
+    `;
+    openModal("Admin — Oddball Bank", html);
+    setTimeout(wireAdmin, 0);
+  }
+
+  function wireAdmin(){
+    const bankArea = document.getElementById("bankArea");
+
+    document.getElementById("saveBankBtn").onclick = ()=>{
+      try{
+        const obj = JSON.parse(bankArea.value);
+        const cleaned = validateBank(obj);
+        vWrite("/vault/bank.json", cleaned);
+        bank = cleaned;
+        updateHomeUI();
+        toast("Bank saved.");
+      }catch(err){
+        alert("Bank error: " + (err?.message || String(err)));
+      }
+    };
+
+    document.getElementById("restoreBankBtn").onclick = ()=>{
+      if(!confirm("Restore default 75-question bank?")) return;
+      vWrite("/vault/bank.json", DEFAULT_BANK);
+      bankArea.value = JSON.stringify(DEFAULT_BANK, null, 2);
+      bank = DEFAULT_BANK;
+      updateHomeUI();
+      toast("Restored.");
+    };
+
+    document.getElementById("exportBankBtn").onclick = ()=>{
+      const blob = new Blob([JSON.stringify(vRead("/vault/bank.json") || bank, null, 2)], {type:"application/json;charset=utf-8"});
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "oddball_trivia_bank.json";
+      document.body.appendChild(a); a.click();
+      setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },0);
+      toast("Bank exported.");
+    };
+
+    document.getElementById("importBank").onchange = async (e)=>{
+      const f = e.target.files && e.target.files[0];
+      if(!f) return;
+      try{
+        const obj = JSON.parse(await f.text());
+        const cleaned = validateBank(obj);
+        vWrite("/vault/bank.json", cleaned);
+        bankArea.value = JSON.stringify(cleaned, null, 2);
+        bank = cleaned;
+        updateHomeUI();
+        toast("Bank imported.");
+      }catch(err){
+        alert("Import error: " + (err?.message || String(err)));
+      }finally{ e.target.value=""; }
+    };
+  }
+
+  /* =========================
+     Buttons + toggles
+     ========================= */
+  $("startBtn").onclick = ()=> startGame(25);
+  $("practiceBtn").onclick = ()=> startGame(10);
+  $("reshuffleBtn").onclick = ()=>{
+    Store.set(KEYS.nextSeed, makeSeed());
+    toast("New shuffle prepared.");
+  };
+  $("quitBtn").onclick = ()=> { showHome(); toast("Quit."); };
+
+  $("playAgainBtn").onclick = ()=> startGame(25);
+  $("homeBtn").onclick = ()=> showHome();
+
+  $("toggleExplainBtn").onclick = ()=>{
+    revealText.style.display = (revealText.style.display==="none") ? "block" : "none";
+  };
+  nextBtn.onclick = ()=> nextQuestion();
+
+  $("vaultBtn").onclick = openVault;
+  $("statsBtn").onclick = openStats;
+  $("adminBtn").onclick = openAdmin;
+
+  $("resetBtn").onclick = ()=>{
+    if(!confirm("Reset stats and delete saved runs?")) return;
+    // wipe vault runs + stats, keep bank
+    vList("/vault/runs/").forEach(p=>vDelete(p));
+    vWrite("/vault/stats.json", defaultStats());
+    stats = loadStats();
+    updateHomeUI();
+    toast("Reset complete.");
+  };
+
+  // 255px mode
+  let phoneOn = false;
+  $("phoneBtn").onclick = ()=>{
+    phoneOn = !phoneOn;
+    $("phoneInner").classList.toggle("phone255", phoneOn);
+    $("phoneHint").style.display = phoneOn ? "" : "none";
+    toast(phoneOn ? "255px mode ON" : "255px mode OFF");
+  };
+
+  /* =========================
+     Helpers
+     ========================= */
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  }
+  function titleCase(s){
+    s = String(s||"");
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  }
+
+  /* =========================
+     Boot
+     ========================= */
+  (async function boot(){
+    Store.init();
+
+    // ensure vault has bank + stats
+    bank = await loadBank();
+    if(!vRead("/vault/stats.json")) vWrite("/vault/stats.json", defaultStats());
+    stats = loadStats();
+
+    // quick server demo call (internal only)
+    // await LocalServer.get("/api/bank");
+
+    updateHomeUI();
+    showHome();
+  })();
+
+})();
+</script>
+</body>
+</html>
