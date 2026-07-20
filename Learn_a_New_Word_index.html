@@ -1,0 +1,782 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>LeArnA nEw WoRd — Daily Vocabulary Adventure</title>
+<style>
+  :root{
+    --bg:#B89C82;
+    --panel:#FFFCF5;
+    --ink:#222;
+    --muted:#6b665a;
+    --accent:#6a4a3c;
+    --success:#2f8f4a;
+    --danger:#b33a3a;
+    --glass:rgba(0,0,0,0.04);
+    --radius:14px;
+    --cardpad:18px;
+  }
+  html,body{
+    height:93%;margin:11px;
+    font-family:"Georgia","Times New Roman",serif;
+    color:var(--ink);
+    background:linear-gradient(180deg,var(--bg),#FFFCF5);
+    -webkit-font-smoothing:antialiased;
+  }
+  .app{max-width:888px;margin:24px auto;padding:24px;box-sizing:border-box;}
+  header{display:flex;align-items:center;gap:24px;margin-bottom:44px;}
+  .logo{
+    width:99px;height:55px;border-radius:14px;
+    background:linear-gradient(180deg,#fff9f0,#f0e5d0);
+    display:flex;align-items:center;justify-content:center;
+    font-weight:666;color:var(--accent);
+    box-shadow:0 7px 14px rgba(0,0,0,0.06);
+    font-size:14px;border:11px solid rgba(0,0,0,0.04);
+  }
+  h1{margin:14px;font-size:1.9rem;color: #ffffff; letter-spacing:0.4px}
+  p.lead{margin:11px 0 0;color: #ffffff;font-size:0.95rem}
+
+  .grid{display:grid;grid-template-columns:1fr 333px;gap:24px;}
+  @media(max-width:444px){.grid{grid-template-columns:1fr;}}
+
+  .card{
+    background:var(--panel);border-radius:var(--radius);
+    padding:var(--cardpad);
+    box-shadow:0 14px 33px rgba(0,0,0,0.04);
+    border:4px solid var(--glass);
+  }
+
+  .word-top{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;}
+  .word-main{display:flex;flex-direction:column;gap:6px}
+  .word-title{font-size:44px;font-weight:777;line-height:0.88;color:var(--ink);font-family:Georgia,serif}
+  .pron{font-size:14px;color:var(--muted);margin-top:24px}
+  .meta{font-size:14px;color:var(--muted);margin-top:24px}
+  .definition{margin-top:24px;font-size:14px;color:var(--ink);line-height:1.35}
+  .simple{margin-top:7px;font-size:14px;color:#45403a}
+  .example{margin-top:11px;font-size:14px;color:#333;font-style:italic}
+
+  button.btn{
+    background:#fff;border:1px solid var(--glass);
+    padding:11px 14px;border-radius:10px;cursor:pointer;
+    font-weight:700;color:var(--ink);
+    box-shadow:0 6px 14px rgba(0,0,0,0.03)
+  }
+  button.primary{background:var(--accent);color:#fff;border:none}
+  button.small{padding:7px 8px;font-size:0.9rem;border-radius:8px}
+  .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:14px}
+  .smallmuted{font-size:12px;color:var(--muted)}
+
+  .side h3{margin:7px 0 7px;font-size:1.05rem}
+  .stat{font-size:14px;color:var(--muted);margin-bottom:8px}
+  .badge{
+    display:inline-block;padding:6px 8px;border-radius:8px;
+    background:rgba(0,0,0,0.02);font-weight:666;color:var(--ink);font-size:14px
+  }
+
+  /* Search */
+  .searchbox{
+    width:100%;padding:11px 14px;border-radius:11px;
+    border:1px solid var(--glass);background:#fff;box-sizing:border-box;
+    font-family:inherit;
+  }
+  .results{
+    margin-top:10px;max-height:222px;overflow:auto;
+    border:1px solid rgba(0,0,0,0.04);border-radius:10px;background:#fff;
+  }
+  .result-item{
+    width:99%;text-align:left;border:0;background:transparent;
+    padding:11px 14px;cursor:pointer;border-bottom:1px solid rgba(0,0,0,0.04);
+    font-family:inherit;
+  }
+  .result-item:hover{background:rgba(0,0,0,0.03)}
+  .result-top{display:flex;align-items:baseline;justify-content:space-between;gap:11px}
+  .result-word{font-weight:777}
+  .result-meta{font-size:14px;color:var(--muted)}
+  .result-def{margin-top:7px;font-size:14px;color:#3b3630;line-height:1.25}
+  .results .result-item:last-child{border-bottom:none}
+
+  /* Quiz */
+  .quiz-option{
+    display:block;text-align:left;padding:14px;border-radius:11px;border:1px solid var(--glass);
+    margin-top:8px;cursor:pointer;background:#fff
+  }
+  .quiz-option.correct{border-color:var(--success);box-shadow:0 6px 16px rgba(47,143,74,0.08)}
+  .quiz-option.wrong{border-color:var(--danger);opacity:0.92}
+
+  footer{margin-top:18px;color:var(--muted);font-size:14px;text-align:center}
+</style>
+</head>
+<body>
+  <div class="app" role="application" aria-label="LeArn A nEw WoRd vocabulary app">
+    <header>
+      <div class="logo">LeArnA</div>
+      <div>
+        <h1>LeArnA nEw WoRd</h1>
+        <p class="lead">Daily vocabulary</p>
+      </div>
+    </header>
+
+    <main class="grid">
+      <!-- MAIN -->
+      <section class="card main-card" id="mainCard" aria-live="polite">
+        <div class="word-top">
+          <div class="word-main">
+            <div>
+              <div id="wordText" class="word-title">--</div>
+              <div id="pronText" class="pron"></div>
+              <div id="wordIdLine" class="smallmuted"></div>
+            </div>
+            <div class="meta smallmuted" id="metaInfo">part of speech · tags · difficulty</div>
+          </div>
+
+          <div style="text-align:right">
+            <div class="smallmuted">Daily Word</div>
+            <div id="dateLabel" class="smallmuted"></div>
+            <div style="margin-top:8px">
+              <button class="btn small" id="dailyButton">Show Today's</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="definition" id="definition">Definition will appear here.</div>
+        <div class="simple" id="simpleDef"></div>
+        <div class="example" id="exampleText"></div>
+
+        <div class="row">
+          <button class="btn primary" id="hearBtn">🔊 Hear</button>
+          <button class="btn" id="markLearnedBtn">✅ Mark Learned</button>
+          <button class="btn" id="favBtn">☆ Favorite</button>
+          <button class="btn" id="nextBtn">🔁 Random</button>
+        </div>
+
+        <div style="margin-top:12px" id="synonymsWrap"></div>
+
+        <hr style="border:none;border-top:1px solid var(--glass);margin:14px 0"/>
+
+        <!-- QUIZ -->
+        <div id="quizWrap">
+          <h3 style="margin:0 0 8px 0">Quick Quiz</h3>
+          <div id="quizQuestion" class="smallmuted">Press 'Start Quiz' for a 1-question check.</div>
+          <div id="quizOptions" style="margin-top:8px"></div>
+          <div style="margin-top:10px">
+            <button class="btn" id="startQuizBtn">Start Quiz</button>
+            <button class="btn" id="nextQuestionBtn">Next</button>
+            <span id="quizResult" class="smallmuted" style="margin-left:10px"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- SIDE -->
+      <aside class="card side">
+        <h3>Search Word Bank</h3>
+        <input id="searchBox" class="searchbox" placeholder="Search word, definition, tags… (e.g., borborygmus, poetic, latin)" />
+        <div id="searchMeta" class="smallmuted" style="margin-top:6px">Tip: Press Enter to open the top result.</div>
+        <div id="searchResults" class="results" style="display:none"></div>
+
+        <hr style="border:none;border-top:1px solid var(--glass);margin:14px 0"/>
+
+        <h3>Stats</h3>
+        <div class="stat">Learned: <span id="learnedCount">0</span></div>
+        <div class="stat">Favorites: <span id="favCount">0</span></div>
+        <div class="stat">Word Bank: <span id="bankCount">0</span></div>
+
+        <h3 style="margin-top:14px">Voice</h3>
+        <div class="smallmuted">Select voice tone for pronunciation:</div>
+        <div style="margin-top:8px">
+          <select id="voicePicker" style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--glass);background:#fff">
+            <option value="">— Use default —</option>
+          </select>
+        </div>
+        <div style="margin-top:8px">
+          <label class="smallmuted">Soft voice</label>
+          <input type="range" id="voicePitch" min="0.4" max="1.6" step="0.05" value="0.95" style="width:100%"/>
+          <div class="smallmuted" id="pitchVal">Pitch: 0.95</div>
+        </div>
+
+        <hr style="border:none;border-top:1px solid var(--glass);margin:12px 0"/>
+        <div style="font-size:12px;color:var(--muted)">
+          This app is hard-wired. To add new words, edit the embedded <code>const</code> arrays in the HTML file.
+        </div>
+      </aside>
+    </main>
+
+    <footer>Learn a New Word Each Day.  <br>Come back to find the most dificult, unusual and challenging words in the world.</footer>
+  </div>
+
+<script>
+/* =========================
+   LeArnA nEw WoRd — Hard-Wired Edition
+   - Word bank is embedded in code only (no admin / no bank import)
+   - Unique Word ID field prevents collisions across lists
+   - Search word bank
+   - Local progress saved (learned/favorites/voice settings)
+   ========================= */
+
+const STORAGE_KEY = 'leanranewword_progress_v3';
+
+/* =========================
+   EMBEDDED WORD LISTS (HARD-WIRED)
+   Add new blocks as new const arrays and spread them into EMBEDDED_LISTS.
+   Required fields per item:
+   { id, word, pronunciation, partOfSpeech, definition, simpleDefinition, example, synonyms, origin, difficulty, tags }
+   ========================= */
+
+const RIDICULOUSLY_LONG_25 = [
+  {id:"long25-001-flocci",word:"floccinaucinihilipilification",pronunciation:"flok-sih-naw-sih-NIH-hil-ih-PIL-ih-fi-KAY-shun",partOfSpeech:"noun",definition:"The act of judging something as worthless.",simpleDefinition:"Calling something worthless (in a fancy way).",example:"He treated the rumor with floccinaucinihilipilification.",synonyms:["disdain","belittlement"],origin:"Mock-Latin / English coinage",difficulty:10,tags:["jawdropper","long","odd"]},
+  {id:"long25-002-pneumo",word:"pneumonoultramicroscopicsilicovolcanoconiosis",pronunciation:"NOO-muh-noh-UL-truh-my-kroh-SKOP-ik-sil-ih-koh-vol-KAY-noh-koh-nee-OH-sis",partOfSpeech:"noun",definition:"A lung disease caused by inhaling very fine silica dust (often cited as an extremely long word).",simpleDefinition:"A lung disease from fine dust (famous long word).",example:"The trivia night champion spelled pneumonoultramicroscopicsilicovolcanoconiosis correctly.",synonyms:["pneumoconiosis"],origin:"Modern English coinage (scientific-style)",difficulty:10,tags:["jawdropper","long","medicalish"]},
+  {id:"long25-003-antidise",word:"antidisestablishmentarianism",pronunciation:"AN-tee-dis-uh-stab-lish-men-TAIR-ee-uh-niz-um",partOfSpeech:"noun",definition:"Opposition to disestablishing a state church (historical/political term).",simpleDefinition:"Opposing removing an official church.",example:"They debated antidisestablishmentarianism in class.",synonyms:["church-state politics"],origin:"19th-century English",difficulty:9,tags:["jawdropper","long","history"]},
+  {id:"long25-004-hippo",word:"hippopotomonstrosesquipedaliophobia",pronunciation:"hip-oh-POT-oh-mon-stroh-ses-kwi-PED-uh-lee-oh-FOH-bee-uh",partOfSpeech:"noun",definition:"A humorous term for the fear of long words.",simpleDefinition:"Fear of long words (ironically long).",example:"Naming hippopotomonstrosesquipedaliophobia felt like bullying the phobia.",synonyms:["fear of long words"],origin:"Modern humorous coinage",difficulty:10,tags:["jawdropper","long","odd"]},
+  {id:"long25-005-superc",word:"supercalifragilisticexpialidocious",pronunciation:"SOO-per-kal-ih-fraj-ih-LIS-tik-ek-spee-al-ih-DOH-shus",partOfSpeech:"adjective (playful)",definition:"A famously long playful word meaning something wonderful (popularized by film/music).",simpleDefinition:"A silly word for “wonderful.”",example:"She called the day supercalifragilisticexpialidocious.",synonyms:["marvelous"],origin:"Popular culture",difficulty:8,tags:["jawdropper","long","playful"]},
+  {id:"long25-006-honorif",word:"honorificabilitudinitatibus",pronunciation:"on-uh-rif-ih-kab-ih-lih-TOO-dih-nih-TAB-ih-tus",partOfSpeech:"noun",definition:"A Latin-derived word meaning “the state of being able to achieve honors.”",simpleDefinition:"Being able to get honors (very old long word).",example:"He dropped honorificabilitudinitatibus into conversation for chaos.",synonyms:["honorability"],origin:"Medieval Latin (via literature)",difficulty:10,tags:["jawdropper","long","latin"]},
+  {id:"long25-007-incomp",word:"incomprehensibilities",pronunciation:"in-kom-pri-hen-suh-BIL-uh-teez",partOfSpeech:"noun (plural)",definition:"Things that are impossible to understand; unintelligibilities.",simpleDefinition:"Things that make zero sense.",example:"The manual was full of incomprehensibilities.",synonyms:["unintelligibilities"],origin:"Latin roots via English",difficulty:8,tags:["jawdropper","long"]},
+  {id:"long25-008-indist",word:"indistinguishability",pronunciation:"in-dis-TING-gwish-uh-BIL-ih-tee",partOfSpeech:"noun",definition:"The quality of being unable to be told apart.",simpleDefinition:"When two things seem the same.",example:"The indistinguishability of the twins confused everyone.",synonyms:["similarity"],origin:"Latin roots via English",difficulty:7,tags:["jawdropper","long"]},
+  {id:"long25-009-integra",word:"intergubernatorial",pronunciation:"in-ter-goo-ber-nuh-TOR-ee-uhl",partOfSpeech:"adjective",definition:"Relating to interactions between governments (rare).",simpleDefinition:"Between governments.",example:"An intergubernatorial agreement was drafted.",synonyms:["intergovernmental"],origin:"Modern formation",difficulty:8,tags:["jawdropper","long","rare"]},
+  {id:"long25-010-electro",word:"electroencephalographically",pronunciation:"ee-LEK-troh-en-SEF-uh-loh-GRAF-ih-klee",partOfSpeech:"adverb",definition:"In a manner relating to recording brain electrical activity (EEG).",simpleDefinition:"In an EEG way.",example:"The seizure was documented electroencephalographically.",synonyms:["via EEG"],origin:"Scientific English",difficulty:9,tags:["jawdropper","long","science"]},
+  {id:"long25-011-anti",word:"anthropomorphization",pronunciation:"an-thruh-poh-MOR-fih-ZAY-shun",partOfSpeech:"noun",definition:"Attributing human traits to nonhuman things.",simpleDefinition:"Making something “human-like.”",example:"Her anthropomorphization of the toaster was adorable.",synonyms:["personification"],origin:"Greek roots via English",difficulty:7,tags:["jawdropper","long"]},
+  {id:"long25-012-irrecon",word:"irreconcilability",pronunciation:"ih-rek-uhn-sy-luh-BIL-ih-tee",partOfSpeech:"noun",definition:"The state of being impossible to reconcile.",simpleDefinition:"Not fixable between sides.",example:"Their irreconcilability ended the partnership.",synonyms:["incompatibility"],origin:"Latin roots via English",difficulty:7,tags:["jawdropper","long"]},
+  {id:"long25-013-microm",word:"microminiaturization",pronunciation:"MY-kroh-min-ee-uh-chur-eye-ZAY-shun",partOfSpeech:"noun",definition:"The process of making something extremely small.",simpleDefinition:"Making something super tiny.",example:"Microminiaturization transformed electronics.",synonyms:["miniaturization"],origin:"Modern technical term",difficulty:8,tags:["jawdropper","long","tech"]},
+  {id:"long25-014-institu",word:"institutionalization",pronunciation:"in-stih-TOO-shuh-nuhl-eye-ZAY-shun",partOfSpeech:"noun",definition:"The process of establishing something as part of an organization/system.",simpleDefinition:"Making something “official” in a system.",example:"The institutionalization of the program took years.",synonyms:["formalization"],origin:"Modern English",difficulty:7,tags:["jawdropper","long"]},
+  {id:"long25-015-unconst",word:"unconstitutionality",pronunciation:"un-kon-stih-TOO-shuh-NAL-ih-tee",partOfSpeech:"noun",definition:"The state of being unconstitutional.",simpleDefinition:"Not allowed by the constitution.",example:"They argued the law’s unconstitutionality.",synonyms:["illegality"],origin:"Modern legal English",difficulty:7,tags:["jawdropper","long","legal"]},
+  {id:"long25-016-character",word:"characteristically",pronunciation:"kair-ik-ter-IS-tih-klee",partOfSpeech:"adverb",definition:"In a typical manner.",simpleDefinition:"In the usual way.",example:"She reacted characteristically calmly.",synonyms:["typically"],origin:"Greek roots via English",difficulty:6,tags:["jawdropper","long"]},
+  {id:"long25-017-interpr",word:"interdenominationalism",pronunciation:"in-ter-deh-nom-ih-NAY-shuh-nuhl-iz-um",partOfSpeech:"noun",definition:"Cooperation among different religious denominations.",simpleDefinition:"Working across denominations.",example:"Interdenominationalism shaped the community event.",synonyms:["ecumenism (related)"],origin:"Modern religious/academic term",difficulty:8,tags:["jawdropper","long"]},
+  {id:"long25-018-contradic",word:"contradistinction",pronunciation:"kon-truh-dis-TINK-shun",partOfSpeech:"noun",definition:"A distinction made by contrasting two things.",simpleDefinition:"A difference shown by contrast.",example:"In contradistinction to the first plan, the second was simple.",synonyms:["contrast"],origin:"Latin roots",difficulty:7,tags:["jawdropper","long"]},
+  {id:"long25-019-inconseq",word:"inconsequentiality",pronunciation:"in-kon-sih-KWEN-shuh-NAL-ih-tee",partOfSpeech:"noun",definition:"The quality of being unimportant.",simpleDefinition:"Not important.",example:"He laughed at the inconsequentiality of the typo.",synonyms:["triviality"],origin:"Latin roots via English",difficulty:7,tags:["jawdropper","long"]},
+  {id:"long25-020-indeter",word:"indeterminateness",pronunciation:"in-di-TER-mih-nit-ness",partOfSpeech:"noun",definition:"The quality of being not precisely known or decided.",simpleDefinition:"Not clearly defined.",example:"The indeterminateness of the rule caused confusion.",synonyms:["uncertainty"],origin:"Latin roots via English",difficulty:7,tags:["jawdropper","long"]},
+  {id:"long25-021-misunder",word:"misunderstandings",pronunciation:"mis-un-der-STAN-dingz",partOfSpeech:"noun (plural)",definition:"Failures to understand correctly.",simpleDefinition:"Getting the wrong idea.",example:"Small misunderstandings snowballed fast.",synonyms:["misreadings"],origin:"Old English roots",difficulty:5,tags:["longish"]},
+  {id:"long25-022-multifac",word:"multifactoriality",pronunciation:"mul-tee-fak-TOR-ee-AL-ih-tee",partOfSpeech:"noun",definition:"Having many contributing factors.",simpleDefinition:"Many causes at once.",example:"They discussed the multifactoriality of health.",synonyms:["complex causation"],origin:"Modern academic term",difficulty:8,tags:["jawdropper","long","academia"]},
+  {id:"long25-023-para",word:"paraprofessionalization",pronunciation:"pair-uh-proh-FESH-uh-nuhl-eye-ZAY-shun",partOfSpeech:"noun",definition:"The process of shifting work toward paraprofessionals (rare).",simpleDefinition:"More work done by assistants/para roles.",example:"Paraprofessionalization changed classroom staffing.",synonyms:["role shifting"],origin:"Modern institutional term",difficulty:9,tags:["jawdropper","long","rare"]},
+  {id:"long25-024-intra",word:"intracellularly",pronunciation:"in-truh-SEL-yuh-ler-lee",partOfSpeech:"adverb",definition:"Within a cell.",simpleDefinition:"Inside a cell.",example:"The protein acts intracellularly.",synonyms:["within cells"],origin:"Scientific English",difficulty:7,tags:["science","longish"]},
+  {id:"long25-025-psych",word:"psychoneuroimmunology",pronunciation:"SY-koh-NYUR-oh-im-yuh-NOL-uh-jee",partOfSpeech:"noun",definition:"The study of interactions between psychological processes, the nervous system, and the immune system.",simpleDefinition:"How mind, nerves, and immunity connect.",example:"Psychoneuroimmunology explores stress and health links.",synonyms:["mind-body immunology"],origin:"Modern scientific field term",difficulty:10,tags:["jawdropper","long","science"]}
+];
+
+const MEDICAL_WEIRDNESS_25 = [
+  {id:"med25-001-borbo",word:"borborygmus",pronunciation:"bor-buh-RIG-muhs",partOfSpeech:"noun",definition:"A rumbling or gurgling noise in the intestines.",simpleDefinition:"Stomach growls and gurgles.",example:"His borborygmus betrayed the missed lunch.",synonyms:["stomach rumble"],origin:"Greek",difficulty:8,tags:["medical","weird"]},
+  {id:"med25-002-formi",word:"formication",pronunciation:"for-mih-KAY-shun",partOfSpeech:"noun",definition:"A sensation like insects crawling on or under the skin.",simpleDefinition:"Feeling like bugs are crawling on you.",example:"Formication can occur with certain conditions or substances.",synonyms:["skin-crawling sensation"],origin:"Latin",difficulty:8,tags:["medical","weird"]},
+  {id:"med25-003-sudor",word:"sudoriferous",pronunciation:"soo-dor-IF-er-us",partOfSpeech:"adjective",definition:"Producing or secreting sweat.",simpleDefinition:"Sweat-producing.",example:"Sudoriferous glands help regulate temperature.",synonyms:["sweat-related"],origin:"Latin",difficulty:7,tags:["medical"]},
+  {id:"med25-004-brux",word:"bruxism",pronunciation:"BRUK-siz-um",partOfSpeech:"noun",definition:"Involuntary grinding or clenching of teeth.",simpleDefinition:"Grinding your teeth.",example:"Stress worsened her bruxism.",synonyms:["teeth grinding"],origin:"Greek",difficulty:6,tags:["medical"]},
+  {id:"med25-005-epist",word:"epistaxis",pronunciation:"ep-ih-STAK-sis",partOfSpeech:"noun",definition:"A nosebleed.",simpleDefinition:"Nosebleed.",example:"Dry air can trigger epistaxis.",synonyms:["nosebleed"],origin:"Greek",difficulty:7,tags:["medical"]},
+  {id:"med25-006-hemian",word:"hemihyperhidrosis",pronunciation:"HEM-ee-hy-per-hy-droh-SIS",partOfSpeech:"noun",definition:"Excessive sweating on one side of the body.",simpleDefinition:"Sweating a lot on one side.",example:"Hemihyperhidrosis was noted in the exam.",synonyms:["one-sided sweating"],origin:"Greek roots via medical English",difficulty:9,tags:["medical","weird"]},
+  {id:"med25-007-pilo",word:"piloerection",pronunciation:"PY-loh-ih-REK-shun",partOfSpeech:"noun",definition:"Hair standing on end due to cold or emotion.",simpleDefinition:"Goosebumps.",example:"Piloerection rose with the sudden chill.",synonyms:["goosebumps"],origin:"Latin",difficulty:6,tags:["medical"]},
+  {id:"med25-008-rhino",word:"rhinophyma",pronunciation:"RYE-noh-FY-muh",partOfSpeech:"noun",definition:"A condition causing enlargement of the nose (often with thickened skin).",simpleDefinition:"A nose enlargement skin condition.",example:"Rhinophyma can be treated medically.",synonyms:["nasal skin thickening"],origin:"Greek",difficulty:9,tags:["medical","weird"]},
+  {id:"med25-009-dyspha",word:"dysphagia",pronunciation:"dis-FAY-jee-uh",partOfSpeech:"noun",definition:"Difficulty swallowing.",simpleDefinition:"Trouble swallowing.",example:"Dysphagia should be evaluated clinically.",synonyms:["swallowing difficulty"],origin:"Greek",difficulty:7,tags:["medical"]},
+  {id:"med25-010-onych",word:"onychophagia",pronunciation:"on-ih-koh-FAY-jee-uh",partOfSpeech:"noun",definition:"Nail biting.",simpleDefinition:"Biting nails.",example:"Onychophagia is often linked to anxiety.",synonyms:["nail-biting"],origin:"Greek",difficulty:8,tags:["medical","odd"]},
+  {id:"med25-011-hemato",word:"hematidrosis",pronunciation:"hee-mat-ih-DROH-sis",partOfSpeech:"noun",definition:"A rare condition in which a person sweats blood.",simpleDefinition:"Sweating blood (rare).",example:"Hematidrosis is extremely rare and dramatic.",synonyms:["bloody sweat"],origin:"Greek roots via medical English",difficulty:10,tags:["medical","weird","rare"]},
+  {id:"med25-012-xero",word:"xerostomia",pronunciation:"ZEER-oh-STOH-mee-uh",partOfSpeech:"noun",definition:"Dry mouth due to reduced saliva.",simpleDefinition:"Dry mouth.",example:"Medication caused xerostomia.",synonyms:["dry mouth"],origin:"Greek",difficulty:7,tags:["medical"]},
+  {id:"med25-013-nyct",word:"nyctalopia",pronunciation:"nik-tuh-LOH-pee-uh",partOfSpeech:"noun",definition:"Night blindness; difficulty seeing in low light.",simpleDefinition:"Trouble seeing at night.",example:"Nyctalopia can relate to vitamin A deficiency.",synonyms:["night blindness"],origin:"Greek",difficulty:8,tags:["medical"]},
+  {id:"med25-014-derm",word:"dermatographia",pronunciation:"der-mat-oh-GRAF-ee-uh",partOfSpeech:"noun",definition:"A skin condition where light scratching causes raised red lines (skin “writing”).",simpleDefinition:"Skin swells where it’s scratched.",example:"Dermatographia can look like letters on skin.",synonyms:["skin writing"],origin:"Greek",difficulty:9,tags:["medical","weird"]},
+  {id:"med25-015-hyper",word:"hypertrichosis",pronunciation:"hy-per-trih-KOH-sis",partOfSpeech:"noun",definition:"Excessive hair growth on the body.",simpleDefinition:"Too much hair growth.",example:"Hypertrichosis can be congenital or acquired.",synonyms:["excess hair"],origin:"Greek",difficulty:8,tags:["medical"]},
+  {id:"med25-016-anos",word:"anosognosia",pronunciation:"an-oz-nuh-NOH-zhuh",partOfSpeech:"noun",definition:"A condition where a person is unaware of their own illness or impairment.",simpleDefinition:"Not realizing you’re impaired.",example:"Anosognosia can occur after brain injury.",synonyms:["lack of insight"],origin:"Greek",difficulty:10,tags:["medical","neurology","rare"]},
+  {id:"med25-017-aphas",word:"aphasia",pronunciation:"uh-FAY-zhuh",partOfSpeech:"noun",definition:"Impairment of language affecting speaking, understanding, reading, or writing.",simpleDefinition:"Language trouble from brain issues.",example:"Aphasia affected his speech after the stroke.",synonyms:["language impairment"],origin:"Greek",difficulty:7,tags:["medical","neurology"]},
+  {id:"med25-018-atax",word:"ataxia",pronunciation:"uh-TAK-see-uh",partOfSpeech:"noun",definition:"Lack of voluntary coordination of muscle movements.",simpleDefinition:"Poor coordination.",example:"Ataxia changed her gait.",synonyms:["incoordination"],origin:"Greek",difficulty:7,tags:["medical","neurology"]},
+  {id:"med25-019-ptosis",word:"ptosis",pronunciation:"TOH-sis",partOfSpeech:"noun",definition:"Drooping of the upper eyelid.",simpleDefinition:"Droopy eyelid.",example:"Ptosis can have multiple causes.",synonyms:["eyelid droop"],origin:"Greek",difficulty:7,tags:["medical"]},
+  {id:"med25-020-pruri",word:"pruritus",pronunciation:"proo-RYE-tus",partOfSpeech:"noun",definition:"Itching.",simpleDefinition:"Itchiness.",example:"Pruritus can have many causes.",synonyms:["itching"],origin:"Latin",difficulty:6,tags:["medical"]},
+  {id:"med25-021-singul",word:"singultus",pronunciation:"sin-GUL-tus",partOfSpeech:"noun",definition:"The medical term for hiccups.",simpleDefinition:"Hiccups.",example:"Singultus usually resolves on its own.",synonyms:["hiccups"],origin:"Latin",difficulty:7,tags:["medical","odd"]},
+  {id:"med25-022-orthop",word:"orthopnea",pronunciation:"orth-OP-nee-uh",partOfSpeech:"noun",definition:"Shortness of breath when lying flat.",simpleDefinition:"Hard to breathe lying down.",example:"Orthopnea made sleeping difficult.",synonyms:["positional breathlessness"],origin:"Greek",difficulty:7,tags:["medical"]},
+  {id:"med25-023-dyspn",word:"dyspnea",pronunciation:"DISP-nee-uh",partOfSpeech:"noun",definition:"Difficult or labored breathing.",simpleDefinition:"Shortness of breath.",example:"Dyspnea improved after resting.",synonyms:["breathlessness"],origin:"Greek",difficulty:6,tags:["medical"]},
+  {id:"med25-024-cyano",word:"cyanosis",pronunciation:"sye-uh-NOH-sis",partOfSpeech:"noun",definition:"Bluish discoloration due to low oxygen in the blood.",simpleDefinition:"Skin looks bluish from low oxygen.",example:"Cyanosis requires prompt evaluation.",synonyms:["bluish discoloration"],origin:"Greek",difficulty:7,tags:["medical"]},
+  {id:"med25-025-hetero",word:"heterochromia",pronunciation:"het-er-oh-KROH-mee-uh",partOfSpeech:"noun",definition:"A difference in coloration (often of the eyes).",simpleDefinition:"Different-colored eyes.",example:"Heterochromia gave her eyes a striking look.",synonyms:["different iris color"],origin:"Greek",difficulty:6,tags:["medical","weird"]}
+];
+
+const LINGUISTICS_NERD_25 = [
+  {id:"ling25-001-zeug",word:"zeugma",pronunciation:"ZOOG-muh",partOfSpeech:"noun",definition:"A figure of speech where one word applies to two others in different senses.",simpleDefinition:"One word “does double duty.”",example:"He stole my heart and my wallet — zeugma.",synonyms:["double-duty construction"],origin:"Greek",difficulty:8,tags:["linguistics","rhetoric"]},
+  {id:"ling25-002-pleo",word:"pleonasm",pronunciation:"PLEE-uh-naz-um",partOfSpeech:"noun",definition:"Using more words than necessary (redundancy).",simpleDefinition:"Saying the same thing twice.",example:"“Free gift” is often a pleonasm.",synonyms:["redundancy"],origin:"Greek",difficulty:8,tags:["linguistics","rhetoric"]},
+  {id:"ling25-003-anaco",word:"anacoluthon",pronunciation:"an-uh-koh-LOO-thon",partOfSpeech:"noun",definition:"A sentence that shifts structure midstream, breaking grammar.",simpleDefinition:"A grammar derailment.",example:"If you think that—well, never mind.",synonyms:["syntactic break"],origin:"Greek",difficulty:9,tags:["linguistics","syntax"]},
+  {id:"ling25-004-polys",word:"polysyndeton",pronunciation:"pol-ee-SIN-dih-ton",partOfSpeech:"noun",definition:"Using many conjunctions (and…and…and) for effect.",simpleDefinition:"Extra “ands.”",example:"He laughed and cried and ran and hid — polysyndeton.",synonyms:["many conjunctions"],origin:"Greek",difficulty:8,tags:["linguistics","rhetoric"]},
+  {id:"ling25-005-asynd",word:"asyndeton",pronunciation:"uh-SIN-dih-ton",partOfSpeech:"noun",definition:"Omitting conjunctions for speed or punch.",simpleDefinition:"No “and” needed.",example:"I came, I saw, I conquered — asyndeton.",synonyms:["conjunction omission"],origin:"Greek",difficulty:8,tags:["linguistics","rhetoric"]},
+  {id:"ling25-006-parat",word:"parataxis",pronunciation:"pair-uh-TAK-sis",partOfSpeech:"noun",definition:"Placing clauses side by side without clear subordination.",simpleDefinition:"Short clauses stacked together.",example:"I walked. I looked. I left. — parataxis.",synonyms:["clause stacking"],origin:"Greek",difficulty:8,tags:["linguistics","style"]},
+  {id:"ling25-007-hyper",word:"hyperbaton",pronunciation:"hy-PER-buh-ton",partOfSpeech:"noun",definition:"Unusual word order; separation of words that belong together.",simpleDefinition:"Scrambled grammar for style.",example:"“This I must see” can be hyperbaton.",synonyms:["inversion"],origin:"Greek",difficulty:9,tags:["linguistics","syntax"]},
+  {id:"ling25-008-metony",word:"metonymy",pronunciation:"meh-TON-uh-mee",partOfSpeech:"noun",definition:"Referring to something by a related thing (e.g., “the crown” for monarchy).",simpleDefinition:"A related-name shortcut.",example:"The White House spoke today — metonymy.",synonyms:["name substitution"],origin:"Greek",difficulty:7,tags:["linguistics","semantics"]},
+  {id:"ling25-009-synec",word:"synecdoche",pronunciation:"sih-NEK-duh-kee",partOfSpeech:"noun",definition:"A part stands for the whole (or vice versa).",simpleDefinition:"Part-for-whole talk.",example:"All hands on deck — synecdoche.",synonyms:["part-whole substitution"],origin:"Greek",difficulty:8,tags:["linguistics","rhetoric"]},
+  {id:"ling25-010-epist",word:"epistrophe",pronunciation:"ih-PIS-truh-fee",partOfSpeech:"noun",definition:"Repetition of a word/phrase at the end of successive clauses.",simpleDefinition:"Repeated endings.",example:"…of the people, by the people, for the people — epistrophe.",synonyms:["ending repetition"],origin:"Greek",difficulty:8,tags:["linguistics","rhetoric"]},
+  {id:"ling25-011-anaph",word:"anaphora",pronunciation:"uh-NAF-er-uh",partOfSpeech:"noun",definition:"Repetition at the start of successive clauses.",simpleDefinition:"Repeated beginnings.",example:"We will fight… We will work… — anaphora.",synonyms:["opening repetition"],origin:"Greek",difficulty:7,tags:["linguistics","rhetoric"]},
+  {id:"ling25-012-litot",word:"litotes",pronunciation:"LYE-toh-teez",partOfSpeech:"noun",definition:"Understatement by negating the opposite.",simpleDefinition:"Saying “not bad” to mean “good.”",example:"That’s no small achievement — litotes.",synonyms:["understatement"],origin:"Greek",difficulty:8,tags:["linguistics","rhetoric"]},
+  {id:"ling25-013-chias",word:"chiasmus",pronunciation:"kye-AZ-muhs",partOfSpeech:"noun",definition:"A mirrored structure (ABBA) in phrases.",simpleDefinition:"A phrase that flips itself.",example:"Never let a fool kiss you, or a kiss fool you.",synonyms:["inversion pattern"],origin:"Greek",difficulty:8,tags:["linguistics","rhetoric"]},
+  {id:"ling25-014-cata",word:"catachresis",pronunciation:"kat-uh-KREE-sis",partOfSpeech:"noun",definition:"A strained or mixed metaphor; using a word in an odd way.",simpleDefinition:"A metaphor collision.",example:"“I’ll speak daggers” can be catachresis-like.",synonyms:["mixed metaphor"],origin:"Greek",difficulty:9,tags:["linguistics","rhetoric"]},
+  {id:"ling25-015-aposi",word:"aposiopesis",pronunciation:"ap-uh-sye-uh-PEE-sis",partOfSpeech:"noun",definition:"Breaking off mid-sentence, leaving it unfinished.",simpleDefinition:"Trailing off…",example:"If you do that again, I swear I’ll—!",synonyms:["sudden stop"],origin:"Greek",difficulty:9,tags:["linguistics","rhetoric"]},
+  {id:"ling25-016-enjac",word:"enjambment",pronunciation:"en-JAM-muhnt",partOfSpeech:"noun",definition:"In poetry: a sentence running over a line break without pause.",simpleDefinition:"A line break that doesn’t stop the sentence.",example:"The poem used enjambment to create motion.",synonyms:["run-on line"],origin:"French",difficulty:7,tags:["linguistics","poetry"]},
+  {id:"ling25-017-morph",word:"morphology",pronunciation:"mor-FOL-uh-jee",partOfSpeech:"noun",definition:"The study of word forms and structure.",simpleDefinition:"How words are built.",example:"Morphology explains prefixes and suffixes.",synonyms:["word structure"],origin:"Greek",difficulty:6,tags:["linguistics"]},
+  {id:"ling25-018-phon",word:"phonotactics",pronunciation:"foh-noh-TAK-tiks",partOfSpeech:"noun",definition:"Rules about which sound combinations are allowed in a language.",simpleDefinition:"Sound-combo rules.",example:"Phonotactics explains why some clusters feel “un-English.”",synonyms:["sound rules"],origin:"Greek",difficulty:9,tags:["linguistics","phonetics"]},
+  {id:"ling25-019-gloss",word:"glossolalia",pronunciation:"glos-oh-LAY-lee-uh",partOfSpeech:"noun",definition:"Speech that sounds like language but isn’t understood.",simpleDefinition:"Unintelligible language-like speech.",example:"The book discussed glossolalia in rituals.",synonyms:["speaking in tongues"],origin:"Greek",difficulty:8,tags:["linguistics","odd"]},
+  {id:"ling25-020-allo",word:"allomorph",pronunciation:"AL-uh-morf",partOfSpeech:"noun",definition:"A variant form of a morpheme (like plural -s / -es).",simpleDefinition:"A morpheme variant.",example:"Allomorphs explain plural endings.",synonyms:["morpheme variant"],origin:"Greek",difficulty:9,tags:["linguistics"]},
+  {id:"ling25-021-ideo",word:"idiolect",pronunciation:"ID-ee-oh-lekt",partOfSpeech:"noun",definition:"An individual’s unique speech patterns.",simpleDefinition:"Your personal way of speaking.",example:"Her idiolect was packed with sea metaphors.",synonyms:["personal dialect"],origin:"Greek/Latin",difficulty:7,tags:["linguistics"]},
+  {id:"ling25-022-proso",word:"prosody",pronunciation:"PROZ-uh-dee",partOfSpeech:"noun",definition:"Rhythm, stress, and intonation of speech.",simpleDefinition:"Speech music.",example:"Prosody can change meaning.",synonyms:["intonation"],origin:"Greek",difficulty:7,tags:["linguistics"]},
+  {id:"ling25-023-semas",word:"semasiology",pronunciation:"seh-may-zee-OL-uh-jee",partOfSpeech:"noun",definition:"The study of word meanings (semantics).",simpleDefinition:"Studying meanings.",example:"Semasiology asks how words carry meaning.",synonyms:["semantics"],origin:"Greek",difficulty:9,tags:["linguistics","rare"]},
+  {id:"ling25-024-onom",word:"onomasiology",pronunciation:"oh-noh-may-zee-OL-uh-jee",partOfSpeech:"noun",definition:"The study of naming concepts and how names are chosen.",simpleDefinition:"How we choose names for ideas.",example:"Onomasiology complements semasiology.",synonyms:["naming study"],origin:"Greek",difficulty:10,tags:["linguistics","rare"]},
+  {id:"ling25-025-tauto",word:"tautology",pronunciation:"taw-TOL-uh-jee",partOfSpeech:"noun",definition:"A statement that repeats itself redundantly (often logically true but uninformative).",simpleDefinition:"Saying the same thing twice.",example:"“It is what it is” can be tautological.",synonyms:["redundancy"],origin:"Greek",difficulty:7,tags:["linguistics"]}
+];
+
+const POETIC_RARE_GEMS_25 = [
+  {id:"poet25-001-psith",word:"psithurism",pronunciation:"SITH-yuh-riz-um",partOfSpeech:"noun",definition:"The sound of wind in leaves or rustling foliage.",simpleDefinition:"Wind whispering in leaves.",example:"Psithurism filled the orchard at dusk.",synonyms:["rustle"],origin:"Greek",difficulty:10,tags:["poetic","rare","nature"]},
+  {id:"poet25-002-tint",word:"tintinnabulation",pronunciation:"tin-tih-nab-yuh-LAY-shun",partOfSpeech:"noun",definition:"A ringing or tinkling sound (especially of bells).",simpleDefinition:"Bell-like ringing.",example:"Tintinnabulation drifted through the snowy street.",synonyms:["tinkling"],origin:"Latin",difficulty:9,tags:["poetic","rare","sound"]},
+  {id:"poet25-003-susur",word:"susurrus",pronunciation:"soo-SUR-us",partOfSpeech:"noun",definition:"A soft whispering, murmuring, or rustling sound.",simpleDefinition:"A soft hushy sound.",example:"The susurrus of waves soothed her.",synonyms:["murmur"],origin:"Latin",difficulty:8,tags:["poetic","sound"]},
+  {id:"poet25-004-petri",word:"petrichor",pronunciation:"PET-rih-kor",partOfSpeech:"noun",definition:"The earthy scent after rain on dry ground.",simpleDefinition:"That “rain smell.”",example:"Petrichor rose from the sidewalk after the storm.",synonyms:["rain-scent"],origin:"Greek",difficulty:7,tags:["poetic","nature"]},
+  {id:"poet25-005-lacrim",word:"lacrimose",pronunciation:"LAK-rih-mohs",partOfSpeech:"adjective",definition:"Tearful or given to weeping.",simpleDefinition:"Teary.",example:"A lacrimose melody played at midnight.",synonyms:["tearful"],origin:"Latin",difficulty:7,tags:["poetic"]},
+  {id:"poet25-006-ephem",word:"ephemeral",pronunciation:"ih-FEM-er-uhl",partOfSpeech:"adjective",definition:"Lasting for a very short time.",simpleDefinition:"Short-lived.",example:"The sunset’s beauty was ephemeral.",synonyms:["transient"],origin:"Greek",difficulty:6,tags:["poetic"]},
+  {id:"poet25-007-diaph",word:"diaphanous",pronunciation:"dye-AF-uh-nus",partOfSpeech:"adjective",definition:"Light, delicate, and translucent.",simpleDefinition:"Thin and almost see-through.",example:"A diaphanous curtain breathed in the wind.",synonyms:["sheer"],origin:"Greek",difficulty:8,tags:["poetic","visual"]},
+  {id:"poet25-008-nacre",word:"nacreous",pronunciation:"NAY-kree-us",partOfSpeech:"adjective",definition:"Having the pearly sheen of mother-of-pearl.",simpleDefinition:"Pearly-shimmery.",example:"Nacreous fog shimmered over the water.",synonyms:["pearly"],origin:"Latin/French",difficulty:8,tags:["poetic","visual"]},
+  {id:"poet25-009-auror",word:"auroral",pronunciation:"uh-ROHR-uhl",partOfSpeech:"adjective",definition:"Relating to dawn or the aurora.",simpleDefinition:"Dawn-like.",example:"Auroral colors edged the horizon.",synonyms:["dawnlike"],origin:"Latin",difficulty:7,tags:["poetic","sky"]},
+  {id:"poet25-010-lamb",word:"lambent",pronunciation:"LAM-bent",partOfSpeech:"adjective",definition:"Softly glowing or flickering.",simpleDefinition:"A gentle glow.",example:"Lambent candlelight danced on the wall.",synonyms:["flickering"],origin:"Latin",difficulty:7,tags:["poetic","light"]},
+  {id:"poet25-011-vellich",word:"vellichor",pronunciation:"VEL-ih-kor",partOfSpeech:"noun",definition:"A wistful longing for used bookstores and the past (modern coined word).",simpleDefinition:"Nostalgia in old bookshops.",example:"Vellichor hit her the moment she opened the antique book.",synonyms:["nostalgia"],origin:"Modern coinage",difficulty:8,tags:["poetic","bookish"]},
+  {id:"poet25-012-kenops",word:"kenopsia",pronunciation:"keh-NOP-see-uh",partOfSpeech:"noun",definition:"The eerie feeling of a place usually bustling but now empty.",simpleDefinition:"Creepy emptiness of a usually busy place.",example:"Kenopsia haunted the silent school hallway.",synonyms:["eerie emptiness"],origin:"Modern coinage",difficulty:8,tags:["poetic","weird"]},
+  {id:"poet25-013-euph",word:"euphony",pronunciation:"YOO-fuh-nee",partOfSpeech:"noun",definition:"A pleasing, harmonious sound.",simpleDefinition:"Beautiful sound.",example:"The euphony of rain and distant bells soothed her.",synonyms:["harmony"],origin:"Greek",difficulty:6,tags:["poetic","sound"]},
+  {id:"poet25-014-sylva",word:"sylvan",pronunciation:"SIL-vuhn",partOfSpeech:"adjective",definition:"Of the woods; forested.",simpleDefinition:"Woodland.",example:"A sylvan path curled into birdsong.",synonyms:["woodland"],origin:"Latin",difficulty:6,tags:["poetic","nature"]},
+  {id:"poet25-015-vesper",word:"vespertine",pronunciation:"VES-per-tyne",partOfSpeech:"adjective",definition:"Relating to evening; occurring at dusk.",simpleDefinition:"Evening-time.",example:"Vespertine light softened the street into gold.",synonyms:["evening"],origin:"Latin",difficulty:8,tags:["poetic","rare","time"]},
+  {id:"poet25-016-crepu",word:"crepuscular",pronunciation:"kri-PUS-kyuh-ler",partOfSpeech:"adjective",definition:"Relating to twilight; active at dawn or dusk.",simpleDefinition:"Twilight-time.",example:"Crepuscular shadows stretched long.",synonyms:["twilight"],origin:"Latin",difficulty:7,tags:["poetic","time"]},
+  {id:"poet25-017-alpeng",word:"alpenglow",pronunciation:"AL-pen-gloh",partOfSpeech:"noun",definition:"A rosy light on mountains at sunrise or sunset.",simpleDefinition:"Pink mountain glow.",example:"Alpenglow crowned the peaks like fire.",synonyms:["rosy glow"],origin:"German",difficulty:7,tags:["poetic","nature","light"]},
+  {id:"poet25-018-opales",word:"opalescent",pronunciation:"oh-puh-LES-unt",partOfSpeech:"adjective",definition:"Showing shifting colors like an opal.",simpleDefinition:"Shimmery color-shift.",example:"Opalescent clouds drifted in layers.",synonyms:["iridescent"],origin:"Latin",difficulty:7,tags:["poetic","visual"]},
+  {id:"poet25-019-umber",word:"umbra",pronunciation:"UM-bruh",partOfSpeech:"noun",definition:"The darkest part of a shadow (especially in eclipses).",simpleDefinition:"Deep shadow.",example:"The moon’s umbra slid across the earth.",synonyms:["shadow"],origin:"Latin",difficulty:7,tags:["poetic","sky"]},
+  {id:"poet25-020-penum",word:"penumbra",pronunciation:"pih-NUM-bruh",partOfSpeech:"noun",definition:"A partial shadow; the lighter part around a shadow.",simpleDefinition:"Soft edge of a shadow.",example:"She stood in the penumbra of the doorway.",synonyms:["partial shade"],origin:"Latin",difficulty:7,tags:["poetic"]},
+  {id:"poet25-021-fulg",word:"fulgent",pronunciation:"FUL-jent",partOfSpeech:"adjective",definition:"Shining brightly; radiant (rare).",simpleDefinition:"Radiant and bright.",example:"Fulgent moonlight carved silver paths.",synonyms:["radiant"],origin:"Latin",difficulty:8,tags:["poetic","rare","light"]},
+  {id:"poet25-022-eonian",word:"eonian",pronunciation:"ee-OH-nee-uhn",partOfSpeech:"adjective",definition:"Eternal; lasting for ages (rare).",simpleDefinition:"Seemingly forever.",example:"The ocean felt eonian in its calm.",synonyms:["timeless"],origin:"Greek roots",difficulty:9,tags:["poetic","rare"]},
+  {id:"poet25-023-stell",word:"stelliferous",pronunciation:"stel-LIF-er-us",partOfSpeech:"adjective",definition:"Star-bearing; filled with stars (rare).",simpleDefinition:"Full of stars.",example:"A stelliferous sky turned the desert into a cathedral.",synonyms:["starry"],origin:"Latin",difficulty:9,tags:["poetic","rare","sky"]},
+  {id:"poet25-024-lucen",word:"lucent",pronunciation:"LOO-sent",partOfSpeech:"adjective",definition:"Glowing with light; luminous.",simpleDefinition:"Softly shining.",example:"Lucent mist turned streetlights into halos.",synonyms:["luminous"],origin:"Latin",difficulty:7,tags:["poetic","light"]},
+  {id:"poet25-025-nive",word:"niveous",pronunciation:"NIV-ee-us",partOfSpeech:"adjective",definition:"Snowy; white like snow (rare).",simpleDefinition:"Snow-white.",example:"Niveous fields stretched under pale sun.",synonyms:["snowy"],origin:"Latin",difficulty:9,tags:["poetic","rare","color"]}
+];
+
+const DARK_ACADEMIA_25 = [
+  {id:"dark25-001-palimp",word:"palimpsest",pronunciation:"PAL-imp-sest",partOfSpeech:"noun",definition:"A manuscript page reused after earlier writing was erased; figuratively, something layered with traces of the past.",simpleDefinition:"A layered page/history that shows through.",example:"The city felt like a palimpsest of old empires.",synonyms:["layered record"],origin:"Greek",difficulty:8,tags:["dark","academia","history"]},
+  {id:"dark25-002-numin",word:"numinous",pronunciation:"NOO-mih-nus",partOfSpeech:"adjective",definition:"Having a mysterious spiritual quality; awe-inspiring.",simpleDefinition:"Spooky-sacred awe.",example:"A numinous hush settled over the chapel.",synonyms:["awe-inspiring"],origin:"Latin",difficulty:8,tags:["dark","mystic"]},
+  {id:"dark25-003-sepul",word:"sepulchral",pronunciation:"sih-PUL-kruhl",partOfSpeech:"adjective",definition:"Gloomy, deathlike, or tomb-like.",simpleDefinition:"Tomb-ish and gloomy.",example:"A sepulchral corridor swallowed the sound.",synonyms:["funereal"],origin:"Latin",difficulty:8,tags:["dark","gothic"]},
+  {id:"dark25-004-chtho",word:"chthonic",pronunciation:"THON-ik",partOfSpeech:"adjective",definition:"Relating to the underworld; subterranean.",simpleDefinition:"Underworld-ish.",example:"Chthonic myths crawled through the lecture.",synonyms:["underworld"],origin:"Greek",difficulty:9,tags:["dark","greek","myth"]},
+  {id:"dark25-005-herm",word:"hermeneutics",pronunciation:"hur-muh-NOO-tiks",partOfSpeech:"noun",definition:"The theory and method of interpretation (especially texts).",simpleDefinition:"How we interpret texts.",example:"Hermeneutics turned one paragraph into a battlefield.",synonyms:["interpretation theory"],origin:"Greek",difficulty:9,tags:["dark","academia"]},
+  {id:"dark25-006-esch",word:"eschatology",pronunciation:"es-kat-OL-uh-jee",partOfSpeech:"noun",definition:"The study of ‘last things’ (end times; ultimate destiny).",simpleDefinition:"End-times study.",example:"Eschatology dominated the seminar’s final week.",synonyms:["end-times doctrine"],origin:"Greek",difficulty:9,tags:["dark","theology","academia"]},
+  {id:"dark25-007-recond",word:"recondite",pronunciation:"rek-uhn-DYTE",partOfSpeech:"adjective",definition:"Little known; obscure; difficult to understand.",simpleDefinition:"Very obscure.",example:"A recondite footnote became the whole exam.",synonyms:["abstruse"],origin:"Latin",difficulty:8,tags:["dark","academia"]},
+  {id:"dark25-008-sibyl",word:"sibylline",pronunciation:"SIB-uh-line",partOfSpeech:"adjective",definition:"Mysterious, prophetic, or hard to interpret.",simpleDefinition:"Cryptic and prophecy-like.",example:"A sibylline note was tucked inside the book.",synonyms:["enigmatic"],origin:"Greek/Latin",difficulty:8,tags:["dark","mystic"]},
+  {id:"dark25-009-aporia",word:"aporia",pronunciation:"uh-POHR-ee-uh",partOfSpeech:"noun",definition:"A state of puzzlement or doubt; an impasse in inquiry.",simpleDefinition:"A philosophical stuck-point.",example:"The dialogue ended in aporia, beautifully unresolved.",synonyms:["impasse"],origin:"Greek",difficulty:8,tags:["dark","philosophy"]},
+  {id:"dark25-010-atar",word:"ataraxia",pronunciation:"at-uh-RAK-see-uh",partOfSpeech:"noun",definition:"A state of serene calmness (Stoic/Epicurean ideal).",simpleDefinition:"Deep calm (philosophy).",example:"He pursued ataraxia like a discipline.",synonyms:["tranquility"],origin:"Greek",difficulty:9,tags:["dark","philosophy"]},
+  {id:"dark25-011-thanat",word:"thanatology",pronunciation:"thuh-nuh-TOL-uh-jee",partOfSpeech:"noun",definition:"The study of death and dying.",simpleDefinition:"Studying death and grief.",example:"Her thesis focused on thanatology and ritual.",synonyms:["death studies"],origin:"Greek",difficulty:9,tags:["dark","academia"]},
+  {id:"dark25-012-arcana",word:"arcana",pronunciation:"ar-KAY-nuh",partOfSpeech:"noun (plural)",definition:"Secret or mysterious knowledge.",simpleDefinition:"Hidden knowledge.",example:"The library promised arcana behind locked doors.",synonyms:["secrets"],origin:"Latin",difficulty:7,tags:["dark","academia"]},
+  {id:"dark25-013-necro",word:"necromantic",pronunciation:"nek-roh-MAN-tik",partOfSpeech:"adjective",definition:"Relating to necromancy; conjuring spirits of the dead (in lore).",simpleDefinition:"Spooky spirit-calling.",example:"Necromantic imagery filled the margins.",synonyms:["occult"],origin:"Greek",difficulty:7,tags:["dark","occult"]},
+  {id:"dark25-014-phant",word:"phantasmagoria",pronunciation:"fan-taz-muh-GOR-ee-uh",partOfSpeech:"noun",definition:"A shifting series of dreamlike, bizarre images.",simpleDefinition:"A spooky dream-swirl.",example:"The novel became a phantasmagoria of mirrors and storms.",synonyms:["dreamscape"],origin:"Greek/French",difficulty:8,tags:["dark","gothic"]},
+  {id:"dark25-015-anted",word:"antediluvian",pronunciation:"an-tee-dih-LOO-vee-uhn",partOfSpeech:"adjective",definition:"Extremely old-fashioned; literally ‘before the flood.’",simpleDefinition:"Ancient/very old-fashioned.",example:"An antediluvian rule haunted the department.",synonyms:["archaic"],origin:"Latin",difficulty:8,tags:["dark","history"]},
+  {id:"dark25-016-noet",word:"noetic",pronunciation:"noh-ET-ik",partOfSpeech:"adjective",definition:"Relating to the intellect or mental activity.",simpleDefinition:"Mind/intellect-related.",example:"A noetic hush fell over the seminar.",synonyms:["intellectual"],origin:"Greek",difficulty:8,tags:["dark","academia"]},
+  {id:"dark25-017-lemnis",word:"lemniscate",pronunciation:"LEM-nis-kayt",partOfSpeech:"noun",definition:"A figure-eight or infinity-shaped curve.",simpleDefinition:"Infinity symbol curve.",example:"A chalk lemniscate looped across the board.",synonyms:["infinity curve"],origin:"Latin",difficulty:8,tags:["dark","math","academia"]},
+  {id:"dark25-018-athan",word:"athanor",pronunciation:"ATH-uh-nor",partOfSpeech:"noun",definition:"An alchemical furnace used for long, steady heating.",simpleDefinition:"Alchemy furnace.",example:"The athanor glowed in the illustration like a small sun.",synonyms:["alchemical furnace"],origin:"Historical alchemy term",difficulty:9,tags:["dark","alchemy"]},
+  {id:"dark25-019-gnost",word:"gnosticism",pronunciation:"NOS-tih-siz-um",partOfSpeech:"noun",definition:"Religious/philosophical movements emphasizing secret knowledge (gnosis).",simpleDefinition:"Secret-knowledge spirituality.",example:"The course compared gnosticism with other traditions.",synonyms:["esoteric doctrine"],origin:"Greek",difficulty:8,tags:["dark","history"]},
+  {id:"dark25-020-deliq",word:"deliquescent",pronunciation:"del-ih-KWES-ent",partOfSpeech:"adjective",definition:"Dissolving or liquefying by absorbing moisture from the air.",simpleDefinition:"Melts by absorbing air moisture.",example:"Deliquescent crystals wept into the dish.",synonyms:["moisture-absorbing"],origin:"Latin",difficulty:9,tags:["dark","science"]},
+  {id:"dark25-021-iatro",word:"iatrogenic",pronunciation:"eye-at-roh-JEN-ik",partOfSpeech:"adjective",definition:"Caused by medical treatment or examination.",simpleDefinition:"Caused by treatment.",example:"An iatrogenic complication extended recovery.",synonyms:["treatment-caused"],origin:"Greek",difficulty:8,tags:["dark","medical"]},
+  {id:"dark25-022-inel",word:"ineluctable",pronunciation:"in-ih-LUK-tuh-bul",partOfSpeech:"adjective",definition:"Impossible to avoid; inevitable.",simpleDefinition:"Unavoidable.",example:"The ineluctable deadline approached like winter.",synonyms:["inevitable"],origin:"Latin",difficulty:8,tags:["dark","latin"]},
+  {id:"dark25-023-fulmi",word:"fulminate",pronunciation:"FUL-mih-nayt",partOfSpeech:"verb",definition:"To denounce forcefully; or to explode.",simpleDefinition:"To rant loudly (or explode).",example:"He fulminated against sloppy citations.",synonyms:["denounce"],origin:"Latin",difficulty:7,tags:["dark","latin"]},
+  {id:"dark25-024-nefar",word:"nefarious",pronunciation:"nih-FAIR-ee-us",partOfSpeech:"adjective",definition:"Wicked or criminal.",simpleDefinition:"Evil-ish.",example:"A nefarious plot unfolded in the footnotes.",synonyms:["villainous"],origin:"Latin",difficulty:6,tags:["dark"]},
+  {id:"dark25-025-ubiq",word:"ubiquitous",pronunciation:"yoo-BIK-wih-tus",partOfSpeech:"adjective",definition:"Present everywhere.",simpleDefinition:"Everywhere at once.",example:"The term was ubiquitous in the literature review.",synonyms:["ever-present"],origin:"Latin",difficulty:6,tags:["academia"]}
+];
+
+/* Add more blocks here, then include them below in EMBEDDED_LISTS. */
+const EMBEDDED_LISTS = [
+  RIDICULOUSLY_LONG_25,
+  MEDICAL_WEIRDNESS_25,
+  LINGUISTICS_NERD_25,
+  POETIC_RARE_GEMS_25,
+  DARK_ACADEMIA_25
+];
+/* =========================
+   State
+   ========================= */
+let state = {
+  bank: [],
+  learned: [],
+  favorites: [],
+  settings: { voiceName:'', pitch:0.95 }
+};
+let currentIndex = 0;
+let voicesList = [];
+
+/* =========================
+   UI refs
+   ========================= */
+const wordText = document.getElementById('wordText');
+const pronText = document.getElementById('pronText');
+const wordIdLine = document.getElementById('wordIdLine');
+const metaInfo = document.getElementById('metaInfo');
+const definition = document.getElementById('definition');
+const simpleDef = document.getElementById('simpleDef');
+const exampleText = document.getElementById('exampleText');
+const dateLabel = document.getElementById('dateLabel');
+
+const dailyButton = document.getElementById('dailyButton');
+const hearBtn = document.getElementById('hearBtn');
+const markLearnedBtn = document.getElementById('markLearnedBtn');
+const favBtn = document.getElementById('favBtn');
+const nextBtn = document.getElementById('nextBtn');
+
+const bankCount = document.getElementById('bankCount');
+const learnedCount = document.getElementById('learnedCount');
+const favCount = document.getElementById('favCount');
+
+const voicePicker = document.getElementById('voicePicker');
+const voicePitch = document.getElementById('voicePitch');
+const pitchVal = document.getElementById('pitchVal');
+
+const startQuizBtn = document.getElementById('startQuizBtn');
+const quizQuestion = document.getElementById('quizQuestion');
+const quizOptions = document.getElementById('quizOptions');
+const quizResult = document.getElementById('quizResult');
+const nextQuestionBtn = document.getElementById('nextQuestionBtn');
+
+const searchBox = document.getElementById('searchBox');
+const searchMeta = document.getElementById('searchMeta');
+const searchResults = document.getElementById('searchResults');
+
+/* =========================
+   Bank builder + ID collision safety
+   ========================= */
+function buildEmbeddedBank(){
+  const flat = [];
+  const seenId = new Set();
+
+  for(const list of EMBEDDED_LISTS){
+    if(!Array.isArray(list)) continue;
+    for(const item of list){
+      if(!item || typeof item !== 'object') continue;
+
+      let id = String(item.id || '').trim();
+      const word = String(item.word || '').trim();
+      if(!id || !word) continue;
+
+      if(seenId.has(id)){
+        let n = 2;
+        while(seenId.has(`${id}--dup${n}`)) n++;
+        id = `${id}--dup${n}`;
+      }
+      seenId.add(id);
+
+      flat.push({
+        id,
+        word,
+        pronunciation: item.pronunciation || '',
+        partOfSpeech: item.partOfSpeech || '',
+        definition: item.definition || '',
+        simpleDefinition: item.simpleDefinition || '',
+        example: item.example || '',
+        synonyms: Array.isArray(item.synonyms) ? item.synonyms : [],
+        origin: item.origin || '',
+        difficulty: typeof item.difficulty === 'number' ? item.difficulty : 5,
+        tags: Array.isArray(item.tags) ? item.tags : []
+      });
+    }
+  }
+  return flat;
+}
+
+/* =========================
+   Progress storage
+   ========================= */
+function loadProgress(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw){
+      const parsed = JSON.parse(raw);
+      state.learned = Array.isArray(parsed.learned) ? parsed.learned : [];
+      state.favorites = Array.isArray(parsed.favorites) ? parsed.favorites : [];
+      state.settings = {...state.settings, ...(parsed.settings || {})};
+    }
+  }catch(e){
+    console.warn('Progress load error', e);
+  }
+  if(typeof state.settings.pitch === 'number') voicePitch.value = String(state.settings.pitch);
+}
+function saveProgress(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({
+    learned: state.learned,
+    favorites: state.favorites,
+    settings: state.settings
+  }));
+}
+
+/* =========================
+   UI
+   ========================= */
+function refreshCounts(){
+  bankCount.textContent = state.bank.length;
+  learnedCount.textContent = state.learned.length;
+  favCount.textContent = state.favorites.length;
+}
+function renderWord(idx){
+  if(!state.bank.length) return;
+  currentIndex = (idx!==undefined) ? idx : currentIndex;
+  if(currentIndex < 0) currentIndex = 0;
+  if(currentIndex >= state.bank.length) currentIndex = state.bank.length - 1;
+
+  const w = state.bank[currentIndex];
+  wordText.textContent = w.word || '—';
+  pronText.textContent = w.pronunciation ? `/${w.pronunciation}/` : '';
+  wordIdLine.textContent = w.id ? `Word ID: ${w.id}` : '';
+
+  const tags = (w.tags || []).join(', ');
+  const diff = (typeof w.difficulty === 'number') ? w.difficulty : '-';
+  metaInfo.textContent = `${w.partOfSpeech || '—'} · ${tags || '—'} · difficulty ${diff}`;
+
+  definition.textContent = w.definition || '';
+  simpleDef.textContent = w.simpleDefinition ? `Kid-friendly: ${w.simpleDefinition}` : '';
+  exampleText.textContent = w.example ? `“${w.example}”` : '';
+
+  dateLabel.textContent = (new Date()).toDateString();
+
+  const syns = (w.synonyms||[]).slice(0,8);
+  const synWrap = document.getElementById('synonymsWrap');
+  synWrap.innerHTML = '';
+  if(syns.length){
+    synWrap.innerHTML =
+      `<div class="smallmuted">Synonyms:</div>
+       <div style="margin-top:6px">${syns.map(s=>`<span class="badge">${escapeHtml(String(s))}</span>`).join(' ')}</div>`;
+  }
+
+  markLearnedBtn.textContent = state.learned.includes(w.word) ? '✅ Learned' : '✅ Mark Learned';
+  favBtn.textContent = state.favorites.includes(w.word) ? '★ Favorited' : '☆ Favorite';
+}
+
+/* =========================
+   Daily word index
+   ========================= */
+function indexForToday(){
+  if(!state.bank.length) return 0;
+  const now = new Date();
+  const start = new Date(now.getFullYear(),0,1);
+  const dayOfYear = Math.floor((now - start) / (24*60*60*1000));
+  return dayOfYear % state.bank.length;
+}
+
+/* =========================
+   Voice
+   ========================= */
+function setupVoices(){
+  if(!('speechSynthesis' in window)) {
+    voicePicker.innerHTML = `<option value="">(Speech not supported on this browser)</option>`;
+    hearBtn.disabled = true;
+    return;
+  }
+  voicesList = speechSynthesis.getVoices() || [];
+  voicePicker.innerHTML = `<option value="">— Use default —</option>`;
+  voicesList.forEach((v,i)=>{
+    const opt = document.createElement('option');
+    opt.value = String(i);
+    opt.textContent = `${v.name} (${v.lang || ''})`;
+    voicePicker.appendChild(opt);
+  });
+  if(state.settings.voiceName){
+    const found = voicesList.findIndex(v => v.name === state.settings.voiceName);
+    if(found >= 0) voicePicker.value = String(found);
+  }
+}
+if('speechSynthesis' in window){
+  speechSynthesis.onvoiceschanged = setupVoices;
+}
+function speakText(txt, opts={}){
+  if(!txt || !('speechSynthesis' in window)) return;
+  const u = new SpeechSynthesisUtterance(txt);
+  const vIndex = voicePicker.value;
+  if(vIndex !== ''){
+    const v = voicesList[Number(vIndex)];
+    if(v) u.voice = v;
+  }
+  u.lang = 'en-US';
+  u.rate = opts.rate || 0.92;
+  u.pitch = opts.pitch || Number(voicePitch.value) || 0.95;
+  u.volume = 1;
+  speechSynthesis.cancel();
+  speechSynthesis.speak(u);
+}
+
+/* =========================
+   Search
+   ========================= */
+function normalize(s){ return String(s||'').toLowerCase().trim(); }
+function scoreMatch(item, q){
+  const w = normalize(item.word);
+  const d = normalize(item.definition);
+  const t = normalize((item.tags||[]).join(' '));
+  const id = normalize(item.id);
+  if(!q) return 0;
+  let score = 0;
+  if(w === q) score += 100;
+  if(w.startsWith(q)) score += 70;
+  if(w.includes(q)) score += 40;
+  if(id.includes(q)) score += 25;
+  if(t.includes(q)) score += 18;
+  if(d.includes(q)) score += 12;
+  return score;
+}
+function renderSearchResults(q){
+  const query = normalize(q);
+  if(!query){
+    searchResults.style.display = 'none';
+    searchResults.innerHTML = '';
+    searchMeta.textContent = 'Tip: Press Enter to open the top result.';
+    return;
+  }
+  const scored = [];
+  for(let i=0;i<state.bank.length;i++){
+    const it = state.bank[i];
+    const s = scoreMatch(it, query);
+    if(s > 0) scored.push({i, s});
+  }
+  scored.sort((a,b)=>b.s - a.s);
+  const top = scored.slice(0, 25);
+
+  searchResults.innerHTML = '';
+  searchResults.style.display = 'block';
+
+  if(!top.length){
+    searchMeta.textContent = `No matches for “${q}”.`;
+    return;
+  }
+  searchMeta.textContent = `Found ${scored.length} match(es). Showing top ${top.length}.`;
+
+  top.forEach(({i})=>{
+    const it = state.bank[i];
+    const btn = document.createElement('button');
+    btn.className = 'result-item';
+    btn.type = 'button';
+    btn.innerHTML = `
+      <div class="result-top">
+        <div class="result-word">${escapeHtml(it.word)}</div>
+        <div class="result-meta">${escapeHtml(it.partOfSpeech || '—')} · diff ${escapeHtml(String(it.difficulty ?? '-'))}</div>
+      </div>
+      <div class="result-def">${escapeHtml((it.definition || '').slice(0, 120))}${(it.definition||'').length>120?'…':''}</div>
+      <div class="result-meta">ID: ${escapeHtml(it.id)} · ${(it.tags||[]).length ? escapeHtml(it.tags.join(', ')) : '—'}</div>
+    `;
+    btn.addEventListener('click', ()=>renderWord(i));
+    searchResults.appendChild(btn);
+  });
+}
+searchBox.addEventListener('input', ()=>renderSearchResults(searchBox.value));
+searchBox.addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter'){
+    e.preventDefault();
+    const first = searchResults.querySelector('.result-item');
+    if(first) first.click();
+  }
+});
+
+/* =========================
+   Interactions
+   ========================= */
+dailyButton.addEventListener('click', ()=>renderWord(indexForToday()));
+hearBtn.addEventListener('click', ()=>{
+  const w = state.bank[currentIndex];
+  const spoken = `${w.word}. ${w.definition || ''} ${w.example ? 'Example: ' + w.example : ''}`.trim();
+  speakText(spoken, {rate:0.92, pitch:Number(voicePitch.value)});
+});
+markLearnedBtn.addEventListener('click', ()=>{
+  const w = state.bank[currentIndex];
+  if(!state.learned.includes(w.word)) state.learned.push(w.word);
+  else state.learned = state.learned.filter(x => x !== w.word);
+  saveProgress(); refreshCounts(); renderWord();
+});
+favBtn.addEventListener('click', ()=>{
+  const w = state.bank[currentIndex];
+  if(!state.favorites.includes(w.word)) state.favorites.push(w.word);
+  else state.favorites = state.favorites.filter(x => x !== w.word);
+  saveProgress(); refreshCounts(); renderWord();
+});
+nextBtn.addEventListener('click', ()=>{
+  if(!state.bank.length) return;
+  renderWord(Math.floor(Math.random() * state.bank.length));
+});
+
+/* voice */
+voicePicker.addEventListener('change', ()=>{
+  const idx = voicePicker.value;
+  if(idx !== '' && voicesList[Number(idx)]) state.settings.voiceName = voicesList[Number(idx)].name;
+  else state.settings.voiceName = '';
+  saveProgress();
+});
+voicePitch.addEventListener('input', ()=>{
+  pitchVal.textContent = `Pitch: ${voicePitch.value}`;
+  state.settings.pitch = Number(voicePitch.value);
+  saveProgress();
+});
+
+/* =========================
+   Quiz
+   ========================= */
+function shuffleArray(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]] = [arr[j],arr[i]];
+  }
+}
+function startQuiz(){
+  quizResult.textContent = '';
+  quizOptions.innerHTML = '';
+  if(!state.bank.length){ quizQuestion.textContent = 'No words available.'; return; }
+
+  const correctIdx = Math.floor(Math.random() * state.bank.length);
+  const correct = state.bank[correctIdx];
+  const correctDef = correct.definition || '';
+  if(!correctDef){
+    quizQuestion.textContent = `That word (“${correct.word}”) has no definition. Click Next.`;
+    return;
+  }
+
+  const choices = [correctDef];
+  const pool = state.bank.filter((x,i)=>i!==correctIdx && x.definition);
+  shuffleArray(pool);
+  for(let i=0;i<3 && i<pool.length;i++) choices.push(pool[i].definition);
+  shuffleArray(choices);
+
+  quizQuestion.textContent = `What is the definition of "${correct.word}"?`;
+
+  choices.forEach(ch=>{
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'quiz-option';
+    btn.textContent = ch;
+    btn.addEventListener('click', ()=>{
+      Array.from(quizOptions.children).forEach(c => c.disabled = true);
+      if(ch === correctDef){
+        btn.classList.add('correct');
+        quizResult.textContent = 'Correct!';
+        if(!state.learned.includes(correct.word)){
+          state.learned.push(correct.word);
+          saveProgress(); refreshCounts();
+        }
+      } else {
+        btn.classList.add('wrong');
+        Array.from(quizOptions.children).forEach(c=>{
+          if(c.textContent === correctDef) c.classList.add('correct');
+        });
+        quizResult.textContent = `Not quite — correct: ${correctDef}`;
+      }
+    });
+    quizOptions.appendChild(btn);
+  });
+}
+startQuizBtn.addEventListener('click', startQuiz);
+nextQuestionBtn.addEventListener('click', startQuiz);
+
+/* =========================
+   Helpers
+   ========================= */
+function escapeHtml(s){
+  return String(s||'')
+    .replaceAll('&','&amp;')
+    .replaceAll('<','&lt;')
+    .replaceAll('>','&gt;')
+    .replaceAll('"','&quot;')
+    .replaceAll("'","&#039;");
+}
+
+/* =========================
+   Init
+   ========================= */
+function init(){
+  state.bank = buildEmbeddedBank();
+  loadProgress();
+  setupVoices();
+
+  pitchVal.textContent = `Pitch: ${voicePitch.value}`;
+  refreshCounts();
+
+  if(!state.bank.length){
+    definition.textContent = 'No words loaded. Check embedded lists (each needs id + word).';
+    return;
+  }
+  renderWord(indexForToday());
+}
+init();
+setTimeout(setupVoices, 800);
+</script>
+</body>
+</html>
