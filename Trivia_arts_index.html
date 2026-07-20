@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sovereign Arts Trivia</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-dark: #0d1b2a;
+    --text-light: #f5f3f0;
+    --accent1: #f78da7;
+    --accent2: #00c9a7;
+    --accent3: #f9ca24;
+    --accent4: #9b59b6;
+  }
+
+  body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #0d1b2a, #1b263b);
+    color: var(--text-light);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+  }
+
+  .container {
+    text-align: center;
+    max-width: 600px;
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 1.5rem;
+    box-shadow: 0 0 30px rgba(0,0,0,0.4);
+    backdrop-filter: blur(10px);
+    animation: fadeIn 1.5s ease;
+  }
+
+  h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    letter-spacing: 2px;
+  }
+
+  p {
+    font-size: 1rem;
+    opacity: 0.85;
+  }
+
+  button {
+    background: linear-gradient(90deg, var(--accent1), var(--accent2), var(--accent3), var(--accent4));
+    background-size: 400% 400%;
+    border: none;
+    color: #fff;
+    font-size: 1.2rem;
+    padding: 0.75rem 2rem;
+    border-radius: 50px;
+    margin-top: 1.5rem;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    animation: gradientShift 6s ease infinite;
+  }
+
+  button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 15px var(--accent2);
+  }
+
+  .question {
+    font-size: 1.4rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .options {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .option-btn {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: var(--text-light);
+    font-size: 1rem;
+    padding: 0.75rem;
+    border-radius: 0.75rem;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+  }
+
+  .option-btn:hover {
+    background: rgba(255,255,255,0.2);
+    transform: translateY(-2px);
+  }
+
+  .feedback {
+    margin-top: 1rem;
+    font-weight: 600;
+    min-height: 1.5rem;
+  }
+
+  .score {
+    margin-top: 1.5rem;
+    font-size: 1.1rem;
+    opacity: 0.9;
+  }
+
+  .footer {
+    position: absolute;
+    bottom: 15px;
+    width: 100%;
+    text-align: center;
+    font-size: 0.8rem;
+    opacity: 0.7;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container" id="gameContainer">
+  <h1>Sovereign Arts Trivia</h1>
+  <p>Test your artistic intuition — from color psychology to classic masterpieces.</p>
+  <p>Answer as many as you can. Each choice reveals how your mind sees art.</p>
+  <button id="startBtn">🎨 Start Game</button>
+</div>
+
+<div class="footer">© 2025 My Art Gallery — All Rights Reserved</div>
+
+<script>
+const questions = [
+  { "question": "The gradual blending of tones or colors is called:", "options": ["Gradient", "Contrast", "Chiaroscuro", "Fresco"], "answer": 0 },
+  { "question": "Which artist is famous for the painting 'Starry Night'?", "options": ["Claude Monet", "Vincent van Gogh", "Pablo Picasso", "Leonardo da Vinci"], "answer": 1 },
+  { "question": "The art technique of painting on wet plaster is called:", "options": ["Fresco", "Tempera", "Watercolor", "Oil Painting"], "answer": 0 },
+  { "question": "In music, a 'crescendo' indicates:", "options": ["Gradually getting louder", "Sudden stop", "Gradually getting softer", "Change of key"], "answer": 0 },
+  { "question": "Cubism is an art movement associated with which artist?", "options": ["Salvador Dalí", "Pablo Picasso", "Andy Warhol", "Henri Matisse"], "answer": 1 },
+  { "question": "Which color model is primarily used for digital screens?", "options": ["CMYK", "RGB", "Pantone", "HSL"], "answer": 1 },
+  { "question": "A haiku is a form of:", "options": ["Short story", "Poem", "Painting", "Sculpture"], "answer": 1 },
+  { "question": "The term 'impasto' in painting refers to:", "options": ["Thick layers of paint", "Fading colors", "Sketching technique", "Etching"], "answer": 0 },
+  { "question": "Which of these is a primary color in traditional painting?", "options": ["Green", "Orange", "Red", "Purple"], "answer": 2 },
+  { "question": "Performance art often combines:", "options": ["Dance, theater, and visual arts", "Sculpture and architecture", "Photography and cinema", "Calligraphy and printmaking"], "answer": 0 },
+  { "question": "The famous sculpture 'David' was created by:", "options": ["Michelangelo", "Donatello", "Bernini", "Rodin"], "answer": 0 },
+  { "question": "Which movement is associated with dream-like, illogical imagery in painting?", "options": ["Impressionism", "Surrealism", "Expressionism", "Realism"], "answer": 1 },
+  { "question": "In theater, 'blocking' refers to:", "options": ["Stage lighting", "Actor movement and positioning", "Script writing", "Costume design"], "answer": 1 },
+  { "question": "Which famous artist is known for melting clocks in his paintings?", "options": ["Pablo Picasso", "Salvador Dalí", "Claude Monet", "Edvard Munch"], "answer": 1 },
+  { "question": "In photography, 'bokeh' refers to:", "options": ["Background blur", "Sharp focus", "Lighting technique", "Color filter"], "answer": 0 },
+  { "question": "Which of the following is an example of a tertiary color?", "options": ["Red-Orange", "Blue", "Yellow", "Green"], "answer": 0 },
+  { "question": "The art of folding paper into sculptures is called:", "options": ["Origami", "Calligraphy", "Sumi-e", "Papercraft"], "answer": 0 },
+  { "question": "Which artist is associated with the abstract drip painting technique?", "options": ["Jackson Pollock", "Mark Rothko", "Georgia O'Keeffe", "Andy Warhol"], "answer": 0 },
+  { "question": "Which instrument family does the cello belong to?", "options": ["Brass", "Strings", "Percussion", "Woodwinds"], "answer": 1 },
+  { "question": "In design, 'negative space' refers to:", "options": ["Empty space around objects", "Primary color usage", "Foreground detail", "Lighting direction"], "answer": 0 },
+  { "question": "Which style emphasizes light, color, and visible brushstrokes?", "options": ["Impressionism", "Baroque", "Neoclassicism", "Cubism"], "answer": 0 },
+  { question: "The gradual blending of tones or colors is called:", options: ["Gradient", "Contrast", "Chiaroscuro", "Fresco"], answer: 0 },
+  {
+    question: "Which color is often associated with calm and stability?",
+    options: ["Red", "Blue", "Yellow", "Orange"],
+    answer: 1
+  },
+  { question: "Who painted 'Girl with a Pearl Earring'?", options: ["Rembrandt", "Johannes Vermeer", "Caravaggio", "Jan van Eyck"], answer: 1 },
+ { question: "Which artist’s large flower paintings are iconic?", options: ["Georgia O’Keeffe", "Mary Cassatt", "Helen Frankenthaler", "Louise Bourgeois"], answer: 0 },
+  { question: "The sound of rain is used for:", options: ["Calming the nervous system", "Increasing alertness", "Boosting adrenaline", "Waking up"], answer: 0 },
+  { question: "What is the technique of mixing colors directly on the canvas called?", options: ["Alla Prima", "Glazing", "Dry Brush", "Pointillism"], answer: 0 },
+  {
+    question: "Which Renaissance artist was the first to use linear perspective in a major fresco?",
+    options: ["Masaccio", "Giotto", "Botticelli", "Raphael"],
+    answer: 0
+  },
+  {
+    question: "The technique of painting on wet plaster is known as what?",
+    options: ["Tempera", "Fresco", "Encaustic", "Impasto"],
+    answer: 1
+  },
+  {
+    question: "Which movement emphasized dream imagery and subconscious thought, inspired by Freud?",
+    options: ["Futurism", "Dada", "Surrealism", "Expressionism"],
+    answer: 2
+  },
+  {
+    question: "Who painted 'Las Meninas'?",
+    options: ["Diego Velázquez", "Francisco Goya", "El Greco", "Murillo"],
+    answer: 0
+  },
+  {
+    question: "The Bauhaus school was founded in which country?",
+    options: ["France", "Germany", "Italy", "Switzerland"],
+    answer: 1
+  },
+  {
+    question: "Which artist is known for his 'Blue Period'?",
+    options: ["Claude Monet", "Henri Matisse", "Pablo Picasso", "Paul Cézanne"],
+    answer: 2
+  },
+  {
+    question: "Which art term describes a painting made in shades of a single color?",
+    options: ["Sfumato", "Monochrome", "Trompe-l'œil", "Chiaroscuro"],
+    answer: 1
+  },
+  {
+    question: "What medium did Jackson Pollock famously use to drip and splatter his paint?",
+    options: ["Oil paint", "Enamel paint", "Acrylic paint", "Watercolor"],
+    answer: 1
+  },
+  {
+    question: "The 'Golden Ratio' is closely associated with which artistic concept?",
+    options: ["Harmony and proportion", "Perspective", "Contrast", "Texture"],
+    answer: 0
+  },
+  {
+    question: "Who sculpted 'The Ecstasy of Saint Teresa'?",
+    options: ["Gian Lorenzo Bernini", "Donatello", "Michelangelo", "Cellini"],
+    answer: 0
+  },
+  {
+    question: "Which Post-Impressionist painter lived in Tahiti and painted 'Where Do We Come From? What Are We? Where Are We Going?'",
+    options: ["Paul Gauguin", "Paul Cézanne", "Vincent van Gogh", "Henri Rousseau"],
+    answer: 0
+  },
+  {
+    question: "Which Japanese art form influenced the Impressionists?",
+    options: ["Sumi-e", "Ukiyo-e", "Origami", "Ikebana"],
+    answer: 1
+  },
+  {
+    question: "What pigment was historically made from crushed lapis lazuli?",
+    options: ["Ultramarine", "Cobalt Blue", "Cerulean", "Prussian Blue"],
+    answer: 0
+  },
+  {
+    question: "Who designed the glass pyramid entrance at the Louvre Museum?",
+    options: ["Renzo Piano", "I. M. Pei", "Frank Gehry", "Zaha Hadid"],
+    answer: 1
+  },
+  {
+    question: "Which modern artist is known for cut-outs in his later years, including 'The Snail'?",
+    options: ["Henri Matisse", "Joan Miró", "Piet Mondrian", "Wassily Kandinsky"],
+    answer: 0
+  },
+  {
+    question: "What is the term for a sculpture that projects slightly from a flat surface?",
+    options: ["Relief", "Assemblage", "Bas-relief", "Additive"],
+    answer: 2
+  },
+  {
+    question: "The 'School of Athens' fresco represents what artistic ideal?",
+    options: ["Mysticism", "Humanism", "Romanticism", "Surrealism"],
+    answer: 1
+  },
+  {
+    question: "Which artist’s studio was called 'The Factory'?",
+    options: ["Jean-Michel Basquiat", "Andy Warhol", "Roy Lichtenstein", "Keith Haring"],
+    answer: 1
+  },
+  {
+    question: "Which Baroque painter was known for intense realism and dramatic lighting?",
+    options: ["Caravaggio", "Rubens", "Rembrandt", "Vermeer"],
+    answer: 0
+  },
+  {
+    question: "The color wheel was first scientifically organized by which figure?",
+    options: ["Isaac Newton", "Leonardo da Vinci", "Johann Goethe", "Josef Albers"],
+    answer: 0
+  },
+  {
+    question: "Which artist pioneered the use of readymades, like the urinal titled 'Fountain'?",
+    options: ["Marcel Duchamp", "Kurt Schwitters", "Man Ray", "Francis Picabia"],
+    answer: 0
+  },
+  {
+    question: "Who is often called the 'Father of Modern Sculpture'?",
+    options: ["Rodin", "Brancusi", "Moore", "Giacometti"],
+    answer: 0
+  },
+  {
+    question: "Which artist’s dripping technique was influenced by Navajo sand painting?",
+    options: ["Pollock", "Rothko", "de Kooning", "Franz Kline"],
+    answer: 0
+  },
+  {
+    question: "Which Dutch artist created optical illusions with mathematical precision?",
+    options: ["Vermeer", "M. C. Escher", "Mondrian", "Rembrandt"],
+    answer: 1
+  },
+  {
+    question: "What does 'tenebrism' emphasize in painting?",
+    options: ["Color harmony", "Extreme light and dark contrast", "Soft edges", "Subdued tones"],
+    answer: 1
+  },
+  {
+    question: "Which art movement sought purity of form and primary colors, led by Mondrian?",
+    options: ["De Stijl", "Suprematism", "Constructivism", "Minimalism"],
+    answer: 0
+  },
+  {
+    question: "What is the term for layering thin transparent paint glazes?",
+    options: ["Scumbling", "Glazing", "Impasto", "Underpainting"],
+    answer: 1
+  },
+  {
+    question: "Which technique uses light-sensitive chemicals on paper to create photograms?",
+    options: ["Collage", "Cyanotype", "Photomontage", "Etching"],
+    answer: 1
+  },
+  {
+    question: "Who painted 'The Persistence of Memory' featuring melting clocks?",
+    options: ["Salvador Dalí", "René Magritte", "Max Ernst", "Giorgio de Chirico"],
+    answer: 0
+  },
+  {
+    question: "Which ancient civilization is credited with developing encaustic painting using wax?",
+    options: ["Greek", "Egyptian", "Roman", "Byzantine"],
+    answer: 1
+  }
+  
+];
+let currentQuestion = 0;
+let score = 0;
+
+const container = document.getElementById("gameContainer");
+const startBtn = document.getElementById("startBtn");
+
+startBtn.addEventListener("click", startGame);
+
+function startGame() {
+  currentQuestion = 0;
+  score = 0;
+  showQuestion();
+}
+
+function showQuestion() {
+  const q = questions[currentQuestion];
+  container.innerHTML = `
+    <div class="question">${q.question}</div>
+    <div class="options">
+      ${q.options.map((opt, i) => `<button class="option-btn" onclick="checkAnswer(${i})">${opt}</button>`).join('')}
+    </div>
+    <div class="feedback" id="feedback"></div>
+    <div class="score">Score: ${score}</div>
+  `;
+}
+
+function checkAnswer(selected) {
+  const feedback = document.getElementById("feedback");
+  if (selected === questions[currentQuestion].answer) {
+    score++;
+    feedback.textContent = "✅ Correct!";
+    feedback.style.color = "#00c9a7";
+  } else {
+    feedback.textContent = "❌ Try Again!";
+    feedback.style.color = "#f78da7";
+    return;
+  }
+
+  currentQuestion++;
+  if (currentQuestion < questions.length) {
+    setTimeout(showQuestion, 1000);
+  } else {
+    setTimeout(endGame, 1000);
+  }
+}
+
+function endGame() {
+  container.innerHTML = `
+    <h1>Well Done, Artist!</h1>
+    <p>You scored ${score} out of ${questions.length}.</p>
+    <p>Your artistic intuition shines through every answer.</p>
+    <button onclick="startGame()">🎨 Play Again</button>
+  `;
+}
+</script>
+
+</body>
+</html>
