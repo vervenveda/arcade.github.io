@@ -23,3 +23,30 @@ The Markers: The assertive 'X' and the gentle 'O', representing two opposing wil
 ​The Outcome: The goal is a line of three, a small moment of triumph, quickly achieved or deftly blocked, leading often to a peaceful, yet frequently unsatisfying, truce.  The game itself is merely the vehicle for connection and shared time, a simple joy for children and adults alike.
 
 
+SixBySix 
+
+Tactical 6×6 Showdown
+
+SixBySix is a bigger, sharper twist on tic-tac-toe. You play on a 6×6 grid, racing to line up 6 of your marks in a row, but each turn you must choose between placing a new piece or erasing one of your opponent’s pieces. Every move is a little battle for territory.
+
+How to Play
+
+Choose whether you play as X (goes first) or O (goes second).
+
+Pick an AI difficulty: Easy, Normal, or Hard.
+
+On your turn, pick a Move Mode:
+
+Place piece – click an empty cell to place your mark.
+
+Remove opponent – click one of your opponent’s marks to erase it.
+
+Swap with your opponent's piece when you are in adjacent squares
+
+You may do only one action per turn: either place or remove, not both.
+
+The first player to get 6 in a row (horizontal, vertical, or diagonal) wins.
+
+If the board fills up and nobody has 6 in a row, the game is a draw.
+
+Use Undo to step back a move during local play and experiment with strategies.
