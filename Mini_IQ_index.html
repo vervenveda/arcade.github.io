@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Khaemenes Academy — Mini IQ Test</title>
+<style>
+body {
+  font-family: 'Georgia', serif;
+  background: #0e0d0b;
+  color: #f1e9d2;
+  margin: 0;
+  padding: 0;
+}
+header {
+  text-align: center;
+  padding: 24px;
+  background: #1c1b17;
+  border-bottom: 3px solid #d4b352;
+}
+h1 { color: #d4b352; margin: 0; }
+header p { margin-top: 8px; font-size: 0.95rem; }
+
+.container {
+  max-width: 777px;
+  margin: 33px auto;
+  background: #1e1d1b;
+  padding: 24px;
+  border-radius: 11px;
+  border: 1px solid #b3922f;
+  box-shadow: 0 0 15px rgba(0,0,0,0.3);
+}
+
+.question {
+  margin-bottom: 24px;
+  border-bottom: 3px dashed #444;
+  padding-bottom: 11px;
+}
+.question h3 {
+  margin-bottom: 14px;
+  line-height: 1.4;
+}
+.question h3 .qNum {
+  color: #d4b352;
+  margin-right: 14px;
+  font-weight: normal;
+}
+.option label {
+  display: block;
+  margin-left: 33px;
+  margin-bottom: 14px;
+  cursor: pointer;
+}
+
+.progress-bar {
+  height: 11px;
+  background: #333;
+  border: 1px solid #b3922f;
+  border-radius: 7px;
+  overflow: hidden;
+  margin-bottom: 11px;
+}
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(to right, #b3922f, #f1e9d2);
+  transition: width 0.3s ease;
+}
+#progressText {
+  margin: 4px 0 16px;
+  font-size: 0.9rem;
+}
+
+#nav {
+  text-align: center;
+  margin-top: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+button {
+  padding: 11px 14px;
+  border-radius: 6px;
+  border: 1px solid #b3922f;
+  background: #f1e9d2;
+  color: #000;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.9rem;
+}
+button:hover { background: #fff8dc; }
+
+.timer {
+  text-align: right;
+  font-size: 0.9rem;
+  color: #d4b352;
+}
+.toggle-switch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  justify-content: flex-end;
+}
+.toggle-switch input { accent-color: #d4b352; }
+
+/* Quantum Logic Log */
+.q-log {
+  margin-top: 24px;
+  padding: 16px;
+  border-radius: 10px;
+  border: 1px dashed #b3922f;
+  background: #14130f;
+  font-size: 0.9rem;
+}
+.q-log h2 {
+  margin-top: 0;
+  color: #d4b352;
+  font-size: 1.05rem;
+}
+.q-metric { margin: 4px 0; }
+.q-reset-btn {
+  margin-top: 8px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #b3922f;
+  background: #2b2921;
+  color: #f1e9d2;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+.q-reset-btn:hover { background: #3a372a; }
+
+/* --- Official IQ Modal --- */
+#officialModal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.8);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+.modal-content {
+  background: #fdfdfb;
+  border: 2px solid #d4b352;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 30px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.4);
+  position: relative;
+}
+.modal-content h2 {
+  color: #2e2b16;
+  text-align: center;
+  margin-top: 0;
+}
+.closeModal {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  font-size: 1.2rem;
+  background: none;
+  border: none;
+  color: #444;
+  cursor: pointer;
+}
+.closeModal:hover { color: #b3922f; }
+.modal-content p {
+  color: #333025;
+  line-height: 1.5;
+  font-size: 0.95rem;
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>Khaemenes Academy — Mini IQ Test</h1>
+  <p>Sharpen your reasoning and problem-solving skills with a short, practice-style sampler.</p>
+</header>
+
+<div class="container">
+  <div class="toggle-switch">
+    <label for="timerToggle">Enable Timer</label>
+    <input type="checkbox" id="timerToggle">
+  </div>
+  <div class="timer" id="timerDisplay">Timer: OFF</div>
+
+  <div class="progress-bar">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+  <p id="progressText">0 / 20 answered</p>
+
+  <div id="pageContent"></div>
+
+  <div id="nav">
+    <button id="prevBtn">Previous</button>
+    <button id="nextBtn">Next</button>
+    <button id="saveBtn">Save Progress</button>
+  </div>
+
+  <div id="quantumLogPanel" class="q-log"></div>
+</div>
+
+<!-- Official IQ Modal -->
+<div id="officialModal">
+  <div class="modal-content">
+    <button class="closeModal" id="closeOfficial">&times;</button>
+    <h2>Khaemenes Academy — Full-Length IQ-Style Practice</h2>
+    <p>
+      This mini test is a brief sampler. If you’d like a longer IQ-style practice session,
+      you can take a 30-question puzzle set in a new tab.
+    </p>
+    <p>
+      <strong>Important:</strong> Online IQ quizzes (including this one) are for practice and reflection only.
+      They are <em>not</em> clinical or diagnostic IQ scores.
+    </p>
+    <p>
+      When you click the button below, you’ll be taken to a free IQ-style practice workout
+      hosted outside Khaemenes Academy. Use it for curiosity and challenge, not as a label.
+    </p>
+    <div id="officialTestArea" style="text-align:center;margin-top:20px;">
+      <button id="beginOfficialBtn"
+        style="padding:10px 20px;border-radius:8px;border:1px solid #b3922f;background:#fff8dc;cursor:pointer;">
+        Open Practice IQ Test ↗
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  // ---------- Utilities ----------
+  function el(id){ return document.getElementById(id); }
+  function r(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+  function shuffle(arr){
+    for(let i=arr.length-1;i>0;i--){
+      const j=Math.floor(Math.random()*(i+1));
+      [arr[i],arr[j]]=[arr[j],arr[i]];
+    }
+    return arr;
+  }
+
+  // ---------- Global config ----------
+  const TOTAL_Q = 20;
+  const QUESTIONS_POOL = 50;
+  const ITEMS_PER_PAGE = 10;
+
+  const LS_KEYS = {
+    PROGRESS: 'ka_mini_iq_progress_v1',
+    LOG: 'ka_mini_iq_quantum_log_v1'
+  };
+
+  let allQuestions = [];
+  let pages = [];
+  let currentPage = 0;
+  let timer = null;
+  let timeElapsed = 0;
+  let timerEnabled = false;
+  let answerMap = {};
+
+  // ---------- Question Generators ----------
+  function arithmetic(){
+    const a = r(5,30), b = r(5,30);
+    const ans = a + b;
+    const opts = shuffle([ans, ans+2, ans-3, ans+5]);
+    return { q: `${a} + ${b} = ?`, opts, ans: ans.toString() };
+  }
+
+  function sequence(){
+    const a = r(1,5), diff = r(2,5);
+    const seq = [a, a+diff, a+2*diff, a+3*diff];
+    const next = a + 4*diff;
+    const opts = shuffle([next, next+diff, next-2, next+3]);
+    return {
+      q: `What number completes: ${seq.join(", ")}, ?`,
+      opts,
+      ans: next.toString()
+    };
+  }
+
+  function logicWord(){
+    const opts = ["Dog","Cat","Car","House"];
+    return {
+      q: "Which of the following is NOT an animal?",
+      opts,
+      ans: "Car"
+    };
+  }
+
+  function reasoning(){
+    const shapes = ["square","triangle","circle","pentagon"];
+    const answer = "pentagon";
+    return {
+      q: "Which shape has 5 sides?",
+      opts: shuffle(shapes.slice()),
+      ans: answer
+    };
+  }
+
+  function analogy(){
+    return {
+      q: "Book is to Reading as Fork is to ?",
+      opts: shuffle(["Drawing","Eating","Cooking","Writing"]),
+      ans: "Eating"
+    };
+  }
+
+  function fraction(){
+    const a = r(1,5), b = r(1,5);
+    const base = a / b;
+    const ans = base.toFixed(2);
+    const o2 = (base + 0.1).toFixed(2);
+    const o3 = Math.max(0, base - 0.1).toFixed(2);
+    const opts = shuffle([ans, o2, o3, "0.00"]);
+    return {
+      q: `Simplify: ${a}/${b} = ? (decimal form)`,
+      opts,
+      ans
+    };
+  }
+
+  const generators = [arithmetic, sequence, logicWord, reasoning, analogy, fraction];
+
+  function generateSet(){
+    const set = [];
+    const used = new Set();
+    while(set.length < QUESTIONS_POOL){
+      const g = generators[r(0, generators.length-1)];
+      const q = g();
+      if(used.has(q.q)) continue;
+      used.add(q.q);
+      set.push(q);
+    }
+    return shuffle(set).slice(0, TOTAL_Q);
+  }
+
+  // ---------- Paging & Render ----------
+  function paginate(list){
+    const out = [];
+    for(let i=0;i<list.length;i+=ITEMS_PER_PAGE){
+      out.push(list.slice(i, i+ITEMS_PER_PAGE));
+    }
+    return out;
+  }
+
+  function updateProgress(){
+    const answered = Object.keys(answerMap).length;
+    const pct = Math.round((answered / TOTAL_Q) * 100);
+    el('progressFill').style.width = pct + '%';
+    el('progressText').textContent = `${answered} / ${TOTAL_Q} answered`;
+  }
+
+  function renderPage(pageIndex){
+    currentPage = pageIndex;
+    const wrap = el('pageContent');
+    wrap.innerHTML = '';
+    const page = pages[currentPage] || [];
+
+    page.forEach((q, idx)=>{
+      const globalIndex = currentPage * ITEMS_PER_PAGE + idx + 1;
+      const div = document.createElement('div');
+      div.className = 'question';
+      const optionsHtml = q.opts.map(o => `
+        <label class="option">
+          <input type="radio" name="q${globalIndex}" value="${o}" ${answerMap[globalIndex] === o ? 'checked' : ''}>
+          ${o}
+        </label>
+      `).join('');
+      div.innerHTML = `
+        <h3><span class="qNum">Q${globalIndex}.</span>${q.q}</h3>
+        ${optionsHtml}
+      `;
+      wrap.appendChild(div);
+    });
+
+    updateProgress();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // ---------- Timer ----------
+  function startTimer(initialSeconds){
+    if(timer) clearInterval(timer);
+    timeElapsed = initialSeconds || 0;
+    timer = setInterval(()=>{
+      timeElapsed++;
+      const min = Math.floor(timeElapsed / 60).toString().padStart(2,'0');
+      const sec = (timeElapsed % 60).toString().padStart(2,'0');
+      el('timerDisplay').textContent = `Timer: ${min}:${sec}`;
+    }, 1000);
+  }
+
+  function stopTimer(){
+    if(timer){
+      clearInterval(timer);
+      timer = null;
+    }
+  }
+
+  // ---------- Quantum Log ----------
+  function getQuantumLog(){
+    try{
+      const raw = localStorage.getItem(LS_KEYS.LOG);
+      if(!raw) return { sessions: [] };
+      const parsed = JSON.parse(raw);
+      if(!parsed.sessions) parsed.sessions = [];
+      return parsed;
+    }catch(err){
+      return { sessions: [] };
+    }
+  }
+
+  function setQuantumLog(log){
+    try{
+      localStorage.setItem(LS_KEYS.LOG, JSON.stringify(log));
+    }catch(err){
+      console.error(err);
+    }
+  }
+
+  function updateQuantumLogUI(){
+    const panel = el('quantumLogPanel');
+    if(!panel) return;
+    const log = getQuantumLog();
+
+    if(!log.sessions.length){
+      panel.innerHTML = `
+        <h2>Quantum Logic Log</h2>
+        <p class="q-metric">No attempts yet. Your first completed mini test will appear here.</p>
+        <small>Each finished run is treated as a tiny “collapse event” — a snapshot of your reasoning in this moment.</small>
+      `;
+      return;
+    }
+
+    const todayStr = new Date().toISOString().slice(0,10);
+    const todaySessions = log.sessions.filter(s => (s.date || '').slice(0,10) === todayStr);
+    const attemptsToday = todaySessions.length;
+    const bestToday = attemptsToday ? Math.max(...todaySessions.map(s => s.score)) : 0;
+    const attemptsTotal = log.sessions.length;
+    const bestTotal = Math.max(...log.sessions.map(s => s.score));
+    const last = log.sessions[log.sessions.length - 1];
+    const lastSecs = last.durationSec || 0;
+    const lastMin = Math.floor(lastSecs/60);
+    const lastSec = lastSecs % 60;
+
+    panel.innerHTML = `
+      <h2>Quantum Logic Log</h2>
+      <p class="q-metric"><strong>Today’s attempts:</strong> ${attemptsToday}</p>
+      <p class="q-metric"><strong>Today’s best score:</strong> ${attemptsToday ? bestToday + '%' : '—'}</p>
+      <p class="q-metric"><strong>Lifetime attempts:</strong> ${attemptsTotal}</p>
+      <p class="q-metric"><strong>Lifetime best:</strong> ${bestTotal}%</p>
+      <p class="q-metric">
+        <strong>Last attempt:</strong> ${last.score}% (${last.correct}/${last.total} correct,
+        ${last.timerEnabled ? 'timer on' : 'timer off'},
+        ${lastMin}m ${lastSec}s)
+      </p>
+      <button id="resetQuantumLogBtn" class="q-reset-btn">Reset Quantum Log</button>
+      <small>Use this log as a gentle tracker, not a label. Scores shift with mood, sleep, and practice.</small>
+    `;
+
+    const resetBtn = el('resetQuantumLogBtn');
+    if(resetBtn){
+      resetBtn.onclick = function(){
+        if(confirm('Clear your Quantum Logic history for this mini test?')){
+          localStorage.removeItem(LS_KEYS.LOG);
+          updateQuantumLogUI();
+        }
+      };
+    }
+  }
+
+  function recordQuantumSession(score, correct, total){
+    const log = getQuantumLog();
+    log.sessions.push({
+      timestamp: Date.now(),
+      date: new Date().toISOString(),
+      score,
+      correct,
+      total,
+      timerEnabled,
+      durationSec: timeElapsed
+    });
+    setQuantumLog(log);
+    updateQuantumLogUI();
+  }
+
+  // ---------- Progress Save/Load ----------
+  function saveProgress(){
+    try{
+      const snapshot = {
+        allQuestions,
+        answerMap,
+        currentPage,
+        timerEnabled,
+        timeElapsed
+      };
+      localStorage.setItem(LS_KEYS.PROGRESS, JSON.stringify(snapshot));
+      alert('Progress saved locally to this browser.');
+    }catch(err){
+      console.error(err);
+      alert('Unable to save progress in this browser.');
+    }
+  }
+
+  function initNewTest(){
+    allQuestions = generateSet();
+    answerMap = {};
+    pages = paginate(allQuestions);
+    currentPage = 0;
+
+    if(timerEnabled){
+      startTimer(0);
+    }else{
+      stopTimer();
+      el('timerDisplay').textContent = 'Timer: OFF';
+    }
+
+    renderPage(0);
+  }
+
+  function loadProgressOrInit(){
+    try{
+      const raw = localStorage.getItem(LS_KEYS.PROGRESS);
+      if(!raw){
+        initNewTest();
+        return;
+      }
+      const snapshot = JSON.parse(raw);
+      if(!snapshot || !Array.isArray(snapshot.allQuestions) || snapshot.allQuestions.length !== TOTAL_Q){
+        initNewTest();
+        return;
+      }
+      allQuestions = snapshot.allQuestions;
+      answerMap = snapshot.answerMap || {};
+      currentPage = snapshot.currentPage || 0;
+      timerEnabled = !!snapshot.timerEnabled;
+      timeElapsed = snapshot.timeElapsed || 0;
+      pages = paginate(allQuestions);
+
+      el('timerToggle').checked = timerEnabled;
+      if(timerEnabled){
+        startTimer(timeElapsed);
+      }else{
+        stopTimer();
+        el('timerDisplay').textContent = 'Timer: OFF';
+      }
+
+      renderPage(currentPage);
+    }catch(err){
+      console.error(err);
+      initNewTest();
+    }
+  }
+
+  // ---------- Grading ----------
+  function gradeResults(){
+    let correct = 0;
+    for(let i=1;i<=TOTAL_Q;i++){
+      const q = allQuestions[i-1];
+      if(!q) continue;
+      const a = answerMap[i];
+      if(a !== undefined && a.toString() === q.ans.toString()){
+        correct++;
+      }
+    }
+    const score = Math.round((correct / TOTAL_Q) * 100);
+
+    // record into Quantum Log and clear saved progress
+    recordQuantumSession(score, correct, TOTAL_Q);
+    localStorage.removeItem(LS_KEYS.PROGRESS);
+    stopTimer();
+
+    el('pageContent').innerHTML = `
+      <h2>Your Mini IQ Snapshot: ${score}%</h2>
+      <p>You answered ${correct} of ${TOTAL_Q} items in this set.</p>
+      <p style="font-size:0.9rem;color:#d4b352;">
+        This is a practice-style reasoning sampler, not a clinical IQ score.
+        Use it to observe patterns, not to define yourself.
+      </p>
+      <button onclick="window.__KA_MINI_IQ.restart()">Try a New Question Set</button>
+    `;
+  }
+
+  // Small public hook for restart button
+  window.__KA_MINI_IQ = {
+    restart: function(){
+      localStorage.removeItem(LS_KEYS.PROGRESS);
+      timerEnabled = el('timerToggle').checked;
+      initNewTest();
+    }
+  };
+
+  // ---------- Event Bindings ----------
+  document.addEventListener('change', function(e){
+    if(e.target.matches('input[type=radio]')){
+      const name = e.target.name || '';
+      if(name.startsWith('q')){
+        const idx = parseInt(name.slice(1), 10);
+        if(!isNaN(idx)){
+          answerMap[idx] = e.target.value;
+          updateProgress();
+        }
+      }
+    }
+  });
+
+  el('nextBtn').onclick = function(){
+    if(currentPage < pages.length - 1){
+      renderPage(currentPage + 1);
+    }else{
+      gradeResults();
+    }
+  };
+
+  el('prevBtn').onclick = function(){
+    if(currentPage > 0){
+      renderPage(currentPage - 1);
+    }
+  };
+
+  el('saveBtn').onclick = saveProgress;
+
+  el('timerToggle').addEventListener('change', function(e){
+    timerEnabled = e.target.checked;
+    if(timerEnabled){
+      startTimer(timeElapsed);
+    }else{
+      stopTimer();
+      el('timerDisplay').textContent = 'Timer: OFF';
+    }
+  });
+
+  // ---------- Official IQ Modal / external link ----------
+  const officialModal = el('officialModal');
+  const footerNav = el('nav');
+
+  const openOfficialBtn = document.createElement('button');
+  openOfficialBtn.textContent = 'Take Full-Length IQ-Style Test';
+  openOfficialBtn.style.marginTop = '8px';
+  openOfficialBtn.onclick = function(){
+    officialModal.style.display = 'flex';
+  };
+  footerNav.appendChild(openOfficialBtn);
+
+  el('closeOfficial').onclick = function(){
+    officialModal.style.display = 'none';
+  };
+
+  el('beginOfficialBtn').onclick = function(){
+    // Open Mensa Workout (practice IQ-style quiz) in a new tab
+    // You can swap this URL for your own official test page later.
+    officialModal.style.display = 'none';
+    window.open('https://www.khaemenesacademy.org/iq','_blank','noopener');
+  };
+
+  officialModal.addEventListener('click', function(e){
+    if(e.target === officialModal){
+      officialModal.style.display = 'none';
+    }
+  });
+
+  // ---------- Init ----------
+  loadProgressOrInit();
+  updateQuantumLogUI();
+
+})(); // end IIFE
+</script>
+</body>
+</html>
