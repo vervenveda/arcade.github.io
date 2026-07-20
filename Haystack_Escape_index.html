@@ -1,0 +1,713 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+<title>Haystack Escape — Progressive Maze</title>
+<style>
+  :root{
+    --bg-a:#fbf7f2; --bg-b:#f2ede6;
+    --card:#ffffffcc; --muted:#7b6b59; --ink:#2f2a25;
+    --accent:#8b6fd6; --accent-soft:#cdbbf2;
+    --radius-lg:22px; --radius-md:12px; --gap:12px; --shadow:0 10px 30px rgba(0,0,0,0.08);
+  }
+  body.dark{
+    --bg-a:#0c0d10; --bg-b:#141416;
+    --card:rgba(40,42,48,0.9);
+    --muted:#cfc7bf; --ink:#f3efe9;
+    --accent:#bfa8ff; --accent-soft:#e9e1ff;
+    --shadow:0 10px 30px rgba(0,0,0,0.6);
+  }
+  *{box-sizing:border-box}
+  html,body{
+    height:100%;margin:0;
+    font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    background:linear-gradient(180deg,var(--bg-a),var(--bg-b));
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+    display:flex;align-items:center;justify-content:center;
+    padding:18px;
+  }
+  .portal{width:100%;max-width:960px}
+
+  /* header */
+  .header{
+    display:flex;gap:12px;align-items:center;
+    background:var(--card);
+    border-radius:var(--radius-lg);
+    padding:14px;
+    box-shadow:var(--shadow);
+    margin-bottom:var(--gap);
+  }
+  .brand{display:flex;gap:12px;align-items:center}
+  .brand img{
+    width:92px;height:68px;border-radius:12px;
+    object-fit:cover;
+    box-shadow:0 6px 18px rgba(0,0,0,0.08);
+  }
+  .brand h1{
+    margin:0;font-size:20px;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+  }
+  .brand p{
+    margin:6px 0 0 0;
+    font-size:12px;color:var(--muted);
+  }
+  .header-actions{margin-left:auto;display:flex;gap:8px;align-items:center}
+  .tiny{
+    background:transparent;border-radius:10px;
+    padding:8px 10px;
+    border:1px solid rgba(0,0,0,0.06);
+    cursor:pointer;font-size:12px;
+  }
+
+  /* layout */
+  .content{display:grid;grid-template-columns:360px 1fr;gap:16px}
+  @media (max-width:880px){
+    .content{grid-template-columns:1fr}
+    .left-col{order:2}
+    .right-col{order:1}
+  }
+
+  /* left column */
+  .left-col{
+    background:var(--card);border-radius:var(--radius-lg);
+    padding:14px;box-shadow:var(--shadow);
+  }
+  .levels-title{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+  .levels-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:8px;
+  }
+  .level-tile{
+    background:linear-gradient(180deg,#fff,#f7f4ff);
+    border-radius:12px;
+    padding:10px;text-align:center;
+    cursor:pointer;position:relative;
+    min-height:56px;
+    display:flex;flex-direction:column;
+    justify-content:center;align-items:center;
+    font-size:13px;
+  }
+  .level-tile.locked{opacity:0.45;filter:grayscale(25%)}
+  .level-num{font-weight:700;font-size:16px}
+  .level-meta{font-size:12px;color:var(--muted)}
+  .lock-badge{
+    position:absolute;top:8px;right:8px;
+    background:rgba(0,0,0,0.06);
+    padding:6px;border-radius:10px;
+    font-size:14px;
+  }
+  .panel-left{margin-top:12px;display:flex;gap:8px;flex-direction:column}
+  .stat{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);padding:6px 0}
+
+  /* right column */
+  .right-col{
+    background:var(--card);border-radius:var(--radius-lg);
+    padding:14px;box-shadow:var(--shadow);
+  }
+  .panel-head{
+    display:flex;justify-content:space-between;
+    align-items:center;gap:12px;margin-bottom:10px;
+  }
+  .panel-head h2{
+    margin:0;font-size:18px;
+  }
+  .panel-body{
+    min-height:360px;border-radius:12px;
+    background:linear-gradient(180deg,#fff,#faf8ff);
+    padding:10px;display:flex;align-items:center;justify-content:center;
+    position:relative;overflow:hidden;
+  }
+  canvas.maze{width:100%;height:100%;display:block;border-radius:10px;background:#fff}
+
+  .controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .controls .soft{
+    background:transparent;border-radius:12px;
+    padding:8px 12px;border:1px solid rgba(0,0,0,0.06);
+    cursor:pointer;font-size:12px;
+  }
+
+  .muted{color:var(--muted);font-size:13px}
+  .center{text-align:center}
+  .small{font-size:12px}
+</style>
+</head>
+<body>
+<div class="portal">
+  <div class="header">
+    <div class="brand">
+      <!-- Replace src with your own art if you wish -->
+      <img src="https://via.placeholder.com/92x68?text=Maze" alt="Haystack Escape Art"/>
+      <div>
+        <h1>Haystack Escape</h1>
+        <p>Progressive mazes — each escape unlocks the next world.</p>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <button id="soundToggle" class="tiny">🔊 Sound</button>
+      <button id="darkToggle" class="tiny">🌙 Dark</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <!-- LEFT: level selector / stats -->
+    <aside class="left-col">
+      <div class="levels-title">
+        <div style="flex:1">
+          <div style="font-size:13px;letter-spacing:0.06em;text-transform:uppercase">Levels</div>
+          <div class="muted small">Tap a level to play · locked levels unlock when you clear the previous maze.</div>
+        </div>
+        <div style="text-align:right">
+          <div class="muted small">Coins</div>
+          <div id="coins" style="font-weight:700">0</div>
+        </div>
+      </div>
+
+      <div class="levels-grid" id="levelsGrid"></div>
+
+      <div class="panel-left">
+        <div class="stat"><div>Current level</div><div id="currentLevelLabel">1</div></div>
+        <div class="stat"><div>Completion</div><div id="completionLabel">0 / 0</div></div>
+        <div class="stat"><div>Best time (this level)</div><div id="bestTimeLabel">—</div></div>
+        <div class="stat"><div>Power-ups</div><div id="powerupsLabel">Reveal:0 · Skip:0</div></div>
+        <div class="muted small">
+          Clear a maze to unlock the next one. Difficulty gently increases as you climb.
+        </div>
+      </div>
+    </aside>
+
+    <!-- RIGHT: active game panel -->
+    <section class="right-col">
+      <div class="panel-head">
+        <h2 id="panelTitle">Welcome to Haystack Escape</h2>
+        <div>
+          <button id="resetProgress" class="tiny">Reset Progress</button>
+          <button id="saveNow" class="tiny">Save</button>
+        </div>
+      </div>
+
+      <div id="panelBody" class="panel-body">
+        <div class="center muted">
+          Select a level on the left to begin — swipe on the maze, or use arrow keys to move.
+        </div>
+      </div>
+
+      <div class="controls">
+        <button id="btnReveal" class="soft">Use Reveal (if owned)</button>
+        <button id="btnSkip" class="soft">Use Skip (if owned)</button>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+/* ===========================
+   Persistent state (no membership)
+   =========================== */
+const STORAGE_KEY = 'haystack_escape_progress_v1';
+const LEVEL_COUNT = 60;
+
+const DEFAULT_STATE = {
+  level: 1,
+  maxUnlocked: 1,
+  completedLevels: [],
+  coins: 0,
+  powerups: { reveal: 0, skip: 0 },
+  bestTimes: {} // { level: seconds }
+};
+
+let state = loadState();
+
+/* ===========================
+   Audio + theme
+   =========================== */
+const soundToggleBtn = document.getElementById('soundToggle');
+const darkToggleBtn  = document.getElementById('darkToggle');
+let soundOn = true;
+let audioCtx = null;
+
+function ensureAudioCtx(){
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+}
+
+function tone(freq = 440, dur = 0.07, type = 'sine', vol = 0.12){
+  if (!soundOn) return;
+  try{
+    ensureAudioCtx();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.value = freq;
+    gain.gain.value = vol;
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    const now = audioCtx.currentTime;
+    osc.start(now);
+    osc.stop(now + dur);
+  }catch(e){}
+}
+
+if (soundToggleBtn){
+  soundToggleBtn.addEventListener('click', () => {
+    soundOn = !soundOn;
+    soundToggleBtn.textContent = soundOn ? '🔊 Sound' : '🔈 Mute';
+  });
+}
+if (darkToggleBtn){
+  darkToggleBtn.addEventListener('click', () => {
+    document.body.classList.toggle('dark');
+  });
+}
+
+/* ===========================
+   Storage helpers
+   =========================== */
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw){
+      const parsed = JSON.parse(raw);
+      return {
+        level: parsed.level || 1,
+        maxUnlocked: parsed.maxUnlocked || 1,
+        completedLevels: parsed.completedLevels || [],
+        coins: parsed.coins || 0,
+        powerups: Object.assign({reveal:0,skip:0}, parsed.powerups || {}),
+        bestTimes: parsed.bestTimes || {}
+      };
+    }
+  }catch(e){}
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_STATE));
+  return JSON.parse(JSON.stringify(DEFAULT_STATE));
+}
+
+function saveState(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  refreshStats();
+}
+function resetState(){
+  state = JSON.parse(JSON.stringify(DEFAULT_STATE));
+  saveState();
+}
+
+/* ===========================
+   Progress helpers
+   =========================== */
+function isLevelUnlocked(n){
+  return n <= state.maxUnlocked;
+}
+
+/* ===========================
+   UI refs
+   =========================== */
+const levelsGrid        = document.getElementById('levelsGrid');
+const panelBody         = document.getElementById('panelBody');
+const panelTitle        = document.getElementById('panelTitle');
+const currentLevelLabel = document.getElementById('currentLevelLabel');
+const completionLabel   = document.getElementById('completionLabel');
+const coinsLabel        = document.getElementById('coins');
+const powerupsLabel     = document.getElementById('powerupsLabel');
+const bestTimeLabel     = document.getElementById('bestTimeLabel');
+const btnReveal         = document.getElementById('btnReveal');
+const btnSkip           = document.getElementById('btnSkip');
+
+/* ===========================
+   Stats / rendering
+   =========================== */
+function refreshStats(){
+  coinsLabel.textContent = state.coins;
+  currentLevelLabel.textContent = state.level;
+  completionLabel.textContent = state.completedLevels.length + ' / ' + LEVEL_COUNT;
+  powerupsLabel.textContent = 'Reveal:' + state.powerups.reveal + ' · Skip:' + state.powerups.skip;
+  const bt = state.bestTimes[state.level];
+  bestTimeLabel.textContent = bt ? bt + 's' : '—';
+}
+
+function renderLevels(){
+  levelsGrid.innerHTML = '';
+  for (let i=1;i<=LEVEL_COUNT;i++){
+    const unlocked  = isLevelUnlocked(i);
+    const completed = state.completedLevels.includes(i);
+    const tile = document.createElement('div');
+    tile.className = 'level-tile' + (unlocked ? '' : ' locked');
+    tile.dataset.level = i;
+
+    const num = document.createElement('div');
+    num.className='level-num';
+    num.textContent = i;
+
+    const meta = document.createElement('div');
+    meta.className='level-meta';
+    if(completed) meta.textContent = 'Completed';
+    else if(unlocked && i === state.level) meta.textContent = 'Current';
+    else if(unlocked) meta.textContent = 'Ready';
+    else meta.textContent = 'Locked';
+
+    tile.appendChild(num);
+    tile.appendChild(meta);
+
+    if(!unlocked){
+      const lock = document.createElement('div');
+      lock.className='lock-badge';
+      lock.textContent = '🔒';
+      tile.appendChild(lock);
+    }
+
+    tile.addEventListener('pointerup', ()=> {
+      if(!unlocked) return;
+      openLevel(i);
+    });
+
+    levelsGrid.appendChild(tile);
+  }
+}
+
+/* ===========================
+   Maze generator
+   =========================== */
+function generateMaze(cols, rows){
+  const cells = Array(cols * rows).fill(0).map(() => ({
+    walls: [1,1,1,1], // [left,right,top,bottom]
+    vis: false
+  }));
+  function idx(x,y){ return x + y*cols; }
+
+  const stack = [];
+  let cx = 0, cy = 0;
+  cells[idx(cx,cy)].vis = true;
+  stack.push({x:cx,y:cy});
+
+  while(stack.length){
+    const cur = stack[stack.length-1];
+    const x = cur.x, y = cur.y;
+    const neighbors = [];
+    if(x > 0 && !cells[idx(x-1,y)].vis)
+      neighbors.push({nx:x-1,ny:y,w:0,ow:1});
+    if(x < cols-1 && !cells[idx(x+1,y)].vis)
+      neighbors.push({nx:x+1,ny:y,w:1,ow:0});
+    if(y > 0 && !cells[idx(x,y-1)].vis)
+      neighbors.push({nx:x,ny:y-1,w:2,ow:3});
+    if(y < rows-1 && !cells[idx(x,y+1)].vis)
+      neighbors.push({nx:x,ny:y+1,w:3,ow:2});
+
+    if(neighbors.length){
+      const n = neighbors[Math.floor(Math.random()*neighbors.length)];
+      cells[idx(x,y)].walls[n.w] = 0;
+      cells[idx(n.nx,n.ny)].walls[n.ow] = 0;
+      cells[idx(n.nx,n.ny)].vis = true;
+      stack.push({x:n.nx,y:n.ny});
+    }else{
+      stack.pop();
+    }
+  }
+
+  // open start/exit
+  cells[idx(0,0)].walls[2] = 0;
+  cells[idx(cols-1,rows-1)].walls[3] = 0;
+  return {cols,rows,cells,idx};
+}
+
+/* ===========================
+   Maze draw + interaction
+   =========================== */
+let mazeState = null;
+let player = {x:0,y:0};
+let mazeCanvas = null;
+let mazeCtx = null;
+let touchStart = null;
+let levelStartTime = null;
+
+function levelToSize(level){
+  if(level <= 5)   return {cols:5, rows:5};
+  if(level <= 10)  return {cols:7, rows:7};
+  if(level <= 20)  return {cols:9, rows:9};
+  if(level <= 35)  return {cols:11,rows:11};
+  if(level <= 50)  return {cols:13,rows:13};
+  return {cols:15,rows:15};
+}
+
+function openLevel(n){
+  state.level = n;
+  if(n > state.maxUnlocked) state.maxUnlocked = n;
+  saveState();
+  panelTitle.textContent = 'Level ' + n;
+  panelBody.innerHTML = '';
+
+  const size = levelToSize(n);
+  mazeState = generateMaze(size.cols,size.rows);
+  player = {x:0,y:0};
+  levelStartTime = performance.now ? performance.now() : Date.now();
+
+  const canvas = document.createElement('canvas');
+  canvas.className = 'maze';
+  canvas.width = Math.min(900, size.cols * 48);
+  canvas.height = Math.min(720, size.rows * 48);
+  canvas.style.width = '100%';
+  canvas.style.height = '100%';
+  panelBody.appendChild(canvas);
+  mazeCanvas = canvas;
+  mazeCtx = canvas.getContext('2d');
+
+  drawMaze();
+  attachControls();
+  refreshStats();
+}
+
+function drawMaze(){
+  if(!mazeState || !mazeCtx) return;
+  const {cols,rows,cells,idx} = mazeState;
+  const W = mazeCanvas.width, H = mazeCanvas.height;
+  mazeCtx.clearRect(0,0,W,H);
+  const cellW = Math.floor(W/cols);
+  const cellH = Math.floor(H/rows);
+  const pad = Math.floor(Math.min(cellW,cellH)*0.12);
+
+  mazeCtx.fillStyle = '#fff';
+  mazeCtx.fillRect(0,0,W,H);
+
+  mazeCtx.strokeStyle = '#c9bfb6';
+  mazeCtx.lineWidth = Math.max(2, Math.floor(Math.min(cellW,cellH)*0.12));
+
+  for(let y=0;y<rows;y++){
+    for(let x=0;x<cols;x++){
+      const cell = cells[idx(x,y)];
+      const sx = x*cellW, sy = y*cellH;
+      if(cell.walls[0]){ mazeCtx.beginPath(); mazeCtx.moveTo(sx+pad, sy+pad); mazeCtx.lineTo(sx+pad, sy+cellH-pad); mazeCtx.stroke(); }
+      if(cell.walls[1]){ mazeCtx.beginPath(); mazeCtx.moveTo(sx+cellW-pad, sy+pad); mazeCtx.lineTo(sx+cellW-pad, sy+cellH-pad); mazeCtx.stroke(); }
+      if(cell.walls[2]){ mazeCtx.beginPath(); mazeCtx.moveTo(sx+pad, sy+pad); mazeCtx.lineTo(sx+cellW-pad, sy+pad); mazeCtx.stroke(); }
+      if(cell.walls[3]){ mazeCtx.beginPath(); mazeCtx.moveTo(sx+pad, sy+cellH-pad); mazeCtx.lineTo(sx+cellW-pad, sy+cellH-pad); mazeCtx.stroke(); }
+    }
+  }
+
+  // exit cell
+  mazeCtx.fillStyle = 'rgba(139,111,214,0.12)';
+  mazeCtx.fillRect((cols-1)*cellW + pad, (rows-1)*cellH + pad, cellW-2*pad, cellH-2*pad);
+
+  // player
+  const px = player.x*cellW + cellW/2;
+  const py = player.y*cellH + cellH/2;
+  mazeCtx.beginPath();
+  mazeCtx.fillStyle = '#8b6fd6';
+  mazeCtx.arc(px,py, Math.min(cellW,cellH)/4, 0, Math.PI*2);
+  mazeCtx.fill();
+}
+
+function canMove(dx,dy){
+  if(!mazeState) return false;
+  const {cols,rows,cells,idx} = mazeState;
+  const nx = player.x + dx, ny = player.y + dy;
+  if(nx < 0 || nx >= cols || ny < 0 || ny >= rows) return false;
+  const cur = cells[idx(player.x, player.y)];
+  if(dx === -1 && cur.walls[0]) return false;
+  if(dx === 1 && cur.walls[1]) return false;
+  if(dy === -1 && cur.walls[2]) return false;
+  if(dy === 1 && cur.walls[3]) return false;
+  return true;
+}
+
+function movePlayer(dx,dy){
+  if(!mazeState) return;
+  if(!canMove(dx,dy)){
+    tone(280,0.06,'sawtooth',0.02);
+    return;
+  }
+  player.x += dx;
+  player.y += dy;
+  drawMaze();
+  tone(720,0.04,'sine',0.02);
+  checkExit();
+}
+
+function checkExit(){
+  if(!mazeState) return;
+  const {cols,rows} = mazeState;
+  if(player.x === cols-1 && player.y === rows-1){
+    levelComplete();
+  }
+}
+
+/* controls for canvas swipe */
+function attachControls(){
+  if(!mazeCanvas) return;
+  mazeCanvas.onpointerdown = (e) => {
+    touchStart = {x: e.clientX, y: e.clientY};
+  };
+  mazeCanvas.onpointerup = (e) => {
+    if(!touchStart) return;
+    const dx = e.clientX - touchStart.x;
+    const dy = e.clientY - touchStart.y;
+    const ax = Math.abs(dx), ay = Math.abs(dy);
+    if(Math.max(ax,ay) < 8) { touchStart = null; return; }
+    if(ax > ay){
+      if(dx > 0) movePlayer(1,0); else movePlayer(-1,0);
+    } else {
+      if(dy > 0) movePlayer(0,1); else movePlayer(0,-1);
+    }
+    touchStart = null;
+  };
+}
+
+/* single global keyboard handler */
+window.addEventListener('keydown', (e)=>{
+  if(!mazeState) return;
+  if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)){
+    e.preventDefault();
+  }
+  if(e.key === 'ArrowUp') movePlayer(0,-1);
+  if(e.key === 'ArrowDown') movePlayer(0,1);
+  if(e.key === 'ArrowLeft') movePlayer(-1,0);
+  if(e.key === 'ArrowRight') movePlayer(1,0);
+});
+
+/* level complete */
+function levelComplete(){
+  const lvl = state.level;
+  // time
+  let timeSec = null;
+  if(levelStartTime){
+    const now = performance.now ? performance.now() : Date.now();
+    timeSec = Math.round((now - levelStartTime)/1000);
+    const prev = state.bestTimes[lvl];
+    if(!prev || timeSec < prev){
+      state.bestTimes[lvl] = timeSec;
+    }
+  }
+
+  if(!state.completedLevels.includes(lvl)) state.completedLevels.push(lvl);
+  if(state.maxUnlocked < LEVEL_COUNT && lvl === state.maxUnlocked){
+    state.maxUnlocked++;
+  }
+
+  const coinReward = Math.floor(Math.min(20 + lvl * 0.8, 150));
+  state.coins += coinReward;
+  if(Math.random() < 0.25) state.powerups.reveal += 1;
+  if(Math.random() < 0.10) state.powerups.skip += 1;
+  saveState();
+  renderLevels();
+
+  let msg = 'Level ' + lvl + ' complete! You earned ' + coinReward + ' coins.';
+  if(timeSec !== null) msg += ' Time: ' + timeSec + 's.';
+  setTimeout(()=>{ alert(msg); }, 120);
+
+  const next = Math.min(LEVEL_COUNT, lvl+1);
+  if(next !== lvl){
+    setTimeout(()=>{ openLevel(next); }, 180);
+  }
+}
+
+/* reveal path */
+function revealPath(){
+  if(!mazeState || !mazeCanvas || !mazeCtx) return;
+  const {cols,rows,cells,idx} = mazeState;
+  const start = {x:player.x,y:player.y};
+  const goal = {x:cols-1,y:rows-1};
+  const q = [start];
+  const visited = new Set([start.x + ',' + start.y]);
+  const parent = {};
+  while(q.length){
+    const cur = q.shift();
+    if(cur.x === goal.x && cur.y === goal.y) break;
+    const dirs = [[1,0],[-1,0],[0,1],[0,-1]];
+    for(const [dx,dy] of dirs){
+      const nx = cur.x+dx, ny = cur.y+dy;
+      if(nx<0||ny<0||nx>=cols||ny>=rows) continue;
+      const key = nx+','+ny;
+      if(visited.has(key)) continue;
+      const curCell = cells[idx(cur.x,cur.y)];
+      let can = true;
+      if(dx===1  && curCell.walls[1]) can=false;
+      if(dx===-1 && curCell.walls[0]) can=false;
+      if(dy===1  && curCell.walls[3]) can=false;
+      if(dy===-1 && curCell.walls[2]) can=false;
+      if(!can) continue;
+      visited.add(key);
+      parent[key] = cur.x+','+cur.y;
+      q.push({x:nx,y:ny});
+    }
+  }
+  const path = [];
+  let curKey = goal.x+','+goal.y;
+  while(parent[curKey]){
+    path.push(curKey);
+    curKey = parent[curKey];
+  }
+  if(path.length===0){
+    alert('No path found (unexpected).');
+    return;
+  }
+  drawMaze();
+  const W = mazeCanvas.width, H = mazeCanvas.height;
+  const cellW = Math.floor(W/cols);
+  const cellH = Math.floor(H/rows);
+  mazeCtx.fillStyle = 'rgba(139,111,214,0.18)';
+  for(const p of path){
+    const [x,y] = p.split(',').map(Number);
+    mazeCtx.fillRect(x*cellW + 6, y*cellH + 6, cellW-12, cellH-12);
+  }
+}
+
+/* ===========================
+   Power-up buttons
+   =========================== */
+btnReveal.addEventListener('pointerup', ()=>{
+  if(state.powerups.reveal <= 0){
+    alert('No Reveal power-ups available.');
+    return;
+  }
+  state.powerups.reveal -= 1;
+  saveState();
+  revealPath();
+});
+
+btnSkip.addEventListener('pointerup', ()=>{
+  if(state.powerups.skip <= 0){
+    alert('No Skip power-ups available.');
+    return;
+  }
+  const lvl = state.level;
+  state.powerups.skip -= 1;
+  if(!state.completedLevels.includes(lvl)) state.completedLevels.push(lvl);
+  if(state.maxUnlocked < LEVEL_COUNT && lvl === state.maxUnlocked){
+    state.maxUnlocked++;
+  }
+  saveState();
+  renderLevels();
+  const next = Math.min(LEVEL_COUNT, lvl+1);
+  if(next > LEVEL_COUNT){
+    panelBody.innerHTML = '<div class="center muted">You reached the final maze. 🎉</div>';
+  } else {
+    alert('Level skipped. Enjoy the next maze!');
+    openLevel(next);
+  }
+});
+
+/* ===========================
+   Top-level buttons
+   =========================== */
+document.getElementById('resetProgress').addEventListener('pointerup', ()=>{
+  if(confirm('Reset all saved progress for this maze game?')){
+    resetState();
+    renderLevels();
+    panelBody.innerHTML = '<div class="center muted">Progress reset. Select a level to start again.</div>';
+    refreshStats();
+  }
+});
+document.getElementById('saveNow').addEventListener('pointerup', ()=>{
+  saveState();
+  alert('Progress saved locally on this device.');
+});
+
+/* ===========================
+   Initialize
+   =========================== */
+renderLevels();
+refreshStats();
+</script>
+</body>
+</html>
