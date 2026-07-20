@@ -376,7 +376,7 @@
         <button class="btn btn-secondary" id="randomHero">Random Challenge</button>
       </div>
       <div class="hero-stats">
-        <div class="stat"><strong id="gameCount">45</strong><span>Playable experiences</span></div>
+        <div class="stat"><strong id="gameCount">36</strong><span>Playable experiences</span></div>
         <div class="stat"><strong>6</strong><span>Arcade wings</span></div>
         <div class="stat"><strong>∞</strong><span>Future possibilities</span></div>
       </div>
@@ -533,14 +533,9 @@
 </footer>
 
 <script>
-  const BASE = "https://vervenveda.github.io/arcade.github.io/games/kids/";
+  const BASE = "./";
 
   const games = [
-    {id:"abc-bubbles",title:"ABC Bubbles",file:"ABC_Bubbles_index.html",category:"classic",icon:"🔤",tags:"alphabet letters language bubbles",description:"A bright letter-recognition experience built around quick visual play."},
-    {id:"acts-kindness",title:"Acts of Kindness",file:"Acts_of_Kindness_index.html",category:"discovery",icon:"💛",tags:"kindness social emotional choices",description:"Explore everyday decisions that build empathy, care, and community."},
-    {id:"bubble-pop",title:"Bubble Pop",file:"Bubble_Pop_index.html",category:"classic",icon:"🫧",tags:"arcade reaction coordination",description:"A fast, simple reaction game with satisfying arcade energy."},
-    {id:"palette-quest",title:"Palette Quest",file:"Palette_Quest_index.html",category:"creative",icon:"🎨",tags:"color art creative palette",description:"Experiment with color relationships through a playful visual challenge."},
-    {id:"pattern-pirates",title:"Pattern Pirates",file:"Pattern_Pirates_index.html",category:"brain",icon:"🏴‍☠️",tags:"patterns logic sequence",description:"Find and extend patterns while navigating a playful pirate theme."},
     {id:"affixsix",title:"AffixSix™",file:"AffixSix™_index.html",category:"discovery",icon:"✳️",tags:"math number pattern six",description:"A number-and-pattern experience built around six-part structures."},
     {id:"backgammon",title:"Backgammon",file:"Backgammon_index.html",category:"strategy",icon:"🎲",tags:"board classic strategy dice",description:"Play one of the world's enduring strategy board games."},
     {id:"checkers-lab",title:"Checkers Variant Lab",file:"Checkers_Variant_Lab_index.html",category:"strategy",icon:"⚫",tags:"checkers board strategy variants",description:"Explore classic checkers and experiment with alternate rule systems."},
@@ -577,10 +572,6 @@
     {id:"trivia-music",title:"Music Trivia",file:"Trivia_music_index.html",category:"trivia",icon:"🎵",tags:"music composers trivia",description:"Explore instruments, traditions, rhythm, and musical history."},
     {id:"trivia-oddball",title:"Oddball Trivia",file:"Trivia_oddball_index.html",category:"trivia",icon:"🤹",tags:"odd facts trivia",description:"A surprising collection of strange, memorable, and unexpected facts."},
     {id:"trivia-remnant",title:"Remnant Nations Trivia",file:"Trivia_remnenat_nations_index.html",category:"trivia",icon:"🗺️",tags:"nations cultures history trivia",description:"Explore peoples, identities, histories, and lesser-known national stories."},
-    {id:"pizza-deluxe",title:"Pizza Amorè Deluxe",file:"PizzaAmorè_deluxe_index.html",category:"classic",icon:"🍕",tags:"pizza simulation food",description:"A more advanced pizza-building and restaurant-style simulation."},
-    {id:"pizza-amore",title:"Pizza Amorè",file:"PizzaAmorè_index.html",category:"classic",icon:"🍕",tags:"pizza cooking simulation",description:"Create pizzas through a lighthearted food-building experience."},
-    {id:"shapes",title:"Shapes",file:"Shapes_index.html",category:"classic",icon:"🔷",tags:"shapes geometry preschool",description:"Recognize and explore foundational shapes through simple play."},
-    {id:"weather-match",title:"Pre-K Weather Match",file:"prek_waether_match_index.html",category:"classic",icon:"🌦️",tags:"weather matching preschool",description:"Match weather symbols and conditions in a younger-learning activity."}
   ];
 
   const wings = [
@@ -594,8 +585,8 @@
 
   const paths = [
     {title:"Strategy Initiation",description:"Build from simple grids toward deeper tactical play.",ids:["tictactoe","connect-four","checkers-lab","backgammon","chess-studio"]},
-    {title:"Pattern Intelligence",description:"Move through patterns, signals, geometry, and number structures.",ids:["pattern-pirates","signal-garden","geometry-sanctuary","affixsix","sixbysix"]},
-    {title:"Creative Circuit",description:"Explore color, character design, mandalas, and visual experimentation.",ids:["palette-quest","critter-crafter","mandala-rings","color-clash","colorshift-cascade"]},
+    {title:"Pattern Intelligence",description:"Move through focus, signals, geometry, and number structures.",ids:["chromatic-focus","signal-garden","geometry-sanctuary","affixsix","sixbysix"]},
+    {title:"Creative Circuit",description:"Explore color, character design, mandalas, and visual experimentation.",ids:["critter-crafter","mandala-rings","color-clash","colorshift-cascade","chromatic-focus"]},
     {title:"Knowledge Run",description:"Travel through language, history, art, music, and unexpected facts.",ids:["trivia-esl","trivia-ancients","trivia-arts","trivia-music","trivia-oddball"]}
   ];
 
