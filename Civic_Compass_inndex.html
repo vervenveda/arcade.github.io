@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>People vs Powerful – Civic Integrity Game</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Optional fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --navy-deep:#020618;
+      --navy-royal:#123b7a;
+      --navy-soft:#18233f;
+      --parchment:#f5f3eb;
+      --parchment-soft:#ece5d4;
+      --accent-gold:#d9b878;
+      --accent-gold-soft:#c9ae6a;
+      --radius-card:21px;
+      --shadow-card:0 24px 60px rgba(0,0,0,0.75);
+    }
+
+    *{box-sizing:border-box;}
+
+    html,body{
+      margin:0;
+      padding:0;
+      min-height:100vh;
+      font-family:'Montserrat',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+      background:
+        radial-gradient(circle at top, var(--navy-royal) 0%, var(--navy-deep) 60%, #02030a 100%);
+      color:var(--parchment);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .game-shell{
+      width:100%;
+      max-width:900px;
+      padding:27px 16px 33px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:18px;
+    }
+
+    .page-tag-main{
+      font-family:'Cinzel',serif;
+      font-size:22px;
+      letter-spacing:0.18em;
+      text-transform:uppercase;
+      text-align:center;
+      color:var(--parchment-soft);
+    }
+
+    .page-tag-sub{
+      font-size:14px;
+      text-align:center;
+      color:rgba(231,237,255,0.9);
+      max-width:720px;
+      line-height:1.6;
+    }
+
+    .game-inner{
+      width:100%;
+      max-width:720px;
+      border-radius:var(--radius-card);
+      background:radial-gradient(circle at top, var(--navy-soft) 0%, #050712 70%);
+      border:1px solid rgba(255,255,255,0.18);
+      box-shadow:
+        0 24px 60px rgba(0,0,0,0.75),
+        0 0 44px rgba(18,59,122,0.55);
+      padding:27px 21px 27px;
+      text-align:center;
+    }
+
+    .game-kicker{
+      font-size:12px;
+      letter-spacing:0.22em;
+      text-transform:uppercase;
+      color:rgba(235,240,255,0.85);
+      margin-bottom:7px;
+    }
+
+    .game-title{
+      font-family:'Cinzel',serif;
+      font-size:22px;
+      letter-spacing:0.22em;
+      text-transform:uppercase;
+      margin:0 0 11px;
+      color:var(--parchment-soft);
+    }
+
+    .game-sub{
+      font-size:16px;
+      line-height:1.8;
+      margin:0 auto 18px;
+      max-width:640px;
+      color:rgba(231,237,255,0.9);
+    }
+
+    .game-tagline{
+      font-size:13px;
+      letter-spacing:0.18em;
+      text-transform:uppercase;
+      color:var(--accent-gold);
+      margin-bottom:18px;
+    }
+
+    /* Mode toggle */
+
+    .mode-row{
+      display:flex;
+      justify-content:center;
+      gap:9px;
+      margin-bottom:9px;
+      flex-wrap:wrap;
+    }
+
+    .mode-btn{
+      border:none;
+      border-radius:999px;
+      padding:7px 16px;
+      font-size:12px;
+      letter-spacing:0.16em;
+      text-transform:uppercase;
+      background:rgba(255,255,255,0.06);
+      color:var(--parchment);
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      transition:background .18s,transform .18s,box-shadow .18s,color .18s;
+    }
+
+    .mode-btn:hover{
+      background:linear-gradient(135deg,var(--accent-gold),var(--accent-gold-soft));
+      color:#050712;
+      transform:translateY(-1px);
+      box-shadow:0 7px 21px rgba(0,0,0,0.7);
+    }
+
+    .mode-btn.mode-active{
+      background:linear-gradient(135deg,var(--accent-gold),var(--accent-gold-soft));
+      color:#050712;
+      box-shadow:0 7px 21px rgba(0,0,0,0.7);
+    }
+
+    .mode-desc{
+      font-size:14px;
+      line-height:1.7;
+      color:rgba(223,232,255,0.95);
+      margin:0 0 16px;
+    }
+
+    /* Progress */
+
+    .game-progress{
+      margin:0 auto 18px;
+      max-width:420px;
+      text-align:left;
+      font-size:14px;
+      color:rgba(223,232,255,0.9);
+    }
+
+    .progress-bar{
+      margin-top:7px;
+      width:100%;
+      height:9px;
+      border-radius:999px;
+      background:rgba(255,255,255,0.08);
+      overflow:hidden;
+    }
+
+    .progress-fill{
+      height:100%;
+      width:0%;
+      border-radius:999px;
+      background:linear-gradient(90deg,var(--accent-gold),var(--accent-gold-soft));
+      transition:width .35s ease;
+    }
+
+    /* Question */
+
+    .question-card{
+      margin-top:7px;
+      padding:18px 16px 16px;
+      border-radius:var(--radius-card);
+      background:rgba(5,7,22,0.96);
+      border:1px solid rgba(255,255,255,0.15);
+      text-align:left;
+    }
+
+    .question-text{
+      font-size:22px;
+      line-height:1.7;
+      margin:0 0 14px;
+      color:var(--parchment);
+    }
+
+    .options{
+      display:flex;
+      flex-direction:column;
+      gap:9px;
+    }
+
+    .option-btn{
+      border:none;
+      border-radius:999px;
+      padding:12px 18px;
+      font-size:16px;
+      line-height:1.5;
+      text-align:left;
+      background:rgba(255,255,255,0.04);
+      color:var(--parchment);
+      cursor:pointer;
+      display:flex;
+      justify-content:flex-start;
+      align-items:flex-start;
+      transition:background .18s,transform .18s,box-shadow .18s;
+    }
+
+    .option-btn span{
+      flex:1;
+    }
+
+    .option-btn small{
+      opacity:0.9;
+    }
+
+    .option-btn:hover{
+      background:linear-gradient(135deg,var(--accent-gold),var(--accent-gold-soft));
+      color:#050712;
+      transform:translateY(-1px);
+      box-shadow:0 9px 24px rgba(0,0,0,0.68);
+    }
+
+    /* Footer / nav */
+
+    .game-footer{
+      margin-top:16px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+      font-size:13px;
+      color:rgba(214,224,245,0.9);
+    }
+
+    .nav-btn{
+      border:none;
+      border-radius:999px;
+      padding:7px 16px;
+      font-size:12px;
+      letter-spacing:0.14em;
+      text-transform:uppercase;
+      background:rgba(255,255,255,0.06);
+      color:var(--parchment);
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      transition:background .18s,transform .18s,box-shadow .18s;
+    }
+
+    .nav-btn:hover{
+      background:linear-gradient(135deg,var(--accent-gold),var(--accent-gold-soft));
+      color:#050712;
+      transform:translateY(-1px);
+      box-shadow:0 7px 21px rgba(0,0,0,0.7);
+    }
+
+    .nav-btn[disabled]{
+      opacity:0.4;
+      cursor:default;
+      box-shadow:none;
+      background:rgba(255,255,255,0.04);
+      transform:none;
+    }
+
+    /* Result */
+
+    .result-block{
+      margin-top:16px;
+      padding:18px 16px 16px;
+      border-radius:var(--radius-card);
+      background:rgba(5,7,22,0.96);
+      border:1px solid rgba(255,255,255,0.15);
+      text-align:left;
+      display:none;
+    }
+
+    .result-heading{
+      font-family:'Cinzel',serif;
+      font-size:18px;
+      letter-spacing:0.16em;
+      text-transform:uppercase;
+      margin:0 0 8px;
+      color:var(--parchment-soft);
+    }
+
+    .result-score{
+      font-size:14px;
+      margin:0 0 8px;
+      color:rgba(226,235,255,0.95);
+    }
+
+    .result-text{
+      font-size:15px;
+      line-height:1.8;
+      margin:0 0 12px;
+      color:rgba(226,233,250,0.95);
+    }
+
+    .writein-note{
+      font-size:12px;
+      line-height:1.7;
+      margin:0 0 12px;
+      color:rgba(209,220,245,0.9);
+    }
+
+    .writein-note a{
+      color:var(--accent-gold);
+      text-decoration:none;
+    }
+
+    .writein-note a:hover{
+      text-decoration:underline;
+    }
+
+    .cta-row{
+      margin-top:6px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:9px;
+      align-items:center;
+      justify-content:flex-start;
+    }
+
+    .cta-btn{
+      border:none;
+      border-radius:999px;
+      padding:9px 18px;
+      font-size:12px;
+      letter-spacing:0.16em;
+      text-transform:uppercase;
+      background:linear-gradient(135deg,var(--accent-gold),var(--accent-gold-soft));
+      color:#050712;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      text-decoration:none;
+      box-shadow:0 9px 24px rgba(0,0,0,0.7);
+      transition:transform .18s,box-shadow .18s;
+    }
+
+    .cta-btn:hover{
+      transform:translateY(-1px);
+      box-shadow:0 12px 30px rgba(0,0,0,0.8);
+    }
+
+    .result-tagline{
+      font-size:11px;
+      letter-spacing:0.16em;
+      text-transform:uppercase;
+      color:var(--accent-gold);
+    }
+
+    @media (max-width:640px){
+      .game-shell{
+        padding:21px 12px 27px;
+      }
+      .game-inner{
+        padding:24px 18px 24px;
+      }
+      .question-text{font-size:19px;}
+      .game-sub{font-size:15px;}
+    }
+  </style>
+</head>
+<body>
+  <section class="game-shell">
+    <div class="page-tag-main">Test Your Civic Compass</div>
+    <div class="page-tag-sub">
+      A two-level mini-game for voters and future leaders. Start as a voter, then
+      step into the presidency and see how your instincts translate into leadership.
+    </div>
+
+    <div class="game-inner">
+      <div class="game-kicker">Civic Mini-Game</div>
+      <h1 class="game-title">People vs Powerful</h1>
+      <p class="game-sub">
+        In each situation, which path feels most right to you? There are no tricks—just a mirror
+        for your own instincts about fairness, power, and protecting ordinary people.
+      </p>
+      <div class="game-tagline">
+        Jennifer Pearl 2028 · For the People, Not the Powerful
+      </div>
+
+      <div class="mode-row">
+        <button class="mode-btn mode-active" data-mode="voter" type="button">Voter Level</button>
+        <button class="mode-btn" data-mode="leader" type="button">Leadership Level</button>
+      </div>
+      <p id="modeDesc" class="mode-desc">
+        Voter Level: Answer as yourself, an everyday citizen deciding what feels fair and just.
+      </p>
+
+      <div class="game-progress">
+        <div id="gameStepLabel">Question 1 of 7</div>
+        <div class="progress-bar">
+          <div id="progressFill" class="progress-fill"></div>
+        </div>
+      </div>
+
+      <div id="questionCard" class="question-card">
+        <!-- JS injects question + options here -->
+      </div>
+
+      <div class="game-footer">
+        <button id="restartBtn" class="nav-btn" type="button" disabled>Restart</button>
+        <div>Choose the answer that best reflects your heart. We’ll show your result at the end.</div>
+      </div>
+
+      <div id="resultBlock" class="result-block">
+        <h2 class="result-heading" id="resultTitle">Your Civic Compass</h2>
+        <p class="result-score" id="resultScore"></p>
+        <p class="result-text" id="resultText"></p>
+        <p class="writein-note">
+          <strong>How to write in a candidate?</strong>
+          Election rules vary by state. For official instructions, please check your
+          state or local election office, or see general voting information at
+          <a href="https://www.usa.gov/voting" target="_blank" rel="noopener noreferrer">USA.gov/voting</a>.
+        </p>
+        <div class="cta-row">
+          <a class="cta-btn" href="https://www.vervenveda.com/onenation" target="_blank" rel="noopener noreferrer">
+            Visit the One Nation Presidential Page ↗
+          </a>
+          <div class="result-tagline">
+            Win by Default, Not by Corruption
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    // --- QUESTION SETS ---
+
+    const VOTER_QUESTIONS = [
+      {
+        text:'A local whistleblower exposes misuse of public funds. Powerful donors want them silenced.',
+        options:[
+          {
+            label:'Stand with the whistleblower.',
+            description:'Protect them, demand an investigation, and insist on transparent accounting.',
+            score:3
+          },
+          {
+            label:'Wait and see.',
+            description:'Stay neutral and hope someone else looks into it.',
+            score:1
+          },
+          {
+            label:'Protect the donors.',
+            description:'Shield them from scrutiny to avoid “rocking the boat.”',
+            score:0
+          }
+        ]
+      },
+      {
+        text:'A new policy would make it harder to vote in your community, especially for working families.',
+        options:[
+          {
+            label:'Expand access.',
+            description:'Fight for early voting, mail-in options, and clear information for every voter.',
+            score:3
+          },
+          {
+            label:'Keep it complicated.',
+            description:'If people really care, they’ll figure it out.',
+            score:0
+          },
+          {
+            label:'Tiny fixes only.',
+            description:'Support minor tweaks but avoid challenging the deeper barriers.',
+            score:1
+          }
+        ]
+      },
+      {
+        text:'Police reform is on the table. Communities want accountability; unions want no changes.',
+        options:[
+          {
+            label:'Accountability with support.',
+            description:'Push for clear standards, independent review, and real training.',
+            score:3
+          },
+          {
+            label:'No change.',
+            description:'Leave the system as it is to “keep order.”',
+            score:0
+          },
+          {
+            label:'Cosmetic change.',
+            description:'Rebrand, but avoid reforms that shift power.',
+            score:1
+          }
+        ]
+      },
+      {
+        text:'A major corporation demands tax breaks while small local businesses are closing.',
+        options:[
+          {
+            label:'Prioritize local people.',
+            description:'Support relief for small businesses and hold big corporations to fair taxes.',
+            score:3
+          },
+          {
+            label:'Give the break anyway.',
+            description:'Large companies come first; communities can adapt.',
+            score:0
+          },
+          {
+            label:'Short-term deal.',
+            description:'Give concessions now and “worry later” about the consequences.',
+            score:1
+          }
+        ]
+      },
+      {
+        text:'A child in your district is poisoned by polluted water. Cleanup is expensive.',
+        options:[
+          {
+            label:'Clean it up fully.',
+            description:'Protect children first, pursue those responsible, and fix the system.',
+            score:3
+          },
+          {
+            label:'Delay and study.',
+            description:'Commission reports for years before taking action.',
+            score:1
+          },
+          {
+            label:'Protect polluters.',
+            description:'Block strong protections to keep costs low for industry.',
+            score:0
+          }
+        ]
+      },
+      {
+        text:'Workers organizing for fair pay are threatened with losing their jobs.',
+        options:[
+          {
+            label:'Defend workers’ rights.',
+            description:'Support collective bargaining and protections against retaliation.',
+            score:3
+          },
+          {
+            label:'Stay out of it.',
+            description:'Call it a “private matter” between workers and owners.',
+            score:1
+          },
+          {
+            label:'Side with threats.',
+            description:'Back the pressure to silence organizing.',
+            score:0
+          }
+        ]
+      },
+      {
+        text:'A bill would limit big money in politics, but campaigns like the old system.',
+        options:[
+          {
+            label:'Limit big money.',
+            description:'Support strong transparency and caps on concentrated influence.',
+            score:3
+          },
+          {
+            label:'Keep the floodgates open.',
+            description:'Money is speech; don’t interfere.',
+            score:0
+          },
+          {
+            label:'Half-steps.',
+            description:'Support small disclosure rules without changing who holds power.',
+            score:1
+          }
+        ]
+      }
+    ];
+
+    const LEADER_QUESTIONS = [
+      {
+        text:'As president, your advisors urge you to expand secret surveillance powers after a crisis.',
+        options:[
+          {
+            label:'Protect civil liberties.',
+            description:'Strengthen oversight and transparency while targeting real threats narrowly.',
+            score:3
+          },
+          {
+            label:'Sign everything they propose.',
+            description:'Approve broad new powers and promise to “review later.”',
+            score:0
+          },
+          {
+            label:'Delay the decision quietly.',
+            description:'Let the powers grow by inertia without a public debate.',
+            score:1
+          }
+        ]
+      },
+      {
+        text:'A company that polluted a river offers a huge donation if you soften new regulations.',
+        options:[
+          {
+            label:'Refuse the deal.',
+            description:'Protect clean water and insist on strong, enforced standards for everyone.',
+            score:3
+          },
+          {
+            label:'Accept and compromise.',
+            description:'Take the funds and weaken protections to keep the company happy.',
+            score:0
+          },
+          {
+            label:'Hide behind a task force.',
+            description:'Announce a commission instead of clear rules or enforcement.',
+            score:1
+          }
+        ]
+      },
+      {
+        text:'Your party pressures you to appoint a judge who is loyal to them but weak on independence.',
+        options:[
+          {
+            label:'Choose an independent jurist.',
+            description:'Nominate someone with a record of fairness, even if it upsets your party.',
+            score:3
+          },
+          {
+            label:'Follow party orders.',
+            description:'Pick the loyalist to keep your political allies satisfied.',
+            score:0
+          },
+          {
+            label:'Trade the appointment.',
+            description:'Use the seat as a bargaining chip in unrelated deals.',
+            score:1
+          }
+        ]
+      },
+      {
+        text:'A hurricane devastates a poor region that rarely votes for you.',
+        options:[
+          {
+            label:'Respond with full force.',
+            description:'Send resources immediately and rebuild with the community at the center.',
+            score:3
+          },
+          {
+            label:'Slow-walk the response.',
+            description:'Provide minimal aid and move on quickly.',
+            score:0
+          },
+          {
+            label:'Focus on optics.',
+            description:'Stage press events while delaying long-term help.',
+            score:1
+          }
+        ]
+      },
+      {
+        text:'Intelligence briefings reveal an ally is abusing human rights with weapons you sold them.',
+        options:[
+          {
+            label:'Draw a clear line.',
+            description:'Suspend support, push for accountability, and stand with those harmed.',
+            score:3
+          },
+          {
+            label:'Look the other way.',
+            description:'Preserve the alliance and ignore the abuses.',
+            score:0
+          },
+          {
+            label:'Issue statements only.',
+            description:'Condemn the actions publicly but keep the weapons flowing.',
+            score:1
+          }
+        ]
+      },
+      {
+        text:'Your campaign team suggests using disinformation online because “everyone else does it.”',
+        options:[
+          {
+            label:'Reject disinformation outright.',
+            description:'Commit to truth-based campaigning, even if it costs short-term advantage.',
+            score:3
+          },
+          {
+            label:'Approve a secret operation.',
+            description:'Authorize misleading ads as long as you have plausible deniability.',
+            score:0
+          },
+          {
+            label:'Outsource to others.',
+            description:'Ignore supportive groups spreading lies, as long as it helps you.',
+            score:1
+          }
+        ]
+      },
+      {
+        text:'A policy that truly helps families will upset powerful donors and lobbyists.',
+        options:[
+          {
+            label:'Stand with the families.',
+            description:'Support the policy and explain clearly why people come before donors.',
+            score:3
+          },
+          {
+            label:'Water it down.',
+            description:'Keep the title but remove the strongest protections.',
+            score:1
+          },
+          {
+            label:'Quietly bury it.',
+            description:'Let the proposal die in committee to avoid conflict.',
+            score:0
+          }
+        ]
+      }
+    ];
+
+    // --- STATE ---
+
+    let currentMode = 'voter'; // 'voter' or 'leader'
+    let activeQuestions = VOTER_QUESTIONS;
+    let currentIndex = 0;
+    let answers = [];          // scores per question
+    let questionLocked = false;
+
+    const stepLabel = document.getElementById('gameStepLabel');
+    const progressFill = document.getElementById('progressFill');
+    const questionCard = document.getElementById('questionCard');
+    const restartBtn = document.getElementById('restartBtn');
+    const resultBlock = document.getElementById('resultBlock');
+    const resultTitle = document.getElementById('resultTitle');
+    const resultScore = document.getElementById('resultScore');
+    const resultText = document.getElementById('resultText');
+    const modeDescEl = document.getElementById('modeDesc');
+    const modeButtons = document.querySelectorAll('.mode-btn');
+
+    // --- HELPERS ---
+
+    function updateProgress(){
+      const total = activeQuestions.length;
+      const step = Math.min(currentIndex + 1, total);
+      stepLabel.textContent = `Question ${step} of ${total}`;
+      const pct = ((step - 1) / total) * 100;
+      progressFill.style.width = pct + '%';
+    }
+
+    function shuffleOptions(options){
+      const arr = options.slice();
+      for(let i = arr.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function computeTotalScore(){
+      return answers.reduce((sum, val) => sum + (typeof val === 'number' ? val : 0), 0);
+    }
+
+    function renderQuestion(){
+      const q = activeQuestions[currentIndex];
+      if(!q){
+        showResult();
+        return;
+      }
+
+      questionLocked = false;
+      resultBlock.style.display = 'none';
+      updateProgress();
+
+      const shuffled = shuffleOptions(q.options);
+
+      const htmlOptions = shuffled.map(opt => `
+        <button class="option-btn" type="button" data-score="${opt.score}">
+          <span>
+            ${opt.label}<br>
+            <small>${opt.description}</small>
+          </span>
+        </button>
+      `).join('');
+
+      questionCard.innerHTML = `
+        <p class="question-text">${q.text}</p>
+        <div class="options">
+          ${htmlOptions}
+        </div>
+      `;
+
+      const optionButtons = questionCard.querySelectorAll('.option-btn');
+      optionButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          if(questionLocked) return;          // prevent double-count
+          questionLocked = true;
+
+          const score = Number(btn.getAttribute('data-score') || '0');
+          answers[currentIndex] = score;
+
+          currentIndex++;
+          if(currentIndex >= activeQuestions.length){
+            showResult();
+          }else{
+            renderQuestion();
+          }
+          restartBtn.disabled = false;
+        });
+      });
+    }
+
+    function showResult(){
+      const maxScore = activeQuestions.length * 3;
+      const totalScore = computeTotalScore();
+      const ratio = totalScore / maxScore;
+
+      progressFill.style.width = '100%';
+      stepLabel.textContent = `Results · ${activeQuestions.length} questions completed`;
+
+      let title, text;
+
+      if(currentMode === 'voter'){
+        if(ratio >= 0.75){
+          title = 'Guardian of the People';
+          text =
+            'Your answers show a strong instinct to stand with ordinary people over entrenched power. ' +
+            'You look for transparency, accountability, and policies that protect children, workers, and the earth—even when it is not convenient for the powerful.';
+        }else if(ratio >= 0.45){
+          title = 'Rising People’s Advocate';
+          text =
+            'You lean toward fairness and protection for everyday families, even if you sometimes hesitate in the gray areas. ' +
+            'With clearer information and honest leadership, your voice could be a powerful force for a people-first future.';
+        }else{
+          title = 'System-Weary Citizen';
+          text =
+            'Your answers suggest deep frustration with how things work and a sense that the system rarely listens. ' +
+            'You are not alone. This campaign believes that honest, people-centered leadership can open new paths for participation, not just protest.';
+        }
+      }else{
+        // leadership results
+        if(ratio >= 0.75){
+          title = 'Steady People’s President';
+          text =
+            'Your instincts place human dignity above convenience and political pressure. ' +
+            'You are willing to say no to powerful interests, defend truth, and carry the weight of decisions that protect the vulnerable first.';
+        }else if(ratio >= 0.45){
+          title = 'Emerging People’s Leader';
+          text =
+            'You strive to balance pressures while keeping ordinary people in view. ' +
+            'With strong counsel, transparent systems, and moral anchors, you could grow into a leader who steers the country with courage and care.';
+        }else{
+          title = 'Leadership in Formation';
+          text =
+            'Your answers show how hard leadership really is in a system built around power and pressure. ' +
+            'The good news: leadership can be learned—through listening, humility, and a renewed commitment to the people you serve.';
+        }
+      }
+
+      resultTitle.textContent = title;
+      resultScore.textContent =
+        `People-First score (${currentMode === 'voter' ? 'Voter Level' : 'Leadership Level'}): ${totalScore} out of ${maxScore}`;
+      resultText.textContent = text;
+
+      resultBlock.style.display = 'block';
+    }
+
+    function restartGame(){
+      currentIndex = 0;
+      answers = new Array(activeQuestions.length).fill(0);
+      restartBtn.disabled = true;
+      resultBlock.style.display = 'none';
+      renderQuestion();
+    }
+
+    function setMode(mode){
+      currentMode = mode;
+      activeQuestions = (mode === 'voter') ? VOTER_QUESTIONS : LEADER_QUESTIONS;
+
+      modeButtons.forEach(btn => {
+        btn.classList.toggle('mode-active', btn.getAttribute('data-mode') === mode);
+      });
+
+      if(mode === 'voter'){
+        modeDescEl.textContent =
+          'Voter Level: Answer as yourself, an everyday citizen deciding what feels fair and just.';
+      }else{
+        modeDescEl.textContent =
+          'Leadership Level: Step into the presidency. Answer as if you were responsible for the whole nation in tough moments.';
+      }
+
+      restartGame();
+    }
+
+    restartBtn.addEventListener('click', restartGame);
+
+    modeButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const mode = btn.getAttribute('data-mode') || 'voter';
+        if(mode !== currentMode){
+          setMode(mode);
+        }
+      });
+    });
+
+    // initial render
+    setMode('voter');
+  </script>
+</body>
+</html>
