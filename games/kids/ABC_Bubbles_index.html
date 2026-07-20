@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ABC Bubble Adventure</title>
+  <style>
+    body {
+      margin: 0; padding: 0;
+      font-family: "Comic Sans MS", system-ui, sans-serif;
+      background: linear-gradient(135deg, #89f7fe, #66a6ff);
+      overflow: hidden;
+      text-align: center;
+    }
+    h1 {
+      margin: 10px; color: #fff; font-size: 42px;
+      text-shadow: 2px 2px 4px #333;
+    }
+    #gameArea {
+      position: relative;
+      width: 100%;
+      height: calc(80vh - 40px); /* leave space for footer + score bar */
+      overflow: hidden;
+      border: 4px solid #fff;
+      background: linear-gradient(to top, #d9f7ff, #ffffff);
+    }
+    .bubble {
+      position: absolute;
+      border-radius: 50%;
+      width: 120px; height: 120px; /* bigger bubbles */
+      display: flex; align-items: center; justify-content: center;
+      font-size: 48px; font-weight: bold;
+      color: #fff;
+      cursor: pointer;
+      box-shadow: 0 6px 14px rgba(0,0,0,.18);
+    }
+    #message {
+      margin: 6px; font-size: 24px; color: #fff;
+      text-shadow: 1px 1px 3px rgba(0,0,0,.35);
+    }
+    #scoreBar{
+      margin: 2px 0 8px;
+      font-size: 15px;
+      color:#fdfdfd;
+      text-shadow:1px 1px 3px rgba(0,0,0,.4);
+    }
+    #startBtn {
+      padding: 12px 24px;
+      font-size: 20px;
+      border: none; border-radius: 10px;
+      background: #ff69b4; color: white;
+      cursor: pointer;
+      margin-bottom: 4px;
+      box-shadow:0 4px 10px rgba(0,0,0,.25);
+    }
+    #startBtn:hover{background:#ff4fa4;}
+    #startBtn:active{transform:scale(.98);}
+
+    #footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      text-align: center;
+      padding: 4px 0;
+      font-size: 12px;
+      background: rgba(0,0,0,0.3);
+      color: #fff;
+      text-shadow: 0 0 2px #333;
+      z-index: 1000;
+    }
+  </style>
+</head>
+<body>
+  <h1>ABC Bubble Adventure 🎈</h1>
+  <button id="startBtn">Start Game</button>
+  <div id="message"></div>
+  <div id="scoreBar">Score: 0 · Bubbles today: 0</div>
+  <div id="gameArea"></div>
+  <div id="footer">All Rights Reserved Archaemenes Academy 2025.</div>
+
+  <script>
+    const gameArea = document.getElementById("gameArea");
+    const message = document.getElementById("message");
+    const startBtn = document.getElementById("startBtn");
+    const scoreBar = document.getElementById("scoreBar");
+
+    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+
+    const STATS_KEY = "ABC_BUBBLE_STATS_V1";
+
+    let targetLetter = null;
+    let gameInterval;
+    let bubbleSpeed = 4000; // ms to float from bottom to top
+    let score = 0;
+    let stats = loadStats();
+    let ac = null; // AudioContext
+    let running = false;
+    const MAX_FREE_BUBBLES = 10; // prevent screen overload
+
+    function todayStr(){
+      const d=new Date();
+      const m=(d.getMonth()+1).toString().padStart(2,"0");
+      const day=d.getDate().toString().padStart(2,"0");
+      return d.getFullYear()+"-"+m+"-"+day;
+    }
+
+    function loadStats(){
+      try{
+        const raw=localStorage.getItem(STATS_KEY);
+        if(!raw) return {day:todayStr(), bubblesToday:0};
+        const v=JSON.parse(raw);
+        const today=todayStr();
+        if(v.day !== today) return {day:today, bubblesToday:0};
+        if(typeof v.bubblesToday!=="number") v.bubblesToday=0;
+        v.day=today;
+        return v;
+      }catch(e){
+        return {day:todayStr(), bubblesToday:0};
+      }
+    }
+    function saveStats(){
+      try{
+        localStorage.setItem(STATS_KEY, JSON.stringify(stats));
+      }catch(e){}
+    }
+    function updateScoreBar(){
+      scoreBar.textContent = "Score: " + score + " · Bubbles today: " + (stats.bubblesToday||0);
+    }
+
+    function ensureAudio(){
+      if(!ac){
+        try{ ac=new (window.AudioContext || window.webkitAudioContext)(); }catch(e){}
+      }
+    }
+    function playPop(){
+      if(!ac) return;
+      try{
+        const o=ac.createOscillator();
+        const g=ac.createGain();
+        o.connect(g); g.connect(ac.destination);
+        o.type="triangle";
+        const t=ac.currentTime;
+        o.frequency.setValueAtTime(700, t);
+        o.frequency.exponentialRampToValueAtTime(1100, t+0.12);
+        g.gain.setValueAtTime(0.001, t);
+        g.gain.linearRampToValueAtTime(0.25, t+0.01);
+        g.gain.exponentialRampToValueAtTime(0.001, t+0.18);
+        o.start(t); o.stop(t+0.2);
+      }catch(e){}
+    }
+
+    function randomColor() {
+      const colors = ["#ff7675","#55efc4","#ffeaa7","#74b9ff","#a29bfe","#fd79a8"];
+      return colors[Math.floor(Math.random()*colors.length)];
+    }
+
+    function createBubble(letter = null) {
+      if(!running) return;
+
+      // soft cap on bubbles (excluding the guaranteed target)
+      const existing = gameArea.querySelectorAll(".bubble").length;
+      if(existing >= MAX_FREE_BUBBLES && letter !== targetLetter) return;
+
+      const bubble = document.createElement("div");
+      bubble.classList.add("bubble");
+      bubble.style.background = randomColor();
+
+      const bubbleLetter = letter || letters[Math.floor(Math.random()*letters.length)];
+      bubble.textContent = bubbleLetter;
+
+      const maxLeft = Math.max(0, gameArea.clientWidth - 120);
+      bubble.style.left = Math.random() * maxLeft + "px";
+      bubble.style.bottom = "-140px";
+
+      gameArea.appendChild(bubble);
+
+      let start = null;
+      const bottomLimit = Math.max(0, gameArea.clientHeight - 120);
+
+      function animate(time) {
+        if(!running){ bubble.remove(); return; }
+        if (!start) start = time;
+        const progress = (time - start) / bubbleSpeed;
+        const newBottom = progress * bottomLimit;
+        bubble.style.bottom = newBottom + "px";
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        } else {
+          // Bubble reached top, remove and respawn missed target
+          bubble.remove();
+          if (bubbleLetter === targetLetter) {
+            // respawn target to give them another chance
+            createBubble(targetLetter);
+          }
+        }
+      }
+      requestAnimationFrame(animate);
+
+      bubble.addEventListener("click", () => {
+        if(!running) return;
+        ensureAudio();
+        if (bubbleLetter === targetLetter) {
+          message.textContent = "✅ Great job! You found " + bubbleLetter;
+          playPop();
+          bubble.remove();
+          score++;
+          stats.bubblesToday = (stats.bubblesToday||0) + 1;
+          saveStats();
+          updateScoreBar();
+          pickNewLetter();
+        } else {
+          message.textContent = "❌ That was " + bubbleLetter + ". Try again and find " + targetLetter + "!";
+          bubble.remove();
+        }
+      });
+    }
+
+    function pickNewLetter() {
+      targetLetter = letters[Math.floor(Math.random()*letters.length)];
+      message.textContent = "👂 Pop the bubble with the letter: " + targetLetter;
+      createBubble(targetLetter);
+    }
+
+    function startGame() {
+      ensureAudio();
+      running = true;
+      message.textContent = "";
+      clearInterval(gameInterval);
+      bubbleSpeed = 4000; // reset speed
+      score = 0;
+      stats = loadStats();
+      updateScoreBar();
+
+      // clear any old bubbles
+      gameArea.innerHTML = "";
+
+      pickNewLetter();
+      gameInterval = setInterval(() => {
+        createBubble();
+      }, 1500);
+    }
+
+    startBtn.addEventListener("click", startGame);
+
+    // initialize score bar with stored stats
+    updateScoreBar();
+  </script>
+</body>
+</html>
