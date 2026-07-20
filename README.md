@@ -53,7 +53,36 @@ If the board fills up and nobody has 6 in a row, the game is a draw.
 hangman
 ​
  Hangman transforms from a child's pastime into a stark meditation on language, consequence, and the shared human struggle against looming, unspoken threats, turning pencil and paper into a stage for life's most profound dramas. 
+hangman
+​
+ The Game
 
 ​
+
+The Blank Slate: The empty dashes represent the unknowable, a silent void where a secret word or perhaps a condemned soul waits to be revealed or erased.
+
+​
+
+The Drawing: Each incorrect guess adds to a crude figure, a symbolic executioner's draft, turning a simple game into a grim ritual, echoing societal systems that build oppression piece by piece.
+
+​
+
+The Letters: Vowels and consonants become pleas or accusations, whispers against the silence, their wrong choices sealing the fate of the word, or the person.
+
+​
+
+The Word: The hidden word itself is a destiny, a hidden truth, or a life's story, guessed or lost, a tiny universe hanging on a few correct guesses. 
+
+​
+
+Deeper Meaning
+
+​
+
+Complicity & Fear: Like the townspeople, players become both judge and victim, failing to act until the "hanged" figure mirrors their own vulnerability.
+
+Ignorance & Truth: The game can symbolize how societies ignore truths (the hidden word) until it's too late, a lesson in the dark history hidden beneath seemingly innocent activities.
+
+Death & Rebirth: The cycle of guessing and losing can be seen as life's trials, with each new game a chance for rebirth, a fresh word to uncover. ​
 
 Use Undo to step back a move during local play and experiment with strategies.
