@@ -1,0 +1,1819 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Pattern Pirates — Prototype with Power-ups</title>
+<style>
+  :root{
+    --bg:#082032; --panel:#0b2740; --card: rgba(255,255,255,.03);
+    --accent:#ffc857; --accent2:#7be7ff; --muted:#cfe8ff; --good:#7dff9e; --warn:#ff7b7b;
+    --sq:77px; --r:14px;
+    --shadow: 0 11px 24px rgba(0,0,0,.5);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%; margin:11px; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial; background:linear-gradient(180deg,#041021 0%, #07263d 60%); color:var(--muted)}
+  .app{display:grid; grid-template-columns:333px 1fr; gap:24px; padding:24px; height:99%;}
+  .panel{background:var(--panel); border-radius:var(--r); border:1px solid rgba(255,255,255,.06); box-shadow:var(--shadow); overflow:hidden; display:flex; flex-direction:column}
+  header{display:flex; align-items:center; justify-content:space-between; padding:11px 14px; border-bottom:1px solid rgba(255,255,255,.04)}
+  .brand{display:flex; gap:14px; align-items:center}
+  .logo{width:44px; height:44px; border-radius:7px; background:linear-gradient(120deg,#ffd67a,#ff8a5b); display:grid; place-items:center; color:#07143a; font-weight:888; font-size:24px; box-shadow:0 7px 14px rgba(255,138,91,.12)}
+  .title{font-weight:777; font-size:14px; letter-spacing:.6px}
+  .subtitle{font-size:11px; color:rgba(255,255,255,.7)}
+  .content{padding:14px; overflow:auto; display:grid; gap:24px}
+  .card{background:var(--card); border-radius:7px; padding:12px; border:1px solid rgba(255,255,255,.03)}
+  label{display:block; font-size:12px; color:var(--muted); margin-bottom:6px; font-weight:777}
+  select,input[type="text"]{width:99%; padding:14px; border-radius:7px; border:3px solid rgba(255,255,255,.06); background:transparent; color:var(--muted); outline:none; font-weight:800}
+  .row{display:flex; gap:10px}
+  button{cursor:pointer; border-radius:12px; padding:8px 12px; border:1px solid rgba(255,255,255,.06); background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01)); color:var(--muted); font-weight:900}
+  .primary{background:linear-gradient(180deg,#ffda8a,#ffc857); color:#07143a}
+  .good{background:linear-gradient(180deg,#9effc8,#7dff9e); color:#05321a}
+  .danger{background:linear-gradient(180deg,#ff9b9b,#ff7b7b); color:#3a0303}
+  .small{font-size:12px; color:rgba(255,255,255,.72)}
+  .statusbar{padding:10px 14px; border-top:1px solid rgba(255,255,255,.03); display:flex; justify-content:space-between; align-items:center; font-weight:900; font-size:13px}
+  .dot{width:10px; height:10px; border-radius:99px; background:var(--accent2); box-shadow:0 6px 12px rgba(123,231,255,.12)}
+  /* Board area */
+  .boardArea{display:flex; gap:14px; align-items:flex-start; padding:14px}
+  .boardWrap{background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01)); padding:14px; border-radius:14px; border:1px solid rgba(255,255,255,.03)}
+  .board{display:grid; gap:10px; border-radius:14px; padding:12px; background:rgba(0,0,0,.12)}
+  .sq{width:var(--sq); height:var(--sq); border-radius:12px; display:grid; place-items:center; position:relative; user-select:none; cursor:pointer; font-size:30px; transition:transform .08s}
+  .sq:active{transform:translateY(1px)}
+  .sq .chip{width:86%; height:86%; border-radius:10px; display:grid; place-items:center; font-size:34px; font-weight:900; color:#07263d}
+  .sq.sel{outline:6px solid rgba(255,255,255,.12); box-shadow:0 10px 20px rgba(0,0,0,.3)}
+  .sq.legal{outline:6px solid rgba(125,255,158,.4)}
+  .sq.powerupBadge{box-shadow:0 6px 18px rgba(0,0,0,.25)}
+  .tile-label{position:absolute; bottom:6px; font-size:12px; font-weight:900; color:rgba(255,255,255,.9); background:rgba(0,0,0,.18); padding:4px 8px; border-radius:999px}
+  .controls{display:flex; flex-direction:column; gap:12px; min-width:300px}
+  .panelRow{display:flex; gap:8px; align-items:center}
+  .mapCard{background:linear-gradient(180deg,#ffdba2,#ffeecd); padding:12px; border-radius:12px; color:#07143a; font-weight:900}
+  .mapSeq{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+  .badge{padding:6px 8px; border-radius:10px; font-weight:900; background:rgba(255,255,255,.06)}
+  .movesLog{height:120px; overflow:auto; border-radius:10px; border:1px solid rgba(255,255,255,.03); padding:8px; background:rgba(0,0,0,.08); font-weight:800}
+  .miniCloud{display:grid; gap:8px}
+  .tree{background:rgba(255,255,255,.02); border-radius:8px; padding:8px; max-height:140px; overflow:auto}
+  .fileRow{padding:8px; border-radius:8px; display:flex; justify-content:space-between; gap:8px; align-items:center}
+  .fileRow:hover{background:rgba(255,255,255,.02)}
+  /* Academy */
+  .academy{display:grid; gap:8px}
+  .lesson{padding:8px; border-radius:10px; display:flex; justify-content:space-between; align-items:center}
+  .lesson.locked{opacity:.45}
+  /* Instructions */
+  .instructions{font-size:13px; line-height:1.35; color:rgba(255,255,255,.84)}
+  .powerGrid{display:flex; gap:8px; align-items:center; margin-top:8px}
+  .powerBox{background:rgba(255,255,255,.03); border-radius:10px; padding:8px; display:flex; gap:8px; align-items:center}
+  /* responsive */
+  @media (max-width:980px){
+    .app{grid-template-columns:1fr; padding:12px}
+    .boardArea{flex-direction:column; align-items:center}
+    .controls{width:100%}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- LEFT PANEL -->
+  <section class="panel">
+    <header>
+      <div class="brand">
+        <div class="logo">🏴</div>
+        <div>
+          <div class="title">Pattern Pirates</div>
+          <div class="subtitle">Prototype — Offline | Power-ups Added</div>
+        </div>
+      </div>
+      <div style="display:flex; gap:8px; align-items:center">
+        <button id="btnNew" class="primary">New Map</button>
+        <button id="btnSave" title="Save game">Save</button>
+      </div>
+    </header>
+
+    <div class="content">
+      <div class="card">
+        <label>Age Group</label>
+        <select id="ageGroup">
+          <option value="preschool">Preschool</option>
+          <option value="kids" selected>Kids</option>
+          <option value="teen">Teen</option>
+        </select>
+      </div>
+
+      <div class="card">
+        <label>Difficulty</label>
+        <select id="level">
+          <option value="easy">Easy (short)</option>
+          <option value="medium">Medium</option>
+          <option value="hard">Hard (long)</option>
+        </select>
+      </div>
+
+      <div class="card">
+        <label>Options</label>
+        <div class="row">
+          <label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="optHint" checked> Hint</label>
+          <label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="optHighContrast"> Big tiles</label>
+        </div>
+      </div>
+
+      <div class="card miniCloud">
+        <div style="display:flex; justify-content:space-between; align-items:center">
+          <div class="small">Mini Cloud (Local)</div>
+          <div style="display:flex; gap:8px">
+            <input id="saveName" type="text" placeholder="file-name" style="width:140px;"/>
+            <button id="btnQuickSave" class="primary">Save</button>
+          </div>
+        </div>
+        <div class="tree" id="fileList"></div>
+        <div style="display:flex; gap:8px; margin-top:8px">
+          <button id="btnLoad">Load</button>
+          <button id="btnDelete" class="danger">Delete</button>
+        </div>
+      </div>
+
+      <div class="card academy">
+        <div style="display:flex; justify-content:space-between; align-items:center">
+          <div class="small">Academy Path</div>
+          <div class="small">Progress unlocks features</div>
+        </div>
+        <div id="academyList" style="margin-top:8px"></div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center">
+          <div style="font-weight:900">How to Play (Quick)</div>
+          <div class="small">Step-by-step</div>
+        </div>
+        <div class="instructions" style="margin-top:8px">
+          <ol>
+            <li>Look at the <strong>Map Card</strong> (right). It shows the sequence of tiles to visit in order.</li>
+            <li>Move the pirate by tapping an adjacent square (or use arrow keys). Each move uses one move from the budget.</li>
+            <li>Step onto tiles that match the next Map Card item (shape + color). When you match them all you finish the round and earn points.</li>
+            <li>Collect power-ups by stepping on a tile with a power-up badge (🌉 🦜 ↩️). They appear randomly on the board.</li>
+            <li>Open the <strong>Power-ups</strong> box to use them:
+              <ul>
+                <li><strong>Bridge (🌉)</strong> — activate, then your next move can jump two squares orthogonally (skip one square). Use to reach distant targets quickly.</li>
+                <li><strong>Parrot (🦜)</strong> — reveal positions of the next two goal tiles (they flash to show where to go).</li>
+                <li><strong>Rewind (↩️)</strong> — rewinds the last move (restores your previous position, moves left, and goal progress).</li>
+              </ul>
+            </li>
+            <li>If you get stuck, use a Parrot hint or Rewind an earlier move. Undo (u) is also available for a simple step-back.</li>
+            <li>Saves/loads are stored locally in your Mini Cloud. Everything stays on your device.</li>
+          </ol>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; margin-top:8px">
+          <div class="small">Power-ups in this round</div>
+          <div class="small">Collect and Use!</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center">
+          <div class="small">Power-ups / Inventory</div>
+          <div class="small">Tap Use to activate</div>
+        </div>
+        <div class="powerGrid">
+          <div class="powerBox" style="flex:1">
+            <div style="font-size:22px">🌉</div>
+            <div style="flex:1">
+              <div style="font-weight:900">Bridge</div>
+              <div class="small">Jump 2 squares next move</div>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end">
+              <div id="invBridge" style="font-weight:900">0</div>
+              <button id="useBridge">Use</button>
+            </div>
+          </div>
+
+          <div class="powerBox" style="flex:1">
+            <div style="font-size:22px">🦜</div>
+            <div style="flex:1">
+              <div style="font-weight:900">Parrot</div>
+              <div class="small">Reveal next 2 targets</div>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end">
+              <div id="invParrot" style="font-weight:900">0</div>
+              <button id="useParrot">Use</button>
+            </div>
+          </div>
+
+          <div class="powerBox" style="flex:1">
+            <div style="font-size:22px">↩️</div>
+            <div style="flex:1">
+              <div style="font-weight:900">Rewind</div>
+              <div class="small">Rewind last move</div>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end">
+              <div id="invRewind" style="font-weight:900">0</div>
+              <button id="useRewind">Use</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="statusbar">
+      <div style="display:flex; gap:12px; align-items:center">
+        <div class="dot" id="dot"></div>
+        <div id="status">Ready</div>
+      </div>
+      <div class="small" id="scoreLabel">Score: 0</div>
+    </div>
+  </section>
+
+  <!-- RIGHT PANEL -->
+  <section class="panel">
+    <header>
+      <div style="display:flex; gap:12px; align-items:center">
+        <div style="font-weight:900; font-size:16px">Board</div>
+        <div class="small" id="boardInfo">6 × 6</div>
+      </div>
+      <div style="display:flex; gap:8px; align-items:center">
+        <button id="btnUndo">Undo</button>
+        <button id="btnHint" class="good">Hint</button>
+        <button id="btnToggleSound">Sound: On</button>
+      </div>
+    </header>
+
+    <div class="boardArea">
+      <div class="boardWrap">
+        <div id="board" class="board" style="--N:6"></div>
+      </div>
+
+      <div class="controls">
+        <div class="card mapCard">
+          <div style="display:flex; justify-content:space-between; align-items:center">
+            <div style="font-weight:900">Map Card</div>
+            <div class="small" id="movesLeft">Moves left: 0</div>
+          </div>
+          <div style="height:8px"></div>
+          <div id="mapGoal" class="mapSeq"></div>
+          <div style="height:10px"></div>
+          <div class="small" id="mapHint">Follow the sequence by stepping onto matching tiles in order.</div>
+        </div>
+
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px">
+            <div class="small">Player</div>
+            <div class="badge" id="playerPos">—</div>
+          </div>
+          <div class="panelRow">
+            <button id="btnShowMap">Show Map</button>
+            <button id="btnShuffle" class="primary">Shuffle Board</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; align-items:center">
+            <div class="small">Moves Log</div>
+            <div class="small" id="roundLabel">Round 0</div>
+          </div>
+          <div class="movesLog" id="movesLog"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="statusbar">
+      <div class="small">Pattern Pirates prototype — local only</div>
+      <div class="small" id="timeLabel"></div>
+    </div>
+  </section>
+</div>
+
+<script>
+/* Pattern Pirates — single file prototype with Power-ups
+   - LocalStorage keys: PP_FS, PP_PREF, PP_LEARN
+   - Power-ups: 'bridge', 'parrot', 'rewind' placed as tile.power
+   - Inventory: inv.bridge, inv.parrot, inv.rewind
+*/
+(() => {
+  "use strict";
+
+  /* ---------- Helpers ---------- */
+  const $ = id => document.getElementById(id);
+  const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
+  const now = ()=>Date.now();
+  const uid = (p="id")=> p + "_" + Math.random().toString(16).slice(2,9);
+
+  function logStatus(msg, tone="info"){
+    $("status").textContent = msg;
+    const dot = $("dot");
+    if(tone==="good") dot.style.background = "var(--good)";
+    else if(tone==="warn") dot.style.background = "var(--warn)";
+    else dot.style.background = "var(--accent2)";
+  }
+
+  /* ---------- Sound ---------- */
+  let soundOn = true;
+  let audioCtx = null;
+  function beep(f=440,d=90,g=0.05){ if(!soundOn) return; try{ if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)(); const t=audioCtx.currentTime; const o=audioCtx.createOscillator(); const gr=audioCtx.createGain(); o.frequency.value=f; o.type="sine"; gr.gain.value=g; o.connect(gr); gr.connect(audioCtx.destination); o.start(t); o.stop(t + d/1000);}catch(e){} }
+  function sfx(name){
+    if(!soundOn) return;
+    if(name==="select") beep(720,70,0.05);
+    if(name==="move") { beep(520,90,0.06); setTimeout(()=>beep(760,70,0.04),90) }
+    if(name==="win"){ beep(880,130,0.08); setTimeout(()=>beep(1100,130,0.08),150) }
+    if(name==="err") beep(240,120,0.06);
+    if(name==="collect") beep(980,90,0.06);
+  }
+
+  /* ---------- Storage (mini cloud) ---------- */
+  const FS_KEY = "PP_FS_v1";
+  const PREF_KEY = "PP_PREF_v1";
+  const LEARN_KEY = "PP_LEARN_v1";
+
+  function fsLoad(){ try{ const raw = localStorage.getItem(FS_KEY); if(!raw) return {files:[]}; return JSON.parse(raw); }catch(e){ return {files:[]}; } }
+  function fsSave(fs){ localStorage.setItem(FS_KEY, JSON.stringify(fs)); renderFileList(); }
+  function prefLoad(){ try{ return JSON.parse(localStorage.getItem(PREF_KEY)||"{}"); }catch(e){return{}} }
+  function prefSave(p){ localStorage.setItem(PREF_KEY, JSON.stringify(p)); }
+  function learnLoad(){ try{ return JSON.parse(localStorage.getItem(LEARN_KEY)||"{}"); }catch(e){return{} } }
+  function learnSave(x){ localStorage.setItem(LEARN_KEY, JSON.stringify(x)); }
+
+  let FS = fsLoad();
+  let PREF = prefLoad();
+  let LEARN = learnLoad();
+
+  /* ---------- Board / Tiles ---------- */
+  const DEFAULT_N = 6;
+  const SHAPES = ["◼","●","★","▲","◆"]; // square, circle, star, triangle, diamond
+  const COLORS = ["#ffd166","#06d6a0","#118ab2","#ef476f","#ffb4a2"];
+  function rnd(n){ return Math.floor(Math.random()*n); }
+
+  function makeBoard(N=6, level="easy"){
+    const tiles = [];
+    for(let i=0;i<N*N;i++){
+      const shape = SHAPES[rnd(SHAPES.length)];
+      const color = COLORS[rnd(COLORS.length)];
+      tiles.push({shape, color, power: null});
+    }
+    // place power-ups depending on level
+    const counts = (level==="easy") ? 1 : (level==="medium" ? 2 : 3);
+    let placed = 0, attempts = 0;
+    while(placed < counts && attempts < 200){
+      attempts++;
+      const idx = rnd(N*N);
+      // avoid placing on the same starting square (bottom-left)
+      const startIdx = (N-1)*N + 0;
+      if(idx === startIdx) continue;
+      if(tiles[idx].power) continue;
+      // avoid placing on too many identical goal-like tiles? we keep simple
+      const choice = ["bridge","parrot","rewind"][rnd(3)];
+      tiles[idx].power = choice;
+      placed++;
+    }
+    return tiles;
+  }
+
+  /* ---------- Game state ---------- */
+  let STATE = {
+    N: DEFAULT_N,
+    board: [],         // array of tiles {shape,color,power}
+    piratePos: null,   // index
+    goalSeq: [],       // array of {shape,color} to visit in order
+    goalIdx: 0,        // progress index
+    movesLeft: 0,
+    movesHistory: [],  // [{from,to,prevGoalIdx, prevInv}]
+    round: 0,
+    score: 0,
+    inv: {bridge:0, parrot:0, rewind:0},
+    pendingBridge:false, // after using bridge, next move may jump 2
+  };
+
+  /* ---------- UI render ---------- */
+  function setBoardSize(N){
+    document.documentElement.style.setProperty("--N", N);
+    $("boardInfo").textContent = `${N} × ${N}`;
+    const avail = Math.min(window.innerWidth * 0.56, window.innerHeight * 0.6, 680);
+    const sq = Math.floor(clamp((avail - (N-1)*10) / N, 56, 120));
+    document.documentElement.style.setProperty("--sq", sq + "px");
+    $("board").style.gridTemplateColumns = `repeat(${N}, var(--sq))`;
+    $("board").style.gridTemplateRows = `repeat(${N}, var(--sq))`;
+  }
+
+  function renderBoard(){
+    const N = STATE.N;
+    setBoardSize(N);
+    const boardEl = $("board");
+    boardEl.innerHTML = "";
+    for(let i=0;i<N*N;i++){
+      const t = STATE.board[i];
+      const sq = document.createElement("div");
+      sq.className = "sq";
+      // chip (visual tile)
+      const chip = document.createElement("div");
+      chip.className = "chip";
+      chip.style.background = t.color;
+      chip.textContent = t.shape;
+      sq.appendChild(chip);
+
+      // show power-up badge
+      if(t.power){
+        const badge = document.createElement("div");
+        badge.className = "powerupBadge";
+        badge.style.position = "absolute";
+        badge.style.top = "6px";
+        badge.style.left = "6px";
+        badge.style.padding = "6px";
+        badge.style.borderRadius = "8px";
+        badge.style.fontSize = "14px";
+        badge.style.background = "rgba(255,255,255,.9)";
+        badge.style.color = "#07143a";
+        badge.style.fontWeight = "900";
+        badge.textContent = (t.power==="bridge") ? "🌉" : (t.power==="parrot") ? "🦜" : "↩️";
+        sq.appendChild(badge);
+      }
+
+      // label with small text
+      const label = document.createElement("div");
+      label.className = "tile-label";
+      label.textContent = `${t.shape} ${colorNameFromHex(t.color)}`;
+      sq.appendChild(label);
+
+      // selection outline if pirate here
+      if(STATE.piratePos === i) sq.classList.add("sel");
+
+      // mark next goal tiles lightly (if parrot revealed — we manage class below)
+      // attach click
+      sq.onclick = ()=>onSquareClick(i);
+      boardEl.appendChild(sq);
+    }
+
+    $("playerPos").textContent = STATE.piratePos !== null ? idxToRC(STATE.piratePos, N) : "—";
+    $("movesLeft").textContent = `Moves left: ${STATE.movesLeft}`;
+    $("roundLabel").textContent = `Round ${STATE.round}`;
+    $("scoreLabel").textContent = `Score: ${STATE.score}`;
+    $("invBridge").textContent = STATE.inv.bridge;
+    $("invParrot").textContent = STATE.inv.parrot;
+    $("invRewind").textContent = STATE.inv.rewind;
+    renderGoalCard();
+    renderMovesLog();
+  }
+
+  function colorNameFromHex(hex){
+    const map = {"#ffd166":"Yellow","#06d6a0":"Green","#118ab2":"Blue","#ef476f":"Pink","#ffb4a2":"Peach"};
+    return map[hex] || "Color";
+  }
+  function idxToRC(i,N){
+    const r = Math.floor(i/N)+1;
+    const c = (i % N)+1;
+    return `${r},${c}`;
+  }
+
+  /* ---------- Map (goal) generator ---------- */
+  function generateGoal(age="kids", level="easy", N=6){
+    const base = (age==="preschool") ? 2 : (age==="kids"?3:4);
+    const len = (level==="easy") ? base : (level==="medium" ? base+1 : base+2);
+    const seq = [];
+    for(let k=0;k<len;k++){
+      const s = SHAPES[rnd(SHAPES.length)];
+      const c = COLORS[rnd(COLORS.length)];
+      seq.push({shape:s, color:c});
+    }
+    return seq;
+  }
+
+  function renderGoalCard(){
+    const el = $("mapGoal");
+    el.innerHTML = "";
+    const goal = STATE.goalSeq;
+    goal.forEach((g, idx)=>{
+      const chip = document.createElement("div");
+      chip.style.display = "flex";
+      chip.style.alignItems = "center";
+      chip.style.gap = "8px";
+      chip.style.padding = "6px 8px";
+      chip.style.borderRadius = "10px";
+      chip.style.background = idx < STATE.goalIdx ? "rgba(0,0,0,.08)" : "rgba(255,255,255,.03)";
+      chip.style.color = "#07143a";
+      chip.style.fontWeight = 900;
+
+      const pict = document.createElement("div");
+      pict.textContent = g.shape;
+      pict.style.width = "38px";
+      pict.style.height = "38px";
+      pict.style.display = "grid";
+      pict.style.placeItems = "center";
+      pict.style.borderRadius = "8px";
+      pict.style.background = g.color;
+      chip.appendChild(pict);
+
+      const txt = document.createElement("div");
+      txt.style.fontSize = "13px";
+      txt.innerHTML = `<div style="font-weight:900">${colorNameFromHex(g.color)}</div><div style="font-size:11px;color:rgba(0,0,0,.6)">${g.shape}</div>`;
+      chip.appendChild(txt);
+
+      if(idx === STATE.goalIdx){
+        const nowBadge = document.createElement("div");
+        nowBadge.textContent = "Next";
+        nowBadge.style.marginLeft = "8px";
+        nowBadge.style.padding = "4px 6px";
+        nowBadge.style.borderRadius = "8px";
+        nowBadge.style.background = "rgba(0,0,0,.12)";
+        nowBadge.style.fontWeight = 900;
+        chip.appendChild(nowBadge);
+      }
+
+      el.appendChild(chip);
+    });
+  }
+
+  /* ---------- Movement / Game flow ---------- */
+  function placePirateDefault(){
+    const N=STATE.N;
+    STATE.piratePos = STATE.piratePos ?? ((N-1)*N + 0);
+  }
+
+  function onSquareClick(i){
+    if(STATE.movesLeft <= 0){ sfx("err"); logStatus("No moves left — start a new map.", "warn"); return; }
+    const from = STATE.piratePos;
+    if(from === null){ sfx("err"); return; }
+    const N = STATE.N;
+    const [fr,fc] = [Math.floor(from/N), from%N];
+    const [tr,tc] = [Math.floor(i/N), i%N];
+    const man = Math.abs(fr-tr) + Math.abs(fc-tc);
+
+    // check valid move: normally manhattan=1; if pendingBridge then allow manhattan=2 straight (one coord diff 2, other 0)
+    if(STATE.pendingBridge){
+      const straightTwo = (Math.abs(fr-tr)===2 && fc===tc) || (Math.abs(fc-tc)===2 && fr===tr);
+      if(!(man===1 || straightTwo)){
+        sfx("err");
+        logStatus("Bridge active: you may jump 2 squares straight or move 1 square.", "warn");
+        return;
+      }
+    } else {
+      if(man !== 1){ sfx("err"); logStatus("You must move to an adjacent square. Use Bridge to jump.", "warn"); return; }
+    }
+
+    // record prev inventory snapshot for rewinds
+    const prevInv = { ...STATE.inv };
+
+    // do move
+    const prevGoal = STATE.goalIdx;
+    STATE.piratePos = i;
+    STATE.movesLeft--;
+    STATE.movesHistory.push({from, to:i, prevGoalIdx:prevGoal, prevInv});
+
+    // consume pending bridge if used (only if moved 2)
+    if(STATE.pendingBridge && Math.abs(fr-tr)+Math.abs(fc-tc)===2){ STATE.pendingBridge=false; logStatus("Bridge used.", "info"); }
+
+    // handle tile power-up collection (collect before checking goal)
+    const tile = STATE.board[i];
+    if(tile.power){
+      const p = tile.power;
+      STATE.inv[p] = (STATE.inv[p]||0) + 1;
+      tile.power = null; // remove
+      sfx("collect");
+      logStatus(`Collected ${p.toUpperCase()}!`, "good");
+    }
+
+    // check if matches current goal tile (exact match)
+    const goal = STATE.goalSeq[STATE.goalIdx];
+    if(goal && tile.shape === goal.shape && tile.color === goal.color){
+      STATE.goalIdx++;
+      sfx("move");
+      logStatus("Nice! Progress made.", "good");
+      if(STATE.goalIdx >= STATE.goalSeq.length){
+        // success
+        STATE.round++;
+        const gained = 10 + (STATE.movesLeft * 2);
+        STATE.score += gained;
+        sfx("win");
+        logStatus(`Round complete! +${gained} points`, "good");
+        // prepare next map after short delay
+        setTimeout(()=>startNewMap(false), 900);
+      }
+    } else {
+      sfx("err");
+      logStatus("Not the right tile — try again.", "warn");
+    }
+
+    renderBoard();
+  }
+
+  function doUndo(){
+    if(!STATE.movesHistory.length){ sfx("err"); logStatus("Nothing to undo.", "warn"); return; }
+    const last = STATE.movesHistory.pop();
+    STATE.piratePos = last.from;
+    STATE.movesLeft++; // refund move
+    // restore goal index in case we advanced
+    STATE.goalIdx = last.prevGoalIdx;
+    // NOTE: Undo does not restore inventory (keeps collect); Rewind does and consumes item
+    sfx("select");
+    renderBoard();
+    logStatus("Undo performed.", "info");
+  }
+
+  function doRewindItem(){
+    // Rewind consumes one rewind item and reverts last move fully including inventory
+    if(STATE.inv.rewind <= 0){ logStatus("No Rewind items.", "warn"); sfx("err"); return; }
+    if(!STATE.movesHistory.length){ logStatus("No moves to rewind.", "warn"); sfx("err"); return; }
+    const last = STATE.movesHistory.pop();
+    // restore position and movesLeft and goal index
+    STATE.piratePos = last.from;
+    STATE.movesLeft++; // refund
+    STATE.goalIdx = last.prevGoalIdx;
+    // restore previous inventory snapshot if available
+    if(last.prevInv) STATE.inv = { ...last.prevInv };
+    STATE.inv.rewind = Math.max(0, STATE.inv.rewind - 1);
+    sfx("select");
+    renderBoard();
+    logStatus("Rewind used — last move restored.", "info");
+  }
+
+  function giveHint(){
+    if(!STATE.goalSeq.length) return;
+    const goal = STATE.goalSeq[STATE.goalIdx];
+    // find nearest tile that matches the goal (Manhattan)
+    const N = STATE.N;
+    let best = null, bestD = 9999;
+    for(let i=0;i<N*N;i++){
+      const t = STATE.board[i];
+      if(t.shape===goal.shape && t.color===goal.color){
+        const d = Math.abs(Math.floor(STATE.piratePos/N) - Math.floor(i/N)) + Math.abs((STATE.piratePos%N) - (i%N));
+        if(d < bestD){ bestD = d; best = i; }
+      }
+    }
+    if(best !== null){
+      const rc = idxToRC(best,N);
+      logStatus(`Hint: nearest goal tile at ${rc}`, "info");
+      if($("optHint").checked) {
+        const el = $("board").children[best];
+        if(el){ el.classList.add("legal"); setTimeout(()=>el.classList.remove("legal"), 900); }
+      }
+    } else {
+      logStatus("Hint: target tile not on board (maybe shuffle).", "warn");
+    }
+  }
+
+  /* ---------- Power-up use handlers ---------- */
+  function useBridge(){
+    if(STATE.inv.bridge <= 0){ logStatus("No Bridge items.", "warn"); sfx("err"); return; }
+    STATE.inv.bridge--;
+    STATE.pendingBridge = true;
+    logStatus("Bridge activated. Next move may jump 2 squares straight.", "info");
+    renderBoard();
+  }
+
+  function useParrot(){
+    if(STATE.inv.parrot <= 0){ logStatus("No Parrot items.", "warn"); sfx("err"); return; }
+    STATE.inv.parrot--;
+    // reveal positions of next two goal tiles (or fewer if n less)
+    const reveal = STATE.goalSeq.slice(STATE.goalIdx, STATE.goalIdx+2);
+    if(reveal.length===0){ logStatus("No targets to reveal.", "warn"); return; }
+    const N = STATE.N;
+    const boardEl = $("board");
+    // find matching tile indices for each reveal in order (first nearest)
+    reveal.forEach((g, k)=>{
+      let best = null, bestD = 9999;
+      for(let i=0;i<N*N;i++){
+        const t = STATE.board[i];
+        if(t.shape===g.shape && t.color===g.color){
+          const d = Math.abs(Math.floor(STATE.piratePos/N) - Math.floor(i/N)) + Math.abs((STATE.piratePos%N) - (i%N));
+          if(d < bestD){ bestD = d; best = i; }
+        }
+      }
+      if(best !== null){
+        const el = boardEl.children[best];
+        if(el){
+          el.classList.add("legal");
+          setTimeout(()=>el.classList.remove("legal"), 1400 + k*400);
+        }
+      }
+    });
+    logStatus("Parrot reveals shown.", "info");
+    renderBoard();
+  }
+
+  /* ---------- Map / Round control ---------- */
+  function startNewMap(resetScore=true){
+    const age = $("ageGroup").value;
+    const level = $("level").value;
+    STATE.N = DEFAULT_N;
+    STATE.board = makeBoard(STATE.N, level);
+    STATE.goalSeq = generateGoal(age, level, STATE.N);
+    STATE.goalIdx = 0;
+    STATE.movesHistory = [];
+    STATE.round = resetScore ? 1 : STATE.round+1;
+    STATE.movesLeft = STATE.goalSeq.length * (level==="easy"?4:(level==="medium"?3:2));
+    // ensure pirate placed and not on small random tile removal
+    if(STATE.piratePos === null) placePirateDefault();
+    if(STATE.piratePos < 0 || STATE.piratePos >= STATE.N*STATE.N) STATE.piratePos = (STATE.N-1)*STATE.N + 0;
+    // reset pending bridge
+    STATE.pendingBridge = false;
+    renderBoard();
+    logStatus("New map ready. Follow the Map Card.", "info");
+  }
+
+  function shuffleBoard(){
+    for(let i=STATE.board.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [STATE.board[i], STATE.board[j]] = [STATE.board[j], STATE.board[i]];
+    }
+    renderBoard();
+    logStatus("Board shuffled.", "info");
+  }
+
+  /* ---------- Moves log rendering ---------- */
+  function renderMovesLog(){
+    const el = $("movesLog");
+    el.innerHTML = STATE.movesHistory.map((m,idx)=> {
+      const rcFrom = idxToRC(m.from, STATE.N);
+      const rcTo = idxToRC(m.to, STATE.N);
+      return `${idx+1}. ${rcFrom} → ${rcTo}`;
+    }).join("\n");
+    el.scrollTop = el.scrollHeight;
+  }
+
+  /* ---------- Mini Cloud UI ---------- */
+  function renderFileList(){
+    const el = $("fileList");
+    el.innerHTML = "";
+    FS = fsLoad();
+    if(!FS.files.length){ el.innerHTML = `<div class="small">No saves yet</div>`; return; }
+    FS.files.forEach(f=>{
+      const row = document.createElement("div");
+      row.className = "fileRow";
+      row.innerHTML = `<div><div style="font-weight:900">${f.name}</div><div class="small">${new Date(f.updatedAt).toLocaleString()}</div></div><div style="display:flex;gap:8px"><button data-id="${f.id}" class="loadBtn">Load</button><button data-id="${f.id}" class="delBtn">Del</button></div>`;
+      el.appendChild(row);
+    });
+    Array.from(el.querySelectorAll(".loadBtn")).forEach(b=>b.onclick = ()=>{ const id=b.getAttribute("data-id"); loadFromFS(id); });
+    Array.from(el.querySelectorAll(".delBtn")).forEach(b=>b.onclick = ()=>{ const id=b.getAttribute("data-id"); deleteFromFS(id); });
+  }
+
+  function saveToFS(name){
+    const file = {
+      id: uid("file"),
+      name: name || `map-${new Date().toISOString().slice(0,10)}`,
+      createdAt: now(),
+      updatedAt: now(),
+      data: deepCopyState()
+    };
+    FS = fsLoad();
+    FS.files.push(file);
+    fsSave(FS);
+    logStatus(`Saved "${file.name}"`, "good");
+  }
+
+  function loadFromFS(id){
+    const fs = fsLoad();
+    const f = fs.files.find(x=>x.id===id);
+    if(!f){ logStatus("File not found.", "warn"); return; }
+    STATE = f.data;
+    renderBoard();
+    logStatus(`Loaded "${f.name}"`, "good");
+  }
+
+  function deleteFromFS(id){
+    if(!confirm("Delete this save?")) return;
+    const fs = fsLoad();
+    fs.files = fs.files.filter(x=>x.id!==id);
+    localStorage.setItem(FS_KEY, JSON.stringify(fs));
+    renderFileList();
+    logStatus("File deleted.", "info");
+  }
+
+  function deepCopyState(){ return JSON.parse(JSON.stringify(STATE)); }
+
+  /* ---------- Academy UI ---------- */
+  const LESSONS = [
+    {id:"L1", title:"Preschool: Tap-to-match (2-step)", age:"preschool", unlock:"basic"},
+    {id:"L2", title:"Kids: Route planning (3-step)", age:"kids", unlock:"basic"},
+    {id:"L3", title:"Kids: Avoid distractors", age:"kids", unlock:"puzzles"},
+    {id:"L4", title:"Teen: Multi-attribute patterns", age:"teen", unlock:"analysis"},
+  ];
+
+  function renderAcademy(){
+    const box = $("academyList");
+    box.innerHTML = "";
+    const myAge = $("ageGroup").value;
+    LESSONS.forEach(L=>{
+      const div = document.createElement("div");
+      div.className = "lesson " + (L.age !== myAge ? "locked" : "");
+      div.innerHTML = `<div style="font-weight:900">${L.title}</div><div style="display:flex;gap:8px"><button ${L.age!==myAge ? "disabled":""} data-id="${L.id}" class="lessonBtn">Start</button></div>`;
+      box.appendChild(div);
+    });
+    Array.from(box.querySelectorAll(".lessonBtn")).forEach(b=>{
+      b.onclick = ()=>{
+        const id = b.getAttribute("data-id");
+        handleStartLesson(id);
+      };
+    });
+  }
+
+  function handleStartLesson(id){
+    if(id === "L1"){ $("ageGroup").value = "preschool"; $("level").value="easy"; startNewMap(true); logStatus("Lesson L1 started: Tap-to-match.", "info"); }
+    if(id === "L2"){ $("ageGroup").value = "kids"; $("level").value="easy"; startNewMap(true); logStatus("Lesson L2: Route planning.", "info"); }
+    if(id === "L3"){ $("ageGroup").value = "kids"; $("level").value="medium"; startNewMap(true); logStatus("Lesson L3: Distractors added.", "info"); }
+    if(id === "L4"){ $("ageGroup").value = "teen"; $("level").value="hard"; startNewMap(true); logStatus("Lesson L4 started: Multi-attribute patterns.", "info"); }
+  }
+
+  /* ---------- UI wiring ---------- */
+  $("btnNew").onclick = ()=>{ startNewMap(true); };
+  $("btnShuffle").onclick = ()=>{ shuffleBoard(); };
+  $("btnUndo").onclick = ()=>{ doUndo(); };
+  $("btnHint").onclick = ()=>{ giveHint(); };
+  $("btnSave").onclick = ()=>{ saveToFS($("saveName").value || `map-${new Date().toISOString().slice(0,10)}`); renderFileList(); };
+  $("btnQuickSave").onclick = ()=>{ saveToFS($("saveName").value || `map-${new Date().toISOString().slice(0,10)}`); renderFileList(); };
+  $("btnLoad").onclick = ()=>{ const id = prompt("Enter file id to load (see list)?"); if(id) loadFromFS(id); };
+  $("btnDelete").onclick = ()=>{ const id = prompt("Enter file id to delete?"); if(id) deleteFromFS(id); };
+  $("btnShowMap").onclick = ()=>{ renderGoalCard(); logStatus("Map Card shown.", "info"); };
+  $("btnToggleSound").onclick = ()=>{ soundOn = !soundOn; $("btnToggleSound").textContent = `Sound: ${soundOn ? "On":"Off"}`; prefSave({sound:soundOn}); };
+  $("optHighContrast").onchange = (e)=>{ if(e.target.checked) document.documentElement.style.setProperty("--sq", "96px"); else document.documentElement.style.setProperty("--sq", "78px"); };
+
+  $("useBridge").onclick = useBridge;
+  $("useParrot").onclick = useParrot;
+  $("useRewind").onclick = ()=>{ doRewindItem(); };
+
+  // keyboard controls (arrow keys)
+  window.addEventListener("keydown", (ev)=>{
+    if(STATE.piratePos===null) return;
+    const N = STATE.N;
+    const from = STATE.piratePos;
+    let to = null;
+    if(ev.key === "ArrowUp"){ const r = Math.floor(from/N)-1; if(r>=0) to = (r)*N + (from%N); }
+    if(ev.key === "ArrowDown"){ const r = Math.floor(from/N)+1; if(r < N) to = (r)*N + (from%N); }
+    if(ev.key === "ArrowLeft"){ const c = (from%N)-1; if(c>=0) to = Math.floor(from/N)*N + c; }
+    if(ev.key === "ArrowRight"){ const c = (from%N)+1; if(c < N) to = Math.floor(from/N)*N + c; }
+    if(to !== null){ onSquareClick(to); ev.preventDefault(); }
+    if(ev.key === "u"){ doUndo(); }
+    if(ev.key === "h"){ giveHint(); }
+    if(ev.key === "r"){ /* quick Rewind keyboard shortcut */ doRewindItem(); }
+  });
+
+  /* ---------- init ---------- */
+  function init(){
+    const p = prefLoad();
+    if(typeof p.sound !== "undefined") soundOn = !!p.sound;
+    $("btnToggleSound").textContent = soundOn ? "Sound: On" : "Sound: Off";
+    FS = fsLoad();
+    renderFileList();
+    renderAcademy();
+    startNewMap(true);
+    setInterval(()=>{ $("timeLabel").textContent = new Date().toLocaleTimeString(); }, 1000);
+  }
+
+  init();
+
+})();
+</script>
+</body>
+</html>
+What's next?
+
+I can add a UI tutorial overlay that walks a child step-by-step the first time they open the app.
+
+Or I can make power-ups spawn as rewards for completing rounds instead of randomly.
+
+Or I can add teacher controls to configure how many power-ups appear per map and lock some items behind lessons.
+
+Which would you like me to do next?
+
+
+
+
+
+
+You said:
+add a UI tutorial overlay that walks a child step-by-step the first time they open the app.
+
+
+
+ChatGPT said:
+
+Thought for a couple of seconds
+Got it — I added a friendly, step-by-step UI tutorial overlay that runs the first time a child opens the app (and can be re-opened with a "Show Tutorial" button). It highlights relevant UI elements, explains actions, and stores a local flag so it won't repeat unless you ask.
+
+Paste this single-file HTML (full app + power-ups + tutorial) into Wix or open locally — it’s ready.
+
+html
+Copy code
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Pattern Pirates — Prototype with Power-ups + Tutorial</title>
+<style>
+  :root{
+    --bg:#082032; --panel:#0b2740; --card: rgba(255,255,255,.03);
+    --accent:#ffc857; --accent2:#7be7ff; --muted:#cfe8ff; --good:#7dff9e; --warn:#ff7b7b;
+    --sq:78px; --r:16px;
+    --shadow: 0 12px 28px rgba(0,0,0,.5);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%; margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial; background:linear-gradient(180deg,#041021 0%, #07263d 60%); color:var(--muted)}
+  .app{display:grid; grid-template-columns:380px 1fr; gap:18px; padding:18px; height:100%;}
+  .panel{background:var(--panel); border-radius:var(--r); border:1px solid rgba(255,255,255,.06); box-shadow:var(--shadow); overflow:hidden; display:flex; flex-direction:column}
+  header{display:flex; align-items:center; justify-content:space-between; padding:12px 14px; border-bottom:1px solid rgba(255,255,255,.04)}
+  .brand{display:flex; gap:12px; align-items:center}
+  .logo{width:44px; height:44px; border-radius:12px; background:linear-gradient(120deg,#ffd67a,#ff8a5b); display:grid; place-items:center; color:#07143a; font-weight:900; font-size:22px; box-shadow:0 8px 16px rgba(255,138,91,.12)}
+  .title{font-weight:900; font-size:15px; letter-spacing:.6px}
+  .subtitle{font-size:12px; color:rgba(255,255,255,.7)}
+  .content{padding:14px; overflow:auto; display:grid; gap:14px}
+  .card{background:var(--card); border-radius:12px; padding:12px; border:1px solid rgba(255,255,255,.03)}
+  label{display:block; font-size:12px; color:var(--muted); margin-bottom:6px; font-weight:800}
+  select,input[type="text"]{width:100%; padding:10px; border-radius:10px; border:1px solid rgba(255,255,255,.06); background:transparent; color:var(--muted); outline:none; font-weight:800}
+  .row{display:flex; gap:10px}
+  button{cursor:pointer; border-radius:12px; padding:8px 12px; border:1px solid rgba(255,255,255,.06); background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01)); color:var(--muted); font-weight:900}
+  .primary{background:linear-gradient(180deg,#ffda8a,#ffc857); color:#07143a}
+  .good{background:linear-gradient(180deg,#9effc8,#7dff9e); color:#05321a}
+  .danger{background:linear-gradient(180deg,#ff9b9b,#ff7b7b); color:#3a0303}
+  .small{font-size:12px; color:rgba(255,255,255,.72)}
+  .statusbar{padding:10px 14px; border-top:1px solid rgba(255,255,255,.03); display:flex; justify-content:space-between; align-items:center; font-weight:900; font-size:13px}
+  .dot{width:10px; height:10px; border-radius:99px; background:var(--accent2); box-shadow:0 6px 12px rgba(123,231,255,.12)}
+  /* Board area */
+  .boardArea{display:flex; gap:14px; align-items:flex-start; padding:14px}
+  .boardWrap{background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01)); padding:14px; border-radius:14px; border:1px solid rgba(255,255,255,.03)}
+  .board{display:grid; gap:10px; border-radius:14px; padding:12px; background:rgba(0,0,0,.12)}
+  .sq{width:var(--sq); height:var(--sq); border-radius:12px; display:grid; place-items:center; position:relative; user-select:none; cursor:pointer; font-size:30px; transition:transform .08s; z-index:1}
+  .sq:active{transform:translateY(1px)}
+  .sq .chip{width:86%; height:86%; border-radius:10px; display:grid; place-items:center; font-size:34px; font-weight:900; color:#07263d}
+  .sq.sel{outline:6px solid rgba(255,255,255,.12); box-shadow:0 10px 20px rgba(0,0,0,.3); z-index:3}
+  .sq.legal{outline:6px solid rgba(125,255,158,.4)}
+  .sq.powerupBadge{box-shadow:0 6px 18px rgba(0,0,0,.25)}
+  .tile-label{position:absolute; bottom:6px; font-size:12px; font-weight:900; color:rgba(255,255,255,.9); background:rgba(0,0,0,.18); padding:4px 8px; border-radius:999px}
+  .controls{display:flex; flex-direction:column; gap:12px; min-width:300px}
+  .panelRow{display:flex; gap:8px; align-items:center}
+  .mapCard{background:linear-gradient(180deg,#ffdba2,#ffeecd); padding:12px; border-radius:12px; color:#07143a; font-weight:900}
+  .mapSeq{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+  .badge{padding:6px 8px; border-radius:10px; font-weight:900; background:rgba(255,255,255,.06)}
+  .movesLog{height:120px; overflow:auto; border-radius:10px; border:1px solid rgba(255,255,255,.03); padding:8px; background:rgba(0,0,0,.08); font-weight:800}
+  .miniCloud{display:grid; gap:8px}
+  .tree{background:rgba(255,255,255,.02); border-radius:8px; padding:8px; max-height:140px; overflow:auto}
+  .fileRow{padding:8px; border-radius:8px; display:flex; justify-content:space-between; gap:8px; align-items:center}
+  .fileRow:hover{background:rgba(255,255,255,.02)}
+  /* Academy */
+  .academy{display:grid; gap:8px}
+  .lesson{padding:8px; border-radius:10px; display:flex; justify-content:space-between; align-items:center}
+  .lesson.locked{opacity:.45}
+  /* Instructions */
+  .instructions{font-size:13px; line-height:1.35; color:rgba(255,255,255,.84)}
+  .powerGrid{display:flex; gap:8px; align-items:center; margin-top:8px}
+  .powerBox{background:rgba(255,255,255,.03); border-radius:10px; padding:8px; display:flex; gap:8px; align-items:center}
+  /* Tutorial overlay */
+  .tourOverlay{position:fixed; inset:0; background:rgba(2,6,12,.6); z-index:9999; display:flex; align-items:center; justify-content:center; padding:18px}
+  .tourCard{width:620px; max-width:calc(100% - 40px); background:linear-gradient(180deg,#fff,#f6f6f6); color:#07143a; border-radius:14px; padding:18px; box-shadow:0 18px 48px rgba(0,0,0,.6); font-weight:800}
+  .tourTitle{font-size:18px; font-weight:900; margin-bottom:8px}
+  .tourText{font-size:14px; color:#123; margin-bottom:12px}
+  .tourBtns{display:flex; gap:8px; justify-content:flex-end}
+  .tourHighlight{position:relative; z-index:10001; box-shadow:0 0 0 6px rgba(255,255,255,.06), 0 16px 40px rgba(0,0,0,.6); border-radius:12px; transform:translateZ(0);}
+  .tourPointer{font-size:18px; margin-right:8px}
+  .tourSmall{font-size:12px; color:#234}
+  /* responsive */
+  @media (max-width:980px){
+    .app{grid-template-columns:1fr; padding:12px}
+    .boardArea{flex-direction:column; align-items:center}
+    .controls{width:100%}
+    .tourCard{width:calc(100% - 34px)}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- LEFT PANEL -->
+  <section class="panel">
+    <header>
+      <div class="brand">
+        <div class="logo">🏴</div>
+        <div>
+          <div class="title">Pattern Pirates</div>
+          <div class="subtitle">Prototype — Offline | Power-ups & Tutorial</div>
+        </div>
+      </div>
+      <div style="display:flex; gap:8px; align-items:center">
+        <button id="btnNew" class="primary">New Map</button>
+        <button id="btnSave" title="Save game">Save</button>
+      </div>
+    </header>
+
+    <div class="content">
+      <div class="card">
+        <label>Age Group</label>
+        <select id="ageGroup">
+          <option value="preschool">Preschool</option>
+          <option value="kids" selected>Kids</option>
+          <option value="teen">Teen</option>
+        </select>
+      </div>
+
+      <div class="card">
+        <label>Difficulty</label>
+        <select id="level">
+          <option value="easy">Easy (short)</option>
+          <option value="medium">Medium</option>
+          <option value="hard">Hard (long)</option>
+        </select>
+      </div>
+
+      <div class="card">
+        <label>Options</label>
+        <div class="row">
+          <label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="optHint" checked> Hint</label>
+          <label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="optHighContrast"> Big tiles</label>
+        </div>
+      </div>
+
+      <div class="card miniCloud">
+        <div style="display:flex; justify-content:space-between; align-items:center">
+          <div class="small">Mini Cloud (Local)</div>
+          <div style="display:flex; gap:8px">
+            <input id="saveName" type="text" placeholder="file-name" style="width:140px;"/>
+            <button id="btnQuickSave" class="primary">Save</button>
+          </div>
+        </div>
+        <div class="tree" id="fileList"></div>
+        <div style="display:flex; gap:8px; margin-top:8px">
+          <button id="btnLoad">Load</button>
+          <button id="btnDelete" class="danger">Delete</button>
+        </div>
+      </div>
+
+      <div class="card academy">
+        <div style="display:flex; justify-content:space-between; align-items:center">
+          <div class="small">Academy Path</div>
+          <div class="small">Progress unlocks features</div>
+        </div>
+        <div id="academyList" style="margin-top:8px"></div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center">
+          <div style="font-weight:900">How to Play (Quick)</div>
+          <div class="small">Step-by-step</div>
+        </div>
+        <div class="instructions" style="margin-top:8px">
+          <ol>
+            <li>Look at the <strong>Map Card</strong> (right). It shows the sequence of tiles to visit in order.</li>
+            <li>Move the pirate by tapping an adjacent square (or use arrow keys). Each move uses one move from the budget.</li>
+            <li>Step onto tiles that match the next Map Card item (shape + color). When you match them all you finish the round and earn points.</li>
+            <li>Collect power-ups by stepping on a tile with a power-up badge (🌉 🦜 ↩️). They appear randomly on the board.</li>
+            <li>Open the <strong>Power-ups</strong> box to use them:
+              <ul>
+                <li><strong>Bridge (🌉)</strong> — activate, then your next move can jump two squares orthogonally (skip one square). Use to reach distant targets quickly.</li>
+                <li><strong>Parrot (🦜)</strong> — reveal positions of the next two goal tiles (they flash to show where to go).</li>
+                <li><strong>Rewind (↩️)</strong> — reverts the last move (restores your previous position, moves left, and goal progress).</li>
+              </ul>
+            </li>
+            <li>If you get stuck, use a Parrot hint or Rewind an earlier move. Undo (u) is also available for a simple step-back.</li>
+            <li>Saves/loads are stored locally in your Mini Cloud. Everything stays on your device.</li>
+          </ol>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; margin-top:8px">
+          <div class="small">Power-ups in this round</div>
+          <div class="small">Collect and Use!</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center">
+          <div class="small">Power-ups / Inventory</div>
+          <div class="small">Tap Use to activate</div>
+        </div>
+        <div class="powerGrid">
+          <div class="powerBox" style="flex:1">
+            <div style="font-size:22px">🌉</div>
+            <div style="flex:1">
+              <div style="font-weight:900">Bridge</div>
+              <div class="small">Jump 2 squares next move</div>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end">
+              <div id="invBridge" style="font-weight:900">0</div>
+              <button id="useBridge">Use</button>
+            </div>
+          </div>
+
+          <div class="powerBox" style="flex:1">
+            <div style="font-size:22px">🦜</div>
+            <div style="flex:1">
+              <div style="font-weight:900">Parrot</div>
+              <div class="small">Reveal next 2 targets</div>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end">
+              <div id="invParrot" style="font-weight:900">0</div>
+              <button id="useParrot">Use</button>
+            </div>
+          </div>
+
+          <div class="powerBox" style="flex:1">
+            <div style="font-size:22px">↩️</div>
+            <div style="flex:1">
+              <div style="font-weight:900">Rewind</div>
+              <div class="small">Rewind last move</div>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end">
+              <div id="invRewind" style="font-weight:900">0</div>
+              <button id="useRewind">Use</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="statusbar">
+      <div style="display:flex; gap:12px; align-items:center">
+        <div class="dot" id="dot"></div>
+        <div id="status">Ready</div>
+      </div>
+      <div style="display:flex; gap:8px; align-items:center">
+        <div class="small" id="scoreLabel">Score: 0</div>
+        <button id="btnShowTour" style="font-size:12px">Show Tutorial</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- RIGHT PANEL -->
+  <section class="panel">
+    <header>
+      <div style="display:flex; gap:12px; align-items:center">
+        <div style="font-weight:900; font-size:16px">Board</div>
+        <div class="small" id="boardInfo">6 × 6</div>
+      </div>
+      <div style="display:flex; gap:8px; align-items:center">
+        <button id="btnUndo">Undo</button>
+        <button id="btnHint" class="good">Hint</button>
+        <button id="btnToggleSound">Sound: On</button>
+      </div>
+    </header>
+
+    <div class="boardArea">
+      <div class="boardWrap">
+        <div id="board" class="board" style="--N:6"></div>
+      </div>
+
+      <div class="controls">
+        <div class="card mapCard">
+          <div style="display:flex; justify-content:space-between; align-items:center">
+            <div style="font-weight:900">Map Card</div>
+            <div class="small" id="movesLeft">Moves left: 0</div>
+          </div>
+          <div style="height:8px"></div>
+          <div id="mapGoal" class="mapSeq"></div>
+          <div style="height:10px"></div>
+          <div class="small" id="mapHint">Follow the sequence by stepping onto matching tiles in order.</div>
+        </div>
+
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px">
+            <div class="small">Player</div>
+            <div class="badge" id="playerPos">—</div>
+          </div>
+          <div class="panelRow">
+            <button id="btnShowMap">Show Map</button>
+            <button id="btnShuffle" class="primary">Shuffle Board</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; align-items:center">
+            <div class="small">Moves Log</div>
+            <div class="small" id="roundLabel">Round 0</div>
+          </div>
+          <div class="movesLog" id="movesLog"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="statusbar">
+      <div class="small">Pattern Pirates prototype — local only</div>
+      <div class="small" id="timeLabel"></div>
+    </div>
+  </section>
+</div>
+
+<!-- Tutorial overlay (hidden by default) -->
+<div id="tourOverlay" class="tourOverlay" style="display:none">
+  <div class="tourCard" role="dialog" aria-modal="true" aria-labelledby="tourTitle">
+    <div class="tourTitle" id="tourTitle">Welcome to Pattern Pirates!</div>
+    <div class="tourText" id="tourText">Let's take a quick tour to learn how to play. Use <strong>Next</strong> to move through the steps. You can skip the tour anytime.</div>
+    <div style="height:10px"></div>
+    <div id="tourNote" class="tourSmall">Step <span id="tourStepNum">1</span> of <span id="tourTotal">1</span></div>
+    <div style="height:12px"></div>
+    <div class="tourBtns">
+      <button id="tourBack">Back</button>
+      <button id="tourSkip" class="danger">Skip</button>
+      <button id="tourNext" class="primary">Next</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* Pattern Pirates — single file prototype with Power-ups + Tutorial
+   - Tutorial flag stored in localStorage: PP_TOUR_DONE_v1
+*/
+(() => {
+  "use strict";
+
+  /* ---------- Helpers ---------- */
+  const $ = id => document.getElementById(id);
+  const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
+  const now = ()=>Date.now();
+  const uid = (p="id")=> p + "_" + Math.random().toString(16).slice(2,9);
+
+  function logStatus(msg, tone="info"){
+    $("status").textContent = msg;
+    const dot = $("dot");
+    if(tone==="good") dot.style.background = "var(--good)";
+    else if(tone==="warn") dot.style.background = "var(--warn)";
+    else dot.style.background = "var(--accent2)";
+  }
+
+  /* ---------- Sound ---------- */
+  let soundOn = true;
+  let audioCtx = null;
+  function beep(f=440,d=90,g=0.05){ if(!soundOn) return; try{ if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)(); const t=audioCtx.currentTime; const o=audioCtx.createOscillator(); const gr=audioCtx.createGain(); o.frequency.value=f; o.type="sine"; gr.gain.value=g; o.connect(gr); gr.connect(audioCtx.destination); o.start(t); o.stop(t + d/1000);}catch(e){} }
+  function sfx(name){
+    if(!soundOn) return;
+    if(name==="select") beep(720,70,0.05);
+    if(name==="move") { beep(520,90,0.06); setTimeout(()=>beep(760,70,0.04),90) }
+    if(name==="win"){ beep(880,130,0.08); setTimeout(()=>beep(1100,130,0.08),150) }
+    if(name==="err") beep(240,120,0.06);
+    if(name==="collect") beep(980,90,0.06);
+  }
+
+  /* ---------- Storage (mini cloud) ---------- */
+  const FS_KEY = "PP_FS_v1";
+  const PREF_KEY = "PP_PREF_v1";
+  const LEARN_KEY = "PP_LEARN_v1";
+  const TOUR_KEY = "PP_TOUR_DONE_v1";
+
+  function fsLoad(){ try{ const raw = localStorage.getItem(FS_KEY); if(!raw) return {files:[]}; return JSON.parse(raw); }catch(e){ return {files:[]}; } }
+  function fsSave(fs){ localStorage.setItem(FS_KEY, JSON.stringify(fs)); renderFileList(); }
+  function prefLoad(){ try{ return JSON.parse(localStorage.getItem(PREF_KEY)||"{}"); }catch(e){return{}} }
+  function prefSave(p){ localStorage.setItem(PREF_KEY, JSON.stringify(p)); }
+  function learnLoad(){ try{ return JSON.parse(localStorage.getItem(LEARN_KEY)||"{}"); }catch(e){return{} } }
+  function learnSave(x){ localStorage.setItem(LEARN_KEY, JSON.stringify(x)); }
+  function tourDone(){ return localStorage.getItem(TOUR_KEY) === "1"; }
+  function setTourDone(){ localStorage.setItem(TOUR_KEY, "1"); }
+
+  let FS = fsLoad();
+  let PREF = prefLoad();
+  let LEARN = learnLoad();
+
+  /* ---------- Board / Tiles ---------- */
+  const DEFAULT_N = 6;
+  const SHAPES = ["◼","●","★","▲","◆"];
+  const COLORS = ["#ffd166","#06d6a0","#118ab2","#ef476f","#ffb4a2"];
+  function rnd(n){ return Math.floor(Math.random()*n); }
+
+  function makeBoard(N=6, level="easy"){
+    const tiles = [];
+    for(let i=0;i<N*N;i++){
+      const shape = SHAPES[rnd(SHAPES.length)];
+      const color = COLORS[rnd(COLORS.length)];
+      tiles.push({shape, color, power: null});
+    }
+    const counts = (level==="easy") ? 1 : (level==="medium" ? 2 : 3);
+    let placed = 0, attempts = 0;
+    while(placed < counts && attempts < 200){
+      attempts++;
+      const idx = rnd(N*N);
+      const startIdx = (N-1)*N + 0;
+      if(idx === startIdx) continue;
+      if(tiles[idx].power) continue;
+      const choice = ["bridge","parrot","rewind"][rnd(3)];
+      tiles[idx].power = choice;
+      placed++;
+    }
+    return tiles;
+  }
+
+  /* ---------- Game state ---------- */
+  let STATE = {
+    N: DEFAULT_N,
+    board: [],
+    piratePos: null,
+    goalSeq: [],
+    goalIdx: 0,
+    movesLeft: 0,
+    movesHistory: [],
+    round: 0,
+    score: 0,
+    inv: {bridge:0, parrot:0, rewind:0},
+    pendingBridge:false,
+  };
+
+  /* ---------- UI render ---------- */
+  function setBoardSize(N){
+    document.documentElement.style.setProperty("--N", N);
+    $("boardInfo").textContent = `${N} × ${N}`;
+    const avail = Math.min(window.innerWidth * 0.56, window.innerHeight * 0.6, 680);
+    const sq = Math.floor(clamp((avail - (N-1)*10) / N, 56, 120));
+    document.documentElement.style.setProperty("--sq", sq + "px");
+    $("board").style.gridTemplateColumns = `repeat(${N}, var(--sq))`;
+    $("board").style.gridTemplateRows = `repeat(${N}, var(--sq))`;
+  }
+
+  function renderBoard(){
+    const N = STATE.N;
+    setBoardSize(N);
+    const boardEl = $("board");
+    boardEl.innerHTML = "";
+    for(let i=0;i<N*N;i++){
+      const t = STATE.board[i];
+      const sq = document.createElement("div");
+      sq.className = "sq";
+      const chip = document.createElement("div");
+      chip.className = "chip";
+      chip.style.background = t.color;
+      chip.textContent = t.shape;
+      sq.appendChild(chip);
+
+      if(t.power){
+        const badge = document.createElement("div");
+        badge.className = "powerupBadge";
+        badge.style.position = "absolute";
+        badge.style.top = "6px";
+        badge.style.left = "6px";
+        badge.style.padding = "6px";
+        badge.style.borderRadius = "8px";
+        badge.style.fontSize = "14px";
+        badge.style.background = "rgba(255,255,255,.9)";
+        badge.style.color = "#07143a";
+        badge.style.fontWeight = "900";
+        badge.textContent = (t.power==="bridge") ? "🌉" : (t.power==="parrot") ? "🦜" : "↩️";
+        sq.appendChild(badge);
+      }
+
+      const label = document.createElement("div");
+      label.className = "tile-label";
+      label.textContent = `${t.shape} ${colorNameFromHex(t.color)}`;
+      sq.appendChild(label);
+
+      if(STATE.piratePos === i) sq.classList.add("sel");
+      sq.onclick = ()=>onSquareClick(i);
+      boardEl.appendChild(sq);
+    }
+
+    $("playerPos").textContent = STATE.piratePos !== null ? idxToRC(STATE.piratePos, N) : "—";
+    $("movesLeft").textContent = `Moves left: ${STATE.movesLeft}`;
+    $("roundLabel").textContent = `Round ${STATE.round}`;
+    $("scoreLabel").textContent = `Score: ${STATE.score}`;
+    $("invBridge").textContent = STATE.inv.bridge;
+    $("invParrot").textContent = STATE.inv.parrot;
+    $("invRewind").textContent = STATE.inv.rewind;
+    renderGoalCard();
+    renderMovesLog();
+  }
+
+  function colorNameFromHex(hex){
+    const map = {"#ffd166":"Yellow","#06d6a0":"Green","#118ab2":"Blue","#ef476f":"Pink","#ffb4a2":"Peach"};
+    return map[hex] || "Color";
+  }
+  function idxToRC(i,N){
+    const r = Math.floor(i/N)+1;
+    const c = (i % N)+1;
+    return `${r},${c}`;
+  }
+
+  /* ---------- Map generator & render ---------- */
+  function generateGoal(age="kids", level="easy", N=6){
+    const base = (age==="preschool") ? 2 : (age==="kids"?3:4);
+    const len = (level==="easy") ? base : (level==="medium" ? base+1 : base+2);
+    const seq = [];
+    for(let k=0;k<len;k++){
+      const s = SHAPES[rnd(SHAPES.length)];
+      const c = COLORS[rnd(COLORS.length)];
+      seq.push({shape:s, color:c});
+    }
+    return seq;
+  }
+  function renderGoalCard(){
+    const el = $("mapGoal");
+    el.innerHTML = "";
+    const goal = STATE.goalSeq;
+    goal.forEach((g, idx)=>{
+      const chip = document.createElement("div");
+      chip.style.display = "flex";
+      chip.style.alignItems = "center";
+      chip.style.gap = "8px";
+      chip.style.padding = "6px 8px";
+      chip.style.borderRadius = "10px";
+      chip.style.background = idx < STATE.goalIdx ? "rgba(0,0,0,.08)" : "rgba(255,255,255,.03)";
+      chip.style.color = "#07143a";
+      chip.style.fontWeight = 900;
+
+      const pict = document.createElement("div");
+      pict.textContent = g.shape;
+      pict.style.width = "38px";
+      pict.style.height = "38px";
+      pict.style.display = "grid";
+      pict.style.placeItems = "center";
+      pict.style.borderRadius = "8px";
+      pict.style.background = g.color;
+      chip.appendChild(pict);
+
+      const txt = document.createElement("div");
+      txt.style.fontSize = "13px";
+      txt.innerHTML = `<div style="font-weight:900">${colorNameFromHex(g.color)}</div><div style="font-size:11px;color:rgba(0,0,0,.6)">${g.shape}</div>`;
+      chip.appendChild(txt);
+
+      if(idx === STATE.goalIdx){
+        const nowBadge = document.createElement("div");
+        nowBadge.textContent = "Next";
+        nowBadge.style.marginLeft = "8px";
+        nowBadge.style.padding = "4px 6px";
+        nowBadge.style.borderRadius = "8px";
+        nowBadge.style.background = "rgba(0,0,0,.12)";
+        nowBadge.style.fontWeight = 900;
+        chip.appendChild(nowBadge);
+      }
+
+      el.appendChild(chip);
+    });
+  }
+
+  /* ---------- Movement / Game flow ---------- */
+  function placePirateDefault(){
+    const N=STATE.N;
+    STATE.piratePos = STATE.piratePos ?? ((N-1)*N + 0);
+  }
+
+  function onSquareClick(i){
+    if(STATE.movesLeft <= 0){ sfx("err"); logStatus("No moves left — start a new map.", "warn"); return; }
+    const from = STATE.piratePos;
+    if(from === null){ sfx("err"); return; }
+    const N = STATE.N;
+    const [fr,fc] = [Math.floor(from/N), from%N];
+    const [tr,tc] = [Math.floor(i/N), i%N];
+    const man = Math.abs(fr-tr) + Math.abs(fc-tc);
+
+    if(STATE.pendingBridge){
+      const straightTwo = (Math.abs(fr-tr)===2 && fc===tc) || (Math.abs(fc-tc)===2 && fr===tr);
+      if(!(man===1 || straightTwo)){
+        sfx("err");
+        logStatus("Bridge active: you may jump 2 squares straight or move 1 square.", "warn");
+        return;
+      }
+    } else {
+      if(man !== 1){ sfx("err"); logStatus("You must move to an adjacent square. Use Bridge to jump.", "warn"); return; }
+    }
+
+    const prevInv = { ...STATE.inv };
+    const prevGoal = STATE.goalIdx;
+    STATE.piratePos = i;
+    STATE.movesLeft--;
+    STATE.movesHistory.push({from, to:i, prevGoalIdx:prevGoal, prevInv});
+
+    if(STATE.pendingBridge && Math.abs(fr-tr)+Math.abs(fc-tc)===2){ STATE.pendingBridge=false; logStatus("Bridge used.", "info"); }
+
+    const tile = STATE.board[i];
+    if(tile.power){
+      const p = tile.power;
+      STATE.inv[p] = (STATE.inv[p]||0) + 1;
+      tile.power = null;
+      sfx("collect");
+      logStatus(`Collected ${p.toUpperCase()}!`, "good");
+    }
+
+    const goal = STATE.goalSeq[STATE.goalIdx];
+    if(goal && tile.shape === goal.shape && tile.color === goal.color){
+      STATE.goalIdx++;
+      sfx("move");
+      logStatus("Nice! Progress made.", "good");
+      if(STATE.goalIdx >= STATE.goalSeq.length){
+        STATE.round++;
+        const gained = 10 + (STATE.movesLeft * 2);
+        STATE.score += gained;
+        sfx("win");
+        logStatus(`Round complete! +${gained} points`, "good");
+        setTimeout(()=>startNewMap(false), 900);
+      }
+    } else {
+      sfx("err");
+      logStatus("Not the right tile — try again.", "warn");
+    }
+
+    renderBoard();
+  }
+
+  function doUndo(){
+    if(!STATE.movesHistory.length){ sfx("err"); logStatus("Nothing to undo.", "warn"); return; }
+    const last = STATE.movesHistory.pop();
+    STATE.piratePos = last.from;
+    STATE.movesLeft++;
+    STATE.goalIdx = last.prevGoalIdx;
+    sfx("select");
+    renderBoard();
+    logStatus("Undo performed.", "info");
+  }
+
+  function doRewindItem(){
+    if(STATE.inv.rewind <= 0){ logStatus("No Rewind items.", "warn"); sfx("err"); return; }
+    if(!STATE.movesHistory.length){ logStatus("No moves to rewind.", "warn"); sfx("err"); return; }
+    const last = STATE.movesHistory.pop();
+    STATE.piratePos = last.from;
+    STATE.movesLeft++;
+    STATE.goalIdx = last.prevGoalIdx;
+    if(last.prevInv) STATE.inv = { ...last.prevInv };
+    STATE.inv.rewind = Math.max(0, STATE.inv.rewind - 1);
+    sfx("select");
+    renderBoard();
+    logStatus("Rewind used — last move restored.", "info");
+  }
+
+  function giveHint(){
+    if(!STATE.goalSeq.length) return;
+    const goal = STATE.goalSeq[STATE.goalIdx];
+    const N = STATE.N;
+    let best = null, bestD = 9999;
+    for(let i=0;i<N*N;i++){
+      const t = STATE.board[i];
+      if(t.shape===goal.shape && t.color===goal.color){
+        const d = Math.abs(Math.floor(STATE.piratePos/N) - Math.floor(i/N)) + Math.abs((STATE.piratePos%N) - (i%N));
+        if(d < bestD){ bestD = d; best = i; }
+      }
+    }
+    if(best !== null){
+      const rc = idxToRC(best,N);
+      logStatus(`Hint: nearest goal tile at ${rc}`, "info");
+      if($("optHint").checked) {
+        const el = $("board").children[best];
+        if(el){ el.classList.add("legal"); setTimeout(()=>el.classList.remove("legal"), 900); }
+      }
+    } else {
+      logStatus("Hint: target tile not on board (maybe shuffle).", "warn");
+    }
+  }
+
+  /* ---------- Power-up use handlers ---------- */
+  function useBridge(){
+    if(STATE.inv.bridge <= 0){ logStatus("No Bridge items.", "warn"); sfx("err"); return; }
+    STATE.inv.bridge--;
+    STATE.pendingBridge = true;
+    logStatus("Bridge activated. Next move may jump 2 squares straight.", "info");
+    renderBoard();
+  }
+
+  function useParrot(){
+    if(STATE.inv.parrot <= 0){ logStatus("No Parrot items.", "warn"); sfx("err"); return; }
+    STATE.inv.parrot--;
+    const reveal = STATE.goalSeq.slice(STATE.goalIdx, STATE.goalIdx+2);
+    if(reveal.length===0){ logStatus("No targets to reveal.", "warn"); return; }
+    const N = STATE.N;
+    const boardEl = $("board");
+    reveal.forEach((g, k)=>{
+      let best = null, bestD = 9999;
+      for(let i=0;i<N*N;i++){
+        const t = STATE.board[i];
+        if(t.shape===g.shape && t.color===g.color){
+          const d = Math.abs(Math.floor(STATE.piratePos/N) - Math.floor(i/N)) + Math.abs((STATE.piratePos%N) - (i%N));
+          if(d < bestD){ bestD = d; best = i; }
+        }
+      }
+      if(best !== null){
+        const el = boardEl.children[best];
+        if(el){
+          el.classList.add("legal");
+          setTimeout(()=>el.classList.remove("legal"), 1400 + k*400);
+        }
+      }
+    });
+    logStatus("Parrot reveals shown.", "info");
+    renderBoard();
+  }
+
+  /* ---------- Map / Round control ---------- */
+  function startNewMap(resetScore=true){
+    const age = $("ageGroup").value;
+    const level = $("level").value;
+    STATE.N = DEFAULT_N;
+    STATE.board = makeBoard(STATE.N, level);
+    STATE.goalSeq = generateGoal(age, level, STATE.N);
+    STATE.goalIdx = 0;
+    STATE.movesHistory = [];
+    STATE.round = resetScore ? 1 : STATE.round+1;
+    STATE.movesLeft = STATE.goalSeq.length * (level==="easy"?4:(level==="medium"?3:2));
+    if(STATE.piratePos === null) placePirateDefault();
+    if(STATE.piratePos < 0 || STATE.piratePos >= STATE.N*STATE.N) STATE.piratePos = (STATE.N-1)*STATE.N + 0;
+    STATE.pendingBridge = false;
+    renderBoard();
+    logStatus("New map ready. Follow the Map Card.", "info");
+  }
+
+  function shuffleBoard(){
+    for(let i=STATE.board.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [STATE.board[i], STATE.board[j]] = [STATE.board[j], STATE.board[i]];
+    }
+    renderBoard();
+    logStatus("Board shuffled.", "info");
+  }
+
+  function renderMovesLog(){
+    const el = $("movesLog");
+    el.innerHTML = STATE.movesHistory.map((m,idx)=> {
+      const rcFrom = idxToRC(m.from, STATE.N);
+      const rcTo = idxToRC(m.to, STATE.N);
+      return `${idx+1}. ${rcFrom} → ${rcTo}`;
+    }).join("\n");
+    el.scrollTop = el.scrollHeight;
+  }
+
+  /* ---------- Mini Cloud UI ---------- */
+  function renderFileList(){
+    const el = $("fileList");
+    el.innerHTML = "";
+    FS = fsLoad();
+    if(!FS.files.length){ el.innerHTML = `<div class="small">No saves yet</div>`; return; }
+    FS.files.forEach(f=>{
+      const row = document.createElement("div");
+      row.className = "fileRow";
+      row.innerHTML = `<div><div style="font-weight:900">${f.name}</div><div class="small">${new Date(f.updatedAt).toLocaleString()}</div></div><div style="display:flex;gap:8px"><button data-id="${f.id}" class="loadBtn">Load</button><button data-id="${f.id}" class="delBtn">Del</button></div>`;
+      el.appendChild(row);
+    });
+    Array.from(el.querySelectorAll(".loadBtn")).forEach(b=>b.onclick = ()=>{ const id=b.getAttribute("data-id"); loadFromFS(id); });
+    Array.from(el.querySelectorAll(".delBtn")).forEach(b=>b.onclick = ()=>{ const id=b.getAttribute("data-id"); deleteFromFS(id); });
+  }
+
+  function saveToFS(name){
+    const file = {
+      id: uid("file"),
+      name: name || `map-${new Date().toISOString().slice(0,10)}`,
+      createdAt: now(),
+      updatedAt: now(),
+      data: deepCopyState()
+    };
+    FS = fsLoad();
+    FS.files.push(file);
+    fsSave(FS);
+    logStatus(`Saved "${file.name}"`, "good");
+  }
+
+  function loadFromFS(id){
+    const fs = fsLoad();
+    const f = fs.files.find(x=>x.id===id);
+    if(!f){ logStatus("File not found.", "warn"); return; }
+    STATE = f.data;
+    renderBoard();
+    logStatus(`Loaded "${f.name}"`, "good");
+  }
+
+  function deleteFromFS(id){
+    if(!confirm("Delete this save?")) return;
+    const fs = fsLoad();
+    fs.files = fs.files.filter(x=>x.id!==id);
+    localStorage.setItem(FS_KEY, JSON.stringify(fs));
+    renderFileList();
+    logStatus("File deleted.", "info");
+  }
+
+  function deepCopyState(){ return JSON.parse(JSON.stringify(STATE)); }
+
+  /* ---------- Academy UI ---------- */
+  const LESSONS = [
+    {id:"L1", title:"Preschool: Tap-to-match (2-step)", age:"preschool", unlock:"basic"},
+    {id:"L2", title:"Kids: Route planning (3-step)", age:"kids", unlock:"basic"},
+    {id:"L3", title:"Kids: Avoid distractors", age:"kids", unlock:"puzzles"},
+    {id:"L4", title:"Teen: Multi-attribute patterns", age:"teen", unlock:"analysis"},
+  ];
+
+  function renderAcademy(){
+    const box = $("academyList");
+    box.innerHTML = "";
+    const myAge = $("ageGroup").value;
+    LESSONS.forEach(L=>{
+      const div = document.createElement("div");
+      div.className = "lesson " + (L.age !== myAge ? "locked" : "");
+      div.innerHTML = `<div style="font-weight:900">${L.title}</div><div style="display:flex;gap:8px"><button ${L.age!==myAge ? "disabled":""} data-id="${L.id}" class="lessonBtn">Start</button></div>`;
+      box.appendChild(div);
+    });
+    Array.from(box.querySelectorAll(".lessonBtn")).forEach(b=>{
+      b.onclick = ()=>{
+        const id = b.getAttribute("data-id");
+        handleStartLesson(id);
+      };
+    });
+  }
+
+  function handleStartLesson(id){
+    if(id === "L1"){ $("ageGroup").value = "preschool"; $("level").value="easy"; startNewMap(true); logStatus("Lesson L1 started: Tap-to-match.", "info"); }
+    if(id === "L2"){ $("ageGroup").value = "kids"; $("level").value="easy"; startNewMap(true); logStatus("Lesson L2: Route planning.", "info"); }
+    if(id === "L3"){ $("ageGroup").value = "kids"; $("level").value="medium"; startNewMap(true); logStatus("Lesson L3: Distractors added.", "info"); }
+    if(id === "L4"){ $("ageGroup").value = "teen"; $("level").value="hard"; startNewMap(true); logStatus("Lesson L4 started: Multi-attribute patterns.", "info"); }
+  }
+
+  /* ---------- UI wiring ---------- */
+  $("btnNew").onclick = ()=>{ startNewMap(true); };
+  $("btnShuffle").onclick = ()=>{ shuffleBoard(); };
+  $("btnUndo").onclick = ()=>{ doUndo(); };
+  $("btnHint").onclick = ()=>{ giveHint(); };
+  $("btnSave").onclick = ()=>{ saveToFS($("saveName").value || `map-${new Date().toISOString().slice(0,10)}`); renderFileList(); };
+  $("btnQuickSave").onclick = ()=>{ saveToFS($("saveName").value || `map-${new Date().toISOString().slice(0,10)}`); renderFileList(); };
+  $("btnLoad").onclick = ()=>{ const id = prompt("Enter file id to load (see list)?"); if(id) loadFromFS(id); };
+  $("btnDelete").onclick = ()=>{ const id = prompt("Enter file id to delete?"); if(id) deleteFromFS(id); };
+  $("btnShowMap").onclick = ()=>{ renderGoalCard(); logStatus("Map Card shown.", "info"); };
+  $("btnToggleSound").onclick = ()=>{ soundOn = !soundOn; $("btnToggleSound").textContent = `Sound: ${soundOn ? "On":"Off"}`; prefSave({sound:soundOn}); };
+  $("optHighContrast").onchange = (e)=>{ if(e.target.checked) document.documentElement.style.setProperty("--sq", "96px"); else document.documentElement.style.setProperty("--sq", "78px"); };
+
+  $("useBridge").onclick = useBridge;
+  $("useParrot").onclick = useParrot;
+  $("useRewind").onclick = ()=>{ doRewindItem(); };
+
+  // keyboard controls (arrow keys)
+  window.addEventListener("keydown", (ev)=>{
+    if(STATE.piratePos===null) return;
+    const N = STATE.N;
+    const from = STATE.piratePos;
+    let to = null;
+    if(ev.key === "ArrowUp"){ const r = Math.floor(from/N)-1; if(r>=0) to = (r)*N + (from%N); }
+    if(ev.key === "ArrowDown"){ const r = Math.floor(from/N)+1; if(r < N) to = (r)*N + (from%N); }
+    if(ev.key === "ArrowLeft"){ const c = (from%N)-1; if(c>=0) to = Math.floor(from/N)*N + c; }
+    if(ev.key === "ArrowRight"){ const c = (from%N)+1; if(c < N) to = Math.floor(from/N)*N + c; }
+    if(to !== null){ onSquareClick(to); ev.preventDefault(); }
+    if(ev.key === "u"){ doUndo(); }
+    if(ev.key === "h"){ giveHint(); }
+    if(ev.key === "r"){ doRewindItem(); }
+  });
+
+  /* ---------- Tutorial system ---------- */
+  const TOUR_STEPS = [
+    {title:"This is the Map Card", text:"The Map Card shows the sequence of tiles you must visit in order. Look at the right panel to see the shapes and colors.", selector:"#mapGoal"},
+    {title:"This is the Board", text:"Tap an adjacent square to move your pirate. Each move uses one from your move budget.", selector:"#board"},
+    {title:"Moves Left", text:"Watch the Moves Left counter. Finish the sequence before you run out of moves.", selector:"#movesLeft"},
+    {title:"Collect Power-ups", text:"Power-ups appear as badges on some tiles. Step on them to collect (🌉, 🦜, ↩️).", selector:".powerupBadge"},
+    {title:"Use Power-ups", text:"Open the Power-ups area and tap Use to activate a power-up. Try Bridge to jump two squares!", selector:"#useBridge"},
+    {title:"Save & Mini Cloud", text:"Save and load games locally with the Mini Cloud. Everything stays on your device.", selector:"#btnQuickSave"},
+    {title:"You're Ready!", text:"Great — try a round! You can re-open this tutorial anytime with the 'Show Tutorial' button.", selector:"#btnShowTour"}
+  ];
+
+  let tourIndex = 0;
+  function showTour(open=true){
+    if(!open) return;
+    tourIndex = 0;
+    $("tourTotal").textContent = TOUR_STEPS.length;
+    $("tourOverlay").style.display = "flex";
+    updateTourStep();
+  }
+
+  function hideTour(done=false){
+    $("tourOverlay").style.display = "none";
+    clearAllTourHighlights();
+    if(done) setTourDone();
+  }
+
+  function updateTourStep(){
+    const step = TOUR_STEPS[tourIndex];
+    $("tourStepNum").textContent = (tourIndex+1);
+    $("tourTitle").textContent = step.title;
+    $("tourText").innerHTML = step.text;
+    clearAllTourHighlights();
+    // highlight target element(s)
+    try{
+      const el = document.querySelector(step.selector);
+      if(el){
+        // if selector matches many (like powerupBadge), pick first visible
+        let target = el;
+        // If multiple nodes returned, querySelector already returns first. But if selector is class and element nested, ok.
+        // add highlight class and scrollIntoView
+        target.classList.add("tourHighlight");
+        target.scrollIntoView({behavior:"smooth", block:"center", inline:"nearest"});
+      }
+    }catch(e){}
+    // disable/enable back/next
+    $("tourBack").disabled = (tourIndex===0);
+    $("tourNext").textContent = (tourIndex === TOUR_STEPS.length-1) ? "Finish" : "Next";
+  }
+
+  function clearAllTourHighlights(){
+    document.querySelectorAll(".tourHighlight").forEach(el=>el.classList.remove("tourHighlight"));
+  }
+
+  $("tourNext").onclick = ()=>{
+    if(tourIndex < TOUR_STEPS.length-1){
+      tourIndex++;
+      updateTourStep();
+    } else {
+      hideTour(true);
+    }
+  };
+  $("tourBack").onclick = ()=>{
+    if(tourIndex>0){ tourIndex--; updateTourStep(); }
+  };
+  $("tourSkip").onclick = ()=>{ hideTour(true); };
+
+  $("btnShowTour").onclick = ()=>{ showTour(true); };
+
+  /* ---------- init ---------- */
+  function init(){
+    const p = prefLoad();
+    if(typeof p.sound !== "undefined") soundOn = !!p.sound;
+    $("btnToggleSound").textContent = soundOn ? "Sound: On" : "Sound: Off";
+
+    FS = fsLoad();
+    renderFileList();
+    renderAcademy();
+    startNewMap(true);
+
+    // show tutorial automatically if not done
+    setTimeout(()=>{ if(!tourDone()) showTour(true); }, 500);
+
+    setInterval(()=>{ $("timeLabel").textContent = new Date().toLocaleTimeString(); }, 1000);
+  }
+
+  init();
+
+})();
+</script>
+</body>
+</html>
