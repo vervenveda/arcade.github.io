@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Adult Color Clash — Bubble Duel</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    :root{
+      --bg1:#050816;
+      --bg2:#020213;
+      --accent:#ffcf57;
+      --accent2:#5ee0ff;
+      --danger:#ff6b81;
+      --ok:#6ee7b7;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:7px;
+      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+      background:radial-gradient(circle at 0% 0%, #1b3160 0%, var(--bg1) 35%, #000 100%);
+      color:#f7f9ff;
+      display:flex;
+      justify-content:center;
+      align-items:stretch;
+      min-height:99vh;
+      
+    }
+    .app{
+      width:99%;
+      max-width:1111px;
+      padding:24px;
+      display:flex;
+      flex-direction:column;
+      gap:24px;
+    }
+    header.app-header{
+      padding:14px 24px;
+      border-radius:7px;
+      border:3px solid rgba(255,255,255,.16);
+      background:radial-gradient(circle at 0 0,rgba(255,255,255,.12),rgba(0,0,0,.85));
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:24px;
+      box-shadow:0 14px 33px rgba(0,0,0,.55);
+    }
+    .title-main{font-weight:444;font-size:44px;letter-spacing:.08em;text-transform:uppercase}
+    .title-sub{font-size:14px;color:#a7bedf}
+    .pill{
+      padding:7px 24px;
+      border-radius:7px;
+      border:3px solid rgba(255,255,255,.28);
+      font-size:14px;
+      color:#cfe3ff;
+      background:rgba(0,0,0,.4);
+    }
+    .pill.ok{border-color:var(--ok);color:var(--ok);}
+    .pill.danger{border-color:var(--danger);color:var(--danger);}
+
+    .top-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:14px;
+    }
+    .panel{
+      flex:1 1 55px;
+      border-radius:7px;
+      border:7px solid rgba(255,255,255,.18);
+      background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(0,0,0,.85));
+      padding:24px 24px;
+      box-shadow:0 11px 33px rgba(0,0,0,.55);
+    }
+    .panel h2{
+      margin:0 0 6px;
+      font-size:13px;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      color:#96b2e5;
+    }
+    .controls-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+      gap:55px;
+      font-size:12px;
+    }
+    .label{
+      font-size:14px;
+      color:#a7bedf;
+      margin-bottom:5px;
+      text-transform:uppercase;
+      letter-spacing:.06em;
+    }
+    select,button{
+      font-family:inherit;
+      font-size:14px;
+      border-radius:7px;
+      border:3px solid rgba(255,255,255,.25);
+      padding:7px 11px;
+      background:rgba(255,255,255,.06);
+      color:#f7f9ff;
+      cursor:pointer;
+      outline:none;
+      transition:background .16s, transform .06s, box-shadow .16s, border-color .16s;
+    }
+    button:hover,select:hover{
+      background:rgba(255,255,255,.12);
+      box-shadow:0 3px 10px rgba(0,0,0,.35);
+    }
+    button:active{
+      transform:translateY(1px);
+      box-shadow:none;
+    }
+    button.primary{
+      background:linear-gradient(135deg,var(--accent2),#051320);
+      border-color:var(--accent2);
+      color:#001018;
+      font-weight:555;
+    }
+    button.secondary{
+      background:linear-gradient(135deg,#4b5563,#020617);
+    }
+    .hint-text{
+      font-size:11px;
+      color:#9fb3d6;
+      margin-top:7px;
+    }
+
+    .status-bar{
+      border-radius:7px;
+      border:3px solid rgba(255,255,255,.2);
+      padding:7px 14px;
+      font-size:11px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:24px;
+      background:rgba(0,0,0,.6);
+    }
+    .status-main{flex:1 1 auto;}
+    .status-metrics{
+      display:flex;gap:11px;font-size:11px;
+    }
+
+    /* Game area */
+    .game-panel{
+      border-radius:7px;
+      border:3px solid rgba(255,255,255,.18);
+      background:radial-gradient(circle at 10% 0%,rgba(255,255,255,.12),rgba(0,0,0,.95));
+      padding:5px 11px 11px;
+      display:flex;
+      flex-direction:column;
+      gap:7px;
+      box-shadow:0 11px 33px rgba(0,0,0,.7);
+      min-height:555px; /* taller play area */
+    }
+    .game-header-row{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      font-size:24px;
+      color:#d7e4ff;
+    }
+    #targetColorLabel{
+      font-weight:666;
+    }
+    #timerLabel{
+      font-variant-numeric:tabular-nums;
+    }
+
+    #gameArea{
+      position:relative;
+      flex:1 1 auto;
+      border-radius:14px;
+      border:1px solid rgba(15,23,42,.9);
+      overflow:hidden;
+      background:radial-gradient(circle at 50% 120%, #020617 0%, #000 55%, #020617 100%);
+      min-height:333px; /* makes the bubble zone feel bigger */
+    }
+    .bubble{
+      position:absolute;
+      width:88px;height:72px;
+      border-radius:50%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:5px;
+      font-weight:222;
+      color:#0b1120;
+      text-transform:uppercase;
+      cursor:pointer;
+      box-shadow:0 7px 14px rgba(0,0,0,.6);
+      user-select:none;
+    }
+    .bubble span{
+      max-width:90%;
+      padding:0 3px;
+      background:rgba(255,255,255,.82);
+      border-radius:7px;
+      box-shadow:0 0 11px rgba(0,0,0,.4);
+      text-align:center;
+      line-height:1.1;
+      font-size:11px;
+      white-space:normal;
+    }
+
+    .score-row{
+      display:flex;
+      justify-content:space-between;
+      gap:8px;
+      font-size:14px;
+    }
+    .score-chip{
+      flex:1 1 0;
+      border-radius:7px;
+      border:1px solid rgba(255,255,255,.2);
+      padding:7px 11px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      background:rgba(15,23,42,.85);
+    }
+    .score-chip span:first-child{color:#a7bedf;}
+    .score-chip span:last-child{font-weight:700;}
+
+    /* Overlay */
+    #overlay{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.78);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:999;
+    }
+    .overlay-box{
+      max-width:444px;
+      width:90%;
+      background:radial-gradient(circle at 0% 0%,rgba(255,255,255,.12),#020617);
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.28);
+      padding:14px 14px 14px;
+      text-align:center;
+      box-shadow:0 14px 44px rgba(0,0,0,.85);
+    }
+    .overlay-box h3{
+      margin:0 0 7px;
+      font-size:14px;
+    }
+    .overlay-box p{
+      margin:7px 0;
+      font-size:14px;
+      color:#c7d2fe;
+    }
+    .overlay-actions{
+      margin-top:11px;
+      display:flex;
+      justify-content:center;
+      gap:11px;
+      flex-wrap:wrap;
+    }
+
+    footer{
+      margin-top:7px;
+      font-size:11px;
+      color:#9fb3d6;
+      text-align:center;
+    }
+
+    @media (max-width:1111px){
+      header.app-header{
+        flex-direction:column;
+        align-items:flex-start;
+      }
+      .game-panel{min-height:333px;}
+      #gameArea{min-height:333px;}
+      .bubble{width:77px;height:88px;font-size:9px;}
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <header class="app-header">
+    <div>
+      <div class="title-main">Adult Color Clash</div>
+      <div class="title-sub">Bubble Duel · Speed · Focus · AI Challenge</div>
+    </div>
+    <div class="pill" id="modePill">Mode: Solo Training</div>
+  </header>
+
+  <div class="top-row">
+    <section class="panel">
+      <h2>Session Setup</h2>
+      <div class="controls-grid">
+        <div>
+          <div class="label">Mode</div>
+          <select id="modeSelect">
+            <option value="solo">Solo Training</option>
+            <option value="duel">AI Duel</option>
+          </select>
+        </div>
+        <div>
+          <div class="label">Level</div>
+          <select id="levelSelect">
+            <option value="1">Level 1 – Warmup</option>
+            <option value="2">Level 2 – Pulse</option>
+            <option value="3">Level 3 – Frenzy</option>
+          </select>
+        </div>
+        <div>
+          <div class="label">Round Length</div>
+          <select id="durationSelect">
+            <option value="30">30 seconds</option>
+            <option value="45">45 seconds</option>
+            <option value="60" selected>60 seconds</option>
+          </select>
+        </div>
+        <div>
+          <div class="label">Target Palette</div>
+          <select id="paletteSelect">
+            <option value="core" selected>Core 6 Colors</option>
+            <option value="neon">Neon Blast</option>
+          </select>
+        </div>
+        <div>
+          <div class="label">Bubble Labels</div>
+          <select id="labelSelect">
+            <option value="on" selected>Show names</option>
+            <option value="off">Color only</option>
+          </select>
+        </div>
+      </div>
+      <div class="hint-text">
+        Hit <b>Start Round</b> and tap only the bubbles in the target color.  
+        In <b>AI Duel</b>, the challenger races you for every correct bubble.
+      </div>
+      <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;">
+        <button id="startBtn" class="primary">▶ Start Round</button>
+        <button id="resetStatsBtn" class="secondary">Reset Stats</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Round Status</h2>
+      <div class="status-bar" id="statusBar">
+        <div class="status-main" id="statusText">Ready. Configure your session and press Start.</div>
+        <div class="status-metrics">
+          <span id="roundLabel">Round: –</span>
+        </div>
+      </div>
+      <div class="hint-text" style="margin-top:8px;">
+        Pro tip: stay locked on the target color. Wrong taps cost time and focus.
+      </div>
+      <div class="score-row" style="margin-top:8px;">
+        <div class="score-chip">
+          <span>Player Score</span>
+          <span id="playerScoreLabel">0</span>
+        </div>
+        <div class="score-chip">
+          <span>AI Score</span>
+          <span id="aiScoreLabel">0</span>
+        </div>
+      </div>
+      <div class="score-row" style="margin-top:4px;">
+        <div class="score-chip">
+          <span>Best Margin</span>
+          <span id="bestMarginLabel">–</span>
+        </div>
+        <div class="score-chip">
+          <span>Rounds Played</span>
+          <span id="roundsPlayedLabel">0</span>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <section class="game-panel">
+    <div class="game-header-row">
+      <div>Target color: <span id="targetColorLabel">–</span></div>
+      <div>Time left: <span id="timerLabel">00s</span></div>
+    </div>
+    <div id="gameArea"></div>
+  </section>
+
+  <footer>By Verve N Veda · Local-only · No accounts · Just play.</footer>
+</div>
+
+<!-- Round overlay -->
+<div id="overlay">
+  <div class="overlay-box">
+    <h3 id="overlayTitle">Round Complete</h3>
+    <p id="overlaySummary"></p>
+    <p id="overlayDetail"></p>
+    <div class="overlay-actions">
+      <button id="overlayPlayAgain" class="primary">▶ Play Again</button>
+      <button id="overlayClose" class="secondary">Back to Setup</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ==============================
+     Color Sets & Levels
+     ============================== */
+  const PALETTES = {
+    core: [
+      {name:"Red",   hex:"#f97373"},
+      {name:"Blue",  hex:"#60a5fa"},
+      {name:"Green", hex:"#34d399"},
+      {name:"Yellow",hex:"#facc15"},
+      {name:"Purple",hex:"#a855f7"},
+      {name:"Orange",hex:"#fb923c"}
+    ],
+    neon: [
+      {name:"Neon Pink",  hex:"#ff5cce"},
+      {name:"Neon Cyan",  hex:"#22d3ee"},
+      {name:"Neon Lime",  hex:"#a3e635"},
+      {name:"Neon Orange",hex:"#fb923c"},
+      {name:"Neon Violet",hex:"#c4b5fd"},
+      {name:"Neon Gold",  hex:"#facc15"}
+    ]
+  };
+
+  // Softer AI: slower reactions + miss chance per level
+  const LEVELS = {
+    1:{ name:"Warmup", spawnInterval:900, bubbleSpeed:4400, aiReaction:1300, aiMiss:0.35 },
+    2:{ name:"Pulse",  spawnInterval:700, bubbleSpeed:3600, aiReaction:1050, aiMiss:0.25 },
+    3:{ name:"Frenzy", spawnInterval:520, bubbleSpeed:2800, aiReaction:780,  aiMiss:0.18 }
+  };
+
+  const PREF_KEY  = "COLOR_CLASH_PREF_V1";
+  const STATS_KEY = "COLOR_CLASH_STATS_V1";
+
+  /* ==============================
+     DOM Helpers
+     ============================== */
+  const $ = id => document.getElementById(id);
+
+  const modeSelect     = $("modeSelect");
+  const levelSelect    = $("levelSelect");
+  const durationSelect = $("durationSelect");
+  const paletteSelect  = $("paletteSelect");
+  const labelSelect    = $("labelSelect");
+  const startBtn       = $("startBtn");
+  const resetStatsBtn  = $("resetStatsBtn");
+  const modePill       = $("modePill");
+  const statusText     = $("statusText");
+  const roundLabel     = $("roundLabel");
+  const playerScoreLabel = $("playerScoreLabel");
+  const aiScoreLabel     = $("aiScoreLabel");
+  const bestMarginLabel  = $("bestMarginLabel");
+  const roundsPlayedLabel= $("roundsPlayedLabel");
+  const targetColorLabel = $("targetColorLabel");
+  const timerLabel       = $("timerLabel");
+  const gameArea         = $("gameArea");
+
+  const overlay        = $("overlay");
+  const overlayTitle   = $("overlayTitle");
+  const overlaySummary = $("overlaySummary");
+  const overlayDetail  = $("overlayDetail");
+  const overlayPlayAgain = $("overlayPlayAgain");
+  const overlayClose     = $("overlayClose");
+
+  /* ==============================
+     State
+     ============================== */
+  let prefs = loadPrefs();
+  let stats = loadStats();
+
+  let running       = false;
+  let mode          = prefs.mode || "solo";    // solo | duel
+  let levelKey      = prefs.level || "1";
+  let paletteKey    = prefs.palette || "core";
+  let roundDuration = prefs.duration || 60;    // seconds
+  let labelMode     = prefs.labelMode || "on"; // "on" | "off"
+
+  let currentTarget  = null;
+  let currentPalette = PALETTES[paletteKey];
+
+  let roundId      = stats.roundsPlayed || 0;
+  let playerScore  = 0;
+  let aiScore      = 0;
+
+  let spawnTimer = null;
+  let secondTimer = null;
+  let timeLeft = 0;
+  let nextBubbleId = 1;
+  const bubbles = new Map(); // id -> {el, colorName, aiTimerId, alive}
+
+  let ac = null; // AudioContext
+
+  /* ==============================
+     Persistence
+     ============================== */
+  function loadPrefs(){
+    try{
+      const raw = localStorage.getItem(PREF_KEY);
+      if(!raw) return {};
+      return JSON.parse(raw);
+    }catch(e){ return {}; }
+  }
+  function savePrefs(){
+    try{
+      localStorage.setItem(PREF_KEY, JSON.stringify({
+        mode,
+        level:levelKey,
+        palette:paletteKey,
+        duration:roundDuration,
+        labelMode
+      }));
+    }catch(e){}
+  }
+  function loadStats(){
+    try{
+      const raw = localStorage.getItem(STATS_KEY);
+      if(!raw) return {roundsPlayed:0,bestMargin:null};
+      return JSON.parse(raw);
+    }catch(e){ return {roundsPlayed:0,bestMargin:null}; }
+  }
+  function saveStats(){
+    try{
+      localStorage.setItem(STATS_KEY, JSON.stringify(stats));
+    }catch(e){}
+  }
+
+  /* ==============================
+     Audio / Speech
+     ============================== */
+  function ensureAudio(){
+    if(!ac){
+      try{ ac = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){}
+    }
+  }
+  function playClickTone(good){
+    if(!ac) return;
+    try{
+      const o = ac.createOscillator();
+      const g = ac.createGain();
+      o.connect(g); g.connect(ac.destination);
+      o.type = "sine";
+      const t = ac.currentTime;
+      o.frequency.setValueAtTime(good?880:260, t);
+      const dur = good?0.13:0.18;
+      g.gain.setValueAtTime(0.001, t);
+      g.gain.linearRampToValueAtTime(0.22, t+0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, t+dur);
+      o.start(t); o.stop(t+dur+0.02);
+    }catch(e){}
+  }
+  function speak(text){
+    try{
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang="en-US";
+      u.rate=0.95;
+      u.pitch=1.02;
+      window.speechSynthesis.speak(u);
+    }catch(e){}
+  }
+
+  function announceTarget(){
+    if(!currentTarget) return;
+    speak("Target color: " + currentTarget.name);
+  }
+
+  /* ==============================
+     Setup & UI
+     ============================== */
+  function applyPrefsToUI(){
+    modeSelect.value     = mode;
+    levelSelect.value    = levelKey;
+    paletteSelect.value  = paletteKey;
+    durationSelect.value = String(roundDuration);
+    labelSelect.value    = labelMode;
+
+    modePill.textContent = "Mode: " + (mode==="solo" ? "Solo Training" : "AI Duel");
+    modePill.className   = "pill " + (mode==="solo" ? "ok" : "danger");
+  }
+
+  function updateStatsUI(){
+    playerScoreLabel.textContent = playerScore;
+    aiScoreLabel.textContent     = aiScore;
+    roundsPlayedLabel.textContent = stats.roundsPlayed || 0;
+    bestMarginLabel.textContent =
+      (stats.bestMargin==null) ? "–" :
+      (stats.bestMargin>0 ? "+"+stats.bestMargin : String(stats.bestMargin));
+  }
+
+  function setStatus(msg){
+    statusText.textContent = msg;
+  }
+
+  function clearBoard(){
+    bubbles.forEach(({el, aiTimerId})=>{
+      if(aiTimerId) clearTimeout(aiTimerId);
+      el.remove();
+    });
+    bubbles.clear();
+    nextBubbleId = 1;
+  }
+
+  function chooseTargetColor(){
+    if(!currentPalette || !currentPalette.length){
+      currentPalette = PALETTES.core;
+    }
+    currentTarget = currentPalette[Math.floor(Math.random()*currentPalette.length)];
+    targetColorLabel.textContent = currentTarget.name;
+    targetColorLabel.style.color = currentTarget.hex;
+  }
+
+  /* ==============================
+     Bubble Logic
+     ============================== */
+  function spawnBubble(){
+    if(!running) return;
+    if(!currentTarget) return;
+
+    const rect = gameArea.getBoundingClientRect();
+    if(!rect.width || !rect.height) return;
+
+    const level = LEVELS[levelKey] || LEVELS["1"];
+    const bubbleId = nextBubbleId++;
+    const palette = currentPalette || PALETTES.core;
+
+    const colorObj = palette[Math.floor(Math.random()*palette.length)];
+    const el = document.createElement("div");
+    el.className = "bubble";
+    el.style.background = colorObj.hex;
+    el.setAttribute("aria-label", colorObj.name + " bubble");
+
+    if(labelMode === "on"){
+      const label = document.createElement("span");
+      label.textContent = colorObj.name;
+      el.appendChild(label);
+    }
+
+    const maxLeft = Math.max(0, rect.width - 82);
+    const startLeft = 8 + Math.random()*maxLeft;
+    el.style.left = startLeft + "px";
+    el.style.bottom = "-90px";
+
+    gameArea.appendChild(el);
+
+    const bubbleData = {
+      id:bubbleId,
+      el,
+      colorName:colorObj.name,
+      aiTimerId:null,
+      alive:true
+    };
+    bubbles.set(bubbleId, bubbleData);
+
+    const pathHeight = rect.height + 120;
+    let start = null;
+    function step(ts){
+      if(!bubbleData.alive) return;
+      if(!start) start = ts;
+      const progress = (ts - start)/level.bubbleSpeed;
+      const y = progress * pathHeight - 80;
+      el.style.bottom = y + "px";
+      if(progress < 1 && running){
+        requestAnimationFrame(step);
+      }else{
+        if(bubbleData.alive){
+          bubbleData.alive=false;
+          if(bubbleData.aiTimerId) clearTimeout(bubbleData.aiTimerId);
+          bubbles.delete(bubbleId);
+          el.remove();
+        }
+      }
+    }
+    requestAnimationFrame(step);
+
+    el.addEventListener("click", ()=>{
+      if(!bubbleData.alive || !running) return;
+      ensureAudio();
+
+      const isTarget = (colorObj.name === currentTarget.name);
+      if(isTarget){
+        playerScore++;
+        playClickTone(true);
+        setStatus("Nice catch. Stay locked on " + currentTarget.name + ".");
+      }else{
+        playClickTone(false);
+        setStatus("That was " + colorObj.name + ". Focus on " + currentTarget.name + ".");
+      }
+      playerScoreLabel.textContent = playerScore;
+
+      bubbleData.alive=false;
+      if(bubbleData.aiTimerId) clearTimeout(bubbleData.aiTimerId);
+      bubbles.delete(bubbleId);
+      el.remove();
+    });
+
+    // AI claim for target bubbles only, with miss chance
+    const isTarget = (colorObj.name === currentTarget.name);
+    if(mode==="duel" && isTarget){
+      const missChance = level.aiMiss ?? 0.25;
+      if(Math.random() > missChance){
+        const base   = level.aiReaction;
+        const jitter = (Math.random()*160)-80;
+        const delay  = Math.max(260, base + jitter);
+
+        const aiTimerId = setTimeout(()=>{
+          if(!running) return;
+          const b = bubbles.get(bubbleId);
+          if(!b || !b.alive) return;
+          ensureAudio();
+          playClickTone(true);
+          aiScore++;
+          aiScoreLabel.textContent = aiScore;
+          setStatus("AI snapped a " + currentTarget.name + " bubble. Keep up!");
+          b.alive=false;
+          bubbles.delete(bubbleId);
+          b.el.remove();
+        }, delay);
+        bubbleData.aiTimerId = aiTimerId;
+      }
+    }
+  }
+
+  /* ==============================
+     Round Flow
+     ============================== */
+  function startRound(){
+    if(running) return;
+    ensureAudio();
+    running = true;
+    playerScore = 0;
+    aiScore = 0;
+    playerScoreLabel.textContent = "0";
+    aiScoreLabel.textContent     = "0";
+
+    currentPalette = PALETTES[paletteKey] || PALETTES.core;
+    clearBoard();
+    chooseTargetColor();
+    announceTarget();
+
+    roundId++;
+    stats.roundsPlayed = (stats.roundsPlayed || 0) + 1;
+    saveStats();
+
+    roundLabel.textContent = "Round: " + roundId;
+    timeLeft = roundDuration;
+    updateTimerLabel();
+
+    const level = LEVELS[levelKey] || LEVELS["1"];
+    spawnTimer = setInterval(spawnBubble, level.spawnInterval);
+    secondTimer = setInterval(()=>{
+      timeLeft--;
+      if(timeLeft<=0){
+        endRound();
+      }else{
+        updateTimerLabel();
+      }
+    }, 1000);
+
+    setStatus(mode==="solo"
+      ? "Round live. Tap every " + currentTarget.name + " bubble."
+      : "Duel live. Race the AI for " + currentTarget.name + " bubbles.");
+  }
+
+  function updateTimerLabel(){
+    const t = Math.max(0,timeLeft);
+    timerLabel.textContent = (t<10 ? "0"+t : t) + "s";
+  }
+
+  function endRound(){
+    if(!running) return;
+    running=false;
+    if(spawnTimer){ clearInterval(spawnTimer); spawnTimer=null; }
+    if(secondTimer){ clearInterval(secondTimer); secondTimer=null; }
+
+    clearBoard();
+    updateTimerLabel();
+
+    const diff = playerScore - aiScore;
+    if(stats.bestMargin==null || diff>stats.bestMargin){
+      stats.bestMargin = diff;
+      saveStats();
+    }
+    updateStatsUI();
+
+    let title, summary, detail;
+    if(mode==="solo"){
+      title   = "Round Complete";
+      summary = "You collected " + playerScore + " target bubbles.";
+      detail  = "Your best margin so far: " +
+        (stats.bestMargin>0 ? "+"+stats.bestMargin : stats.bestMargin) + ".";
+    }else{
+      title   = diff>0 ? "You Win the Duel!" :
+                diff<0 ? "AI Wins the Duel" : "It's a Draw";
+      summary = "You: " + playerScore + " · AI: " + aiScore;
+      if(diff>0){
+        detail = "Nice lead! Margin: +" + diff + ".";
+      }else if(diff<0){
+        detail = "The AI edged ahead by " + Math.abs(diff) + ". Try Level 1 with labels on while you warm up.";
+      }else{
+        detail = "Perfect tie. One more duel?";
+      }
+    }
+
+    overlayTitle.textContent   = title;
+    overlaySummary.textContent = summary;
+    overlayDetail.textContent  = detail;
+    overlay.style.display      = "flex";
+  }
+
+  /* ==============================
+     Event Wiring
+     ============================== */
+  startBtn.addEventListener("click", ()=>{
+    overlay.style.display="none";
+    startRound();
+  });
+
+  resetStatsBtn.addEventListener("click", ()=>{
+    stats = {roundsPlayed:0,bestMargin:null};
+    saveStats();
+    updateStatsUI();
+    setStatus("Stats reset. Fresh start.");
+  });
+
+  modeSelect.addEventListener("change", e=>{
+    mode = e.target.value;
+    savePrefs();
+    applyPrefsToUI();
+    setStatus("Mode set to "+(mode==="solo"?"Solo Training.":"AI Duel."));
+  });
+
+  levelSelect.addEventListener("change", e=>{
+    levelKey = e.target.value;
+    savePrefs();
+    const lvl = LEVELS[levelKey] || LEVELS["1"];
+    setStatus("Level "+levelKey+" – "+lvl.name+".");
+  });
+
+  paletteSelect.addEventListener("change", e=>{
+    paletteKey = e.target.value;
+    savePrefs();
+    currentPalette = PALETTES[paletteKey] || PALETTES.core;
+    setStatus("Palette set to "+(paletteKey==="core"?"Core Colors.":"Neon Blast."));
+  });
+
+  durationSelect.addEventListener("change", e=>{
+    roundDuration = parseInt(e.target.value,10) || 60;
+    savePrefs();
+    setStatus("Round duration set to "+roundDuration+" seconds.");
+  });
+
+  labelSelect.addEventListener("change", e=>{
+    labelMode = e.target.value;
+    savePrefs();
+    setStatus(labelMode==="on"
+      ? "Bubble labels ON — easier to track colors."
+      : "Bubble labels OFF — pure color focus.");
+  });
+
+  overlayPlayAgain.addEventListener("click", ()=>{
+    overlay.style.display="none";
+    startRound();
+  });
+  overlayClose.addEventListener("click", ()=>{
+    overlay.style.display="none";
+    setStatus("Adjust settings or hit Start for another round.");
+  });
+
+  /* ==============================
+     Init
+     ============================== */
+  function init(){
+    applyPrefsToUI();
+    stats.bestMargin = stats.bestMargin ?? null;
+    updateStatsUI();
+    setStatus("Ready. Configure your session and press Start.");
+    timerLabel.textContent="00s";
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
