@@ -1,0 +1,1285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ColorShift Cascades</title>
+<style>
+  :root{
+    --node-size:48px;   /* will be overridden dynamically by JS */
+    --grid-gap:7px;
+    --accent:#ff3aff;
+    --accent-soft:#ff9aff;
+    --bg-deep:#0b0c2a;
+    --bg-card:#111426;
+    --text:#f5f5ff;
+    --muted:#aab0d8;
+    --glow:0 0 7px rgba(255,255,255,0.2);
+  }
+  *{box-sizing:border-box;}
+
+  body{
+    margin:44px;
+    padding:24px 24px 55px;
+    min-height:88vh;
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+    background:radial-gradient(circle at center,#0b0c2a,#181a40);
+    color:var(--text);
+    font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,"Brandon Grotesque",sans-serif;
+    transition:background 0.35s ease;
+  }
+
+  /* Kid Mode theming */
+  body.kid-mode{
+    background:radial-gradient(circle at center,#141b3d,#262f76);
+  }
+  body.kid-mode .panel{
+    background:radial-gradient(circle at top,rgba(255,255,255,0.12),transparent 55%), #10163a;
+  }
+  body.kid-mode .howto-card{
+    background:linear-gradient(135deg,#15184a,#202a73);
+  }
+  body.kid-mode #game-banner h1{
+    color:#ffe9ff;
+  }
+  body.kid-mode .node{
+    border-radius:7px;
+  }
+
+  .container{
+    width:100%;
+    max-width:1111px;
+  }
+
+  /* Banner */
+  #game-banner{
+    text-align:center;
+    margin-bottom:55px;
+  }
+  #game-banner h1{
+    font-size:3rem;
+    margin:7px;
+    color:#FBC7FF;
+    animation:neonPulse 4s ease-in-out infinite alternate;
+  }
+  #game-banner .gradient-bar{
+    height:7px;
+    width:222px;
+    margin:7px auto 0;
+    background:linear-gradient(90deg,#ff77ff,#00ffff,#ffff77,#ff77ff);
+    border-radius:7px;
+    box-shadow:0 0 7px #ff77ff,0 0 12px #00ffff;
+    position:relative;
+    overflow:hidden;
+  }
+  #game-banner .gradient-bar::after{
+    content:"";
+    position:absolute;
+    top:0;
+    left:-50%;
+    width:50%;
+    height:100%;
+    background:rgba(255,255,255,0.3);
+    transform:skewX(-20deg);
+    animation:shimmer 1.2s linear infinite;
+  }
+  #game-banner .tagline{
+    margin-top:11px;
+    font-size:0.95rem;
+    color:var(--muted);
+  }
+
+  /* Panel */
+  .panel{
+    background:radial-gradient(circle at top,rgba(255,255,255,0.06),transparent 55%), #050616;
+    border-radius:7px;
+    padding:24px 14px 24px;
+    box-shadow:0 18px 40px rgba(0,0,0,0.55);
+    border:1px solid rgba(255,255,255,0.08);
+    transition:background 0.35s ease;
+  }
+
+  .controls{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .controls-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    align-items:center;
+    justify-content:center;
+    font-size:0.9rem;
+  }
+  label{
+    color:var(--muted);
+  }
+  select{
+    padding:6px 8px;
+    border-radius:10px;
+    border:1px solid rgba(255,255,255,0.25);
+    background:#111426;
+    color:var(--text);
+    font-size:0.9rem;
+  }
+
+  .btn{
+    padding:7px 11px;
+    border-radius:10px;
+    border:none;
+    background:linear-gradient(135deg,#ff3aff,#ff9aff);
+    color:#120016;
+    font-weight:600;
+    cursor:pointer;
+    box-shadow:0 0 10px rgba(255,58,255,0.6);
+    display:inline-flex;
+    align-items:center;
+    gap:4px;
+    font-size:0.88rem;
+    transition:transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s ease;
+  }
+  .btn:hover{
+    transform:translateY(-1px);
+    box-shadow:0 0 16px rgba(0,255,255,0.6);
+  }
+  .btn:active{
+    transform:translateY(1px);
+    box-shadow:0 0 6px rgba(0,0,0,0.8);
+  }
+  .btn.secondary{
+    background:#181b3a;
+    color:var(--text);
+    box-shadow:0 0 8px rgba(0,0,0,0.6);
+  }
+  .btn.small{
+    padding:4px 8px;
+    font-size:0.8rem;
+  }
+  .btn.active-favorite{
+    box-shadow:0 0 14px rgba(255,215,0,0.9);
+  }
+
+  .grid{
+    margin:22px auto 0;
+    display:grid;
+    gap:var(--grid-gap);
+    justify-content:center;
+  }
+  .node{
+    width:var(--node-size);
+    height:var(--node-size);
+    border-radius:12px;
+    box-shadow:var(--glow);
+    cursor:pointer;
+    transition:transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+  }
+  .node:hover{
+    transform:translateY(-2px) scale(1.02);
+    filter:brightness(1.08);
+  }
+  .node.locked{
+    box-shadow:0 0 18px rgba(255,255,255,0.6), inset 0 0 4px rgba(255,255,255,0.6);
+  }
+  .node.mirror{
+    border:2px dashed rgba(255,255,255,0.7);
+  }
+
+  .scoreboard{
+    margin-top:20px;
+    text-align:center;
+    font-size:0.9rem;
+    color:var(--muted);
+  }
+  .scoreboard strong{
+    color:var(--accent-soft);
+  }
+  .hint-text{
+    margin-top:11px;
+    font-size:0.88rem;
+    color:#8ffcff;
+    min-height:1.2em;
+  }
+
+  /* How to Play card */
+  .howto-card{
+    margin-top:33px;
+    padding:14px 14px 14px;
+    border-radius:7px;
+    background:linear-gradient(135deg,rgba(13,13,26,0.95),rgba(26,26,58,0.98));
+    border:1px solid rgba(255,255,255,0.16);
+    box-shadow:0 0 16px rgba(0,0,0,0.7);
+    font-size:0.92rem;
+    line-height:1.5;
+    transition:background 0.35s ease;
+  }
+  .howto-card h2{
+    margin:0 0 11px;
+    text-align:center;
+    color:#ff9aff;
+    text-shadow:0 0 6px #ff3aff;
+    font-size:1.05rem;
+  }
+  .howto-card ol{
+    padding-left:44px;
+    margin:6px 0 4px;
+  }
+  .howto-card li{
+    margin-bottom:11px;
+  }
+  .howto-card ul{
+    padding-left:16px;
+    margin:11px 0;
+  }
+  .howto-tip{
+    margin-top:11px;
+    text-align:center;
+    color:#00fff0;
+    font-weight:444;
+    text-shadow:0 0 7px #0ff;
+  }
+
+  .leaderboard-wrapper{
+    margin-top:24px;
+  }
+  .leaderboard-wrapper h2{
+    font-size:1rem;
+    margin:0 0 7px;
+    color:var(--accent-soft);
+    text-align:left;
+  }
+  .leaderboard{
+    max-height:444px;
+    overflow:auto;
+    background:#080a19;
+    border-radius:7px;
+    padding:8px 10px;
+    font-size:0.85rem;
+  }
+  .leaderboard div{
+    padding:7px 0;
+    border-bottom:1px solid rgba(255,255,255,0.05);
+  }
+  .leaderboard div:last-child{
+    border-bottom:none;
+  }
+
+  .share-bar{
+    margin-top:24px;
+    padding:11px 11px;
+    border-radius:7px;
+    background:#10132b;
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    justify-content:space-between;
+    gap:11px;
+    font-size:0.7rem;
+  }
+  .share-buttons{
+    display:flex;
+    gap:7px;
+  }
+
+  .footer-credit{
+    margin-top:11px;
+    text-align:center;
+    font-size:0.85rem;
+    color:var(--muted);
+  }
+
+  .small{
+    font-size:0.85rem;
+  }
+
+  /* Tutorial overlay */
+  .tutorial-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.86);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:1000;
+  }
+  .tutorial-card{
+    max-width:444px;
+    width:90%;
+    background:#10132b;
+    border-radius:14px;
+    padding:14px 14px 14px;
+    box-shadow:0 0 24px rgba(0,0,0,0.9);
+    border:1px solid rgba(255,255,255,0.18);
+  }
+  .tutorial-card h2{
+    margin:0 0 7px;
+    font-size:1.4rem;
+  }
+  .tutorial-card p{
+    margin:0 0 7px;
+    font-size:0.92rem;
+    color:var(--muted);
+  }
+  .tutorial-card ul{
+    padding-left:24px;
+    margin:7px 0 14px;
+    font-size:0.7rem;
+    color:var(--muted);
+  }
+
+  /* Animations */
+  @keyframes neonPulse{
+    0%{ text-shadow:0 0 4px #000, 0 0 8px #000; }
+    50%{ text-shadow:0 0 3px #AC1BB5, 0 0 12px #00ffff; }
+    100%{ text-shadow:0 0 2px #ff77ff, 0 0 8px #00ffff; }
+  }
+  @keyframes shimmer{
+    0%{ left:-50%; }
+    100%{ left:100%; }
+  }
+
+  /* Responsive */
+  @media(max-width:666px){
+    :root{
+      --node-size:33px; /* still overridden by JS based on width */
+    }
+    #game-banner h1{
+      font-size:2.4rem;
+    }
+    .controls-row{
+      justify-content:flex-start;
+    }
+    .panel{
+      padding:24px 14px 24px;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div id="game-banner">
+    <h1>✨ ColorShift Cascades ✨</h1>
+    <div class="gradient-bar"></div>
+    <p class="tagline">Guide the grid into a glowing color harmony.</p>
+  </div>
+
+  <div class="panel">
+    <div class="controls">
+      <div class="controls-row">
+        <label for="levelSelect">Board:</label>
+        <select id="levelSelect"></select>
+
+        <label for="difficultySelect">Difficulty:</label>
+        <select id="difficultySelect"></select>
+
+        <button class="btn secondary" id="newBoardBtn">New Board</button>
+        <button class="btn small secondary" id="favoriteBtn" title="Save this setup as favorite">★ Save Favorite</button>
+        <button class="btn small secondary" id="playFavoriteBtn">Play Favorite</button>
+      </div>
+
+      <div class="controls-row">
+        <button class="btn" id="undoBtn">Undo</button>
+        <button class="btn" id="bombBtn">Chromatic Bomb</button>
+        <button class="btn" id="sweepBtn">Spectrum Sweep</button>
+        <button class="btn secondary" id="dailyBtn">Daily Challenge</button>
+        <button class="btn secondary" id="tutorialBtn">Tutorial</button>
+        <button class="btn small secondary" id="speakHintBtn">🔊 Hint</button>
+        <label class="small" for="voiceSelect">Guide:</label>
+        <select id="voiceSelect">
+          <option value="off">Muted</option>
+          <option value="soft">Soft Guide</option>
+          <option value="bright">Excited DJ</option>
+          <option value="calm">Calm Mentor</option>
+        </select>
+        <button class="btn small secondary" id="kidModeBtn">Kid Mode: Off</button>
+        <button class="btn small secondary" id="hintToggle">Hints: On</button>
+      </div>
+    </div>
+
+    <div id="gridContainer" class="grid"></div>
+
+    <div class="scoreboard">
+      <div id="levelInfo"><strong>Board:</strong> 3×3 · Easy</div>
+      <div>
+        Moves: <span id="moveCount">0</span> ·
+        Chains: <span id="chainCount">0</span> ·
+        Harmony: <span id="harmonyDisplay">0% (best 0%)</span>
+      </div>
+      <div id="hintOutput" class="hint-text"></div>
+    </div>
+
+    <div class="howto-card">
+      <h2>How to Play 🎨</h2>
+      <ol>
+        <li>Each square on the grid is a <strong>color node</strong> with its own hue.</li>
+        <li>Click a node to <strong>shift its color</strong>. Adjacent nodes will also shift.</li>
+        <li>The goal is to create a <strong>cascading color harmony</strong>—turn the board into matching or complementary hues.</li>
+        <li>Special tiles:
+          <ul>
+            <li><span style="color:#ff9aff;">Locked nodes</span> cannot be shifted.</li>
+            <li><span style="color:#0ff;">Mirror nodes</span> reflect the color shift across the grid.</li>
+          </ul>
+        </li>
+        <li>Use your tools wisely:
+          <ul>
+            <li><strong>Undo</strong> reverts your last move.</li>
+            <li><strong>Chromatic Bomb</strong> randomizes a small area.</li>
+            <li><strong>Spectrum Sweep</strong> shuffles an entire row’s colors.</li>
+          </ul>
+        </li>
+        <li>Choose different <strong>board sizes</strong> and <strong>difficulty levels</strong> to increase the challenge.</li>
+        <li>Optional: turn on a <strong>guide voice</strong> and tap “🔊 Hint” to hear spoken suggestions.</li>
+        <li>Each move counts! The fewer moves and the higher the harmony, the better your run.</li>
+        <li>Try the <strong>Daily Challenge</strong> for one special board each day.</li>
+        <li>Share your score or invite friends to see who can reach the highest harmony.</li>
+      </ol>
+      <div class="howto-tip">
+        Tip: Focus on nodes that touch many neighbors to trigger satisfying chain reactions!
+      </div>
+    </div>
+
+    <div class="leaderboard-wrapper">
+      <h2>Top Harmony Runs (on this device)</h2>
+      <div class="leaderboard" id="leaderboard"></div>
+    </div>
+
+    <div class="share-bar">
+      <div>Share your harmony & invite friends to play.</div>
+      <div class="share-buttons">
+        <button class="btn small" id="shareScoreBtn">Share Score</button>
+        <button class="btn small secondary" id="inviteBtn">Invite Friends</button>
+      </div>
+    </div>
+
+    <div class="footer-credit">Made with 💛 by Jenny Pearl &amp; Liora</div>
+  </div>
+</div>
+
+<div class="tutorial-overlay" id="tutorialOverlay">
+  <div class="tutorial-card">
+    <h2>🌈 How to Play ColorShift Cascades</h2>
+    <p>Tap a color node to nudge its hue. Its neighbors shift with it, and mirror nodes echo your move elsewhere on the grid.</p>
+    <ul>
+      <li><strong>Locked nodes</strong> cannot be changed.</li>
+      <li><strong>Mirror nodes</strong> echo your move across the grid.</li>
+      <li>Use <strong>Undo</strong>, <strong>Chromatic Bomb</strong>, and <strong>Spectrum Sweep</strong> if you feel stuck.</li>
+      <li>Watch the <strong>Harmony</strong> percentage – higher is better!</li>
+    </ul>
+    <button class="btn secondary" id="closeTutorial">Close</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  const $ = id => document.getElementById(id);
+
+  const gridContainer = $("gridContainer");
+  const levelSelect = $("levelSelect");
+  const difficultySelect = $("difficultySelect");
+  const levelInfo = $("levelInfo");
+  const moveCountDisplay = $("moveCount");
+  const chainCountDisplay = $("chainCount");
+  const harmonyDisplay = $("harmonyDisplay");
+  const hintOutput = $("hintOutput");
+  const leaderboardEl = $("leaderboard");
+
+  const undoBtn = $("undoBtn");
+  const bombBtn = $("bombBtn");
+  const sweepBtn = $("sweepBtn");
+  const dailyBtn = $("dailyBtn");
+  const tutorialBtn = $("tutorialBtn");
+  const speakHintBtn = $("speakHintBtn");
+  const voiceSelect = $("voiceSelect");
+  const kidModeBtn = $("kidModeBtn");
+  const hintToggleBtn = $("hintToggle");
+  const favoriteBtn = $("favoriteBtn");
+  const playFavoriteBtn = $("playFavoriteBtn");
+  const newBoardBtn = $("newBoardBtn");
+  const shareBtn = $("shareScoreBtn");
+  const inviteBtn = $("inviteBtn");
+  const tutorialOverlay = $("tutorialOverlay");
+  const closeTutorialBtn = $("closeTutorial");
+
+  const LEVELS = [
+    { label:"3×3", size:3 },
+    { label:"4×4", size:4 },
+    { label:"5×5", size:5 },
+    { label:"6×6", size:6 },
+    { label:"7×7", size:7 },
+    { label:"8×8", size:8 },
+    { label:"9×9", size:9 },
+    { label:"10×10", size:10 },
+    { label:"11×11", size:11 },
+    { label:"12×12", size:12 }
+  ];
+
+  const DIFFICULTIES = [
+    { id:"easy",   label:"Easy",   lockChance:0.02, mirrorChance:0.02, hueStep:30 },
+    { id:"normal", label:"Normal", lockChance:0.05, mirrorChance:0.05, hueStep:24 },
+    { id:"hard",   label:"Hard",   lockChance:0.08, mirrorChance:0.08, hueStep:18 }
+  ];
+
+  const STATE_KEY = "colorshift_cascades_state_v3";
+  const LB_KEY    = "colorshift_cascades_leaderboard_v3";
+
+  let levelIndex = 0;
+  let difficultyIndex = 0;
+  let favoriteConfig = null;
+
+  let grid = [];
+  let moves = 0;
+  let chains = 0;
+  let currentHarmony = 0;
+  let bestHarmony = 0;
+  let lastSavedHarmony = 0;
+  let undoStack = [];
+
+  let voiceStyle = "off";   // "off" | "soft" | "bright" | "calm"
+  let hintsOn = true;
+  let kidMode = false;
+  let availableVoices = [];
+
+  function clamp(n,min,max){ return Math.max(min, Math.min(max,n)); }
+  function randomHue(){ return Math.floor(Math.random()*360); }
+
+  /* Dynamic node sizing so it fills wide desktop but fits 333px embeds */
+  function updateNodeSizeForGridSize(size){
+    if(!size) return;
+    const wrapper = gridContainer.parentElement || gridContainer;
+    const wrapperWidth = wrapper.clientWidth || window.innerWidth || 800;
+
+    const paddingBuffer = 40;
+    const maxBoardWidthDesktop = 560;
+
+    const targetWidth = Math.max(
+      220,
+      Math.min(wrapperWidth - paddingBuffer, maxBoardWidthDesktop)
+    );
+
+    const gap = 6;
+    const rawNode = (targetWidth - gap*(size-1)) / size;
+    const clamped = Math.max(20, Math.min(rawNode, 80));
+
+    document.documentElement.style.setProperty("--node-size", clamped + "px");
+  }
+
+  window.addEventListener("resize", ()=>{
+    if(grid.length){
+      updateNodeSizeForGridSize(grid.length);
+      renderGrid();
+    }
+  });
+
+  /* Load / Save */
+  function loadState(){
+    try{
+      const raw = localStorage.getItem(STATE_KEY);
+      if(!raw) return;
+      const s = JSON.parse(raw);
+      if(typeof s.levelIndex === "number"){
+        levelIndex = clamp(s.levelIndex,0,LEVELS.length-1);
+      }
+      if(typeof s.difficultyIndex === "number"){
+        difficultyIndex = clamp(s.difficultyIndex,0,DIFFICULTIES.length-1);
+      }
+      if(s.favoriteConfig){
+        favoriteConfig = {
+          levelIndex: clamp(s.favoriteConfig.levelIndex || 0,0,LEVELS.length-1),
+          difficultyIndex: clamp(s.favoriteConfig.difficultyIndex || 0,0,DIFFICULTIES.length-1)
+        };
+      }
+      if(s.voiceStyle){
+        voiceStyle = s.voiceStyle;
+      }
+      if(typeof s.hintsOn === "boolean"){
+        hintsOn = s.hintsOn;
+      }
+      if(typeof s.kidMode === "boolean"){
+        kidMode = s.kidMode;
+      }
+    }catch(e){}
+  }
+
+  function saveState(){
+    const data = {
+      levelIndex,
+      difficultyIndex,
+      favoriteConfig,
+      voiceStyle,
+      hintsOn,
+      kidMode
+    };
+    try{
+      localStorage.setItem(STATE_KEY, JSON.stringify(data));
+    }catch(e){}
+  }
+
+  /* Voice setup */
+  if("speechSynthesis" in window){
+    function loadVoices(){
+      try{
+        availableVoices = window.speechSynthesis.getVoices() || [];
+      }catch(e){
+        availableVoices = [];
+      }
+    }
+    loadVoices();
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+  }
+
+  function pickVoice(){
+    if(!availableVoices.length) return null;
+    if(voiceStyle === "soft")   return availableVoices[0];
+    if(voiceStyle === "bright") return availableVoices[Math.min(1,availableVoices.length-1)];
+    if(voiceStyle === "calm")   return availableVoices[Math.min(2,availableVoices.length-1)];
+    return availableVoices[0];
+  }
+
+  function speakText(text){
+    if(voiceStyle === "off") return;
+    if(!("speechSynthesis" in window)) return;
+    if(!text) return;
+
+    const utter = new SpeechSynthesisUtterance(text);
+    let rate = 1.0;
+    let pitch = 1.0;
+
+    if(voiceStyle === "soft"){
+      rate = 0.95; pitch = 1.05;
+    }else if(voiceStyle === "bright"){
+      rate = 1.08; pitch = 1.15;
+    }else if(voiceStyle === "calm"){
+      rate = 0.9;  pitch = 0.95;
+    }
+
+    const v = pickVoice();
+    if(v) utter.voice = v;
+    utter.rate = rate;
+    utter.pitch = pitch;
+
+    try{
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(utter);
+    }catch(e){}
+  }
+
+  function wrapHintForVoice(baseHint){
+    if(!baseHint) return baseHint;
+    if(voiceStyle === "off") return baseHint;
+
+    const soft = [
+      "Gentle hint: ",
+      "Maybe try this: ",
+      "Soft suggestion: "
+    ];
+    const bright = [
+      "Ooh, color idea! ",
+      "Fun hint: ",
+      "Try this move: "
+    ];
+    const calm = [
+      "Calm guidance: ",
+      "Quiet tip: ",
+      "Slow and steady: "
+    ];
+
+    let pool = soft;
+    if(voiceStyle === "bright") pool = bright;
+    if(voiceStyle === "calm")   pool = calm;
+
+    const prefix = pool[Math.floor(Math.random()*pool.length)];
+    return prefix + baseHint;
+  }
+
+  /* UI setup */
+  function populateSelectors(){
+    levelSelect.innerHTML = "";
+    LEVELS.forEach((lvl, idx)=>{
+      const opt = document.createElement("option");
+      opt.value = idx;
+      opt.textContent = lvl.label;
+      levelSelect.appendChild(opt);
+    });
+
+    difficultySelect.innerHTML = "";
+    DIFFICULTIES.forEach((diff, idx)=>{
+      const opt = document.createElement("option");
+      opt.value = idx;
+      opt.textContent = diff.label;
+      difficultySelect.appendChild(opt);
+    });
+
+    levelSelect.value = levelIndex;
+    difficultySelect.value = difficultyIndex;
+
+    levelSelect.addEventListener("change", ()=>{
+      levelIndex = parseInt(levelSelect.value,10) || 0;
+      if(kidMode && levelIndex > 3){
+        levelIndex = 3;
+        levelSelect.value = 3;
+        alert("In Kid Mode, boards are limited to 3×3–6×6.");
+      }
+      saveState();
+      generateGrid();
+    });
+    difficultySelect.addEventListener("change", ()=>{
+      difficultyIndex = parseInt(difficultySelect.value,10) || 0;
+      if(kidMode && difficultyIndex > 0){
+        difficultyIndex = 0;
+        difficultySelect.value = 0;
+        alert("In Kid Mode, difficulty is set to Easy.");
+      }
+      saveState();
+      generateGrid();
+    });
+
+    voiceSelect.value = voiceStyle;
+    voiceSelect.addEventListener("change", ()=>{
+      voiceStyle = voiceSelect.value;
+      saveState();
+    });
+
+    hintToggleBtn.textContent = "Hints: " + (hintsOn ? "On" : "Off");
+  }
+
+  function updateLevelInfo(){
+    levelInfo.innerHTML = "<strong>Board:</strong> "
+      + LEVELS[levelIndex].label + " · "
+      + DIFFICULTIES[difficultyIndex].label
+      + (kidMode ? " · Kid Mode" : "");
+  }
+
+  function cloneGridData(src){
+    return src.map(row => row.map(cell => ({...cell})));
+  }
+
+  function applyKidModeVisuals(){
+    document.body.classList.toggle("kid-mode", kidMode);
+    kidModeBtn.textContent = "Kid Mode: " + (kidMode ? "On" : "Off");
+
+    if(kidMode){
+      if(difficultyIndex !== 0){
+        difficultyIndex = 0;
+        difficultySelect.value = 0;
+      }
+      if(levelIndex > 3){
+        levelIndex = 3;
+        levelSelect.value = 3;
+      }
+      hintsOn = true;
+      hintToggleBtn.textContent = "Hints: On";
+    }
+  }
+
+  /* =========
+     Move logic (updated)
+     ========= */
+  function applyMoveOnGrid(targetGrid, r, c, difficultyIdx){
+    const step = DIFFICULTIES[difficultyIdx].hueStep;
+    const size = targetGrid.length;
+
+    const offsets = [
+      [0, 0],
+      [1, 0],
+      [-1, 0],
+      [0, 1],
+      [0, -1],
+    ];
+
+    // base: clicked + orthogonal neighbors
+    offsets.forEach(([dr, dc])=>{
+      const nr = r + dr;
+      const nc = c + dc;
+      if(nr>=0 && nr<size && nc>=0 && nc<size){
+        const node = targetGrid[nr][nc];
+        if(node.type !== "locked"){
+          node.hue = (node.hue + step + 360) % 360;
+        }
+      }
+    });
+
+    // if clicked cell is a mirror, give a second local nudge
+    if(targetGrid[r][c].type === "mirror"){
+      offsets.forEach(([dr, dc])=>{
+        const nr = r + dr;
+        const nc = c + dc;
+        if(nr>=0 && nr<size && nc>=0 && nc<size){
+          const node = targetGrid[nr][nc];
+          if(node.type !== "locked"){
+            node.hue = (node.hue + step + 360) % 360;
+          }
+        }
+      });
+    }
+  }
+
+  /* Grid creation & rendering */
+  function generateGrid(){
+    const size = LEVELS[levelIndex].size;
+    updateNodeSizeForGridSize(size);
+
+    const cfg = DIFFICULTIES[difficultyIndex];
+
+    grid = [];
+    for(let r=0;r<size;r++){
+      const row=[];
+      for(let c=0;c<size;c++){
+        let type = "normal";
+        const rand = Math.random();
+        if(rand < cfg.lockChance){
+          type = "locked";
+        }else if(rand < cfg.lockChance + cfg.mirrorChance){
+          type = "mirror";
+        }
+        row.push({ r, c, hue: randomHue(), type });
+      }
+      grid.push(row);
+    }
+
+    moves = 0;
+    chains = 0;
+    currentHarmony = 0;
+    bestHarmony = 0;
+    undoStack = [];
+    updateLevelInfo();
+    renderGrid();
+    updateHarmony();
+    maybeGiveHint();
+  }
+
+  function renderGrid(){
+    const size = grid.length;
+    gridContainer.style.gridTemplateColumns = "repeat(" + size + ", var(--node-size))";
+    gridContainer.innerHTML = "";
+    grid.forEach((row,r)=>{
+      row.forEach((cell,c)=>{
+        const div = document.createElement("div");
+        div.className = "node";
+        if(cell.type === "locked") div.classList.add("locked");
+        if(cell.type === "mirror") div.classList.add("mirror");
+        div.style.background = "hsl(" + cell.hue + ",80%,50%)";
+        div.addEventListener("click", ()=> handleClick(r,c));
+        gridContainer.appendChild(div);
+      });
+    });
+  }
+
+  function saveUndo(){
+    if(!grid.length) return;
+    undoStack.push(cloneGridData(grid));
+    if(undoStack.length > 20) undoStack.shift();
+  }
+
+  function handleClick(r,c){
+    if(!grid.length) return;
+    saveUndo();
+    moves++;
+    applyMoveOnGrid(grid, r, c, difficultyIndex);
+    renderGrid();
+    updateHarmony();
+    maybeGiveHint();
+  }
+
+  /* Harmony & scoring (updated) */
+  function getHarmonyTolerance(){
+    const diffId = DIFFICULTIES[difficultyIndex].id;
+    if(diffId === "easy")   return 30; // ±30°
+    if(diffId === "normal") return 22; // ±22°
+    return 15;                          // hard: ±15°
+  }
+
+  function computeHarmonyOnGrid(g){
+    const size = g.length;
+    if(!size) return 0;
+
+    const baseHue = g[0][0].hue;
+    const tol = getHarmonyTolerance();
+    let matchCount = 0;
+
+    for(let r=0;r<size;r++){
+      for(let c=0;c<size;c++){
+        const h = g[r][c].hue;
+        const diff = Math.abs(h - baseHue);
+        const wrapped = Math.min(diff, 360 - diff);
+        if(wrapped <= tol){
+          matchCount++;
+        }
+      }
+    }
+    return Math.round((matchCount / (size*size)) * 100);
+  }
+
+  function computeHarmony(){
+    return computeHarmonyOnGrid(grid);
+  }
+
+  function updateHarmony(){
+    const prev = currentHarmony;
+    currentHarmony = computeHarmony();
+    if(currentHarmony > bestHarmony){
+      bestHarmony = currentHarmony;
+    }
+    if(currentHarmony > prev){
+      chains += (currentHarmony - prev);
+    }
+
+    moveCountDisplay.textContent = moves;
+    chainCountDisplay.textContent = chains;
+    harmonyDisplay.textContent = currentHarmony + "% (best " + bestHarmony + "%)";
+    updateLevelInfo();
+
+    if(bestHarmony > lastSavedHarmony){
+      lastSavedHarmony = bestHarmony;
+      saveLeaderboardEntry();
+    }
+  }
+
+  /* Leaderboard */
+  function loadLeaderboard(){
+    try{
+      const raw = localStorage.getItem(LB_KEY);
+      return raw ? JSON.parse(raw) : [];
+    }catch(e){
+      return [];
+    }
+  }
+
+  function saveLeaderboardEntry(){
+    const entries = loadLeaderboard();
+    const size = grid.length || LEVELS[levelIndex].size;
+    const entry = {
+      size,
+      difficulty: DIFFICULTIES[difficultyIndex].label,
+      harmony: bestHarmony,
+      moves,
+      date: new Date().toLocaleDateString()
+    };
+    entries.push(entry);
+    entries.sort((a,b)=> b.harmony - a.harmony || a.moves - b.moves);
+    const trimmed = entries.slice(0,10);
+    try{
+      localStorage.setItem(LB_KEY, JSON.stringify(trimmed));
+    }catch(e){}
+    renderLeaderboard(trimmed);
+  }
+
+  function renderLeaderboard(entries){
+    leaderboardEl.innerHTML = "";
+    if(!entries.length){
+      const div = document.createElement("div");
+      div.className = "small";
+      div.textContent = "Play a few rounds to build your local leaderboard.";
+      leaderboardEl.appendChild(div);
+      return;
+    }
+    entries.forEach(e=>{
+      const div = document.createElement("div");
+      div.textContent = e.size + "×" + e.size + " " + e.difficulty +
+                        " — " + e.harmony + "% in " + e.moves +
+                        " moves (" + e.date + ")";
+      leaderboardEl.appendChild(div);
+    });
+  }
+
+  /* Hints */
+  function getHintText(){
+    if(!grid.length) return "Tap near the middle of the board to start a cascade.";
+    const size = grid.length;
+    const base = computeHarmony();
+    let bestCell = null;
+    let bestDelta = -Infinity;
+
+    for(let r=0;r<size;r++){
+      for(let c=0;c<size;c++){
+        if(grid[r][c].type === "locked") continue;
+        const delta = simulateHarmonyDelta(r,c, base);
+        if(delta > bestDelta){
+          bestDelta = delta;
+          bestCell = {r,c};
+        }
+      }
+    }
+    if(!bestCell || bestDelta <= 0){
+      return "Try tapping a node that touches many neighbors, slightly off-center.";
+    }
+    return "Try row " + (bestCell.r+1) + ", column " + (bestCell.c+1) + " for a stronger harmony.";
+  }
+
+  function simulateHarmonyDelta(r,c, base){
+    const clone = cloneGridData(grid);
+    applyMoveOnGrid(clone, r, c, difficultyIndex);
+    const future = computeHarmonyOnGrid(clone);
+    return future - base;
+  }
+
+  function maybeGiveHint(){
+    if(!grid.length || !hintsOn){
+      hintOutput.textContent = "";
+      return;
+    }
+    hintOutput.textContent = getHintText();
+  }
+
+  /* Sharing */
+  function tryNativeShare(text, url){
+    if(navigator.share){
+      navigator.share({
+        title:"ColorShift Cascades",
+        text,
+        url
+      }).catch(()=>{});
+      return true;
+    }
+    return false;
+  }
+
+  function copyToClipboard(text){
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).catch(()=>{});
+    }else{
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      try{ document.execCommand("copy"); }catch(e){}
+      document.body.removeChild(ta);
+    }
+  }
+
+  function getShareMessage(){
+    const size = grid.length || LEVELS[levelIndex].size;
+    const harmony = bestHarmony || computeHarmony();
+    return "I reached " + harmony + "% color harmony on a "
+           + size + "×" + size + " " + DIFFICULTIES[difficultyIndex].label
+           + " board in ColorShift Cascades!";
+  }
+
+  /* Favorite level */
+  function renderFavoriteStatus(){
+    if(favoriteConfig){
+      favoriteBtn.classList.add("active-favorite");
+    }else{
+      favoriteBtn.classList.remove("active-favorite");
+    }
+  }
+
+  /* Events */
+  undoBtn.addEventListener("click", ()=>{
+    if(!undoStack.length) return;
+    grid = undoStack.pop();
+    if(moves > 0) moves--;
+    renderGrid();
+    updateHarmony();
+    maybeGiveHint();
+  });
+
+  bombBtn.addEventListener("click", ()=>{
+    if(!grid.length) return;
+    saveUndo();
+    const size = grid.length;
+    const r = Math.floor(Math.random()*size);
+    const c = Math.floor(Math.random()*size);
+    for(let rr=r-1; rr<=r+1; rr++){
+      for(let cc=c-1; cc<=c+1; cc++){
+        if(rr>=0 && rr<size && cc>=0 && cc<size){
+          const node = grid[rr][cc];
+          if(node.type !== "locked"){
+            node.hue = randomHue();
+          }
+        }
+      }
+    }
+    moves++;
+    renderGrid();
+    updateHarmony();
+    maybeGiveHint();
+  });
+
+  sweepBtn.addEventListener("click", ()=>{
+    if(!grid.length) return;
+    saveUndo();
+    const size = grid.length;
+    const row = Math.floor(Math.random()*size);
+    for(let c=0;c<size;c++){
+      const node = grid[row][c];
+      if(node.type !== "locked"){
+        node.hue = randomHue();
+      }
+    }
+    moves++;
+    renderGrid();
+    updateHarmony();
+    maybeGiveHint();
+  });
+
+  dailyBtn.addEventListener("click", ()=>{
+    const today = new Date().toISOString().slice(0,10);
+    const key = "colorshift_daily_" + today;
+    const raw = localStorage.getItem(key);
+    if(raw){
+      try{
+        const payload = JSON.parse(raw);
+        levelIndex = clamp(payload.levelIndex || 0,0,LEVELS.length-1);
+        difficultyIndex = clamp(payload.difficultyIndex || 0,0,DIFFICULTIES.length-1);
+        grid = payload.grid || [];
+        moves = payload.moves || 0;
+        chains = payload.chains || 0;
+        undoStack = [];
+        levelSelect.value = levelIndex;
+        difficultySelect.value = difficultyIndex;
+        updateNodeSizeForGridSize(grid.length || LEVELS[levelIndex].size);
+        updateLevelInfo();
+        renderGrid();
+        updateHarmony();
+        maybeGiveHint();
+        saveState();
+        if(voiceStyle !== "off"){
+          speakText("Daily challenge loaded. See how high you can push the harmony today.");
+        }
+        return;
+      }catch(e){}
+    }
+
+    const d = new Date();
+    levelIndex = d.getDate() % LEVELS.length;
+    difficultyIndex = d.getDay() % DIFFICULTIES.length;
+    if(kidMode){
+      if(levelIndex > 3) levelIndex = 3;
+      difficultyIndex = 0;
+    }
+    levelSelect.value = levelIndex;
+    difficultySelect.value = difficultyIndex;
+    generateGrid();
+    const payload = {
+      levelIndex,
+      difficultyIndex,
+      grid,
+      moves,
+      chains
+    };
+    try{
+      localStorage.setItem(key, JSON.stringify(payload));
+    }catch(e){}
+    saveState();
+    if(voiceStyle !== "off"){
+      speakText("New daily challenge created. Try to set a harmony record today.");
+    }
+  });
+
+  tutorialBtn.addEventListener("click", ()=>{
+    tutorialOverlay.style.display = "flex";
+    if(voiceStyle !== "off"){
+      speakText("Welcome to ColorShift Cascades. Tap a color node to nudge its hue and guide the whole board into one main color family.");
+    }
+  });
+
+  closeTutorialBtn.addEventListener("click", ()=>{
+    tutorialOverlay.style.display = "none";
+  });
+
+  hintToggleBtn.addEventListener("click", ()=>{
+    if(kidMode){
+      alert("In Kid Mode, hints stay on to help younger players.");
+      return;
+    }
+    hintsOn = !hintsOn;
+    hintToggleBtn.textContent = "Hints: " + (hintsOn ? "On" : "Off");
+    saveState();
+    if(!hintsOn){
+      hintOutput.textContent = "";
+    }else{
+      maybeGiveHint();
+    }
+  });
+
+  speakHintBtn.addEventListener("click", ()=>{
+    const baseHint = getHintText();
+    if(hintsOn){
+      hintOutput.textContent = baseHint;
+    }
+    if(voiceStyle === "off"){
+      alert("Turn on a guide voice in the dropdown to hear spoken hints.");
+      return;
+    }
+    const spoken = wrapHintForVoice(baseHint);
+    speakText(spoken);
+  });
+
+  kidModeBtn.addEventListener("click", ()=>{
+    kidMode = !kidMode;
+    applyKidModeVisuals();
+    saveState();
+    generateGrid();
+    if(kidMode && voiceStyle !== "off"){
+      speakText("Kid Mode is on. Boards are smaller, easier, and hints stay on to help younger players.");
+    }
+  });
+
+  favoriteBtn.addEventListener("click", ()=>{
+    favoriteConfig = { levelIndex, difficultyIndex };
+    saveState();
+    renderFavoriteStatus();
+    if(voiceStyle !== "off"){
+      speakText("Favorite level saved. You can come back to this setup anytime.");
+    }
+  });
+
+  playFavoriteBtn.addEventListener("click", ()=>{
+    if(!favoriteConfig){
+      alert("You don't have a favorite level yet. Play a board you like, then tap \"Save Favorite\".");
+      return;
+    }
+    levelIndex = clamp(favoriteConfig.levelIndex,0,LEVELS.length-1);
+    difficultyIndex = clamp(favoriteConfig.difficultyIndex,0,DIFFICULTIES.length-1);
+    if(kidMode){
+      if(levelIndex > 3) levelIndex = 3;
+      difficultyIndex = 0;
+    }
+    levelSelect.value = levelIndex;
+    difficultySelect.value = difficultyIndex;
+    generateGrid();
+  });
+
+  newBoardBtn.addEventListener("click", ()=>{
+    generateGrid();
+  });
+
+  shareBtn.addEventListener("click", ()=>{
+    const msg = getShareMessage();
+    const url = location.href;
+    if(!tryNativeShare(msg, url)){
+      copyToClipboard(msg + " " + url);
+      alert("Your score and link have been copied. Paste into your favourite app to share!");
+    }
+  });
+
+  inviteBtn.addEventListener("click", ()=>{
+    const url = location.href;
+    const subject = "Play ColorShift Cascades with me";
+    const body = "Come play ColorShift Cascades with me!%0D%0A%0D%0AHere is the link:%0D%0A" + encodeURIComponent(url);
+    if(!tryNativeShare("Come play ColorShift Cascades with me!", url)){
+      const mailto = "mailto:?subject=" + encodeURIComponent(subject) + "&body=" + body;
+      window.location.href = mailto;
+    }
+  });
+
+  /* Init */
+  function init(){
+    loadState();
+    populateSelectors();
+    applyKidModeVisuals();
+    renderFavoriteStatus();
+    generateGrid();
+    renderLeaderboard(loadLeaderboard());
+    maybeGiveHint();
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
