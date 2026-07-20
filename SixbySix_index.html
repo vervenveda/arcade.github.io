@@ -1,0 +1,864 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SixBySix — Sovereign 6×6 Tic Tac Toe (Monte Carlo AI)</title>
+<style>
+  :root{
+    --bg:#CCCCCC; --ink:#eaf2ff; --muted:#bcd0ff;
+    --board:#ADADAD;      /* grid / frame */
+    --hole:#101a35;       /* cell background */
+    --line:#8ab4ff;       /* outer board border */
+    --x:#ff6f61; --o:#5be2ff; --win:#31d07b;
+    --accent:#ffd34d; --radius:16px;
+  }
+
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    background:radial-gradient(1000px 600px at 50% -10%, #17233f, var(--bg));
+    color:var(--ink);
+    font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:16px;
+  }
+  .app{ width:100%; max-width:888px; }
+  h1{ margin:0 0 11px 0; letter-spacing:.04em; font-weight:333 }
+  .sub{ color:var(--muted); margin:0 0 8px 0; font-size:.95rem }
+
+  .rules{
+    font-size:.88rem;
+    color:var(--muted);
+    margin:0 0 14px 0;
+  }
+  .rules ul{
+    margin:11px 0 0 24px;
+    padding:11px;
+  }
+  .rules li{
+    margin-bottom:24px;
+  }
+
+  .panel{
+    background:#828282;
+    border:1px solid #101a35;
+    border-radius:var(--radius);
+    box-shadow:0 18px 40px rgba(0,0,0,.45);
+    padding:14px;
+  }
+  .controls{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+  .chip, select, button{
+    background:#101a35; border:1px solid #24345f; color:var(--ink);
+    border-radius:999px; padding:8px 12px; font-weight:600; cursor:pointer;
+    font-size:.9rem;
+  }
+  .chip.active{
+    background:var(--accent);
+    color:#111;
+    border-color:#111;
+  }
+  select{
+    padding:8px 30px 8px 12px;
+    appearance:none;
+    background-image:
+      linear-gradient(45deg,transparent 50%,var(--muted) 50%),
+      linear-gradient(135deg,var(--muted) 50%,transparent 50%),
+      linear-gradient(to right, #0000, #0000);
+    background-position:
+      calc(100% - 18px) calc(1em + 2px),
+      calc(100% - 12px) calc(1em + 2px),
+      100% 0;
+    background-size: 6px 6px, 6px 6px, 3em 3em;
+    background-repeat:no-repeat;
+  }
+  .row{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+
+  .boardWrap{
+    margin-top:12px;
+    display:flex; gap:16px; flex-wrap:wrap;
+    align-items:flex-start; justify-content:center;
+  }
+  .board{
+    background:var(--board);
+    border:4px solid var(--line);
+    border-radius:22px;
+    padding:12px;
+    display:grid;
+    grid-template-columns:repeat(6,1fr);
+    gap:10px;
+    width:min(92vw,560px);
+  }
+  .cell{
+    width:calc((min(92vw,560px) - 12px*2 - 10px*5)/6);
+    aspect-ratio:1/1;
+    display:grid; place-items:center;
+    border-radius:14px;
+    background:var(--hole);
+    border:2px solid #203054;
+    font-size: clamp(24px, 6.5vw, 42px);
+    font-weight:900;
+    user-select:none; cursor:pointer; position:relative;
+    transition:transform .08s ease, box-shadow .08s ease;
+  }
+  .cell:hover{ transform:translateY(-1px); box-shadow:0 6px 12px rgba(0,0,0,.25) }
+  .cell.disabled{ cursor:not-allowed; opacity:.6 }
+  .x{ color:var(--x) }
+  .o{ color:var(--o) }
+  .winMark::after{
+    content:"";
+    position:absolute; inset:-3px; border-radius:14px;
+    box-shadow:0 0 0 3px var(--win) inset;
+    animation:pulse 0.9s ease-in-out infinite alternate;
+  }
+  @keyframes pulse{
+    from{box-shadow:0 0 0 2px var(--win) inset}
+    to{box-shadow:0 0 0 5px var(--win) inset}
+  }
+
+  .side{
+    padding:12px; min-width:220px;
+    border:1px solid #17274f;
+    border-radius:16px;
+    background:#0c142b88;
+  }
+  .title{ font-weight:555px; margin:0 0 33px 0 }
+  .mini{ color:var(--muted); font-size:.92rem; margin:6px 0 }
+  .btn{
+    background:var(--accent); color:#1b1b1b;
+    border:none; border-radius:12px;
+    padding:10px 14px;
+    font-weight:800; cursor:pointer;
+  }
+  .btn:disabled{ filter:saturate(.2) brightness(.8); cursor:not-allowed }
+  .log{
+    max-height:220px; overflow:auto;
+    padding:8px; background:#0a1225;
+    border:1px solid #16264b; border-radius:12px;
+    font-size:.9rem;
+  }
+  .split{ display:flex; gap:8px; flex-wrap:wrap; }
+  .pill{
+    padding:6px 10px;
+    border-radius:999px;
+    background:#0b142b;
+    border:1px solid #20345f;
+    color:var(--muted);
+    font-size:.85rem;
+  }
+</style>
+</head>
+<body>
+  <div class="app">
+    <div class="panel">
+      <h1>SixBySix</h1>
+      <p class="sub">
+        SixBySix  • <b>6-in-a-row or 3×2 block</b> wins 
+      </p>
+      <div class="rules">
+        <ul>
+          <li><b>Goal:</b> Be the first to make 6 in a row (any direction) <i>or</i> a solid 3×2 rectangle anywhere on the board.</li>
+          
+          <li><b>Swap Tool:</b> Click it, pick one of your pieces, then an adjacent opponent piece to swap them (up to 3 uses per game, each uses your turn).</li>
+          </li>
+        </ul>
+      </div>
+
+      <div class="controls row">
+        <div class="row">
+          <span class="pill">You play:</span>
+          <select id="humanSide">
+            <option value="X">X (first)</option>
+            <option value="O">O (second)</option>
+          </select>
+        </div>
+        <div class="row">
+          <span class="pill">AI difficulty:</span>
+          <select id="difficulty">
+            <option value="easy">Easy</option>
+            <option value="normal" selected>Normal</option>
+            <option value="hard">Hard</option>
+          </select>
+        </div>
+        <div class="row">
+          <button class="btn" id="newGame">New Game</button>
+          <button class="chip" id="undo">Undo</button>
+        </div>
+        <div class="row">
+          <button class="chip" id="removeToolBtn">Remove Tool (3 left)</button>
+          <button class="chip" id="swapToolBtn">Swap Tool (3 left)</button>
+        </div>
+        <div class="row">
+          <span class="pill" id="status">Ready.</span>
+        </div>
+      </div>
+
+      <div class="boardWrap">
+        <div id="board" class="board" role="grid" aria-label="Six by Six Tic Tac Toe"></div>
+        <aside class="side" aria-live="polite">
+          <h3 class="title">Match Info</h3>
+          <div class="mini" id="turnLabel">Turn: —</div>
+          <div class="mini" id="scoreLabel">X wins: 0 · O wins: 0 · Draws: 0</div>
+          <div class="mini">Win rule: <b>6 in a row or any 3×2 block</b></div>
+          <h4 class="title" style="margin-top:10px;">Move Log</h4>
+          <div class="log" id="log"></div>
+          <div class="mini" style="margin-top:8px;">Monte-Carlo caps (per AI move):</div>
+          <div class="split">
+            <span class="pill">Easy: ~200ms</span>
+            <span class="pill">Normal: ~600ms</span>
+            <span class="pill">Hard: ~1200ms</span>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* ==============================
+   CONFIG & STATE
+============================== */
+const SIZE = 6;           // 6x6 grid
+const WIN = 6;            // 6-in-a-row for line wins
+const EMPTY = "";
+
+const boardEl   = document.getElementById("board");
+const statusEl  = document.getElementById("status");
+const turnEl    = document.getElementById("turnLabel");
+const scoreEl   = document.getElementById("scoreLabel");
+const logEl     = document.getElementById("log");
+const diffSel   = document.getElementById("difficulty");
+const sideSel   = document.getElementById("humanSide");
+const btnNew    = document.getElementById("newGame");
+const btnUndo   = document.getElementById("undo");
+const removeBtn = document.getElementById("removeToolBtn");
+const swapBtn   = document.getElementById("swapToolBtn");
+
+// Remove tool is unlimited now
+const REMOVE_MAX = Infinity;
+const SWAP_MAX   = 3;
+
+let board, turn, human, ai, history, gameOver;
+let mode = "play";              // 'play' | 'remove' | 'swapSelf' | 'swapOpp'
+let swapOrigin = null;
+let removeLeft = REMOVE_MAX;
+let swapLeft   = SWAP_MAX;
+let aiSwapLeft = SWAP_MAX;
+
+let score = JSON.parse(localStorage.getItem("sixbysix_score") || '{"X":0,"O":0,"D":0}');
+
+const DIFF = {
+  easy:   { ms: 200,  rolloutsSoftBias: true, toolAggro: 0.15 },
+  normal: { ms: 600,  rolloutsSoftBias: true, toolAggro: 0.35 },
+  hard:   { ms: 1200, rolloutsSoftBias: true, toolAggro: 0.60 }
+};
+
+/* ==============================
+   MONTE-CARLO MEMORY (SELF-LEARNING)
+============================== */
+function boardKey(b, side){
+  let s = side + "|";
+  for(let r=0;r<SIZE;r++){
+    for(let c=0;c<SIZE;c++){
+      s += b[r][c] || "-";
+    }
+  }
+  return s;
+}
+
+let mcMemory = {};
+try{
+  mcMemory = JSON.parse(localStorage.getItem("sixbysix_mc") || "{}");
+}catch(e){
+  mcMemory = {};
+}
+
+// Tracks which (board,move) pairs the AI chose this game
+let aiTrace = [];
+
+/* ==============================
+   UTILITIES
+============================== */
+const clone = b => b.map(r => r.slice());
+const inBounds = (r,c) => r>=0 && r<SIZE && c>=0 && c<SIZE;
+
+function checkWinner(b){
+  // 1) line wins: 6 in a row
+  const dirs = [[0,1],[1,0],[1,1],[1,-1]];
+  for(let r=0;r<SIZE;r++){
+    for(let c=0;c<SIZE;c++){
+      const p = b[r][c];
+      if(!p) continue;
+      for(const [dr,dc] of dirs){
+        const cells = [{r,c}];
+        for(let k=1;k<WIN;k++){
+          const nr=r+dr*k, nc=c+dc*k;
+          if(!inBounds(nr,nc) || b[nr][nc]!==p){ cells.length=0; break; }
+          cells.push({r:nr,c:nc});
+        }
+        if(cells.length===WIN) return { winner:p, line:cells };
+      }
+    }
+  }
+
+  // 2) rectangle wins: 3×2 or 2×3 blocks (all same mark)
+  // 3 rows × 2 cols
+  for(let r=0;r<=SIZE-3;r++){
+    for(let c=0;c<=SIZE-2;c++){
+      const p = b[r][c];
+      if(!p) continue;
+      const coords = [
+        {r,c},{r:r+1,c},{r:r+2,c},
+        {r,c:c+1},{r:r+1,c:c+1},{r:r+2,c:c+1}
+      ];
+      if(coords.every(pos => b[pos.r][pos.c]===p)){
+        return { winner:p, line:coords };
+      }
+    }
+  }
+  // 2 rows × 3 cols
+  for(let r=0;r<=SIZE-2;r++){
+    for(let c=0;c<=SIZE-3;c++){
+      const p = b[r][c];
+      if(!p) continue;
+      const coords = [
+        {r,c},{r,c:c+1},{r,c:c+2},
+        {r:r+1,c},{r:r+1,c:c+1},{r:r+1,c:c+2}
+      ];
+      if(coords.every(pos => b[pos.r][pos.c]===p)){
+        return { winner:p, line:coords };
+      }
+    }
+  }
+
+  // 3) draw?
+  if(b.every(row => row.every(v => v))) return { winner:"D", line:[] };
+  return { winner:null, line:[] };
+}
+
+function moves(b){
+  const m=[];
+  for(let r=0;r<SIZE;r++){
+    for(let c=0;c<SIZE;c++){
+      if(!b[r][c]) m.push({r,c});
+    }
+  }
+  return m;
+}
+
+function randomPlayout(startBoard, startTurn){
+  // Fast random game to terminal outcome
+  const b = clone(startBoard);
+  let t = startTurn;
+  while(true){
+    const res = checkWinner(b);
+    if(res.winner) return res.winner;
+    const m = moves(b);
+    if(!m.length) return "D";
+    const pick = m[Math.floor(Math.random()*m.length)];
+    b[pick.r][pick.c] = t;
+    t = (t==="X"?"O":"X");
+  }
+}
+
+function immediateThreatAfter(b, side){
+  // Returns true if 'side' has an immediate winning move
+  const mm = moves(b);
+  for(const mv of mm){
+    const bb = clone(b);
+    bb[mv.r][mv.c] = side;
+    if(checkWinner(bb).winner === side) return true;
+  }
+  return false;
+}
+
+// Count contiguous marks including (r,c) along a direction
+function contiguousCount(b, r, c, dr, dc, side){
+  let count = 1;
+  let nr = r + dr, nc = c + dc;
+  while(inBounds(nr,nc) && b[nr][nc] === side){
+    count++; nr += dr; nc += dc;
+  }
+  nr = r - dr; nc = c - dc;
+  while(inBounds(nr,nc) && b[nr][nc] === side){
+    count++; nr -= dr; nc -= dc;
+  }
+  return count;
+}
+
+// Threat score for a piece: longest line going through it
+function threatScoreAt(b, r, c, side){
+  const dirs = [[0,1],[1,0],[1,1],[1,-1]];
+  let maxLen = 0;
+  for(const [dr,dc] of dirs){
+    const len = contiguousCount(b,r,c,dr,dc,side);
+    if(len > maxLen) maxLen = len;
+  }
+  return maxLen;
+}
+
+function findBestRemoveTarget(b, aiSide, humanSide){
+  let best = null;
+  for(let r=0;r<SIZE;r++){
+    for(let c=0;c<SIZE;c++){
+      if(b[r][c] !== humanSide) continue;
+      const score = threatScoreAt(b,r,c,humanSide);
+      if(!best || score > best.score){
+        best = { r, c, score };
+      }
+    }
+  }
+  return best;
+}
+
+function findBestSwapPair(b, aiSide, humanSide){
+  let best = null;
+  for(let r=0;r<SIZE;r++){
+    for(let c=0;c<SIZE;c++){
+      if(b[r][c] !== aiSide) continue;
+      for(let dr=-1; dr<=1; dr++){
+        for(let dc=-1; dc<=1; dc++){
+          if(dr===0 && dc===0) continue;
+          const nr = r + dr, nc = c + dc;
+          if(!inBounds(nr,nc)) continue;
+          if(b[nr][nc] !== humanSide) continue;
+          const bb = clone(b);
+          // swap positions
+          bb[r][c] = humanSide;
+          bb[nr][nc] = aiSide;
+          const myStrength  = threatScoreAt(bb, nr, nc, aiSide);
+          const oppStrength = threatScoreAt(bb, r, c, humanSide);
+          const centerBias = - (Math.abs(nr - (SIZE-1)/2) + Math.abs(nc - (SIZE-1)/2)) * 0.1;
+          const score = myStrength - oppStrength * 0.3 + centerBias;
+          if(!best || score > best.score){
+            best = { from:{r,c}, to:{r:nr,c:nc}, score };
+          }
+        }
+      }
+    }
+  }
+  return best;
+}
+
+function mcBestMove(b, aiSide, msCap, softBias){
+  const m = moves(b);
+  if(!m.length) return null;
+
+  // Take any instant win
+  for(const mv of m){
+    const bb = clone(b);
+    bb[mv.r][mv.c] = aiSide;
+    if(checkWinner(bb).winner === aiSide) return mv;
+  }
+
+  // Block opponent's instant win
+  const opp = aiSide==="X" ? "O" : "X";
+  for(const mv of m){
+    const bb = clone(b);
+    bb[mv.r][mv.c] = opp;
+    if(checkWinner(bb).winner === opp) return mv;
+  }
+
+  const scores = new Map(m.map(x => [x.r+":"+x.c, 0]));
+  const counts = new Map(m.map(x => [x.r+":"+x.c, 0]));
+  const start = performance.now();
+  let idx = 0;
+  const baseKey = boardKey(b, aiSide);
+
+  while(performance.now() - start < msCap){
+    const mv = m[idx++ % m.length];
+    const key = mv.r+":"+mv.c;
+    const bb = clone(b);
+    bb[mv.r][mv.c] = aiSide;
+
+    // soft bias: avoid moves that immediately hand opponent a win
+    if(softBias && immediateThreatAfter(bb, opp)){
+      scores.set(key, (scores.get(key)||0) - 3);
+      counts.set(key, (counts.get(key)||0) + 1);
+      continue;
+    }
+
+    const result = randomPlayout(bb, opp);
+    const val = (result === aiSide) ? 1 : (result === "D" ? 0 : -1);
+    scores.set(key, (scores.get(key)||0) + val);
+    counts.set(key, (counts.get(key)||0) + 1);
+  }
+
+  // Choose best average; tie-break toward the center + learned bias
+  let best = m[0], bestScore = -Infinity;
+  for(const mv of m){
+    const key = mv.r+":"+mv.c;
+    const s = scores.get(key)||0;
+    const n = counts.get(key)||1;
+    const avg = s / n;
+    const centerBias = - (Math.abs(mv.r - (SIZE-1)/2) + Math.abs(mv.c - (SIZE-1)/2)) * 0.02;
+    const memKey = baseKey + "@" + mv.r + "," + mv.c;
+    const knowledge = mcMemory[memKey] || 0;
+    const learnBias = knowledge * 0.02; // small but persistent influence
+    const total = avg + centerBias + learnBias;
+    if(total > bestScore){
+      bestScore = total;
+      best = mv;
+    }
+  }
+  return best;
+}
+
+/* ==============================
+   UI RENDER
+============================== */
+function updateToolUI(){
+  const removeLabel = (removeLeft === Infinity) ? "∞" : removeLeft;
+  removeBtn.textContent = `Remove Tool (${removeLabel})`;
+  swapBtn.textContent   = `Swap Tool (${swapLeft} left)`;
+  removeBtn.classList.toggle("active", mode === "remove");
+  swapBtn.classList.toggle("active", mode === "swapSelf" || mode === "swapOpp");
+}
+
+function render(){
+  boardEl.innerHTML = "";
+
+  const res = checkWinner(board);
+  const winSet = new Set(
+    res.winner && res.winner!=="D"
+      ? res.line.map(p => `${p.r},${p.c}`)
+      : []
+  );
+
+  for(let r=0;r<SIZE;r++){
+    for(let c=0;c<SIZE;c++){
+      const cell = document.createElement("div");
+      cell.className = "cell";
+      cell.setAttribute("role","gridcell");
+      cell.setAttribute("aria-label", `Row ${r+1} Column ${c+1}`);
+      const v = board[r][c];
+      if(v){
+        cell.textContent = v;
+        cell.classList.add(v.toLowerCase());
+      }
+      if(winSet.has(`${r},${c}`)){
+        cell.classList.add("winMark");
+      }
+      if(!gameOver && turn === human){
+        cell.classList.remove("disabled");
+        cell.addEventListener("click", () => handleCellClick(r,c));
+      }else{
+        cell.classList.add("disabled");
+      }
+      boardEl.appendChild(cell);
+    }
+  }
+
+  turnEl.textContent = "Turn: " + (gameOver ? "—" : turn);
+  scoreEl.textContent = `X wins: ${score.X} · O wins: ${score.O} · Draws: ${score.D}`;
+}
+
+function log(msg){
+  const p = document.createElement("div");
+  p.textContent = msg;
+  logEl.prepend(p);
+}
+
+/* ==============================
+   GAME FLOW
+============================== */
+function pushHistory(){
+  history.push({
+    b: clone(board),
+    t: turn,
+    over: gameOver,
+    removeLeft,
+    swapLeft,
+    aiSwapLeft,
+    aiTrace: aiTrace.slice()
+  });
+  if(history.length > 200) history.shift();
+}
+
+function learnFromGame(result){
+  if(!aiTrace.length) return;
+  let delta = 0;
+  if(result === ai) delta = 3;
+  else if(result === "D") delta = 0.5;
+  else delta = -3;
+
+  for(const key of aiTrace){
+    mcMemory[key] = (mcMemory[key] || 0) + delta;
+  }
+  aiTrace = [];
+  try{
+    localStorage.setItem("sixbysix_mc", JSON.stringify(mcMemory));
+  }catch(e){}
+}
+
+function finish(w){
+  learnFromGame(w);
+  gameOver = true;
+  if(w === "D"){
+    score.D++;
+    statusEl.textContent = "It’s a draw.";
+    log("Result: Draw");
+  }else{
+    score[w]++;
+    statusEl.textContent = `${w} wins!`;
+    log("Result: " + w + " wins");
+  }
+  localStorage.setItem("sixbysix_score", JSON.stringify(score));
+  render();
+}
+
+function afterHumanAction(){
+  const res = checkWinner(board);
+  if(res.winner){
+    finish(res.winner);
+    return;
+  }
+  turn = ai;
+  render();
+  setTimeout(aiMove, 80);
+}
+
+function afterAiAction(){
+  const res = checkWinner(board);
+  if(res.winner){
+    finish(res.winner);
+    return;
+  }
+  turn = human;
+  statusEl.textContent = "Your turn.";
+  render();
+}
+
+function handleCellClick(r,c){
+  if(gameOver || turn!==human) return;
+  const v = board[r][c];
+
+  if(mode === "play"){
+    if(v){
+      statusEl.textContent = "Pick an empty cell to place your mark.";
+      return;
+    }
+    pushHistory();
+    board[r][c] = human;
+    statusEl.textContent = "You placed a piece. AI’s turn.";
+    afterHumanAction();
+    return;
+  }
+
+  if(mode === "remove"){
+    if(v !== ai){
+      statusEl.textContent = "Remove mode: click one of the AI’s pieces.";
+      return;
+    }
+    pushHistory();
+    board[r][c] = EMPTY;
+    // removeLeft is Infinity, Infinity - 1 stays Infinity
+    removeLeft--;
+    mode = "play";
+    updateToolUI();
+    statusEl.textContent = "You removed an enemy piece. AI’s turn.";
+    afterHumanAction();
+    return;
+  }
+
+  if(mode === "swapSelf"){
+    if(v !== human){
+      statusEl.textContent = "Swap: first click one of your own pieces.";
+      return;
+    }
+    swapOrigin = {r,c};
+    mode = "swapOpp";
+    updateToolUI();
+    statusEl.textContent = "Swap: now click an adjacent opponent piece.";
+    return;
+  }
+
+  if(mode === "swapOpp"){
+    if(!swapOrigin){
+      mode = "play"; updateToolUI();
+      return;
+    }
+    if(v !== ai){
+      statusEl.textContent = "Swap: click an adjacent opponent piece.";
+      return;
+    }
+    const dr = Math.abs(r - swapOrigin.r);
+    const dc = Math.abs(c - swapOrigin.c);
+    if(Math.max(dr,dc) !== 1){
+      statusEl.textContent = "Swap: the opponent piece must be adjacent.";
+      return;
+    }
+    if(swapLeft <= 0){
+      statusEl.textContent = "Swap Tool is used up this game.";
+      mode = "play"; updateToolUI();
+      return;
+    }
+    pushHistory();
+    board[swapOrigin.r][swapOrigin.c] = ai;
+    board[r][c] = human;
+    swapLeft--;
+    mode = "play";
+    swapOrigin = null;
+    updateToolUI();
+    statusEl.textContent = "You swapped pieces. AI’s turn.";
+    afterHumanAction();
+    return;
+  }
+}
+
+function aiMove(){
+  if(gameOver || turn!==ai) return;
+  const diff = DIFF[diffSel.value] || DIFF.normal;
+  const toolAggro = diff.toolAggro || 0.3;
+  statusEl.textContent = "AI thinking…";
+
+  setTimeout(()=>{
+    const removeChoice = findBestRemoveTarget(board, ai, human);
+    const swapChoice = (aiSwapLeft > 0) ? findBestSwapPair(board, ai, human) : null;
+
+    let action = null;
+
+    // Strong threats: always respond with a tool if good enough
+    if(removeChoice && removeChoice.score >= 4){
+      action = { type:"remove", target:removeChoice };
+    }else if(swapChoice && swapChoice.score >= 4){
+      action = { type:"swap", from:swapChoice.from, to:swapChoice.to };
+    }else if(Math.random() < toolAggro){
+      // Opportunistic tool usage
+      if(removeChoice && (!swapChoice || removeChoice.score >= (swapChoice.score || 0))){
+        if(removeChoice.score >= 2){
+          action = { type:"remove", target:removeChoice };
+        }
+      }else if(swapChoice && swapChoice.score >= 2){
+        action = { type:"swap", from:swapChoice.from, to:swapChoice.to };
+      }
+    }
+
+    if(action && action.type === "remove"){
+      pushHistory();
+      board[action.target.r][action.target.c] = EMPTY;
+      statusEl.textContent = "AI used Remove Tool.";
+      afterAiAction();
+      return;
+    }
+
+    if(action && action.type === "swap"){
+      pushHistory();
+      const {from,to} = action;
+      const temp = board[from.r][from.c];
+      board[from.r][from.c] = board[to.r][to.c];
+      board[to.r][to.c] = temp;
+      aiSwapLeft--;
+      statusEl.textContent = "AI used Swap Tool.";
+      afterAiAction();
+      return;
+    }
+
+    // Otherwise normal Monte-Carlo move
+    const baseKey = boardKey(board, ai);
+    const mv = mcBestMove(board, ai, diff.ms, diff.rolloutsSoftBias) || moves(board)[0];
+    if(!mv){
+      finish("D");
+      return;
+    }
+    aiTrace.push(baseKey + "@" + mv.r + "," + mv.c);
+    pushHistory();
+    board[mv.r][mv.c] = ai;
+    afterAiAction();
+  }, 30);
+}
+
+function newGame(){
+  board = Array.from({length:SIZE}, () => Array(SIZE).fill(EMPTY));
+  history = [];
+  gameOver = false;
+
+  human = sideSel.value;
+  ai    = human === "X" ? "O" : "X";
+  turn  = "X";
+
+  removeLeft = REMOVE_MAX;
+  swapLeft   = SWAP_MAX;
+  aiSwapLeft = SWAP_MAX;
+  mode       = "play";
+  swapOrigin = null;
+  aiTrace    = [];
+  updateToolUI();
+
+  statusEl.textContent = "New match started.";
+  log("— New match — You: " + human + " | AI: " + ai + " | " + diffSel.value);
+  render();
+
+  if(turn === ai) aiMove();
+}
+
+function undo(){
+  if(!history.length) return;
+  const last = history.pop();
+  board      = last.b;
+  turn       = last.t;
+  gameOver   = last.over;
+  removeLeft = last.removeLeft;
+  swapLeft   = last.swapLeft;
+  aiSwapLeft = last.aiSwapLeft;
+  aiTrace    = last.aiTrace || [];
+  mode       = "play";
+  swapOrigin = null;
+  updateToolUI();
+  statusEl.textContent = "Undid last move.";
+  render();
+}
+
+/* ==============================
+   WIRE UI + INIT
+============================== */
+btnNew.addEventListener("click", newGame);
+btnUndo.addEventListener("click", undo);
+
+removeBtn.addEventListener("click", () => {
+  if(gameOver || turn!==human) return;
+  mode = (mode === "remove") ? "play" : "remove";
+  swapOrigin = null;
+  updateToolUI();
+  statusEl.textContent = (mode === "remove")
+    ? "Remove mode: click one of the AI’s pieces."
+    : "Back to normal moves.";
+});
+
+swapBtn.addEventListener("click", () => {
+  if(gameOver || turn!==human) return;
+  if(swapLeft <= 0){
+    statusEl.textContent = "Swap Tool is already used up this game.";
+    return;
+  }
+  if(mode === "swapSelf" || mode === "swapOpp"){
+    mode = "play";
+    swapOrigin = null;
+    updateToolUI();
+    statusEl.textContent = "Swap cancelled. Choose a move.";
+  }else{
+    mode = "swapSelf";
+    swapOrigin = null;
+    updateToolUI();
+    statusEl.textContent = "Swap mode: click one of your own pieces first.";
+  }
+});
+
+// Persist last choices
+diffSel.value = localStorage.getItem("sixbysix_diff") || "normal";
+sideSel.value = localStorage.getItem("sixbysix_side") || "X";
+
+diffSel.addEventListener("change", () => {
+  localStorage.setItem("sixbysix_diff", diffSel.value);
+});
+sideSel.addEventListener("change", () => {
+  localStorage.setItem("sixbysix_side", sideSel.value);
+});
+
+newGame(); // boot
+</script>
+
+</body>
+</html>
