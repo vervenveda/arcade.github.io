@@ -1,0 +1,1700 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Backgammon — Mobile Arcade (Premium Free)</title>
+<style>
+  :root{
+    --W: clamp(320px, 95vw, 920px);
+    --B: calc(var(--W) * 0.88);
+    --ink:#0e1116; --muted:#6b7280; --accent:#13c2c2; --panel:#ffffff;
+    --good:#10b981; --warn:#f59e0b; --bad:#ef4444;
+  }
+  html,body{
+    margin:0;
+    background:#e5e7eb;
+    color:var(--ink);
+    font-family:Inter,system-ui,Segoe UI,Roboto,Arial;
+  }
+  .wrap{
+    max-width:var(--W);
+    margin:18px auto 24px;
+    padding:14px 10px 20px;
+  }
+  h1{
+    font-size:clamp(18px,4.4vw,24px);
+    margin:0 0 6px;
+  }
+  .sub{color:var(--muted); font-size:12px; margin-bottom:10px}
+  .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+  .topbar{
+    background:var(--panel); border:1px solid #e5e7eb; border-radius:12px; padding:8px 10px;
+    box-shadow:0 2px 12px rgba(0,0,0,.06)
+  }
+  select,button{
+    border:1px solid #d1d5db; background:#fff; color:#111827; border-radius:10px;
+    padding:7px 10px; font-size:14px; cursor:pointer
+  }
+  button.primary{background:var(--accent); color:#012b3b; border-color:transparent; font-weight:700}
+  button.ghost{background:#fff; color:#0e4b54}
+  button.danger{background:#111827; color:#f3f4f6; border-color:transparent}
+  button:disabled{opacity:.55; cursor:not-allowed}
+
+  label{font-size:12px; color:#374151}
+  .pill{display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius:999px; border:1px solid #e5e7eb; background:#fff}
+  .gamegrid{display:grid; grid-template-columns:1fr; gap:10px}
+
+  .boardbar{
+    display:grid;
+    grid-template-columns:1fr;
+    justify-items:center;
+    padding:10px 6px 12px;
+    background:#d1d5db;
+    border-radius:18px;
+    box-shadow:0 8px 24px rgba(15,23,42,.25);
+  }
+
+  canvas{
+    width:calc(var(--B) - 18px);
+    height:calc((var(--B) - 18px)*0.72);
+    max-width:100%;
+    background:#e9e2d2;
+    border-radius:16px;
+    box-shadow:0 6px 18px rgba(15,23,42,.35);
+    touch-action:none;
+    display:block;
+    margin:4px 0;
+  }
+
+  .rail{display:flex; gap:8px; justify-content:center; margin-top:6px; flex-wrap:wrap}
+  .chip{padding:4px 9px; border-radius:999px; font-size:12px; background:#f3f4f6; border:1px solid #e5e7eb}
+  .chip b{font-weight:800}
+  .chip.good{border-color:rgba(16,185,129,.35); background:rgba(16,185,129,.10)}
+  .chip.warn{border-color:rgba(245,158,11,.35); background:rgba(245,158,11,.10)}
+  .chip.bad{border-color:rgba(239,68,68,.35); background:rgba(239,68,68,.10)}
+
+  .side{display:grid; gap:10px}
+  .panel{background:var(--panel); border:1px solid #e5e7eb; border-radius:12px; padding:10px; box-shadow:0 2px 12px rgba(0,0,0,.06)}
+  .stat{font-size:13px}
+  #log{
+    height:140px; overflow:auto; background:#0b1220; color:#e6eef6; border-radius:8px;
+    padding:8px; font-family:ui-monospace,Consolas,monospace; font-size:12px; line-height:1.35
+  }
+  .muted{color:#8791a1}
+
+  .toast{
+    position:fixed; bottom:10px; left:50%; transform:translateX(-50%);
+    background:#111827; color:#e5e7eb; padding:7px 11px; border-radius:10px; font-size:12px;
+    opacity:0; transition:opacity .2s; z-index:40;
+  }
+  .toast.show{opacity:1}
+
+  /* modal */
+  .overlay{
+    position:fixed; inset:0; background:rgba(0,0,0,.45);
+    display:none; align-items:center; justify-content:center; padding:18px; z-index:50;
+  }
+  .overlay.show{display:flex}
+  .modal{
+    width:min(560px, 96vw);
+    background:#fff; border-radius:16px; border:1px solid rgba(0,0,0,.08);
+    box-shadow:0 18px 50px rgba(0,0,0,.22);
+    padding:14px 14px 12px;
+  }
+  .modal h2{margin:2px 0 6px; font-size:18px}
+  .modal p{margin:0 0 10px; color:#374151; font-size:13px; line-height:1.35}
+  .modal .btnrow{display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap}
+  .kbd{font-family:ui-monospace,Consolas,monospace; background:#f3f4f6; border:1px solid #e5e7eb; padding:1px 6px; border-radius:7px}
+  .mini{font-size:12px; color:#6b7280}
+
+  @media(min-width:900px){
+    .gamegrid{grid-template-columns: var(--B) minmax(260px,1fr);}
+    .boardbar{grid-column:1}
+    .side{grid-column:2}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Backgammon — Mobile Arcade</h1>
+  <div class="sub">Premium-free · match play (3/5/7) · doubling cube · save/resume · drag-to-move (tap still works)</div>
+
+  <div class="topbar">
+    <div class="row">
+      <label class="pill">
+        Match
+        <select id="matchLen">
+          <option value="3">to 3</option>
+          <option value="5" selected>to 5</option>
+          <option value="7">to 7</option>
+        </select>
+      </label>
+
+      <label class="pill">
+        Mode
+        <select id="mode">
+          <option value="ai">Vs AI</option>
+          <option value="2p">Two players</option>
+        </select>
+      </label>
+
+      <label class="pill">
+        Human side
+        <select id="humanSide">
+          <option value="red">Red (moves ↓)</option>
+          <option value="black">Black (moves ↑)</option>
+        </select>
+      </label>
+
+      <label class="pill">
+        Hints
+        <select id="hints">
+          <option value="on">On</option>
+          <option value="off" selected>Off</option>
+        </select>
+      </label>
+
+      <label class="pill">
+        AI strength
+        <select id="depth">
+          <option value="1">1</option>
+          <option value="2" selected>2</option>
+          <option value="3">3</option>
+        </select>
+      </label>
+
+      <button id="resume" class="ghost">Resume</button>
+      <button id="newMatch" class="danger">New Match</button>
+      <button id="newGame" class="primary">New Game</button>
+    </div>
+  </div>
+
+  <div class="gamegrid" style="margin-top:10px">
+    <div class="boardbar">
+      <canvas id="bg" width="1000" height="720" aria-label="Backgammon board"></canvas>
+      <div class="rail">
+        <span class="chip" id="status">Status…</span>
+        <span class="chip" id="diceChip">🎲 —</span>
+        <span class="chip" id="cubeChip">🧊 Cube: 1 (center)</span>
+        <span class="chip"><b>Match</b> Red <span id="scoreR">0</span> · Black <span id="scoreB">0</span> / <span id="targetPts">5</span></span>
+        <span class="chip"><b>Off</b> Red <span id="offR">0</span> · Black <span id="offB">0</span></span>
+        <span class="chip"><b>Bar</b> Red <span id="barR">0</span> · Black <span id="barB">0</span></span>
+      </div>
+    </div>
+
+    <div class="side">
+      <div class="panel">
+        <div class="stat"><b>Turn controls</b></div>
+        <div class="row" style="margin-top:8px">
+          <button id="doubleBtn" class="ghost">Double</button>
+          <button id="rollBtn" class="primary">Roll</button>
+          <button id="undoBtn">Undo</button>
+        </div>
+        <div class="stat muted" style="margin-top:8px">
+          Drag a checker to a glowing target. Or tap a stack → tap a target.
+          Doubling is offered <b>before you roll</b> on your turn.
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="stat"><b>Move log</b></div>
+        <div id="log"></div>
+      </div>
+
+      <div class="panel">
+        <div class="stat"><b>Save / Resume</b></div>
+        <div class="stat muted">
+          Auto-saves after moves + cube actions. Use <span class="kbd">Resume</span> if Wix preview reloads the frame.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast">Saved</div>
+
+<!-- Modal -->
+<div id="overlay" class="overlay" role="dialog" aria-modal="true">
+  <div class="modal">
+    <h2 id="mTitle">Modal</h2>
+    <p id="mBody">Body</p>
+    <div class="btnrow" id="mButtons"></div>
+    <div class="mini" id="mMini"></div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   Backgammon — Premium Free (single-file)
+   - Doubling cube + accept/decline
+   - Match play to 3/5/7
+   - Gammon / backgammon scoring
+   - Save / resume (localStorage)
+   - Drag-to-move + tap fallback
+   - Pure legal move generation: max dice usage + higher-die rule
+   - Light self-learning AI profile (persists beyond many games)
+============================================================ */
+
+const STORAGE_KEY = 'bg_premium_free_v1';
+const AI_PROFILE_KEY = 'bg_ai_profile_v1';
+
+function clamp(v, lo, hi){ return Math.max(lo, Math.min(hi, v)); }
+
+const C = document.getElementById('bg');
+const ctx = C.getContext('2d');
+
+const statusEl = document.getElementById('status');
+const diceChip = document.getElementById('diceChip');
+const cubeChip = document.getElementById('cubeChip');
+
+const offR = document.getElementById('offR'), offB = document.getElementById('offB');
+const barR = document.getElementById('barR'), barB = document.getElementById('barB');
+
+const scoreR = document.getElementById('scoreR'), scoreB = document.getElementById('scoreB');
+const targetPtsEl = document.getElementById('targetPts');
+
+const logEl = document.getElementById('log');
+const toast = document.getElementById('toast');
+
+const matchLenSel = document.getElementById('matchLen');
+const modeSel = document.getElementById('mode');
+const humanSel = document.getElementById('humanSide');
+const hintSel = document.getElementById('hints');
+const depthSel = document.getElementById('depth');
+
+const resumeBtn = document.getElementById('resume');
+const newMatchBtn = document.getElementById('newMatch');
+const newGameBtn = document.getElementById('newGame');
+
+const doubleBtn = document.getElementById('doubleBtn');
+const rollBtn = document.getElementById('rollBtn');
+const undoBtn = document.getElementById('undoBtn');
+
+const overlay = document.getElementById('overlay');
+const mTitle = document.getElementById('mTitle');
+const mBody = document.getElementById('mBody');
+const mButtons = document.getElementById('mButtons');
+const mMini = document.getElementById('mMini');
+
+const RED = 1, BLACK = -1;
+
+/* ---------- AI profile (self-learning) ---------- */
+function defaultAIProfile(){
+  return {
+    games:0,
+    wins:0,
+    losses:0,
+    weights:{
+      pip:-0.9,
+      bar:-2.0,
+      off:1.7,
+      blots:-0.7,
+      made:0.6
+    }
+  };
+}
+let aiProfile = (()=> {
+  try{
+    const raw = localStorage.getItem(AI_PROFILE_KEY);
+    if(!raw) return defaultAIProfile();
+    const parsed = JSON.parse(raw);
+    const base = defaultAIProfile();
+    parsed.weights = Object.assign({}, base.weights, parsed.weights || {});
+    parsed.games = parsed.games || 0;
+    parsed.wins = parsed.wins || 0;
+    parsed.losses = parsed.losses || 0;
+    return parsed;
+  }catch{
+    return defaultAIProfile();
+  }
+})();
+function saveAIProfile(){
+  try{ localStorage.setItem(AI_PROFILE_KEY, JSON.stringify(aiProfile)); }catch{}
+}
+
+/* ---------- Match & game state ---------- */
+let match = {
+  target: 5,
+  score: { [RED]:0, [BLACK]:0 }
+};
+
+// Doubling cube
+let cube = {
+  value: 1,
+  owner: 0,         // 0=center (either may double), or RED/BLACK = who may re-double
+  pending: null     // { offeredBy: RED/BLACK }
+};
+
+// Game state
+let state = null;   // { board:Array(24), bar:{}, off:{} }
+let turn = RED;
+let dice = [];
+let diceLeft = [];
+let phase = 'preroll'; // 'preroll' | 'moving' | 'over'
+let gameOver = false;
+
+let selected = null;   // {from:'bar'} or {from:index}
+let hintDots = [];     // [{x,y, move}]
+let undoStack = [];    // snapshots within a turn
+
+// Drag
+let drag = {
+  down:false, active:false, moved:false,
+  from:null, startX:0,startY:0, x:0,y:0
+};
+
+function other(p){ return -p; }
+
+function ping(msg){
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(()=>toast.classList.remove('show'), 900);
+}
+function log(s){
+  const atBottom = Math.abs((logEl.scrollTop + logEl.clientHeight) - logEl.scrollHeight) < 6;
+  logEl.innerHTML += s + '<br>';
+  if(atBottom) logEl.scrollTop = logEl.scrollHeight;
+}
+
+function showModal(title, body, buttons, mini=''){
+  mTitle.textContent = title;
+  mBody.innerHTML = body;
+  mButtons.innerHTML = '';
+  mMini.textContent = mini || '';
+  for(const b of buttons){
+    const btn = document.createElement('button');
+    btn.textContent = b.label;
+    btn.className = b.kind==='primary' ? 'primary' : (b.kind==='danger' ? 'danger' : 'ghost');
+    btn.onclick = ()=>{
+      hideModal();
+      b.onClick && b.onClick();
+    };
+    mButtons.appendChild(btn);
+  }
+  overlay.classList.add('show');
+}
+function hideModal(){ overlay.classList.remove('show'); }
+
+function aiSide(){
+  if(modeSel.value!=='ai') return 0;
+  return (humanSel.value==='red') ? BLACK : RED;
+}
+function isHumanTurn(){
+  if(modeSel.value==='2p') return true;
+  return turn !== aiSide();
+}
+
+function rollDice(){
+  const a = 1+Math.floor(Math.random()*6);
+  const b = 1+Math.floor(Math.random()*6);
+  return (a===b) ? [a,a,a,a] : [a,b];
+}
+function cloneState(s){
+  return {
+    board: s.board.slice(),
+    bar: { [RED]: s.bar[RED], [BLACK]: s.bar[BLACK] },
+    off: { [RED]: s.off[RED], [BLACK]: s.off[BLACK] }
+  };
+}
+function standardSetup(){
+  const b = new Array(24).fill(0);
+  b[23] = +2; b[12] = +5; b[7] = +3; b[5] = +5;   // Red
+  b[0]  = -2; b[11] = -5; b[16] = -3; b[18] = -5; // Black
+  return b;
+}
+
+function resetCube(){
+  cube.value = 1;
+  cube.owner = 0;
+  cube.pending = null;
+}
+
+function startMatch(target){
+  match.target = Number(target) || 5;
+  match.score[RED] = 0;
+  match.score[BLACK] = 0;
+  targetPtsEl.textContent = match.target;
+  resetCube();
+  startGame(true);
+  saveAll();
+}
+
+function startGame(freshLog=false){
+  state = { board: standardSetup(), bar:{[RED]:0,[BLACK]:0}, off:{[RED]:0,[BLACK]:0} };
+  turn = RED;
+  dice = [];
+  diceLeft = [];
+  phase = 'preroll';
+  gameOver = false;
+  selected = null;
+  hintDots = [];
+  undoStack = [];
+  drag.down = drag.active = drag.moved = false;
+  drag.from = null;
+
+  if(freshLog){
+    logEl.innerHTML = '';
+    log(`<b>New match</b> to ${match.target}.`);
+  }
+  log(`<b>New game</b>. Red to act.`);
+  updateHUD();
+  draw();
+  maybeAI();
+}
+
+function updateHUD(){
+  targetPtsEl.textContent = match.target;
+  scoreR.textContent = match.score[RED];
+  scoreB.textContent = match.score[BLACK];
+
+  offR.textContent = state.off[RED];
+  offB.textContent = state.off[BLACK];
+  barR.textContent = state.bar[RED];
+  barB.textContent = state.bar[BLACK];
+
+  const cubeOwnerTxt = cube.owner===0 ? 'center' : (cube.owner===RED ? 'Red owns' : 'Black owns');
+  cubeChip.textContent = `🧊 Cube: ${cube.value} (${cubeOwnerTxt})`;
+
+  diceChip.textContent = `🎲 ${diceLeft.length ? diceLeft.join(',') : '—'}`;
+
+  if(gameOver){
+    statusEl.textContent = 'Game over';
+  } else if(cube.pending){
+    statusEl.textContent = `Doubling offer pending…`;
+  } else {
+    statusEl.textContent = `${turn===RED ? 'Turn: Red (↓)' : 'Turn: Black (↑)'} · ${phase==='preroll'?'Offer double / Roll':'Move'}`;
+  }
+
+  // Button availability
+  const humanAct = isHumanTurn();
+  doubleBtn.disabled = !humanAct || phase!=='preroll' || !!cube.pending || !canCurrentOfferDouble();
+  rollBtn.disabled = !humanAct || phase!=='preroll' || !!cube.pending;
+  undoBtn.disabled = !humanAct || !undoStack.length || phase!=='moving' || !!cube.pending;
+
+  resumeBtn.disabled = !hasSaved();
+}
+
+function canCurrentOfferDouble(){
+  // Must be pre-roll, no pending offer, and cube is centered OR owned by current player.
+  if(phase!=='preroll' || cube.pending) return false;
+  return (cube.owner===0 || cube.owner===turn);
+}
+
+/* =========================
+   Rules helpers
+========================= */
+function isBlocked(s, p, dest){
+  const v = s.board[dest];
+  return (p===RED) ? (v <= -2) : (v >= 2);
+}
+function entryPointFromBar(p, die){
+  return (p===RED) ? (24 - die) : (die - 1);
+}
+function destIndex(from, p, die){
+  return (p===RED) ? (from - die) : (from + die);
+}
+function allInHome(s, p){
+  if(s.bar[p] > 0) return false;
+  if(p===RED){
+    for(let i=6;i<24;i++) if(s.board[i] > 0) return false;
+  } else {
+    for(let i=0;i<18;i++) if(s.board[i] < 0) return false;
+  }
+  return true;
+}
+function hasHigherHomeCheckers(s, p, from){
+  if(p===RED){
+    for(let i=from+1;i<=5;i++) if(s.board[i] > 0) return true;
+  } else {
+    for(let i=18;i<from;i++) if(s.board[i] < 0) return true;
+  }
+  return false;
+}
+function canBearOffFrom(s, p, from, die){
+  if(!allInHome(s,p)) return false;
+
+  if(p===RED){
+    if(from<0 || from>5) return false;
+    const dist = from + 1;
+    if(die === dist) return true;
+    if(die > dist) return !hasHigherHomeCheckers(s, p, from);
+    return false;
+  } else {
+    if(from<18 || from>23) return false;
+    const dist = 24 - from;
+    if(die === dist) return true;
+    if(die > dist) return !hasHigherHomeCheckers(s, p, from);
+    return false;
+  }
+}
+
+function applyMove(s, p, m){
+  // m: {from:'bar'|number, to:'off'|number, die:number}
+  if(m.from === 'bar'){
+    s.bar[p]--;
+  } else {
+    s.board[m.from] -= p;
+  }
+
+  if(m.to === 'off'){
+    s.off[p]++;
+    return s;
+  }
+
+  // hit blot?
+  const v = s.board[m.to];
+  if(p===RED && v === -1){ s.board[m.to] = 0; s.bar[BLACK]++; }
+  if(p===BLACK && v ===  1){ s.board[m.to] = 0; s.bar[RED]++; }
+
+  s.board[m.to] += p;
+  return s;
+}
+
+function legalSingleMoves(s, p, die){
+  const moves = [];
+
+  if(s.bar[p] > 0){
+    const dest = entryPointFromBar(p, die);
+    if(dest>=0 && dest<=23 && !isBlocked(s,p,dest)){
+      moves.push({from:'bar', to:dest, die});
+    }
+    return moves;
+  }
+
+  for(let from=0; from<24; from++){
+    const v = s.board[from];
+    if((p===RED && v<=0) || (p===BLACK && v>=0)) continue;
+
+    const dest = destIndex(from, p, die);
+
+    // bear off?
+    if(dest < 0 || dest > 23){
+      if(canBearOffFrom(s,p,from,die)){
+        moves.push({from, to:'off', die});
+      }
+      continue;
+    }
+
+    if(isBlocked(s,p,dest)) continue;
+    moves.push({from, to:dest, die});
+  }
+
+  return moves;
+}
+
+/* =========================
+   Legal sequences (max dice usage + higher-die rule)
+========================= */
+function legalSequences(s, p, diceArr){
+  const original = diceArr.slice();
+  const orders = (original.length===2 && original[0]!==original[1])
+    ? [original.slice(), original.slice().reverse()]
+    : [original.slice()];
+
+  let best = [];
+  let bestUsed = -1;
+
+  function dfs(curState, diceLeftLocal, seq){
+    let any = false;
+    for(let i=0;i<diceLeftLocal.length;i++){
+      const die = diceLeftLocal[i];
+      const singleMoves = legalSingleMoves(curState, p, die);
+      if(!singleMoves.length) continue;
+      any = true;
+      for(const mv of singleMoves){
+        const nextState = applyMove(cloneState(curState), p, mv);
+        const nextDice = diceLeftLocal.slice(); nextDice.splice(i,1);
+        dfs(nextState, nextDice, seq.concat([mv]));
+      }
+    }
+    if(!any){
+      const used = seq.length;
+      if(used > bestUsed){
+        bestUsed = used;
+        best = [seq];
+      }else if(used === bestUsed){
+        best.push(seq);
+      }
+    }
+  }
+
+  for(const d of orders){
+    dfs(cloneState(s), d, []);
+  }
+
+  // Higher die rule when only one die can be played (non-doubles)
+  if(original.length===2 && original[0]!==original[1] && bestUsed===1){
+    const hi = Math.max(original[0], original[1]);
+    const filtered = best.filter(seq => seq[0] && seq[0].die === hi);
+    if(filtered.length) best = filtered;
+  }
+
+  // de-dupe identical sequences
+  const seen = new Set();
+  const out = [];
+  for(const seq of best){
+    const k = JSON.stringify(seq);
+    if(seen.has(k)) continue;
+    seen.add(k);
+    out.push(seq);
+  }
+  return out;
+}
+
+/* =========================
+   Turn flow + scoring
+========================= */
+function beginRoll(){
+  if(gameOver || cube.pending) return;
+  if(phase !== 'preroll') return;
+
+  dice = rollDice();
+  diceLeft = dice.slice();
+  phase = 'moving';
+
+  sequencesThisTurn = legalSequences(state, turn, diceLeft);
+  selected = null;
+  hintDots = [];
+  undoStack = [];
+  updateHUD();
+  draw();
+  log(`${turn===RED?'Red':'Black'} rolls <b>${dice.join(',')}</b>.`);
+
+  if(!sequencesThisTurn.length){
+    log(`<span class="muted">No legal moves — turn passes.</span>`);
+    endTurn();
+    return;
+  }
+  saveAll();
+  maybeAI();
+}
+
+function endTurn(){
+  // win check
+  const winner = (state.off[RED]===15) ? RED : (state.off[BLACK]===15 ? BLACK : 0);
+  if(winner){
+    finishGame(winner);
+    return;
+  }
+
+  turn = other(turn);
+  dice = [];
+  diceLeft = [];
+  phase = 'preroll';
+  selected = null;
+  hintDots = [];
+  undoStack = [];
+  updateHUD();
+  draw();
+  saveAll();
+  maybeAI();
+}
+
+function finishGame(winner){
+  gameOver = true;
+  phase = 'over';
+  selected = null;
+  hintDots = [];
+  undoStack = [];
+
+  const loser = other(winner);
+
+  // gammon/backgammon
+  let mult = 1;
+  const loserOff = state.off[loser];
+  if(loserOff===0){
+    mult = 2; // gammon
+    // backgammon if loser has checker on bar OR in winner's home board
+    let inHome = false;
+    if(state.bar[loser] > 0) inHome = true;
+    if(!inHome){
+      if(winner===RED){
+        for(let i=0;i<=5;i++) if(state.board[i] < 0) { inHome=true; break; }
+      }else{
+        for(let i=18;i<=23;i++) if(state.board[i] > 0) { inHome=true; break; }
+      }
+    }
+    if(inHome) mult = 3;
+  }
+
+  const points = cube.value * mult;
+  match.score[winner] += points;
+
+  // AI learning hook
+  updateAIProfileAfterGame(winner);
+
+  updateHUD();
+  draw();
+
+  const label = mult===1 ? 'Single' : (mult===2 ? 'Gammon' : 'Backgammon');
+  log(`<b>${winner===RED?'Red':'Black'} wins</b> — ${label} · +${points} (cube ${cube.value} × ${mult}).`);
+
+  // match over?
+  if(match.score[winner] >= match.target){
+    log(`<b>🏁 MATCH WINNER: ${winner===RED?'Red':'Black'}</b>`);
+    showModal(
+      'Match complete 🏁',
+      `<b>${winner===RED?'Red':'Black'}</b> wins the match ${match.score[RED]}–${match.score[BLACK]} (to ${match.target}).`,
+      [
+        {label:'New Match', kind:'primary', onClick:()=> startMatch(match.target)},
+        {label:'Close', kind:'ghost', onClick:()=>{}}
+      ],
+      'Your match state is saved automatically.'
+    );
+    // keep saved state (so they can view) but you can also clear if desired
+    saveAll();
+    return;
+  }
+
+  // next game
+  showModal(
+    'Game complete',
+    `Score: <b>Red ${match.score[RED]}</b> · <b>Black ${match.score[BLACK]}</b> (to ${match.target}).<br><br>Start the next game?`,
+    [
+      {label:'Next Game', kind:'primary', onClick:()=>{ resetCube(); startGame(false); }},
+      {label:'Close', kind:'ghost', onClick:()=>{}}
+    ],
+    'Cube resets to 1 each new game.'
+  );
+  saveAll();
+}
+
+/* =========================
+   AI learning update
+========================= */
+function updateAIProfileAfterGame(winner){
+  if(modeSel.value!=='ai') return;
+  const aiP = aiSide();
+  if(!aiP) return;
+
+  const aiWon = (winner === aiP);
+  aiProfile.games++;
+  if(aiWon) aiProfile.wins++; else aiProfile.losses++;
+
+  // Final feature snapshot from AI's perspective
+  const pip = pipCount(state, aiP) - pipCount(state, other(aiP));
+  const barD = state.bar[aiP] - state.bar[other(aiP)];
+  const offD = state.off[aiP] - state.off[other(aiP)];
+  const blots = blotCount(state, aiP) - blotCount(state, other(aiP));
+  const made = madePoints(state, aiP) - madePoints(state, other(aiP));
+
+  const w = aiProfile.weights;
+  const baseLR = 0.0008;
+  const lr = baseLR * Math.min(aiProfile.games, 60); // ramps up a bit then caps
+  const dir = aiWon ? 1 : -1;
+
+  // Intuition: push weights in directions that reward patterns present when AI wins,
+  // and push away from patterns present when AI loses.
+  w.pip   += dir * -pip   * lr * 0.02;
+  w.bar   += dir * -barD  * lr * 0.04;
+  w.off   += dir *  offD  * lr * 0.04;
+  w.blots += dir * -blots * lr * 0.03;
+  w.made  += dir *  made  * lr * 0.02;
+
+  // Keep weights in sane ranges
+  w.pip   = clamp(w.pip,   -2.5, -0.1);
+  w.bar   = clamp(w.bar,   -4.0, -0.5);
+  w.off   = clamp(w.off,    0.5,  4.0);
+  w.blots = clamp(w.blots, -3.0, -0.1);
+  w.made  = clamp(w.made,   0.1,  3.0);
+
+  saveAIProfile();
+}
+
+/* =========================
+   Doubling cube
+========================= */
+function offerDouble(offeredBy){
+  if(gameOver || cube.pending) return;
+  if(phase!=='preroll') return;
+  if(!(cube.owner===0 || cube.owner===offeredBy)) return;
+
+  cube.pending = { offeredBy };
+  updateHUD();
+  saveAll();
+
+  const opp = other(offeredBy);
+  const offererName = offeredBy===RED?'Red':'Black';
+  const oppName = opp===RED?'Red':'Black';
+
+  // If opponent is AI, auto respond
+  if(modeSel.value==='ai' && opp === aiSide()){
+    setTimeout(()=> aiRespondToDouble(offeredBy), 350);
+    return;
+  }
+
+  showModal(
+    `${offererName} offers to double`,
+    `Current cube value is <b>${cube.value}</b>. Accepting makes it <b>${cube.value*2}</b> and gives <b>${oppName}</b> ownership of the cube.`,
+    [
+      {label:'Accept', kind:'primary', onClick:()=> acceptDouble()},
+      {label:'Decline', kind:'danger', onClick:()=> declineDouble()}
+    ],
+    'Declining concedes the game at the current cube value.'
+  );
+}
+
+function acceptDouble(){
+  if(!cube.pending) return;
+  const offerer = cube.pending.offeredBy;
+  const accepter = other(offerer);
+
+  cube.value *= 2;
+  cube.owner = accepter; // accepter owns cube afterwards
+  cube.pending = null;
+
+  log(`<b>${accepter===RED?'Red':'Black'}</b> accepts. Cube is now <b>${cube.value}</b>.`);
+
+  updateHUD();
+  draw();
+  saveAll();
+  maybeAI();
+}
+
+function declineDouble(){
+  if(!cube.pending) return;
+  const offerer = cube.pending.offeredBy;
+  cube.pending = null;
+
+  // Decline = resign the game at current cube value (before doubling)
+  const points = cube.value;
+  match.score[offerer] += points;
+
+  // Treat as a finished game for AI learning purposes
+  updateAIProfileAfterGame(offerer);
+
+  updateHUD();
+  draw();
+  log(`<b>${other(offerer)===RED?'Red':'Black'}</b> declines. <b>${offerer===RED?'Red':'Black'}</b> wins <b>+${points}</b> (cube ${cube.value}).`);
+
+  saveAll();
+
+  // match over?
+  if(match.score[offerer] >= match.target){
+    showModal(
+      'Match complete 🏁',
+      `<b>${offerer===RED?'Red':'Black'}</b> wins the match ${match.score[RED]}–${match.score[BLACK]} (to ${match.target}).`,
+      [
+        {label:'New Match', kind:'primary', onClick:()=> startMatch(match.target)},
+        {label:'Close', kind:'ghost', onClick:()=>{}}
+      ]
+    );
+    return;
+  }
+
+  showModal(
+    'Double declined',
+    `Score: <b>Red ${match.score[RED]}</b> · <b>Black ${match.score[BLACK]}</b> (to ${match.target}). Start next game?`,
+    [
+      {label:'Next Game', kind:'primary', onClick:()=>{ resetCube(); startGame(false); }},
+      {label:'Close', kind:'ghost', onClick:()=>{}}
+    ]
+  );
+}
+
+/* =========================
+   Undo (within the turn)
+========================= */
+function snapshot(){
+  return JSON.stringify({
+    state: cloneState(state),
+    turn,
+    dice: dice.slice(),
+    diceLeft: diceLeft.slice(),
+    phase,
+    cube: {value:cube.value, owner:cube.owner, pending:cube.pending?{offeredBy:cube.pending.offeredBy}:null},
+    match: {target: match.target, score:{[RED]:match.score[RED],[BLACK]:match.score[BLACK]}}
+  });
+}
+function restoreSnap(raw){
+  const s = JSON.parse(raw);
+  state = s.state;
+  turn = s.turn;
+  dice = s.dice;
+  diceLeft = s.diceLeft;
+  phase = s.phase;
+  cube.value = s.cube.value;
+  cube.owner = s.cube.owner;
+  cube.pending = s.cube.pending;
+  match.target = s.match.target;
+  match.score[RED] = s.match.score[RED];
+  match.score[BLACK] = s.match.score[BLACK];
+}
+
+function undoStep(){
+  if(!undoStack.length || phase!=='moving' || cube.pending) return;
+  const snap = undoStack.pop();
+  restoreSnap(snap);
+  selected = null;
+  hintDots = [];
+  sequencesThisTurn = legalSequences(state, turn, diceLeft);
+  updateHUD();
+  draw();
+  log(`<span class="muted">↶ Undo.</span>`);
+}
+
+/* =========================
+   Commit move
+========================= */
+let sequencesThisTurn = [];
+
+function commitMove(m){
+  if(gameOver || cube.pending || phase!=='moving') return;
+
+  // Restrict to allowed first moves from the “best usage” sequences
+  const allowed = new Set();
+  for(const seq of sequencesThisTurn){
+    if(!seq.length) continue;
+    const mv = seq[0];
+    allowed.add(`${mv.from}|${mv.to}|${mv.die}`);
+  }
+  if(!allowed.has(`${m.from}|${m.to}|${m.die}`)) return;
+
+  undoStack.push(snapshot());
+
+  state = applyMove(state, turn, m);
+
+  const di = diceLeft.indexOf(m.die);
+  if(di>=0) diceLeft.splice(di,1);
+
+  selected = null;
+  hintDots = [];
+  sequencesThisTurn = legalSequences(state, turn, diceLeft);
+
+  log(moveText(turn, m));
+  updateHUD();
+  draw();
+  saveAll();
+
+  // win check or end of turn
+  if(state.off[RED]===15 || state.off[BLACK]===15){
+    finishGame(state.off[RED]===15 ? RED : BLACK);
+    return;
+  }
+
+  if(!diceLeft.length || !sequencesThisTurn.length){
+    endTurn();
+  } else {
+    maybeAI();
+  }
+}
+
+function nPoint(i){ return (i==='off') ? 'off' : (i==='bar') ? 'bar' : (i+1); }
+function moveText(p,m){
+  const who = (p===RED?'Red':'Black');
+  return `${who}: <b>${nPoint(m.from)}</b> → <b>${nPoint(m.to)}</b> (${m.die})`;
+}
+
+/* =========================
+   AI (play + doubles)
+========================= */
+function pipCount(s, p){
+  let sum=0;
+  if(p===RED){
+    for(let i=0;i<24;i++) if(s.board[i]>0) sum += s.board[i]*(i+1);
+  } else {
+    for(let i=0;i<24;i++) if(s.board[i]<0) sum += (-s.board[i])*(24-i);
+  }
+  sum += s.bar[p]*25;
+  return sum;
+}
+function blotCount(s,p){
+  let c=0;
+  for(let i=0;i<24;i++){
+    if(p===RED && s.board[i]===1) c++;
+    if(p===BLACK && s.board[i]===-1) c++;
+  }
+  return c + s.bar[p];
+}
+function madePoints(s,p){
+  let c=0;
+  for(let i=0;i<24;i++){
+    if(p===RED && s.board[i]>=2) c++;
+    if(p===BLACK && s.board[i]<=-2) c++;
+  }
+  return c;
+}
+function evalState(s, p){
+  const w = aiProfile.weights;
+  const pip = pipCount(s,p) - pipCount(s,other(p));
+  const barD = s.bar[p] - s.bar[other(p)];
+  const offD = s.off[p] - s.off[other(p)];
+  const blots = blotCount(s,p) - blotCount(s,other(p));
+  const made = madePoints(s,p) - madePoints(s,other(p));
+  return (w.pip*pip) + (w.bar*barD) + (w.off*offD) + (w.blots*blots) + (w.made*made);
+}
+function applySeq(s,p,seq){
+  const t = cloneState(s);
+  for(const m of seq) applyMove(t,p,m);
+  return t;
+}
+function chooseAISequence(){
+  const seqs = sequencesThisTurn.slice();
+  if(!seqs.length) return null;
+
+  let best = null;
+  let bestScore = -1e18;
+
+  const level = Number(depthSel.value||2);
+  for(const seq of seqs){
+    const after = applySeq(state, turn, seq);
+    let score = evalState(after, turn);
+
+    if(level===1) score += (Math.random()*0.9);
+    if(level===2) score += (Math.random()*0.25);
+    if(level===3){
+      score += (state.bar[other(turn)] - after.bar[other(turn)])*1.0; // hits
+      score += (blotCount(state,turn) - blotCount(after,turn))*0.45; // safety
+    }
+
+    if(score > bestScore){ bestScore = score; best = seq; }
+  }
+  return best;
+}
+
+function aiWantsToDouble(){
+  // crude “advantage” threshold
+  const adv = evalState(state, turn);
+  if(adv > 14) return true;     // strong advantage
+  if(adv > 10 && cube.value<=2) return true;
+  return false;
+}
+function aiRespondToDouble(offeredBy){
+  if(!cube.pending || cube.pending.offeredBy!==offeredBy) return;
+  const aiP = other(offeredBy); // AI is the accepter/decliner side here
+
+  // If AI is winning badly, accept; if losing badly, decline
+  const aiAdv = evalState(state, aiP); // positive means good for aiP
+  if(aiAdv < -12 && cube.value>=2){
+    log(`<b>${aiP===RED?'Red':'Black'} (AI)</b> declines the double.`);
+    declineDouble();
+  } else {
+    log(`<b>${aiP===RED?'Red':'Black'} (AI)</b> accepts the double.`);
+    acceptDouble();
+  }
+}
+
+function maybeAI(){
+  if(gameOver) return;
+  if(modeSel.value!=='ai') return;
+  const aiP = aiSide();
+  if(turn !== aiP) return;
+
+  // pending double where human offered it is handled by the modal path (we call aiRespondToDouble on offer)
+  if(cube.pending) return;
+
+  if(phase==='preroll'){
+    // AI may offer double before rolling
+    if(canCurrentOfferDouble() && aiWantsToDouble()){
+      log(`<b>${aiP===RED?'Red':'Black'} (AI)</b> offers to double.`);
+      offerDouble(aiP);
+      // If human must respond, stop here.
+      if(cube.pending) return;
+    }
+    setTimeout(()=> beginRoll(), 420);
+    return;
+  }
+
+  if(phase==='moving'){
+    const seq = chooseAISequence();
+    if(!seq || !seq.length){
+      log(`<span class="muted">AI: no legal moves — pass.</span>`);
+      endTurn();
+      return;
+    }
+    let i=0;
+    const step=()=>{
+      if(gameOver || turn!==aiP || phase!=='moving') return;
+      if(i>=seq.length) return;
+      commitMove(seq[i]);
+      i++;
+      if(i<seq.length && turn===aiP && phase==='moving') setTimeout(step, 210);
+    };
+    setTimeout(step, 210);
+  }
+}
+
+/* =========================
+   Geometry + drawing
+========================= */
+function geom(){
+  const W=C.width, H=C.height;
+  const triH = H*0.44;
+  return {W,H,triH};
+}
+function pointCenterX(ix){
+  const {W} = geom();
+  const triW = W/12;
+  const col = (ix<12) ? (11-ix) : (ix-12);
+  return col*triW + triW/2;
+}
+function isTopHalf(ix){ return ix>=12; }
+function chipRadius(){
+  const {W,H,triH} = geom();
+  const triW = W/12;
+  const r = Math.min(triW*0.36, triH*0.12, 26);
+  return Math.max(14, r);
+}
+function drawChip(x,y,color,r,alpha=1){
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.translate(x,y);
+  ctx.beginPath(); ctx.arc(0,0,r,0,Math.PI*2);
+  const grad = ctx.createRadialGradient(-r*0.35,-r*0.35,r*0.25, 0,0,r*1.05);
+  grad.addColorStop(0,'rgba(255,255,255,.98)');
+  grad.addColorStop(0.22,'rgba(255,255,255,.75)');
+  grad.addColorStop(0.6,color);
+  grad.addColorStop(1,'rgba(15,23,42,.65)');
+  ctx.fillStyle = grad;
+  ctx.fill();
+  ctx.lineWidth=2.2;
+  ctx.strokeStyle='rgba(255,255,255,.4)';
+  ctx.stroke();
+  ctx.restore();
+}
+function stackLabel(x,y,text){
+  ctx.save();
+  ctx.font='bold 12px system-ui';
+  const padX=6;
+  const w = ctx.measureText(text).width + padX*2;
+  const h = 16;
+  ctx.fillStyle='rgba(17,24,39,.85)';
+  ctx.beginPath();
+  roundRect(ctx, x-w/2, y-h/2, w, h, 7);
+  ctx.fill();
+  ctx.fillStyle='#fff';
+  ctx.textAlign='center';
+  ctx.textBaseline='middle';
+  ctx.fillText(text, x, y+0.5);
+  ctx.restore();
+}
+function roundRect(ctx,x,y,w,h,r){
+  const rr = Math.min(r, w/2, h/2);
+  ctx.moveTo(x+rr,y);
+  ctx.arcTo(x+w,y,x+w,y+h,rr);
+  ctx.arcTo(x+w,y+h,x,y+h,rr);
+  ctx.arcTo(x,y+h,x,y,rr);
+  ctx.arcTo(x,y,x+w,y,rr);
+  ctx.closePath();
+}
+function drawBoardBase(){
+  const {W,H,triH} = geom();
+  const g=ctx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,'#f4ebd6'); g.addColorStop(1,'#e4d0aa');
+  ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+
+  // center bar
+  ctx.fillStyle='#cfb27a';
+  ctx.fillRect(W/2-22,0,44,H);
+
+  // triangles
+  const triW = W/12;
+  for(let i=0;i<12;i++){
+    ctx.beginPath();
+    ctx.moveTo(i*triW, 0);
+    ctx.lineTo(i*triW+triW, 0);
+    ctx.lineTo(i*triW+triW/2, triH);
+    ctx.closePath();
+    ctx.fillStyle = (i%2===0)?'#30455a':'#7c2d12';
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(i*triW, H);
+    ctx.lineTo(i*triW+triW, H);
+    ctx.lineTo(i*triW+triW/2, H-triH);
+    ctx.closePath();
+    ctx.fillStyle = (i%2===0)?'#30455a':'#7c2d12';
+    ctx.fill();
+  }
+
+  // off trays
+  ctx.fillStyle='#d7c6a3';
+  ctx.fillRect(W-40, 6, 34, H/2-12);
+  ctx.fillRect(W-40, H/2+6, 34, H/2-12);
+
+  // cube visual (tiny)
+  ctx.save();
+  ctx.fillStyle='rgba(17,24,39,.9)';
+  ctx.font='bold 14px system-ui';
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  const cx=W/2, cy=H/2;
+  ctx.beginPath();
+  roundRect(ctx, cx-18, cy-18, 36, 36, 10);
+  ctx.fill();
+  ctx.fillStyle='#fff';
+  ctx.fillText(String(cube.value), cx, cy);
+  ctx.restore();
+}
+function drawCheckers(){
+  const {W,H,triH} = geom();
+  const r = chipRadius();
+  const stepBase = r*2 + 3;
+  const maxVisible = 6;
+
+  for(let ix=0; ix<24; ix++){
+    const count = Math.abs(state.board[ix]);
+    if(!count) continue;
+
+    const isTop = isTopHalf(ix);
+    const color = state.board[ix] > 0 ? '#e63946' : '#1f2937';
+    const x = pointCenterX(ix);
+
+    const baseY = isTop ? (r + 10) : (H - r - 10);
+    const dir = isTop ? +1 : -1;
+
+    const visible = Math.min(count, maxVisible);
+    const halfSpan = (triH - (r+14));
+    let step = stepBase;
+    if((visible-1)*step > halfSpan){
+      step = halfSpan / Math.max(1,(visible-1));
+    }
+
+    for(let k=0;k<visible;k++){
+      const y = baseY + dir*k*step;
+      drawChip(x,y,color,r);
+    }
+    if(count>visible){
+      const y = baseY + dir*(visible-1)*step;
+      stackLabel(x, y + dir*(r*0.95), String(count));
+    }
+  }
+
+  // Bar checkers (draw a few + count)
+  const barX = W/2;
+  const redCount = state.bar[RED], blackCount = state.bar[BLACK];
+  if(redCount){
+    const visible = Math.min(redCount, 5);
+    for(let k=0;k<visible;k++) drawChip(barX-12, H - (r+18) - k*(r*0.75), '#e63946', r*0.92);
+    if(redCount>visible) stackLabel(barX-12, H - (r+18) - (visible-1)*(r*0.75) - r, String(redCount));
+  }
+  if(blackCount){
+    const visible = Math.min(blackCount, 5);
+    for(let k=0;k<visible;k++) drawChip(barX+12, (r+18) + k*(r*0.75), '#1f2937', r*0.92);
+    if(blackCount>visible) stackLabel(barX+12, (r+18) + (visible-1)*(r*0.75) + r, String(blackCount));
+  }
+
+  // Drag ghost
+  if(drag.active){
+    const col = (turn===RED)? '#e63946' : '#1f2937';
+    drawChip(drag.x, drag.y, col, r*0.98, 0.72);
+  }
+}
+function drawTextOverlays(){
+  const {W,H} = geom();
+  ctx.save();
+  ctx.fillStyle='rgba(17,24,39,.85)';
+  ctx.font='12px system-ui';
+  ctx.fillText(`Red off: ${state.off[RED]}`, W-155, H/2-18);
+  ctx.fillText(`Black off: ${state.off[BLACK]}`, W-165, H/2+28);
+  ctx.restore();
+}
+function drawHintDots(){
+  if(!hintDots.length) return;
+  ctx.save();
+  for(const d of hintDots){
+    ctx.beginPath(); ctx.arc(d.x,d.y,12,0,Math.PI*2);
+    ctx.fillStyle='rgba(16,185,129,.30)';
+    ctx.fill();
+    ctx.lineWidth=2.5;
+    ctx.strokeStyle='#0ea5b7';
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+function drawGhostSuggestion(){
+  if(hintSel.value!=='on') return;
+  if(!sequencesThisTurn.length) return;
+  if(!isHumanTurn()) return;
+  if(phase!=='moving') return;
+
+  // shallow best line preview
+  const savedTurn = turn;
+  const savedSeqs = sequencesThisTurn;
+  const best = chooseAISequence();
+  sequencesThisTurn = savedSeqs;
+  turn = savedTurn;
+  if(!best) return;
+
+  ctx.save();
+  ctx.globalAlpha = 0.35;
+  ctx.strokeStyle='#10b981';
+  ctx.lineWidth=3;
+  for(const m of best){
+    const a = moveAnchor(m.from, turn);
+    const b = moveAnchor(m.to, turn);
+    drawArrow(a.x,a.y,b.x,b.y);
+  }
+  ctx.restore();
+}
+function moveAnchor(pos, p){
+  const {H,triH} = geom();
+  if(pos==='bar'){
+    return {x: C.width/2, y: (p===RED ? H*0.75 : H*0.25)};
+  }
+  if(pos==='off'){
+    return {x: C.width-22, y: (p===RED ? H-22 : 22)};
+  }
+  const x = pointCenterX(pos);
+  const isTop = isTopHalf(pos);
+  const y = isTop ? (triH-18) : (H - triH + 18);
+  return {x,y};
+}
+function drawArrow(x1,y1,x2,y2){
+  ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+  const ang = Math.atan2(y2-y1,x2-x1);
+  const len = 11;
+  ctx.beginPath();
+  ctx.moveTo(x2,y2);
+  ctx.lineTo(x2-len*Math.cos(ang-Math.PI/6), y2-len*Math.sin(ang-Math.PI/6));
+  ctx.lineTo(x2-len*Math.cos(ang+Math.PI/6), y2-len*Math.sin(ang+Math.PI/6));
+  ctx.closePath();
+  ctx.fillStyle='#10b981';
+  ctx.fill();
+}
+
+function draw(){
+  ctx.clearRect(0,0,C.width,C.height);
+  drawBoardBase();
+  drawCheckers();
+  drawTextOverlays();
+  drawHintDots();
+  drawGhostSuggestion();
+}
+
+/* =========================
+   Hit testing + targets + drag
+========================= */
+function toCanvasCoords(ev){
+  const rect = C.getBoundingClientRect();
+  const sx = C.width / rect.width;
+  const sy = C.height / rect.height;
+  return { x:(ev.clientX-rect.left)*sx, y:(ev.clientY-rect.top)*sy };
+}
+function hitTest(x,y){
+  // targets first
+  for(const d of hintDots){
+    const dx=x-d.x, dy=y-d.y;
+    if(dx*dx+dy*dy <= 14*14) return {type:'target', move:d.move};
+  }
+
+  // bar selection region
+  const barLeft = C.width/2 - 30, barRight = C.width/2 + 30;
+  if(x>=barLeft && x<=barRight){
+    if((turn===RED && y > C.height/2) || (turn===BLACK && y < C.height/2)){
+      return {type:'bar'};
+    }
+  }
+
+  // off tray strip: treat as 'off' drop zone only during drag
+  if(x > C.width - 52) return {type:'offzone'};
+
+  const col = Math.floor(x / (C.width/12));
+  if(col<0||col>11) return null;
+  const top = (y < C.height*0.5);
+  const ix = top ? (12 + col) : (11 - col);
+  return {type:'point', index:ix};
+}
+
+function showTargets(from){
+  hintDots = [];
+  if(gameOver || cube.pending || phase!=='moving') { draw(); return; }
+
+  const src = from;
+  const moves = [];
+
+  for(const seq of sequencesThisTurn){
+    if(!seq.length) continue;
+    const m = seq[0];
+    if(m.from === src) moves.push(m);
+  }
+
+  // de-dupe by from|to|die
+  const seen = new Set();
+  const uniq = [];
+  for(const m of moves){
+    const k = `${m.from}|${m.to}|${m.die}`;
+    if(seen.has(k)) continue;
+    seen.add(k);
+    uniq.push(m);
+  }
+
+  const {H,triH} = geom();
+  for(const m of uniq){
+    let x,y;
+    if(m.to === 'off'){
+      x = C.width - 22;
+      y = (turn===RED) ? (H-22) : 22;
+    } else {
+      x = pointCenterX(m.to);
+      y = isTopHalf(m.to) ? (triH-18) : (H - triH + 18);
+    }
+    hintDots.push({x,y, move:m});
+  }
+
+  draw();
+}
+
+function nearestHint(x,y){
+  let best=null, bestD=1e18;
+  for(const d of hintDots){
+    const dx=x-d.x, dy=y-d.y;
+    const dd=dx*dx+dy*dy;
+    if(dd<bestD){ bestD=dd; best=d; }
+  }
+  if(!best) return null;
+  const dist = Math.sqrt(bestD);
+  return (dist <= 34) ? best : null;
+}
+
+/* Pointer interactions */
+C.addEventListener('pointerdown', (ev)=>{
+  if(!isHumanTurn()) return;
+  if(gameOver || cube.pending) return;
+
+  const {x,y} = toCanvasCoords(ev);
+
+  // If pre-roll, ignore board interactions
+  if(phase!=='moving') return;
+
+  // If tap a target dot, commit immediately
+  const hit = hitTest(x,y);
+  if(hit && hit.type==='target'){
+    commitMove(hit.move);
+    return;
+  }
+
+  // Must enter from bar if bar has checkers
+  if(state.bar[turn] > 0){
+    if(hit && hit.type==='bar'){
+      selected = {from:'bar'};
+      showTargets('bar');
+      // start drag from bar
+      drag.down = true; drag.active = false; drag.moved=false;
+      drag.from = 'bar'; drag.startX=x; drag.startY=y; drag.x=x; drag.y=y;
+      C.setPointerCapture(ev.pointerId);
+    }
+    return;
+  }
+
+  // Select point with your checker
+  if(hit && hit.type==='point'){
+    const v = state.board[hit.index];
+    if((turn===RED && v<=0) || (turn===BLACK && v>=0)) return;
+
+    selected = {from: hit.index};
+    showTargets(hit.index);
+
+    // begin drag
+    drag.down = true; drag.active=false; drag.moved=false;
+    drag.from = hit.index; drag.startX=x; drag.startY=y; drag.x=x; drag.y=y;
+    C.setPointerCapture(ev.pointerId);
+  }
+});
+
+C.addEventListener('pointermove', (ev)=>{
+  if(!drag.down) return;
+  const {x,y} = toCanvasCoords(ev);
+  drag.x=x; drag.y=y;
+
+  const dx = x - drag.startX, dy = y - drag.startY;
+  const dist = Math.sqrt(dx*dx + dy*dy);
+  if(dist > 10){
+    drag.moved = true;
+    drag.active = true;
+    draw();
+  } else if(drag.active){
+    draw();
+  }
+});
+
+C.addEventListener('pointerup', (ev)=>{
+  if(!drag.down) return;
+  const {x,y} = toCanvasCoords(ev);
+
+  // If it was a drag, try drop to nearest target
+  if(drag.active){
+    const nh = nearestHint(x,y);
+    if(nh){
+      commitMove(nh.move);
+    } else {
+      // cancel drag
+      selected = null;
+      hintDots = [];
+      draw();
+    }
+  }
+  drag.down = false;
+  drag.active = false;
+  drag.moved = false;
+  drag.from = null;
+
+  // If it was a tap (no drag), keep tap-to-move UX:
+  // - tap source selects and shows targets (already done)
+  // - next tap on target commits (handled in pointerdown)
+});
+
+/* =========================
+   Buttons / UI wiring
+========================= */
+rollBtn.onclick = ()=> beginRoll();
+doubleBtn.onclick = ()=> offerDouble(turn);
+undoBtn.onclick = ()=> undoStep();
+
+newGameBtn.onclick = ()=>{
+  showModal(
+    'Start a new game?',
+    'This keeps match score, but resets the board and cube to 1.',
+    [
+      {label:'New Game', kind:'primary', onClick:()=>{ resetCube(); startGame(false); }},
+      {label:'Cancel', kind:'ghost', onClick:()=>{}}
+    ]
+  );
+};
+
+newMatchBtn.onclick = ()=>{
+  showModal(
+    'Start a new match?',
+    'This resets score and starts fresh.',
+    [
+      {label:'New Match', kind:'primary', onClick:()=> startMatch(match.target)},
+      {label:'Cancel', kind:'ghost', onClick:()=>{}}
+    ]
+  );
+};
+
+matchLenSel.onchange = ()=>{
+  const v = Number(matchLenSel.value||5);
+  if(match.score[RED]!==0 || match.score[BLACK]!==0){
+    showModal(
+      'Change match length?',
+      `You already have a score (Red ${match.score[RED]} / Black ${match.score[BLACK]}). Changing match length will start a new match to ${v}.`,
+      [
+        {label:`Start new match (to ${v})`, kind:'primary', onClick:()=> startMatch(v)},
+        {label:'Cancel', kind:'ghost', onClick:()=>{ matchLenSel.value = String(match.target); }}
+      ]
+    );
+  } else {
+    match.target = v;
+    targetPtsEl.textContent = v;
+    saveAll();
+    updateHUD();
+  }
+};
+
+modeSel.onchange = ()=>{ saveAll(); updateHUD(); maybeAI(); };
+humanSel.onchange = ()=>{ saveAll(); updateHUD(); maybeAI(); };
+hintSel.onchange = ()=>{ saveAll(); draw(); };
+depthSel.onchange = ()=>{ saveAll(); ping('AI tuned'); };
+
+resumeBtn.onclick = ()=>{
+  if(!hasSaved()){ ping('No save found'); return; }
+  resumePrompt();
+};
+
+/* =========================
+   Save / Resume
+========================= */
+function hasSaved(){
+  return !!localStorage.getItem(STORAGE_KEY);
+}
+function saveAll(){
+  try{
+    const payload = {
+      match,
+      cube,
+      state,
+      turn,
+      dice,
+      diceLeft,
+      phase,
+      gameOver,
+      settings:{
+        matchLen: matchLenSel.value,
+        mode: modeSel.value,
+        humanSide: humanSel.value,
+        hints: hintSel.value,
+        depth: depthSel.value
+      }
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+    ping('Saved');
+  }catch(e){
+    console.warn('save failed', e);
+  }
+}
+function loadAll(){
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if(!raw) return null;
+  try{
+    return JSON.parse(raw);
+  }catch(e){
+    return null;
+  }
+}
+function resumePrompt(){
+  const saved = loadAll();
+  if(!saved){ ping('Save corrupted'); return; }
+
+  showModal(
+    'Resume last match?',
+    `Saved state found: <b>Red ${saved.match?.score?.[RED]||0}</b> · <b>Black ${saved.match?.score?.[BLACK]||0}</b> (to ${saved.match?.target||5}).`,
+    [
+      {label:'Resume', kind:'primary', onClick:()=> resumeFromSaved(saved)},
+      {label:'Delete Save', kind:'danger', onClick:()=>{ localStorage.removeItem(STORAGE_KEY); ping('Save deleted'); updateHUD(); }},
+      {label:'Cancel', kind:'ghost', onClick:()=>{}}
+    ]
+  );
+}
+function resumeFromSaved(saved){
+  // Restore settings first
+  if(saved.settings){
+    matchLenSel.value = saved.settings.matchLen || String(saved.match?.target||5);
+    modeSel.value = saved.settings.mode || 'ai';
+    humanSel.value = saved.settings.humanSide || 'red';
+    hintSel.value = saved.settings.hints || 'off';
+    depthSel.value = saved.settings.depth || '2';
+  }
+
+  match = saved.match || match;
+  cube = saved.cube || cube;
+  state = saved.state || { board: standardSetup(), bar:{[RED]:0,[BLACK]:0}, off:{[RED]:0,[BLACK]:0} };
+  turn = saved.turn ?? RED;
+  dice = saved.dice || [];
+  diceLeft = saved.diceLeft || [];
+  phase = saved.phase || 'preroll';
+  gameOver = !!saved.gameOver;
+
+  selected = null;
+  hintDots = [];
+  undoStack = [];
+  drag.down = drag.active = drag.moved = false;
+
+  log(`<span class="muted">↩ Resumed saved state.</span>`);
+  updateHUD();
+  draw();
+  maybeAI();
+}
+
+/* =========================
+   Boot
+========================= */
+function boot(){
+  // set target from selector
+  match.target = Number(matchLenSel.value||5);
+  targetPtsEl.textContent = match.target;
+
+  // start fresh base
+  resetCube();
+  startGame(true);
+  updateHUD();
+
+  // if saved exists, prompt gently (but don’t block)
+  if(hasSaved()){
+    setTimeout(()=> resumePrompt(), 380);
+  }
+}
+boot();
+</script>
+</body>
+</html>
