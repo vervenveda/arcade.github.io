@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Sudoku – Sovereign Monte Carlo Edition (Patched)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+/* -------------------------------------------------------
+   BASE PAGE STYLING
+--------------------------------------------------------*/
+body {
+  margin:14px;
+  font-family: Arial, sans-serif;
+  background: #eef3ff;
+  color:#111827;
+  transition: background .3s, color .3s;
+}
+
+body.dark {
+  background: #1e1e1e;
+  color: #ddd;
+}
+
+h1 {
+  text-align: center;
+  padding: 7px 0;
+  margin: 0;
+}
+
+/* -------------------------------------------------------
+   SUDOKU SHELL LAYOUT + LOADING OVERLAY
+--------------------------------------------------------*/
+#loading{
+  position:fixed;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(15,23,42,0.92);
+  color:#f9fafb;
+  font-size:1rem;
+  z-index:999;
+}
+
+.sudoku-shell{
+  max-width:600px;
+  margin:0 auto;
+  background:#f9fafb;
+  border-radius:12px;
+  padding:10px 10px 14px;
+  box-shadow:0 10px 25px rgba(15,23,42,0.18);
+}
+body.dark .sudoku-shell{
+  background:#111827;
+}
+
+.s-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.s-title{
+  font-size:1.5rem;
+  font-weight:700;
+}
+.s-sub{
+  font-size:.8rem;
+  color:#4b5563;
+}
+body.dark .s-sub{
+  color:#9ca3af;
+}
+.s-pill{
+  font-size:.75rem;
+  background:#e5edff;
+  padding:6px 9px;
+  border-radius:999px;
+  color:#1d4ed8;
+  text-align:right;
+}
+body.dark .s-pill{
+  background:#1f2937;
+  color:#bfdbfe;
+}
+
+.s-layout{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-top:8px;
+  align-items:flex-start;
+}
+.s-sidebar{
+  flex:0 0 160px;
+  font-size:.85rem;
+}
+.s-main{
+  flex:1 1 260px;
+}
+
+.s-sidebar h3{
+  margin:0 0 4px;
+  font-size:0.95rem;
+}
+.s-sidebar label{
+  display:block;
+  margin-top:4px;
+  margin-bottom:2px;
+  font-size:0.8rem;
+}
+.s-sidebar select,
+.s-sidebar button{
+  width:100%;
+  box-sizing:border-box;
+}
+
+.status{
+  margin-top:6px;
+  font-size:.9rem;
+  min-height:1.2rem;
+}
+
+/* Tiny mode badge for diagonal mode */
+.mode-badge{
+  display:inline-block;
+  font-size:.7rem;
+  padding:3px 7px;
+  border-radius:999px;
+  background:#ecfdf5;
+  color:#047857;
+  margin-top:2px;
+}
+body.dark .mode-badge{
+  background:#064e3b;
+  color:#a7f3d0;
+}
+
+@media (max-width:640px){
+  .s-layout{ flex-direction:column; }
+  .s-sidebar{ order:2; }
+  .s-main{ order:1; }
+}
+
+/* -------------------------------------------------------
+   OLD SIDEBAR MENU (unused but harmless)
+--------------------------------------------------------*/
+#sidebar {
+  position: relative;
+  left: 0;
+  top: 0;
+  width: 222px;
+  float: left;
+  height: 100vh;
+  background: #345;
+  color: #fff;
+  padding: 11px;
+  transition: left .3s;
+  z-index: 1000;
+}
+#sidebar.open { left: 0; }
+#sidebar h2 { margin-top: 0; }
+
+#sidebar button, #sidebar select {
+  width: 100%;
+  padding: 8px;
+  margin: 11px 0;
+  border: none;
+  border-radius: 7px;
+  font-size: 1rem;
+}
+
+#menuBtn {
+  position: fixed;
+  top: 24px;
+  left: 24px;
+  font-size: 24px;
+  cursor: pointer;
+  z-index: 1001;
+}
+
+/* -------------------------------------------------------
+   BOARD GRID
+--------------------------------------------------------*/
+#board {
+  width: 100%;
+  max-width: 450px;
+  margin: 16px auto 6px;
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+}
+
+.cell {
+  border: 1px solid #888;
+  box-sizing:border-box;
+  width: 100%;
+  padding: 0;
+  text-align: center;
+  font-size: 1.3rem;
+  aspect-ratio: 1 / 1;
+  background:#ffffff;
+}
+body.dark .cell{
+  background:#020617;
+  color:#e5e7eb;
+}
+
+.cell.locked {
+  background: #dde6ff;
+  font-weight: bold;
+}
+body.dark .cell.locked{
+  background:#1f2937;
+}
+
+.cell.conflict {
+  background: #ffdddd !important;
+}
+
+.cell.hint{
+  background:#fef3c7 !important;
+}
+body.dark .cell.hint{
+  background:#78350f !important;
+  color:#fef3c7;
+}
+
+.cell:focus {
+  outline: 2px solid #4f8;
+}
+
+/* 3×3 box borders using classes */
+.cell.box-top    { border-top:    3px solid #222; }
+.cell.box-left   { border-left:   3px solid #222; }
+.cell.box-right  { border-right:  3px solid #222; }
+.cell.box-bottom { border-bottom: 3px solid #222; }
+
+body.dark .cell.box-top,
+body.dark .cell.box-left,
+body.dark .cell.box-right,
+body.dark .cell.box-bottom{
+  border-color:#e5e7eb;
+}
+
+/* Diagonal highlighting */
+body.diagonal-mode .cell.diagonal-main:not(.conflict):not(.hint){
+  border-color:#1d4ed8;
+}
+body.diagonal-mode .cell.diagonal-anti:not(.conflict):not(.hint){
+  border-color:#16a34a;
+}
+
+/* -------------------------------------------------------
+   BUTTONS
+--------------------------------------------------------*/
+.controls {
+  text-align: center;
+  margin-top: 3px;
+}
+
+button {
+  margin: 3px;
+  padding: 6px 10px;
+  font-size: .75rem;
+  border: none;
+  border-radius: 7px;
+  background: #4c6ef5;
+  color: white;
+  cursor: pointer;
+}
+button:hover { background: #6b8cff; }
+body.dark button{
+  background:#4338ca;
+}
+body.dark button:hover{
+  background:#6366f1;
+}
+
+/* -------------------------------------------------------
+   MOBILE / DESKTOP NUMBER PAD
+--------------------------------------------------------*/
+#numpad {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  gap: 4px;
+  max-width: 450px;
+  margin: 10px auto 0;
+  background: #ffffff;
+  border-top: 1px solid #cbd5f5;
+  padding: 6px;
+  border-radius: 10px;
+  box-shadow:0 4px 10px rgba(15,23,42,0.12);
+}
+
+#numpad button {
+  background: #edf2ff;
+  color: #111827;
+  font-size: .8rem;
+  padding:6px 0;
+}
+
+body.dark #numpad {
+  background: #020617;
+  border-top:1px solid #111827;
+  box-shadow:0 4px 12px rgba(0,0,0,0.5);
+}
+body.dark #numpad button {
+  background: #1f2937;
+  color: #e5e7eb;
+}
+
+@media (max-width:600px){
+  #numpad{
+    width:100%;
+    max-width:100%;
+  }
+}
+</style>
+</head>
+<body>
+<div id="loading">🧩 Generating a unique puzzle…</div>
+
+<div class="sudoku-shell">
+  <div class="s-header">
+    <div>
+      <div class="s-title">Sudoku</div>
+      <div class="s-sub">
+        Tap a cell, then use your keyboard or the number bar.<br>
+        <span id="modeBadge" class="mode-badge" style="display:none;">Standard</span>
+      </div>
+    </div>
+    <div class="s-pill">
+      Unique-solution ·<br/>New puzzle each game
+    </div>
+  </div>
+
+  <div class="s-layout">
+    <aside class="s-sidebar">
+      <h3>Settings</h3>
+      <label for="difficulty">Difficulty</label>
+      <select id="difficulty">
+        <option value="easy">Easy</option>
+        <option value="medium" selected>Medium</option>
+        <option value="hard">Hard</option>
+        <option value="advanced">Advanced (Diagonal)</option>
+      </select>
+      <button class="btn-primary" id="newGameBtn">New Game</button>
+      <button class="btn-secondary" id="resetBtn">Reset Board</button>
+      <button class="btn-secondary" id="darkBtn">Toggle Dark Mode</button>
+      <p style="font-size:.8rem; line-height:1.35;">
+        Each puzzle is generated locally and checked so it has
+        exactly one valid solution. Your progress auto-saves
+        in this browser only.
+      </p>
+    </aside>
+
+    <main class="s-main">
+      <div id="boardWrap">
+        <div id="board" aria-label="9 by 9 Sudoku grid"></div>
+      </div>
+      <div class="controls">
+        <button id="checkBtn">Check</button>
+        <button id="hintBtn">Smart Hint</button>
+        <button id="mcBtn">AI Guess (Monte Carlo)</button>
+        <button id="clearBtn">Clear Cell</button>
+        <button id="undoBtn">Undo</button>
+        <button id="solveBtn">AI Solve</button>
+      </div>
+      <div class="status" id="statusText">New puzzle loading…</div>
+    </main>
+  </div>
+
+  <div id="numpad" aria-label="Number bar"></div>
+</div>
+
+<script>
+  const qs = s => document.querySelector(s);
+
+  const boardEl   = qs('#board');
+  const statusEl  = qs('#statusText');
+  const loadingEl = qs('#loading');
+  const modeBadge = qs('#modeBadge');
+
+  let puzzle = [];
+  let solution = [];
+  let current = [];
+  let focusedCell = null;
+
+  const STORAGE_KEY = 'sudoku_ai_v1';
+  let historyStack = [];
+  let diagonalMode = false;
+
+  // Toggle this to false if you prefer permissive typing + red highlights
+  const ENFORCE_VALID_INPUT = true;
+
+  /* ---------- UTILITIES ---------- */
+  function copyBoard(b){ return b.map(row => row.slice()); }
+
+  // enforce exactly one digit 1–9 from any input/paste
+  function sanitizeDigit(value){
+    const m = String(value || '').match(/[1-9]/);
+    return m ? m[0] : '';
+  }
+
+  /* ---------- SUDOKU CORE ---------- */
+  function isValid(board,row,col,val){
+    for(let i=0;i<9;i++){
+      if(i !== col && board[row][i] === val) return false;
+      if(i !== row && board[i][col] === val) return false;
+    }
+    const br = Math.floor(row/3)*3;
+    const bc = Math.floor(col/3)*3;
+    for(let r=br;r<br+3;r++){
+      for(let c=bc;c<bc+3;c++){
+        if((r !== row || c !== col) && board[r][c] === val) return false;
+      }
+    }
+    if(diagonalMode){
+      if(row === col){
+        for(let i=0;i<9;i++){
+          if(i !== row && board[i][i] === val) return false;
+        }
+      }
+      if(row + col === 8){
+        for(let i=0;i<9;i++){
+          const j = 8 - i;
+          if(i !== row && board[i][j] === val) return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  function generateSolvedBoard(){
+    const b = Array.from({length:9}, () => Array(9).fill(0));
+    function fill(r,c){
+      if(r === 9) return true;
+      const nr = (c === 8) ? r+1 : r;
+      const nc = (c === 8) ? 0   : c+1;
+      const nums = [1,2,3,4,5,6,7,8,9];
+      for(let i=nums.length-1;i>0;i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [nums[i],nums[j]] = [nums[j],nums[i]];
+      }
+      for(const v of nums){
+        if(isValid(b,r,c,v)){
+          b[r][c] = v;
+          if(fill(nr,nc)) return true;
+          b[r][c] = 0;
+        }
+      }
+      return false;
+    }
+    fill(0,0);
+    return b;
+  }
+
+  function findEmptySpot(b){
+    for(let r=0;r<9;r++) for(let c=0;c<9;c++) if(b[r][c]===0) return [r,c];
+    return null;
+  }
+
+  function countSolutions(board){
+    let count = 0;
+    function solve(){
+      if(count > 1) return;
+      const spot = findEmptySpot(board);
+      if(!spot){ count++; return; }
+      const [r,c] = spot;
+      for(let v=1;v<=9;v++){
+        if(isValid(board,r,c,v)){
+          board[r][c] = v;
+          solve();
+          board[r][c] = 0;
+        }
+      }
+    }
+    solve();
+    return count;
+  }
+
+  function randomComplete(board){
+    const b = copyBoard(board);
+    function backtrack(){
+      const spot = findEmptySpot(b);
+      if(!spot) return true;
+      const [r,c] = spot;
+      const nums = [1,2,3,4,5,6,7,8,9];
+      for(let i=nums.length-1;i>0;i--){
+        const j=Math.floor(Math.random()*(i+1));
+        [nums[i],nums[j]]=[nums[j],nums[i]];
+      }
+      for(const v of nums){
+        if(isValid(b,r,c,v)){
+          b[r][c]=v;
+          if(backtrack()) return true;
+          b[r][c]=0;
+        }
+      }
+      return false;
+    }
+    return backtrack() ? b : null;
+  }
+
+  function makePuzzleFromSolution(solved,difficulty){
+    const p = copyBoard(solved);
+    let holes;
+    if(difficulty==='easy') holes=35;
+    else if(difficulty==='medium') holes=50;
+    else if(difficulty==='hard') holes=60;
+    else if(difficulty==='advanced') holes=60;
+    else holes=50;
+
+    const order = [...Array(81).keys()];
+    for(let i=order.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [order[i],order[j]]=[order[j],order[i]];
+    }
+
+    for(const idx of order){
+      if(holes<=0) break;
+      const r=Math.floor(idx/9), c=idx%9;
+      if(p[r][c]===0) continue;
+      const backup=p[r][c];
+      p[r][c]=0;
+      const test = copyBoard(p);
+      if(countSolutions(test)!==1){
+        p[r][c]=backup;
+      }else{
+        holes--;
+      }
+    }
+    return p;
+  }
+
+  function candidatesForCell(board,row,col){
+    if(board[row][col] !== 0) return [];
+    const possible = [];
+    for(let v=1; v<=9; v++) if(isValid(board,row,col,v)) possible.push(v);
+    return possible;
+  }
+
+  /* ---------- AI LOGIC HINTS ---------- */
+  function findLogicalHint(){
+    // singles
+    for(let r=0;r<9;r++){
+      for(let c=0;c<9;c++){
+        if(current[r][c] !== 0) continue;
+        const cand = candidatesForCell(current,r,c);
+        if(cand.length === 1){
+          return {r,c,value:cand[0], kind:'single', note:'only possible number for this cell'};
+        }
+      }
+    }
+    // hidden single in row
+    for(let r=0;r<9;r++){
+      for(let v=1; v<=9; v++){
+        if(current[r].includes(v)) continue;
+        let spots=[];
+        for(let c=0;c<9;c++){
+          if(current[r][c]===0 && isValid(current,r,c,v)) spots.push(c);
+        }
+        if(spots.length === 1){
+          return {r, c:spots[0], value:v, kind:'hiddenRow', note:'only spot for this number in its row'};
+        }
+      }
+    }
+    // hidden single in col
+    for(let c=0;c<9;c++){
+      for(let v=1; v<=9; v++){
+        let hasInCol=false;
+        for(let r=0;r<9;r++){ if(current[r][c]===v){ hasInCol=true; break; } }
+        if(hasInCol) continue;
+        let spots=[];
+        for(let r=0;r<9;r++){
+          if(current[r][c]===0 && isValid(current,r,c,v)) spots.push(r);
+        }
+        if(spots.length === 1){
+          return {r:spots[0], c, value:v, kind:'hiddenCol', note:'only spot for this number in its column'};
+        }
+      }
+    }
+    // hidden single in box
+    for(let br=0;br<3;br++){
+      for(let bc=0;bc<3;bc++){
+        for(let v=1; v<=9; v++){
+          let has=false;
+          for(let r=br*3;r<br*3+3;r++){
+            for(let c=bc*3;c<bc*3+3;c++){
+              if(current[r][c]===v){ has=true; break; }
+            }
+            if(has) break;
+          }
+          if(has) continue;
+          let spots=[];
+          for(let r=br*3;r<br*3+3;r++){
+            for(let c=bc*3;c<bc*3+3;c++){
+              if(current[r][c]===0 && isValid(current,r,c,v)) spots.push({r,c});
+            }
+          }
+          if(spots.length === 1){
+            return { r:spots[0].r, c:spots[0].c, value:v, kind:'hiddenBox', note:'only spot for this number in its 3×3 box' };
+          }
+        }
+      }
+    }
+    // diagonals
+    if(diagonalMode){
+      for(let v=1; v<=9; v++){
+        let has=false;
+        for(let i=0;i<9;i++){ if(current[i][i]===v){ has=true; break; } }
+        if(has) continue;
+        let spots=[];
+        for(let i=0;i<9;i++){
+          if(current[i][i]===0 && isValid(current,i,i,v)) spots.push(i);
+        }
+        if(spots.length===1){
+          return { r:spots[0], c:spots[0], value:v, kind:'hiddenDiagMain', note:'only spot for this number on the main diagonal' };
+        }
+      }
+      for(let v=1; v<=9; v++){
+        let has=false;
+        for(let i=0;i<9;i++){ const j=8-i; if(current[i][j]===v){ has=true; break; } }
+        if(has) continue;
+        let spots=[];
+        for(let i=0;i<9;i++){
+          const j=8-i;
+          if(current[i][j]===0 && isValid(current,i,j,v)) spots.push({r:i,c:j});
+        }
+        if(spots.length===1){
+          return { r:spots[0].r, c:spots[0].c, value:v, kind:'hiddenDiagAnti', note:'only spot for this number on the other diagonal' };
+        }
+      }
+    }
+    return null;
+  }
+
+  /* ---------- RENDERING ---------- */
+  function renderBoard(){
+    boardEl.innerHTML = '';
+    for(let r=0;r<9;r++){
+      for(let c=0;c<9;c++){
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.autocomplete = 'off';
+        input.spellcheck = false;
+        input.setAttribute('inputmode','numeric');
+        input.setAttribute('maxlength','1');
+        input.className = 'cell';
+        input.dataset.r = r;
+        input.dataset.c = c;
+
+        if(r % 3 === 0) input.classList.add('box-top');
+        if(c % 3 === 0) input.classList.add('box-left');
+        if(r === 8)     input.classList.add('box-bottom');
+        if(c === 8)     input.classList.add('box-right');
+
+        if(r === c) input.classList.add('diagonal-main');
+        if(r + c === 8) input.classList.add('diagonal-anti');
+
+        const val = puzzle[r][c];
+        if(val !== 0){
+          input.value = val;
+          input.disabled = true;
+          input.classList.add('locked');
+        }else if(current[r][c] !== 0){
+          input.value = current[r][c];
+        }
+
+        input.addEventListener('focus', () => { focusedCell = input; });
+        input.addEventListener('input', () => { handleCellInput(input); });
+
+        boardEl.appendChild(input);
+      }
+    }
+    highlightConflicts();
+  }
+
+  function handleCellInput(cell){
+    const r = parseInt(cell.dataset.r,10);
+    const c = parseInt(cell.dataset.c,10);
+
+    const digit = sanitizeDigit(cell.value);
+    cell.value = digit;
+
+    const prev = current[r][c];
+    const newVal = digit ? Number(digit) : 0;
+    if(prev === newVal) return;
+
+    // STRICT guard against repeated/illegal digits
+    if(ENFORCE_VALID_INPUT && newVal !== 0 && !isValid(current, r, c, newVal)){
+      // Reject the entry and keep previous value
+      cell.classList.add('conflict');
+      cell.value = prev ? String(prev) : '';
+      statusEl.textContent = 'That number violates Sudoku rules for row/column/box' + (diagonalMode ? '/diagonal' : '') + '.';
+      statusEl.style.color = '#b45309';
+      return;
+    }
+
+    pushHistory();
+    current[r][c] = newVal;
+    cell.classList.remove('hint');
+    highlightConflicts();
+    statusEl.textContent = '';
+    statusEl.style.color = '';
+    saveState();
+  }
+
+  function highlightConflicts(){
+    document.querySelectorAll('.cell').forEach(el=>el.classList.remove('conflict'));
+    for(let r=0;r<9;r++){
+      for(let c=0;c<9;c++){
+        const val = current[r][c];
+        if(!val) continue;
+
+        for(let i=0;i<9;i++){
+          if(i!==c && current[r][i] === val){ mark(r,i); mark(r,c); }
+          if(i!==r && current[i][c] === val){ mark(i,c); mark(r,c); }
+        }
+
+        const br = Math.floor(r/3)*3;
+        const bc = Math.floor(c/3)*3;
+        for(let rr=br;rr<br+3;rr++){
+          for(let cc=bc;cc<bc+3;cc++){
+            if(rr===r && cc===c) continue;
+            if(current[rr][cc] === val){ mark(rr,cc); mark(r,c); }
+          }
+        }
+
+        if(diagonalMode){
+          if(r === c){
+            for(let i=0;i<9;i++){
+              if(i !== r && current[i][i] === val){ mark(i,i); mark(r,c); }
+            }
+          }
+          if(r + c === 8){
+            for(let i=0;i<9;i++){
+              const j = 8 - i;
+              if(i !== r && current[i][j] === val){ mark(i,j); mark(r,c); }
+            }
+          }
+        }
+      }
+    }
+    function mark(r,c){
+      const el = qs(`.cell[data-r="${r}"][data-c="${c}"]`);
+      if(el) el.classList.add('conflict');
+    }
+  }
+
+  /* ---------- UNDO + SAVE/LOAD ---------- */
+  function pushHistory(){
+    if(!current.length) return;
+    historyStack.push(copyBoard(current));
+    if(historyStack.length > 200) historyStack.shift();
+  }
+
+  function undoLast(){
+    if(!historyStack.length) return;
+    current = copyBoard(historyStack.pop());
+    renderBoard();
+    highlightConflicts();
+    statusEl.textContent = 'Undid last move.';
+    statusEl.style.color = '';
+    saveState();
+  }
+
+  function saveState(){
+    if(!puzzle.length || !solution.length || !current.length) return;
+    const payload = {
+      puzzle, solution, current,
+      difficulty: qs('#difficulty').value || 'medium',
+      dark: document.body.classList.contains('dark'),
+      diagonal: diagonalMode
+    };
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(payload)); }catch(e){}
+  }
+
+  function loadState(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return null;
+      return JSON.parse(raw);
+    }catch(e){ return null; }
+  }
+
+  function updateModeBadge(){
+    if(!modeBadge) return;
+    modeBadge.style.display = 'inline-block';
+    modeBadge.textContent = diagonalMode ? 'Advanced · X-Sudoku Diagonals' : 'Standard 9×9 Sudoku';
+  }
+
+  function updateBodyModeClass(){
+    document.body.classList.toggle('diagonal-mode', diagonalMode);
+    updateModeBadge();
+  }
+
+  /* ---------- GAME CONTROL ---------- */
+  function startNewGame(){
+    const diff = qs('#difficulty').value || 'medium';
+    diagonalMode = (diff === 'advanced');
+    updateBodyModeClass();
+
+    historyStack = [];
+    if(loadingEl) loadingEl.style.display = 'flex';
+    statusEl.style.color = '';
+    statusEl.textContent = 'Generating puzzle…';
+
+    setTimeout(() => {
+      solution = generateSolvedBoard();
+      puzzle   = makePuzzleFromSolution(solution,diff);
+      current  = copyBoard(puzzle);
+      renderBoard();
+      highlightConflicts();
+
+      let label = diff[0].toUpperCase()+diff.slice(1);
+      if(diagonalMode) label += ' (Diagonal)';
+      statusEl.textContent = `Difficulty: ${label} — New puzzle ready.`;
+      statusEl.style.color = '';
+      if(loadingEl) loadingEl.style.display = 'none';
+      saveState();
+    }, 30);
+  }
+
+  function resetBoard(){
+    if(!puzzle.length) return;
+    pushHistory();
+    current = copyBoard(puzzle);
+    renderBoard();
+    highlightConflicts();
+    statusEl.textContent = 'Board reset to starting puzzle.';
+    statusEl.style.color = '';
+    saveState();
+  }
+
+  function checkSolution(){
+    if(!solution.length) return;
+    for(let r=0;r<9;r++){
+      for(let c=0;c<9;c++){
+        if(current[r][c] !== solution[r][c]){
+          statusEl.textContent = 'There are still mistakes. Keep going!';
+          statusEl.style.color = '#b45309';
+          return;
+        }
+      }
+    }
+    statusEl.textContent = '✔ Beautiful work — puzzle solved!';
+    statusEl.style.color = '#16a34a';
+    saveState();
+  }
+
+  function giveHint(){
+    if(!solution.length){
+      statusEl.textContent = 'Puzzle is still loading…';
+      statusEl.style.color = '#b45309';
+      return;
+    }
+    const logical = findLogicalHint();
+    if(logical){
+      pushHistory();
+      const {r,c,value} = logical;
+      current[r][c] = value;
+      const cell = qs(`.cell[data-r="${r}"][data-c="${c}"]`);
+      if(cell){
+        cell.value = value;
+        cell.classList.add('hint');
+        cell.focus();
+      }
+      highlightConflicts();
+      statusEl.textContent = 'AI hint: ' + logical.note + '.';
+      statusEl.style.color = '#0f766e';
+      saveState();
+      return;
+    }
+    // fallback to fill from solution
+    const empties = [];
+    for(let r=0;r<9;r++) for(let c=0;c<9;c++) if(current[r][c]===0) empties.push([r,c]);
+    if(!empties.length){
+      statusEl.textContent = 'No empty cells left to hint.';
+      statusEl.style.color = '#b45309';
+      return;
+    }
+    const [r,c] = empties[Math.floor(Math.random()*empties.length)];
+    pushHistory();
+    current[r][c] = solution[r][c];
+    const cell = qs(`.cell[data-r="${r}"][data-c="${c}"]`);
+    if(cell){
+      cell.value = solution[r][c];
+      cell.classList.add('hint');
+      cell.focus();
+    }
+    highlightConflicts();
+    statusEl.textContent = 'AI filled an advanced step for you.';
+    statusEl.style.color = '#0f766e';
+    saveState();
+  }
+
+  function clearFocusedCell(){
+    if(!focusedCell || focusedCell.disabled) return;
+    const r = parseInt(focusedCell.dataset.r,10);
+    const c = parseInt(focusedCell.dataset.c,10);
+    if(current[r][c] === 0) return;
+    pushHistory();
+    current[r][c] = 0;
+    focusedCell.value = '';
+    focusedCell.classList.remove('hint');
+    highlightConflicts();
+    statusEl.textContent = 'Cell cleared.';
+    statusEl.style.color = '';
+    saveState();
+  }
+
+  function solveWithAI(){
+    if(!solution.length){
+      statusEl.textContent = 'No puzzle to solve yet.';
+      statusEl.style.color = '#b45309';
+      return;
+    }
+    if(!confirm('Let the AI solve this entire puzzle for you? This will overwrite your current guesses.')) return;
+    pushHistory();
+    current = copyBoard(solution);
+    renderBoard();
+    highlightConflicts();
+    statusEl.textContent = 'AI solved the puzzle for you.';
+    statusEl.style.color = '#16a34a';
+    saveState();
+  }
+
+  function monteCarloGuess(){
+    if(!current.length){
+      statusEl.textContent = 'No active puzzle to analyze.';
+      statusEl.style.color = '#b45309';
+      return;
+    }
+    let targetCell = null;
+    if(focusedCell && !focusedCell.disabled){
+      const r = parseInt(focusedCell.dataset.r,10);
+      const c = parseInt(focusedCell.dataset.c,10);
+      if(current[r][c] === 0) targetCell = focusedCell;
+    }
+    if(!targetCell){
+      const cells = document.querySelectorAll('.cell');
+      for(const cell of cells){
+        const r = parseInt(cell.dataset.r,10);
+        const c = parseInt(cell.dataset.c,10);
+        if(!cell.disabled && current[r][c] === 0){ targetCell = cell; break; }
+      }
+    }
+    if(!targetCell){
+      statusEl.textContent = 'No empty cell available for a Monte Carlo guess.';
+      statusEl.style.color = '#b45309';
+      return;
+    }
+    const tr = parseInt(targetCell.dataset.r,10);
+    const tc = parseInt(targetCell.dataset.c,10);
+
+    const SAMPLES = 30;
+    const freq = new Array(10).fill(0);
+    let successSamples = 0;
+
+    for(let k=0;k<SAMPLES;k++){
+      const completed = randomComplete(current);
+      if(!completed){
+        if(successSamples === 0) break;
+        continue;
+      }
+      successSamples++;
+      const v = completed[tr][tc];
+      if(v >= 1 && v <= 9) freq[v]++;
+    }
+
+    if(successSamples === 0){
+      statusEl.textContent = 'Monte Carlo search found no valid completions — fix red conflicts first.';
+      statusEl.style.color = '#b45309';
+      highlightConflicts();
+      return;
+    }
+
+    let bestVal = 1, bestCount = freq[1];
+    for(let v=2; v<=9; v++){ if(freq[v] > bestCount){ bestVal = v; bestCount = freq[v]; } }
+    const confidence = Math.round(100 * (bestCount / successSamples));
+
+    pushHistory();
+    current[tr][tc] = bestVal;
+    targetCell.value = String(bestVal);
+    targetCell.classList.add('hint');
+    targetCell.focus();
+    highlightConflicts();
+    statusEl.textContent = `Monte Carlo guess: ${bestVal} (≈${confidence}% from ${successSamples} sims).`;
+    statusEl.style.color = '#0f766e';
+    saveState();
+  }
+
+  function initSudoku(){
+    const saved = loadState();
+    if(saved && saved.puzzle && saved.solution && saved.current){
+      puzzle   = saved.puzzle;
+      solution = saved.solution;
+      current  = saved.current;
+
+      const diff = saved.difficulty || 'medium';
+      const diffSel = qs('#difficulty');
+      if(diffSel) diffSel.value = diff;
+
+      diagonalMode = !!saved.diagonal;
+      if(diff === 'advanced') diagonalMode = true;
+      updateBodyModeClass();
+
+      if(saved.dark) document.body.classList.add('dark');
+
+      historyStack = [];
+      renderBoard();
+      highlightConflicts();
+
+      let label = diff[0].toUpperCase()+diff.slice(1);
+      if(diagonalMode) label += ' (Diagonal)';
+      statusEl.textContent = `Resumed saved ${label} puzzle.`;
+      statusEl.style.color = '';
+      if(loadingEl) loadingEl.style.display = 'none';
+    } else {
+      updateBodyModeClass();
+      startNewGame();
+    }
+  }
+
+  /* ---------- NUMPAD & KEYBOARD ---------- */
+  function buildNumpad(){
+    const np = qs('#numpad');
+    np.innerHTML = '';
+    for(let i=1;i<=9;i++){
+      const b = document.createElement('button');
+      b.textContent = i;
+      b.addEventListener('click', () => {
+        if(!focusedCell || focusedCell.disabled) return;
+        focusedCell.value = String(i);
+        focusedCell.dispatchEvent(new Event('input',{bubbles:true}));
+        focusedCell.focus();
+      });
+      np.appendChild(b);
+    }
+  }
+
+  document.addEventListener('keydown', e => {
+    if(!focusedCell || focusedCell.disabled) return;
+    if(e.key >= '1' && e.key <= '9'){
+      focusedCell.value = e.key;
+      focusedCell.dispatchEvent(new Event('input',{bubbles:true}));
+    }else if(['Backspace','Delete','0'].includes(e.key)){
+      clearFocusedCell();
+    }
+  });
+
+  /* ---------- UI WIRES ---------- */
+  qs('#newGameBtn').addEventListener('click', startNewGame);
+  qs('#resetBtn').addEventListener('click', resetBoard);
+  qs('#checkBtn').addEventListener('click', checkSolution);
+  qs('#hintBtn').addEventListener('click', giveHint);
+  qs('#mcBtn').addEventListener('click', monteCarloGuess);
+  qs('#clearBtn').addEventListener('click', clearFocusedCell);
+  qs('#solveBtn').addEventListener('click', solveWithAI);
+  qs('#undoBtn').addEventListener('click', undoLast);
+  // Proper Dark Mode handler (the stray text here before was breaking JS)
+  qs('#darkBtn').addEventListener('click', ()=>{
+    document.body.classList.toggle('dark');
+    saveState();
+  });
+
+  buildNumpad();
+  initSudoku();
+</script>
+
+</body>
+</html>
