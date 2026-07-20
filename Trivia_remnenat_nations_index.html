@@ -1,0 +1,593 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Remnant & Nations — Quick Trivia</title>
+
+  <!-- Optional font (remove if you want fully offline) -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg0:#050712;
+      --bg1:#0b1220;
+      --bg2:#0f1b2f;
+
+      --card: rgba(255,255,255,0.07);
+      --stroke: rgba(255,255,255,0.14);
+
+      --text:#f2f4f8;
+      --muted:#c7cfdd;
+
+      --accent:#86f0d7;
+      --accent2:#7fb3ff;
+      --good:#7CFFB2;
+      --warn:#ffd27d;
+      --bad:#ff8a8a;
+
+      --r11: 11px;
+      --r21: 21px;
+
+      --shadow: 0 18px 55px rgba(0,0,0,0.35);
+
+      --base: 22px;         /* never smaller than 22px */
+      --max: 980px;
+    }
+
+    html,body{height:100%;}
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      font-size: var(--base);
+      line-height: 1.35;
+      color: var(--text);
+      background:
+        radial-gradient(950px 440px at 18% 10%, rgba(134,240,215,0.12), transparent 60%),
+        radial-gradient(950px 440px at 82% 15%, rgba(127,179,255,0.12), transparent 60%),
+        linear-gradient(180deg, var(--bg0), var(--bg1) 40%, var(--bg2));
+      overflow-x:hidden;
+    }
+
+    a{color: var(--accent2); text-decoration:none;}
+    a:hover{text-decoration:underline;}
+    code{color:var(--accent);}
+
+    .wrap{
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 18px 14px 70px;
+    }
+
+    .card{
+      background: var(--card);
+      border: 1px solid var(--stroke);
+      border-radius: var(--r21);
+      box-shadow: var(--shadow);
+      padding: 16px;
+      margin: 14px 0;
+    }
+
+    header{
+      text-align:center;
+      padding: 8px 0 4px;
+    }
+    h1{
+      margin: 8px 0 10px;
+      font-size: clamp(28px, 4.3vw, 46px);
+      font-weight: 900;
+      letter-spacing: 0.2px;
+    }
+    .sub{
+      margin: 0 auto 10px;
+      max-width: 78ch;
+      color: var(--muted);
+      font-size: 20px;
+    }
+
+    .pill{
+      display:inline-block;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.16);
+      background: rgba(0,0,0,0.12);
+      color: var(--muted);
+      font-size: 18px;
+      margin: 8px 0 0;
+    }
+
+    .btnrow{
+      display:flex;
+      justify-content:center;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top: 12px;
+    }
+
+    .btn{
+      border:1px solid var(--stroke);
+      background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.04));
+      color: var(--text);
+      padding: 12px 16px;
+      border-radius: var(--r21);
+      cursor:pointer;
+      font-size: 20px;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      user-select:none;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.18);
+    }
+    .btn:hover{transform: translateY(-1px); border-color: rgba(255,255,255,0.24);}
+    .btn:active{transform: translateY(0px);}
+    .btn.good{border-color: rgba(124,255,178,0.40);}
+    .btn.secondary{background: rgba(255,255,255,0.05);}
+    .btn.portal{border-color: rgba(127,179,255,0.40);}
+
+    .status{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      flex-wrap:wrap;
+      gap:10px;
+      color: var(--muted);
+      font-size: 18px;
+      margin-top: 6px;
+    }
+
+    .qbox{
+      margin-top: 12px;
+      padding: 14px;
+      border-radius: var(--r21);
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(0,0,0,0.10);
+    }
+    .qtitle{
+      font-weight: 900;
+      font-size: 26px;
+      margin: 0 0 10px;
+    }
+
+    .opt{
+      display:block;
+      width:100%;
+      text-align:left;
+      margin: 10px 0;
+      padding: 12px 12px;
+      border-radius: var(--r21);
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      cursor:pointer;
+      font-size: 20px;
+    }
+    .opt:hover{background: rgba(255,255,255,0.085);}
+    .opt[disabled]{opacity:0.7; cursor:not-allowed;}
+    .opt.correct{border-color: rgba(124,255,178,0.45); background: rgba(124,255,178,0.10);}
+    .opt.wrong{border-color: rgba(255,138,138,0.45); background: rgba(255,138,138,0.10);}
+
+    .explain{
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 19px;
+      border-left: 4px solid rgba(134,240,215,0.35);
+      padding-left: 10px;
+    }
+
+    .meter{
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.10);
+      overflow:hidden;
+      border: 1px solid rgba(255,255,255,0.12);
+      margin-top: 10px;
+    }
+    .meter > div{
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, rgba(134,240,215,0.9), rgba(127,179,255,0.9));
+      transition: width .25s ease;
+    }
+
+    .resultLine{
+      font-size: 24px;
+      font-weight: 900;
+      margin: 0 0 8px;
+    }
+    .muted{color:var(--muted); font-size: 19px;}
+    .best{
+      color: var(--good);
+      font-weight: 900;
+    }
+
+    @media (max-width: 520px){
+      .qtitle{font-size: 24px;}
+      .sub{font-size: 19px;}
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header class="card">
+      <h1>Remnant & Nations<br>
+        Quick Trivia</h1>
+      <p class="sub">
+        20 fast questions based on the <b>Remnant & The Nations</b> lesson plan: covenant purpose, warnings against presumption,
+        Jesus’ call to true discipleship, Gentile inclusion by faith, and the strict command: <b>no boasting</b>.
+      </p>
+      <div class="pill">Self-paced • Random order • Saves your best score on this device</div>
+
+      <div class="btnrow">
+        <button class="btn good" id="btnStart">▶ Start Game</button>
+        <button class="btn secondary" id="btnRestart" style="display:none;">↺ Restart</button>
+        <button class="btn portal" id="btnPortal">↗ Enter the Full 8-Week Portal</button>
+      </div>
+
+      <div class="status">
+        <div id="statusLeft">Questions: 0 / 20</div>
+        <div id="statusRight">Score: 0</div>
+      </div>
+      <div class="meter"><div id="meterFill"></div></div>
+    </header>
+
+    <main class="card" id="mainCard">
+      <div class="muted">
+        Tap <b>Start Game</b> to begin. When you finish, you’ll see your score and a button to jump straight into the full course portal.
+      </div>
+    </main>
+
+    <div class="card">
+      <div class="muted">
+        <b>Quick note:</b> This trivia focuses on Scripture’s themes: humility, faithfulness, repentance, and Messiah-centered identity.
+        It is not designed for political arguments. Keep the posture: truth with gentleness.
+      </div>
+    </div>
+  </div>
+
+<script>
+/* =========================================================
+   CONFIG: Set your portal page URL here
+   Examples:
+   - "https://www.khaemenesacademy.org/faith-knowledge"
+   - "/remnant-nations-portal"  (if same site path)
+========================================================= */
+const PORTAL_URL = "/remnant-nations-portal";  // <-- change this to your actual portal page
+
+/* =========================================================
+   DATA (20 questions from the lesson plan)
+   Types: "mc" or "tf"
+========================================================= */
+const QUESTION_BANK = [
+  { type:"tf",
+    q:"Genesis 12:3 includes a promise that blessing will reach all families/nations.",
+    a:true,
+    explain:"The Abrahamic promise points outward: God’s blessing is meant to extend to all peoples (Gen 12:1–3)."
+  },
+  { type:"mc",
+    q:"Exodus 19:5–6 calls Israel a…",
+    options:["nation of merchants only","kingdom of priests and a holy nation","people with no mission"],
+    a:1,
+    explain:"Israel’s calling includes priestly purpose—representing God’s ways and blessing outward (Ex 19:5–6)."
+  },
+  { type:"mc",
+    q:"Isaiah 49:6 describes God’s servant as a light to…",
+    options:["one village only","the nations","no one"],
+    a:1,
+    explain:"Isaiah’s vision explicitly includes the nations (Isa 49:6)."
+  },
+  { type:"tf",
+    q:"Isaiah 1 emphasizes justice and clean hands rather than empty ritual.",
+    a:true,
+    explain:"Isaiah 1 calls for repentance, justice, and mercy—not worship that hides injustice (Isa 1:16–20)."
+  },
+  { type:"mc",
+    q:"Jeremiah 7 warns against trusting in…",
+    options:["God’s mercy","a sacred slogan/place while living in disobedience","repentance"],
+    a:1,
+    explain:"Jeremiah confronts temple-presumption: don’t hide behind words while ignoring obedience (Jer 7)."
+  },
+  { type:"mc",
+    q:"Hosea 4 describes a crisis marked by…",
+    options:["truth and mercy everywhere","lying, violence, and breaking faith","perfect obedience"],
+    a:1,
+    explain:"Hosea indicts covenant-breaking and social collapse (Hos 4:1–2)."
+  },
+  { type:"tf",
+    q:"The remnant theme describes God preserving a humble, faithful people through judgment and testing.",
+    a:true,
+    explain:"Prophets repeatedly speak of a remnant who return and trust the Lord (e.g., Isa 10; Zeph 3; Joel 2)."
+  },
+  { type:"mc",
+    q:"Zephaniah 3:12–13 describes the remnant as…",
+    options:["boastful and violent","humble and truthful","unreachable"],
+    a:1,
+    explain:"The remnant is portrayed as humble, taking refuge in the Lord, speaking no deceit (Zeph 3:12–13)."
+  },
+  { type:"mc",
+    q:"Joel 2:32 connects deliverance to…",
+    options:["random chance","calling on the name of the Lord","human strength alone"],
+    a:1,
+    explain:"Deliverance is tied to calling on the Lord (Joel 2:32)."
+  },
+  { type:"tf",
+    q:"Matthew 7 warns that saying ‘Lord, Lord’ is not the same as doing the Father’s will.",
+    a:true,
+    explain:"Jesus warns against false confidence—true discipleship bears obedience and fruit (Matt 7:21–23)."
+  },
+  { type:"mc",
+    q:"Luke 12:32 calls Jesus’ disciples a…",
+    options:["little flock","empire","secret elite"],
+    a:0,
+    explain:"Jesus’ kingdom community is remnant-shaped—‘little flock’—anchored in God’s care (Luke 12:32)."
+  },
+  { type:"mc",
+    q:"Luke 13:23–30 includes the theme of…",
+    options:["reversal: outsiders welcomed while some insiders are shut out","no one entering the kingdom","only geography deciding salvation"],
+    a:0,
+    explain:"Jesus warns against presumption and shows a reversal shaped by repentance and faith (Luke 13)."
+  },
+  { type:"tf",
+    q:"Matthew 8 portrays Jesus praising great faith in a Gentile centurion.",
+    a:true,
+    explain:"Jesus highlights the centurion’s faith and warns against presumption (Matt 8:5–13)."
+  },
+  { type:"mc",
+    q:"John 10:16 describes ‘other sheep’ leading to…",
+    options:["many flocks under many shepherds","one flock under one shepherd","no flock at all"],
+    a:1,
+    explain:"Jesus gathers one people under one Shepherd (John 10:16)."
+  },
+  { type:"mc",
+    q:"Matthew 28:18–20 commands discipleship of…",
+    options:["one ethnicity only","all nations","only scholars"],
+    a:1,
+    explain:"The Great Commission is explicitly global (Matt 28:18–20)."
+  },
+  { type:"tf",
+    q:"Acts 10 describes Gentiles receiving the Holy Spirit, surprising some early believers.",
+    a:true,
+    explain:"Cornelius’ story shows God welcoming Gentiles by faith; the church learns to follow God’s work (Acts 10–11)."
+  },
+  { type:"mc",
+    q:"Acts 10:34 includes the idea that God…",
+    options:["shows partiality","shows no partiality","only listens to one group"],
+    a:1,
+    explain:"Peter declares God shows no partiality (Acts 10:34–35)."
+  },
+  { type:"mc",
+    q:"Acts 15:7–11 argues that salvation comes by…",
+    options:["grace","ethnicity","perfect rule-keeping"],
+    a:0,
+    explain:"The Jerusalem Council affirms salvation by grace and welcomes Gentiles into the people of God (Acts 15)."
+  },
+  { type:"tf",
+    q:"Ephesians 3:6 teaches Gentiles are fellow heirs and members of the same body in Messiah.",
+    a:true,
+    explain:"Paul states the mystery plainly: fellow heirs, same body, same promise (Eph 3:6)."
+  },
+  { type:"tf",
+    q:"Romans 11 warns Gentile believers not to boast, using grafting imagery.",
+    a:true,
+    explain:"Gentile inclusion is real, and boasting is forbidden—stand by faith and humility (Rom 11:17–24)."
+  }
+];
+
+/* =========================================================
+   STATE
+========================================================= */
+const BEST_KEY = "remnantTrivia_bestScore_v1";
+
+let deck = [];
+let idx = 0;
+let score = 0;
+let locked = false;
+let answered = false;
+
+const mainCard = document.getElementById("mainCard");
+const statusLeft = document.getElementById("statusLeft");
+const statusRight = document.getElementById("statusRight");
+const meterFill = document.getElementById("meterFill");
+
+const btnStart = document.getElementById("btnStart");
+const btnRestart = document.getElementById("btnRestart");
+const btnPortal = document.getElementById("btnPortal");
+
+btnPortal.addEventListener("click", () => {
+  window.open(PORTAL_URL, "_blank", "noopener");
+});
+
+btnStart.addEventListener("click", startGame);
+btnRestart.addEventListener("click", startGame);
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+function getBest(){
+  const raw = localStorage.getItem(BEST_KEY);
+  const n = raw ? parseInt(raw,10) : 0;
+  return Number.isFinite(n) ? n : 0;
+}
+function setBest(n){
+  localStorage.setItem(BEST_KEY, String(n));
+}
+
+function updateStatus(){
+  statusLeft.textContent = `Questions: ${Math.min(idx+1, deck.length)} / ${deck.length}`;
+  statusRight.textContent = `Score: ${score}`;
+  const pct = deck.length ? Math.round((idx / deck.length) * 100) : 0;
+  meterFill.style.width = pct + "%";
+}
+
+function startGame(){
+  deck = shuffle(QUESTION_BANK).slice(0, 20);
+  idx = 0;
+  score = 0;
+  locked = false;
+  answered = false;
+
+  btnStart.style.display = "none";
+  btnRestart.style.display = "inline-flex";
+
+  renderQuestion();
+  updateStatus();
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+function renderQuestion(){
+  const q = deck[idx];
+  if(!q){ return renderResults(); }
+
+  updateStatus();
+
+  const header = `
+    <div class="qbox">
+      <div class="qtitle">Q${idx+1}. ${escapeHtml(q.q)}</div>
+      <div class="muted">Choose an answer:</div>
+      <div id="opts"></div>
+      <div id="explain" class="explain" style="display:none;"></div>
+      <div class="btnrow" style="justify-content:flex-end; margin-top:14px;">
+        <button class="btn secondary" id="btnNext" disabled>Next ➜</button>
+      </div>
+    </div>
+  `;
+
+  mainCard.innerHTML = header;
+
+  const optsEl = document.getElementById("opts");
+  const explainEl = document.getElementById("explain");
+  const btnNext = document.getElementById("btnNext");
+
+  locked = false;
+  answered = false;
+
+  const options = (q.type === "tf")
+    ? ["True","False"]
+    : q.options;
+
+  options.forEach((label, i) => {
+    const btn = document.createElement("button");
+    btn.className = "opt";
+    btn.type = "button";
+    btn.textContent = label;
+
+    btn.addEventListener("click", () => {
+      if(locked) return;
+      locked = true;
+      answered = true;
+
+      const isCorrect = (q.type === "tf")
+        ? ((i === 0) === q.a)        // True = index 0
+        : (i === q.a);
+
+      if(isCorrect){
+        score++;
+        btn.classList.add("correct");
+      }else{
+        btn.classList.add("wrong");
+        // highlight correct
+        const correctIndex = (q.type === "tf") ? (q.a ? 0 : 1) : q.a;
+        const all = optsEl.querySelectorAll(".opt");
+        if(all[correctIndex]) all[correctIndex].classList.add("correct");
+      }
+
+      // disable all
+      optsEl.querySelectorAll(".opt").forEach(b => b.disabled = true);
+
+      // explanation
+      explainEl.style.display = "block";
+      explainEl.innerHTML = `<b>Why:</b> ${escapeHtml(q.explain)}`;
+
+      btnNext.disabled = false;
+      updateStatus();
+    });
+
+    optsEl.appendChild(btn);
+  });
+
+  btnNext.addEventListener("click", () => {
+    idx++;
+    renderQuestion();
+    updateStatus();
+    window.scrollTo({top:0, behavior:"smooth"});
+  });
+}
+
+function renderResults(){
+  meterFill.style.width = "100%";
+  statusLeft.textContent = `Questions: ${deck.length} / ${deck.length}`;
+  statusRight.textContent = `Score: ${score}`;
+
+  const best = getBest();
+  const newBest = Math.max(best, score);
+  if(newBest !== best) setBest(newBest);
+
+  const msg =
+    score >= 18 ? "🔥 Strong foundation. Jump into the portal for the full 8-week study."
+    : score >= 14 ? "🌿 Great start. The portal will deepen the passages and themes."
+    : score >= 10 ? "✨ Nice progress. The portal will help you connect the threads."
+    : "💛 Perfect time to begin the portal—week 1 will ground everything clearly.";
+
+  mainCard.innerHTML = `
+    <div class="qbox">
+      <div class="resultLine">Finished! Your score: <span style="color:var(--good)">${score} / ${deck.length}</span></div>
+      <div class="muted">${escapeHtml(msg)}</div>
+      <div class="muted" style="margin-top:10px;">
+        Best score on this device: <span class="best">${newBest} / ${deck.length}</span>
+      </div>
+
+      <div class="btnrow" style="margin-top:16px;">
+        <button class="btn good" id="btnPlayAgain">▶ Play Again</button>
+        <button class="btn portal" id="btnGoPortal">↗ Enter the Full 8-Week Portal</button>
+      </div>
+
+      <div class="muted" style="margin-top:14px;">
+        Tip: In the portal, you’ll get weekly prayers, a structured 30-minute lesson flow, and homework quizzes you can save/export.
+      </div>
+    </div>
+  `;
+
+  document.getElementById("btnPlayAgain").addEventListener("click", startGame);
+  document.getElementById("btnGoPortal").addEventListener("click", () => {
+    window.open(PORTAL_URL, "_blank", "noopener");
+  });
+}
+
+/* =========================================================
+   SMALL HELPERS
+========================================================= */
+function escapeHtml(str){
+  return String(str ?? "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+/* Initial screen */
+(function init(){
+  const best = getBest();
+  mainCard.innerHTML = `
+    <div class="muted">
+      <b>Best score on this device:</b> <span class="best">${best} / 20</span><br><br>
+      Press <b>Start Game</b> to get 20 randomized questions.<br>
+      When you’re done, use the button to jump straight into the full course portal.
+      <div style="margin-top:10px;">
+        <span class="pill">Set your portal link at the top: <code>PORTAL_URL</code></span>
+      </div>
+    </div>
+  `;
+  statusLeft.textContent = "Questions: 0 / 20";
+  statusRight.textContent = "Score: 0";
+  meterFill.style.width = "0%";
+})();
+</script>
+</body>
+</html>
