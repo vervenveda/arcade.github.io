@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Mandala Rings v3.1 — Sovereign Board Studio</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<style>
+  :root{
+    --bg-page:#d2b888;
+    --card:#111622;
+    --card2:#1c2233;
+    --accent:#ffcf73;
+    --accent2:#74e6ff;
+    --ink:#fdf8e5;
+    --muted:#bcc8dd;
+    --warn:#ff9c82;
+    --good:#7df7c1;
+    --r:16px;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:7px; padding:7px;
+    background:var(--bg-page);
+    font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    color:var(--ink);
+  }
+  body{
+    display:flex;
+    justify-content:center;
+  }
+
+  .shell{
+    width:100%;
+    max-width:999px;
+    padding:24px 14px 33px;
+  }
+  .titleBar{
+    text-align:center;
+    margin-bottom:14px;
+    letter-spacing:.25em;
+    font-size:33px;
+    color:#3e2b15;
+  }
+
+  .gameCard{
+    background:radial-gradient(circle at 10% 0%, #f7e3b5 0%, #141827 40%, #050713 100%);
+    border-radius:7px;
+    box-shadow:0 14px 33px rgba(0,0,0,.45);
+    padding:7px;
+    display:grid;
+    grid-template-columns: minmax(333px,333px) minmax(333px,1fr);
+    gap:1px;
+  }
+
+  .leftPanel{
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+  }
+
+  .brandHead{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:7px 7px 7px;
+    background:linear-gradient(90deg,rgba(0,0,0,.6),rgba(0,0,0,.2));
+    border-radius:7px;
+    border:1px solid rgba(255,255,255,.1);
+  }
+  .brandTitle{
+    font-weight:777;
+    font-size:24px;
+  }
+  .brandSub{
+    font-size:11px;
+    color:var(--muted);
+  }
+  .badge{
+    padding:7px 11px;
+    border-radius:7px;
+    border:3px solid rgba(255,255,255,.28);
+    font-size:11px;
+    background:rgba(0,0,0,.55);
+  }
+
+  .card{
+    background:rgba(2,4,10,.88);
+    border-radius: 7px;
+    border:1px solid rgba(255,255,255,.12);
+    padding:7px 11px 7px;
+  }
+  .card h3{
+    margin:3px 11px 7px;
+    font-size:11px;
+    letter-spacing:.03em;
+    text-transform:uppercase;
+    color:var(--muted);
+  }
+  .row{
+    display:flex;
+    gap:5px;
+    flex-wrap:wrap;
+  }
+  button{
+    border-radius:7px;
+    border:2px solid rgba(255,255,255,.22);
+    background:rgba(0,0,0,.65);
+    color:var(--ink);
+    font-size:7px;
+    padding:3px 11px;
+    cursor:pointer;
+    font-weight:555;
+    letter-spacing:.02em;
+    transition:transform .08s ease, box-shadow .1s ease, background .12s ease,border-color .12s ease;
+  }
+  button:hover{
+    transform:translateY(-1px);
+    box-shadow:0 7px 11px rgba(0,0,0,.6);
+    background:rgba(0,0,0,.8);
+  }
+  button.primary{
+    background:linear-gradient(180deg,#ffdd9f,#ffb95c);
+    color:#3b260a;
+    border-color:rgba(0,0,0,.4);
+  }
+  button.primary:hover{
+    background:linear-gradient(180deg,#ffe7b7,#ffc66d);
+  }
+  button.small{
+    font-size:11px;
+    padding:2px 5px;
+  }
+  button:disabled{
+    opacity:.35;
+    cursor:not-allowed;
+    box-shadow:none;
+    transform:none;
+  }
+
+  label{
+    font-size:11px;
+    color:var(--muted);
+    margin-bottom:2px;
+    display:block;
+  }
+  select{
+    width:99%;
+    border-radius:7px;
+    padding:7px 11px;
+    border:1px solid rgba(255,255,255,.24);
+    background:rgba(0,0,0,.75);
+    color:var(--ink);
+    font-size:11px;
+    font-weight:555;
+  }
+
+  .small{
+    font-size:11px;
+    line-height:1.4;
+    color:var(--muted);
+  }
+
+  .scoresGrid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:7px;
+    margin-bottom:7px;
+  }
+  .scoreLine{
+    font-size:11px;
+  }
+
+  .statusBar{
+    margin-top:7px;
+    font-size:11px;
+    padding:7px 11px;
+    border-radius:7px;
+    border:3px solid rgba(255,255,255,.13);
+    background:rgba(0,0,0,.78);
+    color:var(--muted);
+  }
+
+  /* Pattern Library */
+  .patternList{
+    max-height:222px;
+    overflow:auto;
+    border-radius:7px;
+    border:3px solid rgba(255,255,255,.15);
+    background:radial-gradient(circle at 0 0,rgba(255,255,255,.08),rgba(0,0,0,.85));
+    padding:7px;
+  }
+  .patternRow{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:7px;
+    padding:7px 11px;
+    border-radius:7px;
+    cursor:pointer;
+    border:1px solid transparent;
+  }
+  .patternRow:hover{
+    background:rgba(255,255,255,.06);
+    border-color:rgba(255,255,255,.2);
+  }
+  .patternName{
+    font-weight:555;
+    font-size:11px;
+  }
+  .patternMeta{
+    font-size:11px;
+    color:var(--muted);
+  }
+  .patternRowBtns{
+    display:flex;
+    gap:7px;
+  }
+  .btnPatternLoad, .btnPatternDelete, .btnPatternFav{
+    font-size:11px;
+    padding:7px 11px;
+    border-radius:7px;
+  }
+  .btnPatternDelete{
+    border-color:rgba(255,150,150,.8);
+    color:#ffd3d3;
+  }
+  .btnPatternDelete:hover{
+    background:rgba(255,120,120,.8);
+    color:#300;
+  }
+  .btnPatternFav{
+    width:24px;
+    padding:3px 7px;
+    text-align:center;
+    border-radius:50%;
+    border:1px solid rgba(255,255,255,.4);
+  }
+  .btnPatternFav.isFav{
+    background:radial-gradient(circle at 30% 0%,#fff9d5,#facc6b);
+    color:#432100;
+    border-color:rgba(0,0,0,.55);
+  }
+
+  .dividerRow{
+    padding:7px 11px 7px;
+    font-size:11px;
+    color:var(--muted);
+    opacity:.8;
+  }
+
+  /* Board side */
+  .boardPanel{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .board{
+    position:relative;
+    width:min(666px,88vw);
+    aspect-ratio:1/1;
+    border-radius:7px;
+    border:1px solid rgba(255,255,255,.12);
+    background:radial-gradient(circle at 0% 0%,#ffdfb1 0%,#13172b 42%,#040510 100%);
+    box-shadow:0 12px 32px rgba(0,0,0,.7);
+    overflow:hidden;
+  }
+  .boardGlow{
+    position:absolute;
+    inset:10%;
+    border-radius:50%;
+    background:radial-gradient(circle at 50% 25%,rgba(255,255,255,.23),rgba(0,0,0,.9));
+    pointer-events:none;
+  }
+  .slotsLayer{
+    position:absolute;
+    inset:12% 12%;
+  }
+  .slot{
+    position:absolute;
+    width:13%;
+    height:13%;
+    transform:translate(-50%,-50%);
+    border-radius:50%;
+    box-shadow:0 0 0 1px rgba(0,0,0,.8),0 3px 10px rgba(0,0,0,.8);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:11px;
+    cursor:pointer;
+    transition:transform .12s ease,box-shadow .12s ease,background .14s ease;
+  }
+  .slotEmpty{
+    background:radial-gradient(circle at 30% 20%,#ffffff80,#333544);
+    color:#ccd3ea;
+  }
+  .slotSun{
+    background:radial-gradient(circle at 30% 20%,#fff7dd,#f6b76a);
+    color:#5b3212;
+  }
+  .slotSky{
+    background:radial-gradient(circle at 30% 20%,#e6f6ff,#5bb8ff);
+    color:#021a32;
+  }
+  .slot:hover{
+    transform:translate(-50%,-53%) scale(1.05);
+  }
+  .slotSelected{
+    box-shadow:0 0 0 2px #fff8,0 0 18px rgba(255,255,255,.9);
+  }
+  .slotHint{
+    box-shadow:0 0 0 2px #8bffd0,0 0 20px rgba(139,255,208,.9);
+  }
+
+  .hintBar{
+    position:absolute;
+    left:50%;
+    bottom:24px;
+    transform:translateX(-50%);
+    padding:7px 11px;
+    font-size:11px;
+    border-radius:7px;
+    background:rgba(0,0,0,.8);
+    color:var(--muted);
+    border:1px solid rgba(255,255,255,.18);
+    max-width:80%;
+    text-align:center;
+  }
+  .hudBar{
+    position:absolute;
+    bottom:1px;
+    left:50%;
+    transform:translateX(-50%);
+    display:flex;
+    gap:24px;
+    align-items:center;
+    justify-content:center;
+    font-size:11px;
+    color:#fdf7d0;
+    background:rgba(0,0,0,.78);
+    padding:1px 7px;
+    border-radius:7px;
+    border:1px solid rgba(255,255,255,.18);
+    pointer-events:none;
+  }
+  .hudBar span{
+    display:inline-flex;
+    align-items:center;
+    gap:3px;
+  }
+
+  @media (max-width:888px){
+    .gameCard{
+      grid-template-columns:1fr;
+    }
+    .boardPanel{
+      order:-1;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="titleBar">MANDALA</div>
+
+  <div class="gameCard">
+    <!-- LEFT PANEL -->
+    <aside class="leftPanel">
+      <div class="brandHead">
+        <div>
+          <div class="brandTitle">Mandala Rings v3.1</div>
+          <div class="brandSub">Sovereign Board Studio · Local only</div>
+        </div>
+        <div class="badge">Jenny • Pearl</div>
+      </div>
+
+      <div class="card">
+        <h3>Session</h3>
+        <div class="row" style="margin-bottom:6px;">
+          <button id="btnNew" class="primary">New Game</button>
+          <button id="btnUndo" class="small">Undo</button>
+          <button id="btnReset" class="small">Reset All</button>
+          <button id="btnHint" class="small">Hint</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Level · Mode</h3>
+        <div class="row">
+          <div style="flex:1;">
+            <label for="selLevel">Level</label>
+            <select id="selLevel">
+              <option value="calm">Calm</option>
+              <option value="thoughtful" selected>Thoughtful</option>
+              <option value="deep">Deep</option>
+            </select>
+          </div>
+          <div style="flex:1;">
+            <label for="selMode">Mode</label>
+            <select id="selMode">
+              <option value="solo" selected>Solo vs AI</option>
+              <option value="pvp">Two Players</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Action</h3>
+        <div class="row">
+          <button id="btnPlace" class="primary">Place</button>
+          <button id="btnSlide">Slide</button>
+        </div>
+        <div class="small" style="margin-top:4px;">
+          <strong>Place:</strong> tap an empty circle to add a Sun petal.  
+          <strong>Slide:</strong> tap your petal, then a glowing neighbor to move it.
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Scores</h3>
+        <div class="scoresGrid">
+          <div class="scoreLine">You · Sun petals: <strong id="scoreSun">0</strong></div>
+          <div class="scoreLine">AI / Player 2 · Sky petals: <strong id="scoreSky">0</strong></div>
+          <div class="scoreLine">Turn: <strong id="turnLabel">You (Sun)</strong></div>
+          <div class="scoreLine">Moves: <strong id="movesLabel">0</strong></div>
+        </div>
+        <div class="small">Eval (Sun − Sky): <strong id="evalLabel">0.0</strong></div>
+      </div>
+
+      <div class="card">
+        <h3>Pattern Library</h3>
+        <button id="btnSavePattern" class="primary" style="width:100%;margin-bottom:6px;">
+          Save Current Pattern
+        </button>
+        <div id="patternList" class="patternList small">
+          No saved patterns yet.
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>How to Play</h3>
+        <div class="small">
+          1. Use <strong>Place</strong> to add warm Sun petals and cool Sky petals.  
+          2. Switch to <strong>Slide</strong> to gently move petals along the rings.  
+          3. Each petal is worth <strong>1 point</strong>.  
+          4. Radiant lines (3+ same color in a straight line) give bonus points.  
+          5. When the board is full, compare Sun vs Sky and admire the pattern.  
+          6. Save your favorite layouts in the <strong>Pattern Library</strong> and
+             pin favorites with the ★ button.
+        </div>
+      </div>
+
+      <div id="statusBar" class="statusBar">
+        Ready. Tap an empty circle to begin.
+      </div>
+    </aside>
+
+    <!-- BOARD PANEL -->
+    <section class="boardPanel">
+      <div class="board" id="board">
+        <div class="boardGlow"></div>
+        <div class="slotsLayer" id="slotsLayer"></div>
+        <div class="hintBar" id="hintBar">
+          Place mode: tap an empty circle to add a Sun petal.
+        </div>
+        <div class="hudBar" id="hudBar">
+          <span>☼ <span id="hudSun">0</span></span>
+          <span>✶ <span id="hudSky">0</span></span>
+          <span>Moves <span id="hudMoves">0</span></span>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- DOM helpers ---------- */
+  const $ = id => document.getElementById(id);
+
+  function setStatus(msg,tone){
+    const bar = $("statusBar");
+    bar.textContent = msg;
+    bar.style.color = (tone==="good")? "var(--good)" :
+                      (tone==="warn")? "var(--warn)" :
+                      "var(--muted)";
+  }
+
+  /* ---------- Geometry + board model ---------- */
+
+  // Ring radii (0..1 inside slotsLayer) and slot counts
+  const RINGS = [
+    { r:0.00, count:1 },   // center
+    { r:0.28, count:6 },
+    { r:0.52, count:10 },
+    { r:0.78, count:14 }
+  ];
+
+  const PLAYER_SUN = "sun";
+  const PLAYER_SKY = "sky";
+
+  let board = [];        // [{ring,pos,x,y,owner}]
+  let neighbors = [];    // adjacency list indices
+  let turn = PLAYER_SUN;
+  let moveCount = 0;
+  let currentAction = "place"; // "place" | "slide"
+  let aiBusy = false;
+  let gameOver = false;
+  let selectedIndex = null;
+  let highlightTargets = [];
+  let history = [];
+
+  /* ---------- Pattern library storage ---------- */
+  const PATTERN_KEY = "MANDALA_RINGS_PATTERNS_V1";
+
+  function escapeHTML(str){
+    return String(str).replace(/[&<>"']/g, m => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"
+    }[m] || m));
+  }
+
+  function loadPatternStore(){
+    try{
+      const raw = localStorage.getItem(PATTERN_KEY);
+      if(!raw) return [];
+      const v = JSON.parse(raw);
+      return Array.isArray(v)? v : [];
+    }catch(e){ return []; }
+  }
+  function savePatternStore(store){
+    localStorage.setItem(PATTERN_KEY, JSON.stringify(store));
+  }
+
+  let patternStore = loadPatternStore();
+
+  /* ---------- Board construction ---------- */
+
+  function buildBoard(){
+    board = [];
+    neighbors = [];
+    RINGS.forEach((ring,ri)=>{
+      const step = Math.PI*2 / ring.count;
+      for(let p=0;p<ring.count;p++){
+        const ang = -Math.PI/2 + p*step; // start at top
+        const x = 50 + Math.cos(ang)*ring.r*50;
+        const y = 50 + Math.sin(ang)*ring.r*50;
+        board.push({ring:ri,pos:p,x,y,owner:null});
+      }
+    });
+
+    // Build adjacency for slide moves
+    const ringStart = [];
+    let running = 0;
+    for(let i=0;i<RINGS.length;i++){
+      ringStart[i] = running;
+      running += RINGS[i].count;
+    }
+
+    neighbors = board.map(()=>[]);
+    board.forEach((slot,i)=>{
+      const ring = slot.ring;
+      const pos = slot.pos;
+      const count = RINGS[ring].count;
+      const start = ringStart[ring];
+
+      // same ring neighbors
+      const left = (pos-1+count)%count;
+      const right = (pos+1)%count;
+      neighbors[i].push(start + left, start + right);
+
+      // inner ring radial neighbor
+      if(ring>0){
+        const innerCount = RINGS[ring-1].count;
+        const innerStart = ringStart[ring-1];
+        const mapped = Math.round(pos*innerCount/count) % innerCount;
+        neighbors[i].push(innerStart + mapped);
+      }
+      // outer ring radial neighbor
+      if(ring<RINGS.length-1){
+        const outerCount = RINGS[ring+1].count;
+        const outerStart = ringStart[ring+1];
+        const mapped = Math.round(pos*outerCount/count) % outerCount;
+        neighbors[i].push(outerStart + mapped);
+      }
+
+      // dedupe
+      neighbors[i] = [...new Set(neighbors[i])];
+    });
+  }
+
+  /* ---------- Scores & evaluation ---------- */
+
+  function scoreBoard(stateBoard){
+    let sun = 0, sky = 0;
+    stateBoard.forEach(s=>{
+      if(s.owner===PLAYER_SUN) sun++;
+      else if(s.owner===PLAYER_SKY) sky++;
+    });
+
+    // Precompute ring offsets into the 1D board array
+    const ringOffsets = [];
+    let offset = 0;
+    for(let ri=0; ri<RINGS.length; ri++){
+      ringOffsets[ri] = offset;
+      offset += RINGS[ri].count;
+    }
+
+    // Ring bonuses: 3+ contiguous same-color on a circular ring
+    for(let ri=0; ri<RINGS.length; ri++){
+      const count = RINGS[ri].count;
+      if(!count) continue;
+      const start = ringOffsets[ri];
+      const owners = [];
+      for(let i=0; i<count; i++){
+        owners.push(stateBoard[start + i].owner);
+      }
+      const visited = new Array(count).fill(false);
+
+      for(let i=0; i<count; i++){
+        if(visited[i]) continue;
+        const color = owners[i];
+        if(!color) continue;
+        let runLen = 0;
+        let j = i;
+        while(true){
+          if(owners[j] !== color) break;
+          if(visited[j]) break;
+          visited[j] = true;
+          runLen++;
+          j = (j + 1) % count;
+        }
+        if(runLen >= 3){
+          const bonus = runLen - 2;
+          if(color === PLAYER_SUN) sun += bonus;
+          else if(color === PLAYER_SKY) sky += bonus;
+        }
+      }
+    }
+
+    // Radial bonuses: if 3+ of same color along approximate radial line
+    const maxCount = RINGS[RINGS.length-1].count;
+    for(let j=0;j<maxCount;j++){
+      const lineOwners = [];
+      for(let ri=0;ri<RINGS.length;ri++){
+        const c = RINGS[ri].count;
+        const start = ringOffsets[ri];
+        const mapped = Math.round(j*c/maxCount)%c;
+        lineOwners.push(stateBoard[start+mapped].owner);
+      }
+      const sunCount = lineOwners.filter(o=>o===PLAYER_SUN).length;
+      const skyCount = lineOwners.filter(o=>o===PLAYER_SKY).length;
+      if(sunCount>=3) sun += 2;
+      if(skyCount>=3) sky += 2;
+    }
+
+    return {sun,sky};
+  }
+
+  function evaluateFor(side,stateBoard){
+    const s = scoreBoard(stateBoard);
+    let diff = s.sun - s.sky;
+    if(side===PLAYER_SKY) diff = -diff;
+    return diff;
+  }
+
+  /* ---------- Rendering ---------- */
+
+  function renderBoard(){
+    const layer = $("slotsLayer");
+    layer.innerHTML = "";
+    board.forEach((slot,i)=>{
+      const div = document.createElement("div");
+      let cls = "slot ";
+      if(slot.owner===PLAYER_SUN) cls += "slotSun";
+      else if(slot.owner===PLAYER_SKY) cls += "slotSky";
+      else cls += "slotEmpty";
+      if(i===selectedIndex) cls += " slotSelected";
+      else if(highlightTargets.includes(i)) cls += " slotHint";
+      div.className = cls;
+      div.style.left = slot.x + "%";
+      div.style.top = slot.y + "%";
+      div.onclick = ()=>handleSlotClick(i);
+      layer.appendChild(div);
+    });
+    updateScores();
+  }
+
+  function updateScores(){
+    const s = scoreBoard(board);
+    const evalVal = s.sun - s.sky;
+    $("scoreSun").textContent = s.sun;
+    $("scoreSky").textContent = s.sky;
+    $("movesLabel").textContent = moveCount;
+    $("evalLabel").textContent = evalVal.toFixed(1);
+    $("turnLabel").textContent =
+      (turn===PLAYER_SUN ? "You (Sun)" :
+       ($("selMode").value==="solo" ? "AI (Sky)" : "Player 2 (Sky)"));
+
+    // HUD update
+    $("hudSun").textContent = s.sun;
+    $("hudSky").textContent = s.sky;
+    $("hudMoves").textContent = moveCount;
+  }
+
+  function updateHintBar(){
+    const mode = $("selMode").value;
+    let msg = "";
+    if(currentAction==="place"){
+      msg = "Place mode: tap an empty circle to add a " +
+            (turn===PLAYER_SUN ? "Sun" : "Sky") + " petal.";
+    }else{
+      msg = "Slide mode: tap your petal, then a glowing neighbor to move it.";
+    }
+    if(mode==="solo" && turn===PLAYER_SKY){
+      msg = "AI is thinking…";
+    }
+    $("hintBar").textContent = msg;
+  }
+
+  /* ---------- Move helpers ---------- */
+
+  function snapshot(){
+    return {
+      board: board.map(s=>({ ...s })),
+      turn,
+      moveCount,
+      gameOver
+    };
+  }
+  function restoreSnap(snap){
+    board = snap.board.map(s=>({ ...s }));
+    turn = snap.turn;
+    moveCount = snap.moveCount;
+    gameOver = snap.gameOver;
+    selectedIndex = null;
+    highlightTargets = [];
+  }
+
+  function isBoardFull(){
+    return board.every(s=>!(!s.owner));
+  }
+
+  function switchTurn(){
+    turn = (turn===PLAYER_SUN?PLAYER_SKY:PLAYER_SUN);
+  }
+
+  function legalSlideTargets(idx, side){
+    const slot = board[idx];
+    if(!slot || slot.owner!==side) return [];
+    const result = [];
+    neighbors[idx].forEach(j=>{
+      if(!board[j].owner) result.push(j);
+    });
+    return result;
+  }
+
+  function generateMovesFor(side){
+    const moves = [];
+    board.forEach((s,idx)=>{
+      if(!s.owner){
+        moves.push({type:"place", index:idx});
+      }else if(s.owner===side){
+        const targs = legalSlideTargets(idx,side);
+        targs.forEach(to=>{
+          moves.push({type:"slide", from:idx, to});
+        });
+      }
+    });
+    return moves;
+  }
+
+  function applyMoveToBoard(move, side, stateBoard){
+    const next = stateBoard.map(s=>({ ...s }));
+    if(move.type==="place"){
+      next[move.index].owner = side;
+    }else{
+      next[move.to].owner = side;
+      next[move.from].owner = null;
+    }
+    return next;
+  }
+
+  /* ---------- AI ---------- */
+
+  function pickAIMove(){
+    const side = PLAYER_SKY;
+    const level = $("selLevel").value; // calm/thoughtful/deep
+    const moves = generateMovesFor(side);
+    if(!moves.length) return null;
+
+    const wobble =
+      (level==="calm") ? 5 :
+      (level==="thoughtful") ? 2 : 0;
+
+    let bestScore = -Infinity;
+    let bestMoves = [];
+
+    const baseBoard = board;
+
+    for(const mv of moves){
+      const nb = applyMoveToBoard(mv, side, baseBoard);
+      let score = evaluateFor(side, nb);
+      if(wobble){
+        score += (Math.random()*wobble - wobble/2);
+      }
+      if(score>bestScore+1e-6){
+        bestScore = score;
+        bestMoves = [mv];
+      }else if(Math.abs(score-bestScore)<1e-6){
+        bestMoves.push(mv);
+      }
+    }
+    return bestMoves[Math.floor(Math.random()*bestMoves.length)];
+  }
+
+  function maybeAIMove(){
+    if(gameOver) return;
+    if($("selMode").value!=="solo") return;
+    if(turn!==PLAYER_SKY) return;
+
+    aiBusy = true;
+    updateHintBar();
+    setTimeout(()=>{
+      if(gameOver){ aiBusy=false; return; }
+      const mv = pickAIMove();
+      if(!mv){
+        setStatus("AI has no moves. Board is full or blocked.", "warn");
+        aiBusy=false;
+        return;
+      }
+      history.push(snapshot());
+      if(mv.type==="place"){
+        board[mv.index].owner = PLAYER_SKY;
+      }else{
+        board[mv.to].owner = PLAYER_SKY;
+        board[mv.from].owner = null;
+      }
+      moveCount++;
+      if(isBoardFull()){
+        gameOver = true;
+        setStatus("Board is full. Final Sun vs Sky shown below.", "good");
+      }else{
+        switchTurn();
+      }
+      aiBusy=false;
+      selectedIndex = null;
+      highlightTargets = [];
+      renderBoard();
+      updateHintBar();
+    }, 420);
+  }
+
+  /* ---------- Interaction ---------- */
+
+  function handleSlotClick(idx){
+    if(gameOver){ setStatus("Board is full. Start a new game to play again.", "warn"); return; }
+    if(aiBusy) return;
+
+    const slot = board[idx];
+    const side = turn;
+
+    if(currentAction==="place"){
+      if(slot.owner){
+        setStatus("That circle already has a petal.", "warn");
+        return;
+      }
+      history.push(snapshot());
+      slot.owner = side;
+      moveCount++;
+      if(isBoardFull()){
+        gameOver = true;
+        setStatus("Board is full. Final Sun vs Sky shown below.", "good");
+      }else{
+        switchTurn();
+      }
+      selectedIndex = null;
+      highlightTargets = [];
+      renderBoard();
+      updateHintBar();
+      maybeAIMove();
+      return;
+    }
+
+    // slide mode
+    if(selectedIndex===null){
+      if(slot.owner!==side){
+        setStatus("Tap one of your own petals first.", "warn");
+        return;
+      }
+      selectedIndex = idx;
+      highlightTargets = legalSlideTargets(idx, side);
+      if(!highlightTargets.length){
+        setStatus("No neighboring empty circles to slide into.", "warn");
+      }else{
+        setStatus("Now tap a glowing neighbor to slide your petal.", "good");
+      }
+      renderBoard();
+      return;
+    }
+
+    if(idx===selectedIndex){
+      // cancel selection
+      selectedIndex = null;
+      highlightTargets = [];
+      renderBoard();
+      updateHintBar();
+      return;
+    }
+
+    if(!highlightTargets.includes(idx)){
+      setStatus("Choose one of the glowing neighbor circles.", "warn");
+      return;
+    }
+
+    // perform slide
+    history.push(snapshot());
+    board[idx].owner = side;
+    board[selectedIndex].owner = null;
+    moveCount++;
+    if(isBoardFull()){
+      gameOver = true;
+      setStatus("Board is full. Final Sun vs Sky shown below.", "good");
+    }else{
+      switchTurn();
+    }
+    selectedIndex = null;
+    highlightTargets = [];
+    renderBoard();
+    updateHintBar();
+    maybeAIMove();
+  }
+
+  function doNewGame(){
+    history = [];
+    board.forEach(s=>{ s.owner=null; });
+    turn = PLAYER_SUN;
+    moveCount = 0;
+    gameOver = false;
+    selectedIndex = null;
+    highlightTargets = [];
+    renderBoard();
+    updateHintBar();
+    setStatus("New game started.", "good");
+  }
+
+  function doResetAll(){
+    if(!confirm("Reset the board and clear undo history? Patterns are kept.")) return;
+    doNewGame();
+  }
+
+  function doUndo(){
+    if(!history.length){
+      setStatus("Nothing to undo yet.", "warn");
+      return;
+    }
+    const snap = history.pop();
+    restoreSnap(snap);
+    renderBoard();
+    updateHintBar();
+    setStatus("Undid last move.", "good");
+  }
+
+  function doHint(){
+    if(gameOver){ setStatus("Board is full. Start a new game for a new hint.", "warn"); return; }
+    if(aiBusy) return;
+    const side = turn;
+    const moves = generateMovesFor(side);
+    if(!moves.length){
+      setStatus("No legal moves available.", "warn");
+      return;
+    }
+    // reuse AI picker but from current side
+    const level = $("selLevel").value;
+    const wobble =
+      (level==="calm") ? 4 :
+      (level==="thoughtful") ? 2 : 0;
+    let bestScore = -Infinity;
+    let bestMoves = [];
+    for(const mv of moves){
+      const nb = applyMoveToBoard(mv, side, board);
+      let score = evaluateFor(side, nb);
+      if(wobble){
+        score += (Math.random()*wobble - wobble/2);
+      }
+      if(score>bestScore+1e-6){
+        bestScore = score;
+        bestMoves = [mv];
+      }else if(Math.abs(score-bestScore)<1e-6){
+        bestMoves.push(mv);
+      }
+    }
+    const mv = bestMoves[Math.floor(Math.random()*bestMoves.length)];
+    selectedIndex = (mv.type==="slide" ? mv.from : mv.index);
+    highlightTargets = (mv.type==="slide" ? [mv.to] : [mv.index]);
+    renderBoard();
+    setStatus("Hint: try the glowing move.", "good");
+  }
+
+  /* ---------- Pattern Library ---------- */
+
+  function currentPatternSnapshot(){
+    return board.map(s=>s.owner || null);
+  }
+
+  function saveCurrentPattern(){
+    if(!board.length){
+      setStatus("Nothing to save yet.", "warn");
+      return;
+    }
+    const name = (prompt("Name this pattern:", "My Mandala") || "").trim();
+    if(!name){
+      setStatus("Save cancelled.", "warn");
+      return;
+    }
+    const snap = {
+      id: "p_" + Date.now().toString(16) + "_" +
+          Math.random().toString(16).slice(2,8),
+      name: name.slice(0,40),
+      createdAt: Date.now(),
+      boardSize: board.length,
+      favorite:false,
+      data: currentPatternSnapshot()
+    };
+    patternStore.push(snap);
+    savePatternStore(patternStore);
+    renderPatternList();
+    setStatus("Saved pattern: " + name, "good");
+  }
+
+  function loadPatternById(id){
+    const p = patternStore.find(x=>x.id===id);
+    if(!p) return;
+    if(board.length !== p.boardSize){
+      setStatus("Pattern doesn't match this board layout.", "warn");
+      return;
+    }
+    board.forEach((s,i)=>{
+      s.owner = p.data[i] || null;
+    });
+    moveCount = 0;
+    turn = PLAYER_SUN;
+    gameOver = isBoardFull();
+    history = [];
+    selectedIndex = null;
+    highlightTargets = [];
+    renderBoard();
+    updateHintBar();
+    setStatus("Loaded pattern: " + p.name, "good");
+  }
+
+  function deletePatternById(id){
+    const p = patternStore.find(x=>x.id===id);
+    if(!p) return;
+    if(!confirm(`Delete pattern "${p.name}"?`)) return;
+    patternStore = patternStore.filter(x=>x.id!==id);
+    savePatternStore(patternStore);
+    renderPatternList();
+    setStatus("Pattern deleted.", "good");
+  }
+
+  function toggleFavorite(id){
+    const p = patternStore.find(x=>x.id===id);
+    if(!p) return;
+    p.favorite = !p.favorite;
+    savePatternStore(patternStore);
+    renderPatternList();
+    setStatus(p.favorite ? "Pattern pinned to top." : "Pattern unpinned.", "good");
+  }
+
+  function renderPatternList(){
+    const box = $("patternList");
+    if(!patternStore.length){
+      box.textContent = "No saved patterns yet.";
+      return;
+    }
+    box.innerHTML = "";
+    const items = patternStore.slice().sort((a,b)=>b.createdAt-a.createdAt);
+    const favs = items.filter(p=>p.favorite);
+    const others = items.filter(p=>!p.favorite);
+
+    function addRows(list){
+      list.forEach(p=>{
+        const row = document.createElement("div");
+        row.className = "patternRow";
+        row.innerHTML = `
+          <div>
+            <div class="patternName">${escapeHTML(p.name)}</div>
+            <div class="patternMeta">
+              ${new Date(p.createdAt).toLocaleDateString()} ·
+              ${p.boardSize} circles
+            </div>
+          </div>
+            <div class="patternRowBtns">
+              <button class="btnPatternFav ${p.favorite?"isFav":""}" data-id="${p.id}">★</button>
+              <button class="btnPatternLoad" data-id="${p.id}">Load</button>
+              <button class="btnPatternDelete" data-id="${p.id}">✕</button>
+            </div>
+        `;
+        box.appendChild(row);
+      });
+    }
+
+    if(favs.length){
+      addRows(favs);
+      if(others.length){
+        const div = document.createElement("div");
+        div.className = "dividerRow";
+        div.textContent = "More patterns";
+        box.appendChild(div);
+      }
+    }
+    addRows(others);
+
+    box.querySelectorAll(".btnPatternLoad").forEach(btn=>{
+      btn.onclick = (e)=>{ e.stopPropagation(); loadPatternById(btn.dataset.id); };
+    });
+    box.querySelectorAll(".btnPatternDelete").forEach(btn=>{
+      btn.onclick = (e)=>{ e.stopPropagation(); deletePatternById(btn.dataset.id); };
+    });
+    box.querySelectorAll(".btnPatternFav").forEach(btn=>{
+      btn.onclick = (e)=>{ e.stopPropagation(); toggleFavorite(btn.dataset.id); };
+    });
+  }
+
+  /* ---------- Wiring ---------- */
+
+  function setAction(mode){
+    currentAction = mode; // "place" | "slide"
+    $("btnPlace").classList.toggle("primary", mode==="place");
+    $("btnSlide").classList.toggle("primary", mode==="slide");
+    selectedIndex = null;
+    highlightTargets = [];
+    renderBoard();
+    updateHintBar();
+  }
+
+  function init(){
+    buildBoard();
+    renderBoard();
+    updateHintBar();
+    renderPatternList();
+
+    $("btnNew").onclick   = ()=>doNewGame();
+    $("btnReset").onclick = ()=>doResetAll();
+    $("btnUndo").onclick  = ()=>doUndo();
+    $("btnHint").onclick  = ()=>doHint();
+
+    $("btnPlace").onclick = ()=>setAction("place");
+    $("btnSlide").onclick = ()=>setAction("slide");
+
+    $("selLevel").onchange = ()=>setStatus("Level set to " + $("selLevel").options[$("selLevel").selectedIndex].text + ".", "good");
+    $("selMode").onchange = ()=>{
+      doNewGame();
+      const txt = $("selMode").value==="solo" ? "Solo vs AI" : "Two Players";
+      setStatus("Mode set to " + txt + ".", "good");
+    };
+
+    $("btnSavePattern").onclick = ()=>saveCurrentPattern();
+
+    setStatus("Ready. Tap an empty circle to begin.", "good");
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
