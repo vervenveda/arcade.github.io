@@ -1,0 +1,757 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Verve N Veda · Trivia Lantern</title>
+<style>
+:root{
+  /* PLERA / Verve palette */
+  --parchment:#f7f3ea;
+  --parchment-soft:#f5efe3;
+  --parchment-deep:#f0e9dc;
+  --gold:#d9b878;
+  --gold-soft:#e8d5a4;
+  --gold-deep:#b89252;
+  --gold-ember:#7a5a28;
+  --ink:#0b1020;
+  --ink-soft:#091020;
+  --ink-deep:#020414;
+
+  --radius-card:21px;
+  --radius-chip:11px;
+  --shadow-soft:0 18px 40px rgba(0,0,0,0.16);
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+
+body{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:21px;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  background:radial-gradient(circle at top,#f5efe3,#f0e9dc);
+  color:var(--ink);
+}
+
+/* App frame */
+.app{
+  width:100%;
+  max-width:720px;
+  background:var(--parchment);
+  border-radius:var(--radius-card);
+  box-shadow:var(--shadow-soft);
+  border:1px solid var(--gold-soft);
+  padding:21px 21px 18px;
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+}
+
+/* Header */
+.app-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:14px;
+}
+
+.app-title-block{
+  max-width:70%;
+}
+
+.app-title{
+  font-size:21px;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  color:var(--ink-deep);
+}
+
+.app-subtitle{
+  margin-top:7px;
+  font-size:13px;
+  color:var(--ink-soft);
+}
+
+.app-meta{
+  text-align:right;
+  font-size:12px;
+  color:var(--ink-soft);
+}
+
+.pill{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:4px 9px;
+  border-radius:var(--radius-chip);
+  border:1px solid var(--gold-soft);
+  background:var(--parchment-soft);
+  margin-bottom:4px;
+}
+
+.dot{
+  width:9px;
+  height:9px;
+  border-radius:50%;
+  background:#4caf50;
+  box-shadow:0 0 7px rgba(76,175,80,0.9);
+}
+
+/* Progress bar */
+.progress-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:9px;
+  font-size:12px;
+  color:var(--ink-soft);
+}
+
+.progress-dots{
+  display:flex;
+  gap:4px;
+}
+
+.progress-dot{
+  width:9px;
+  height:9px;
+  border-radius:50%;
+  background:var(--parchment-soft);
+  border:1px solid var(--gold-soft);
+  opacity:.65;
+}
+
+.progress-dot.active{
+  background:var(--gold-soft);
+  border-color:var(--gold-deep);
+  opacity:1;
+}
+
+.progress-dot.done{
+  background:var(--gold);
+  border-color:var(--gold-deep);
+}
+
+/* Question card */
+.card{
+  border-radius:var(--radius-card);
+  border:1px solid var(--gold-soft);
+  background:var(--parchment-soft);
+  padding:18px 18px 15px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+.card-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:9px;
+}
+
+.badge{
+  font-size:11px;
+  padding:3px 9px;
+  border-radius:var(--radius-chip);
+  background:var(--parchment);
+  border:1px solid var(--gold-soft);
+  text-transform:uppercase;
+  letter-spacing:0.08em;
+  color:var(--gold-ember);
+}
+
+.difficulty{
+  font-size:11px;
+  color:var(--ink-soft);
+}
+
+.question-text{
+  font-size:16px;
+  color:var(--ink-deep);
+}
+
+/* Options */
+.options{
+  display:flex;
+  flex-direction:column;
+  gap:9px;
+}
+
+.option-btn{
+  width:100%;
+  text-align:left;
+  padding:9px 12px;
+  border-radius:var(--radius-chip);
+  border:1px solid var(--gold-soft);
+  background:var(--parchment);
+  font-size:14px;
+  cursor:pointer;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:9px;
+  transition:background .15s ease,transform .1s ease,box-shadow .1s ease,border .1s ease;
+}
+
+.option-prefix{
+  font-weight:600;
+  color:var(--gold-ember);
+  min-width:18px;
+}
+
+.option-label{
+  flex:1;
+}
+
+.option-btn:hover{
+  background:var(--gold-soft);
+  box-shadow:0 9px 18px rgba(0,0,0,0.1);
+  transform:translateY(-1px);
+}
+
+.option-btn:active{
+  transform:translateY(1px);
+  box-shadow:0 4px 9px rgba(0,0,0,0.1);
+}
+
+.option-btn.correct{
+  background:#e6f6df;
+  border-color:#7cb342;
+}
+
+.option-btn.incorrect{
+  background:#fbe4e4;
+  border-color:#e57373;
+}
+
+.option-btn.disabled{
+  opacity:0.76;
+  cursor:default;
+}
+
+/* Feedback + footer */
+.feedback{
+  font-size:13px;
+  color:var(--ink-soft);
+  min-height:18px;
+}
+
+.footer-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-top:4px;
+  gap:9px;
+}
+
+.footer-left{
+  font-size:13px;
+  color:var(--ink-soft);
+}
+
+.footer-right{
+  display:flex;
+  gap:9px;
+}
+
+/* Buttons */
+button{
+  font-family:inherit;
+  border-radius:var(--radius-chip);
+  border:1px solid var(--gold-deep);
+  padding:7px 13px;
+  font-size:14px;
+  background:var(--gold);
+  color:var(--ink-deep);
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  box-shadow:0 7px 14px rgba(0,0,0,0.12);
+  transition:background .12s ease,transform .1s ease,box-shadow .1s ease;
+}
+
+button.secondary{
+  background:var(--parchment);
+  border-color:var(--gold-soft);
+  box-shadow:none;
+}
+
+button:hover{
+  transform:translateY(-1px);
+  box-shadow:0 12px 21px rgba(0,0,0,0.18);
+}
+
+button:active{
+  transform:translateY(1px);
+  box-shadow:0 5px 10px rgba(0,0,0,0.18);
+}
+
+/* Result screen */
+.result{
+  text-align:center;
+  padding:21px 12px 7px;
+}
+
+.result-title{
+  font-size:18px;
+  color:var(--ink-deep);
+  margin-bottom:9px;
+}
+
+.result-score{
+  font-size:15px;
+  margin-bottom:7px;
+}
+
+.result-note{
+  font-size:13px;
+  color:var(--ink-soft);
+}
+
+/* Mobile tweaks */
+@media (max-width:600px){
+  body{padding:12px;}
+  .app{padding:18px 14px 14px;}
+  .app-header{flex-direction:column;align-items:flex-start;}
+  .app-title-block{max-width:100%;}
+  .app-meta{text-align:left;}
+}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <header class="app-header">
+    <div class="app-title-block">
+      <div class="app-title">Verve N Veda</div>
+      <div class="app-subtitle">Trivia Lantern — light up what you know, gently.</div>
+    </div>
+    <div class="app-meta">
+      <div class="pill">
+        <span class="dot"></span>
+        <span>Live · Local Only</span>
+      </div>
+      <div>Best Score: <span id="bestScoreLabel">0 / 10</span></div>
+    </div>
+  </header>
+
+  <div class="progress-row">
+    <div>Question <span id="qIndexLabel">1</span> / <span id="qTotalLabel">10</span></div>
+    <div class="progress-dots" id="progressDots"></div>
+  </div>
+
+  <main id="mainArea">
+    <!-- Question card will be rendered here -->
+  </main>
+</div>
+
+<script>
+(function(){
+  const TOTAL_QUESTIONS = 10;
+  const STORAGE_KEY = "verve_n_veda_trivia_best_v1";
+
+  // Small starter bank — you can edit/extend this.
+  const QUESTION_BANK = [
+    {
+      category:"World",
+      difficulty:"Easy",
+      question:"What is the capital of France?",
+      choices:["Rome","Paris","Madrid","Lisbon"],
+      answerIndex:1,
+      info:"Paris is the capital and most populous city of France."
+    },
+    {
+      category:"Languages",
+      difficulty:"Easy",
+      question:"In Russian, “privet” (привет) is used to say…",
+      choices:["Goodbye","Thank you","Hello","Please"],
+      answerIndex:2,
+      info:"“Privet” is an informal way to say “hi/hello” in Russian."
+    },
+    {
+      category:"Science",
+      difficulty:"Easy",
+      question:"Which planet is closest to the Sun?",
+      choices:["Mercury","Venus","Earth","Mars"],
+      answerIndex:0,
+      info:"Mercury is the closest planet to the Sun."
+    },
+    {
+      category:"Literature",
+      difficulty:"Medium",
+      question:"Who wrote “Pride and Prejudice”?",
+      choices:["Charlotte Brontë","Jane Austen","Emily Brontë","Mary Shelley"],
+      answerIndex:1,
+      info:"“Pride and Prejudice” was written by Jane Austen and published in 1813."
+    },
+    {
+      category:"Math",
+      difficulty:"Easy",
+      question:"What is 9 × 7?",
+      choices:["54","56","63","72"],
+      answerIndex:2,
+      info:"9 × 7 = 63."
+    },
+    {
+      category:"Nature",
+      difficulty:"Medium",
+      question:"Which of these animals is a mammal?",
+      choices:["Frog","Eagle","Shark","Dolphin"],
+      answerIndex:3,
+      info:"Dolphins are marine mammals."
+    },
+    {
+      category:"Art & Culture",
+      difficulty:"Medium",
+      question:"The art style with strong colors and thick paint, often by artists like Van Gogh, is called…",
+      choices:["Impressionism","Cubism","Expressionism","Minimalism"],
+      answerIndex:2,
+      info:"Expressionism emphasizes emotion and inner experience with bold color and form."
+    },
+    {
+      category:"Space",
+      difficulty:"Medium",
+      question:"What do we call a star that suddenly becomes much brighter, then fades?",
+      choices:["Comet","Nova","Asteroid","Nebula"],
+      answerIndex:1,
+      info:"A nova is a dramatic brightening of a star’s surface."
+    },
+    {
+      category:"Body & Health",
+      difficulty:"Easy",
+      question:"Which organ pumps blood through your body?",
+      choices:["Lungs","Brain","Heart","Stomach"],
+      answerIndex:2,
+      info:"Your heart pumps blood throughout your body."
+    },
+    {
+      category:"History",
+      difficulty:"Medium",
+      question:"The ancient library famous for its vast scroll collection was located in…",
+      choices:["Babylon","Athens","Alexandria","Rome"],
+      answerIndex:2,
+      info:"The Library of Alexandria in Egypt was one of the most significant libraries of the ancient world."
+    },
+    {
+      category:"Technology",
+      difficulty:"Medium",
+      question:"What does “HTML” stand for?",
+      choices:[
+        "HyperText Markup Language",
+        "High Tech Machine Logic",
+        "Hyperlink Text Management Layer",
+        "Home Tool Markup Logic"
+      ],
+      answerIndex:0,
+      info:"HTML stands for HyperText Markup Language, used to structure web pages."
+    },
+    {
+      category:"Mind & Learning",
+      difficulty:"Easy",
+      question:"Which habit helps your brain remember better?",
+      choices:["Never sleeping","Cramming all night","Short study + breaks","Multitasking constantly"],
+      answerIndex:2,
+      info:"Short, focused study sessions with breaks are great for memory."
+    }
+  ];
+
+  // DOM refs
+  const appEl = document.getElementById("app");
+  const mainAreaEl = document.getElementById("mainArea");
+  const bestScoreLabel = document.getElementById("bestScoreLabel");
+  const qIndexLabel = document.getElementById("qIndexLabel");
+  const qTotalLabel = document.getElementById("qTotalLabel");
+  const progressDotsEl = document.getElementById("progressDots");
+
+  // State
+  let currentRoundQuestions = [];
+  let currentIndex = 0;
+  let score = 0;
+  let bestScore = loadBestScore();
+  bestScoreLabel.textContent = bestScore + " / " + TOTAL_QUESTIONS;
+
+  function loadBestScore(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return 0;
+      const n = parseInt(raw,10);
+      return isNaN(n) ? 0 : n;
+    }catch(e){
+      return 0;
+    }
+  }
+
+  function saveBestScore(val){
+    try{
+      localStorage.setItem(STORAGE_KEY,String(val));
+    }catch(e){}
+  }
+
+  function shuffle(arr){
+    const a = arr.slice();
+    for(let i=a.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i],a[j]]=[a[j],a[i]];
+    }
+    return a;
+  }
+
+  function startNewRound(){
+    // Choose questions
+    const shuffled = shuffle(QUESTION_BANK);
+    currentRoundQuestions = shuffled.slice(0, TOTAL_QUESTIONS);
+    currentIndex = 0;
+    score = 0;
+    qTotalLabel.textContent = String(TOTAL_QUESTIONS);
+    renderProgressDots();
+    renderQuestion();
+  }
+
+  function renderProgressDots(){
+    progressDotsEl.innerHTML = "";
+    for(let i=0;i<TOTAL_QUESTIONS;i++){
+      const dot = document.createElement("div");
+      dot.className = "progress-dot";
+      if(i < currentIndex) dot.classList.add("done");
+      else if(i === currentIndex) dot.classList.add("active");
+      progressDotsEl.appendChild(dot);
+    }
+  }
+
+  function renderQuestion(){
+    const q = currentRoundQuestions[currentIndex];
+    qIndexLabel.textContent = String(currentIndex+1);
+    renderProgressDots();
+
+    mainAreaEl.innerHTML = "";
+    const card = document.createElement("section");
+    card.className = "card";
+
+    const top = document.createElement("div");
+    top.className = "card-top";
+
+    const leftTop = document.createElement("div");
+    const badge = document.createElement("div");
+    badge.className = "badge";
+    badge.textContent = q.category || "Trivia";
+
+    const difficulty = document.createElement("div");
+    difficulty.className = "difficulty";
+    difficulty.textContent = q.difficulty ? ("Difficulty: " + q.difficulty) : "";
+
+    leftTop.appendChild(badge);
+    leftTop.appendChild(difficulty);
+
+    const rightTop = document.createElement("div");
+    rightTop.style.fontSize = "12px";
+    rightTop.style.color = "var(--ink-soft)";
+    rightTop.textContent = "Score: " + score + " / " + TOTAL_QUESTIONS;
+
+    top.appendChild(leftTop);
+    top.appendChild(rightTop);
+
+    const questionEl = document.createElement("div");
+    questionEl.className = "question-text";
+    questionEl.textContent = q.question;
+
+    const optionsWrap = document.createElement("div");
+    optionsWrap.className = "options";
+
+    const letters = ["A","B","C","D"];
+    q.choices.forEach((choice, idx)=>{
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "option-btn";
+
+      const pre = document.createElement("span");
+      pre.className = "option-prefix";
+      pre.textContent = letters[idx] || "?";
+
+      const label = document.createElement("span");
+      label.className = "option-label";
+      label.textContent = choice;
+
+      btn.appendChild(pre);
+      btn.appendChild(label);
+
+      btn.addEventListener("click", ()=>handleAnswer(btn, idx));
+
+      optionsWrap.appendChild(btn);
+    });
+
+    const feedback = document.createElement("div");
+    feedback.className = "feedback";
+    feedback.id = "feedback";
+
+    const footer = document.createElement("div");
+    footer.className = "footer-row";
+
+    const footerLeft = document.createElement("div");
+    footerLeft.className = "footer-left";
+    footerLeft.textContent = "Pick the answer, then watch the lantern glow.";
+
+    const footerRight = document.createElement("div");
+    footerRight.className = "footer-right";
+
+    const skipBtn = document.createElement("button");
+    skipBtn.type = "button";
+    skipBtn.className = "secondary";
+    skipBtn.textContent = "Skip";
+    skipBtn.addEventListener("click", ()=>{
+      revealCorrect(null,true); // mark correct, but no score
+    });
+
+    const nextBtn = document.createElement("button");
+    nextBtn.type = "button";
+    nextBtn.textContent = "Next";
+    nextBtn.disabled = true;
+    nextBtn.id = "nextBtn";
+    nextBtn.addEventListener("click", ()=>{
+      nextQuestion();
+    });
+
+    footerRight.appendChild(skipBtn);
+    footerRight.appendChild(nextBtn);
+
+    footer.appendChild(footerLeft);
+    footer.appendChild(footerRight);
+
+    card.appendChild(top);
+    card.appendChild(questionEl);
+    card.appendChild(optionsWrap);
+    card.appendChild(feedback);
+    card.appendChild(footer);
+
+    mainAreaEl.appendChild(card);
+  }
+
+  function handleAnswer(clickedBtn, idx){
+    const q = currentRoundQuestions[currentIndex];
+    const isCorrect = idx === q.answerIndex;
+    revealCorrect(clickedBtn,false,isCorrect);
+  }
+
+  function revealCorrect(clickedBtn, skipped=false, isCorrect=false){
+    const q = currentRoundQuestions[currentIndex];
+    const optionButtons = Array.from(mainAreaEl.querySelectorAll(".option-btn"));
+    const feedback = document.getElementById("feedback");
+    const nextBtn = document.getElementById("nextBtn");
+
+    // Disable all
+    optionButtons.forEach(btn=>{
+      btn.classList.add("disabled");
+      btn.disabled = true;
+    });
+
+    // Mark correct / incorrect
+    optionButtons.forEach((btn, idx)=>{
+      if(idx === q.answerIndex){
+        btn.classList.add("correct");
+      }
+    });
+
+    if(clickedBtn && !skipped){
+      if(isCorrect){
+        clickedBtn.classList.add("correct");
+        score++;
+        feedback.textContent = "Correct! " + (q.info || "");
+      }else{
+        clickedBtn.classList.add("incorrect");
+        feedback.textContent = "Not quite. " + (q.info || "");
+      }
+    }else if(skipped){
+      feedback.textContent = "Skipped. " + (q.info || "");
+    }
+
+    nextBtn.disabled = false;
+  }
+
+  function nextQuestion(){
+    currentIndex++;
+    if(currentIndex >= TOTAL_QUESTIONS){
+      endRound();
+    }else{
+      renderQuestion();
+    }
+  }
+
+  function endRound(){
+    mainAreaEl.innerHTML = "";
+    progressDotsEl.innerHTML = "";
+    qIndexLabel.textContent = String(TOTAL_QUESTIONS);
+
+    // update best
+    if(score > bestScore){
+      bestScore = score;
+      saveBestScore(bestScore);
+      bestScoreLabel.textContent = bestScore + " / " + TOTAL_QUESTIONS;
+    }
+
+    const wrap = document.createElement("div");
+    wrap.className = "result";
+
+    const title = document.createElement("div");
+    title.className = "result-title";
+    title.textContent = "Round Complete";
+
+    const scoreLine = document.createElement("div");
+    scoreLine.className = "result-score";
+    scoreLine.textContent = "You scored " + score + " out of " + TOTAL_QUESTIONS + ".";
+
+    const note = document.createElement("div");
+    note.className = "result-note";
+    let message;
+    const pct = score / TOTAL_QUESTIONS;
+    if(pct === 1){
+      message = "Perfect lantern. Every answer lit up the path.";
+    }else if(pct >= 0.7){
+      message = "Bright work! Your knowledge is glowing.";
+    }else if(pct >= 0.4){
+      message = "Good first pass. Try again and let more answers shine.";
+    }else{
+      message = "Every try is a new spark. Play again when you’re ready.";
+    }
+    note.textContent = message;
+
+    const btnRow = document.createElement("div");
+    btnRow.style.marginTop = "14px";
+    btnRow.style.display = "flex";
+    btnRow.style.justifyContent = "center";
+    btnRow.style.gap = "9px";
+
+    const againBtn = document.createElement("button");
+    againBtn.type = "button";
+    againBtn.textContent = "Play Again";
+    againBtn.addEventListener("click", ()=>{
+      startNewRound();
+    });
+
+    const shuffleBtn = document.createElement("button");
+    shuffleBtn.type = "button";
+    shuffleBtn.className = "secondary";
+    shuffleBtn.textContent = "New Mix";
+    shuffleBtn.addEventListener("click", ()=>{
+      startNewRound();
+    });
+
+    btnRow.appendChild(againBtn);
+    btnRow.appendChild(shuffleBtn);
+
+    wrap.appendChild(title);
+    wrap.appendChild(scoreLine);
+    wrap.appendChild(note);
+    wrap.appendChild(btnRow);
+
+    mainAreaEl.appendChild(wrap);
+  }
+
+  // INIT
+  startNewRound();
+})();
+</script>
+</body>
+</html>
