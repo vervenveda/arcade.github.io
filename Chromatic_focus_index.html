@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Chromatic Focus — Cognitive Reflex Game</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+:root{
+  --bg:#0e0e11;
+  --panel:#141418;
+  --gold:#d4af37;
+  --soft:#eaeaea;
+  --muted:#9a9a9a;
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:3px;
+  background:var(--bg);
+  color:var(--soft);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+/* ===== LAYOUT ===== */
+
+header{
+  padding:24px;
+  border-bottom:1px solid #222;
+  background:linear-gradient(180deg,#121217,#0e0e11);
+}
+
+h1{
+  margin:0 0 7px;
+  font-weight:666;
+  letter-spacing:0.6px;
+  color:var(--gold);
+}
+
+.subtitle{
+  font-size:24px;
+  color:var(--muted);
+}
+
+#gameWrap{
+  max-width:1111px;
+  margin:auto;
+  padding:24px;
+}
+
+/* ===== INSTRUCTIONS PANEL ===== */
+
+#instructions{
+  background:var(--panel);
+  border:1px solid #1f1f25;
+  border-radius:14px;
+  padding:18px 20px;
+  margin-bottom:18px;
+}
+
+#instructions h2{
+  margin:0 0 24px;
+  font-size:24px;
+  color:var(--gold);
+}
+
+#instructions p{
+  margin:6px 0;
+  font-size:14px;
+  line-height:1.55;
+  color:#dedede;
+}
+
+#instructions ul{
+  margin:10px 0 0 18px;
+  padding:7px;
+  font-size:14px;
+}
+
+#instructions li{
+  margin-bottom:7px;
+}
+
+/* ===== CONTROLS ===== */
+
+#controls{
+  display:flex;
+  flex-wrap:wrap;
+  gap:14px;
+  align-items:center;
+  margin-bottom:24px;
+}
+
+select, button{
+  background:#16161c;
+  color:var(--soft);
+  border:1px solid #26262e;
+  padding:11px 14px;
+  border-radius:7px;
+  font-size:14px;
+}
+
+button{
+  cursor:pointer;
+  border-color:var(--gold);
+  color:var(--gold);
+}
+
+button:hover{
+  background:#1c1c22;
+}
+
+/* ===== TARGET PANEL ===== */
+
+#targetPanel{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:var(--panel);
+  border-radius:7px;
+  padding:14px 24px;
+  margin-bottom:7px;
+  border:2px solid #1f1f25;
+}
+
+#targetLabel{
+  font-size:7px;
+  color:var(--muted);
+}
+
+#targetColor{
+  font-size:7px;
+  font-weight:333;
+  color:var(--gold);
+}
+
+/* ===== GAME AREA ===== */
+
+#gameArea{
+  position:relative;
+  height:666px;
+  background:radial-gradient(circle at top,#16161c,#0e0e11 70%);
+  border-radius:24px;
+  overflow:hidden;
+  border:1px solid #1f1f25;
+}
+
+/* ===== BUBBLES ===== */
+
+.bubble{
+  position:absolute;
+  width:88px;
+  height:77px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:3px;
+  font-weight:222px;
+  color:#111;
+  cursor:pointer;
+  animation:rise linear forwards;
+}
+
+.bubble span{
+  background:rgba(255,255,255,0.85);
+  padding:2px 6px;
+  border-radius:999px;
+  max-width:90%;
+  text-align:center;
+  pointer-events:none;
+}
+
+/* ===== SCORE ===== */
+
+#scoreBar{
+  display:flex;
+  justify-content:space-between;
+  margin-top:12px;
+  font-size:14px;
+  color:var(--muted);
+}
+
+@keyframes rise{
+  from{transform:translateY(0)}
+  to{transform:translateY(-520px)}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>Chromatic Focus</h1>
+  <div class="subtitle">
+    A reflex & selective-attention game designed to measure cognitive filtering, reaction time, and decision accuracy.
+  </div>
+</header>
+
+<div id="gameWrap">
+
+  <!-- ===== INSTRUCTIONS ===== -->
+  <section id="instructions">
+    <h2>How This Game Works</h2>
+    <p>
+      Colored bubbles will rise from the bottom of the screen. Each bubble displays a color name.
+      Your task is to <strong>click ONLY the bubbles that match the current target color</strong>.
+    </p>
+    <p>
+      This game tests <em>selective attention</em>, <em>visual processing speed</em>,
+      and <em>impulse control</em> under increasing cognitive load.
+    </p>
+    <ul>
+      <li>🎯 Click bubbles that match the target color.</li>
+      <li>🚫 Ignore all other colors — clicking them lowers your score.</li>
+      <li>⏱ Faster correct reactions earn more points.</li>
+      <li>🧠 Higher levels introduce faster speeds and broader color sets.</li>
+    </ul>
+  </section>
+
+  <!-- ===== CONTROLS ===== -->
+  <div id="controls">
+    <select id="levelSelect">
+      <option value="fledgling">Fledgling — Gentle Focus</option>
+      <option value="artisan">Artisan — Divided Attention</option>
+      <option value="mastermind">Mastermind — Cognitive Load</option>
+    </select>
+
+    <select id="paletteSelect">
+      <option value="classic">Classic Colors</option>
+      <option value="blast">Full Color Blast</option>
+    </select>
+
+    <button id="startBtn">Start Game</button>
+  </div>
+
+  <!-- ===== TARGET ===== -->
+  <div id="targetPanel">
+    <div id="targetLabel">Current Target</div>
+    <div id="targetColor">—</div>
+  </div>
+
+  <!-- ===== GAME ===== -->
+  <div id="gameArea"></div>
+
+  <div id="scoreBar">
+    <div>Score: <span id="score">0</span></div>
+    <div>Misses: <span id="misses">0</span></div>
+  </div>
+
+</div>
+
+<script>
+/* ===============================
+   GAME CONFIGURATION
+================================ */
+
+const LANES = 6;
+let spawnTimer;
+let score = 0;
+let misses = 0;
+let currentTarget = null;
+let startTime = 0;
+
+/* ===== PALETTES ===== */
+
+const palettes = {
+  classic:[
+    {name:"Red",hex:"#ef4444"},
+    {name:"Blue",hex:"#3b82f6"},
+    {name:"Green",hex:"#22c55e"},
+    {name:"Yellow",hex:"#eab308"},
+    {name:"Purple",hex:"#a855f7"},
+    {name:"Orange",hex:"#fb923c"}
+  ],
+  blast:[
+    {name:"Crimson",hex:"#dc2626"},
+    {name:"Rose",hex:"#fb7185"},
+    {name:"Magenta",hex:"#e11d48"},
+    {name:"Azure",hex:"#38bdf8"},
+    {name:"Royal Blue",hex:"#2563eb"},
+    {name:"Indigo",hex:"#6366f1"},
+    {name:"Emerald",hex:"#10b981"},
+    {name:"Mint",hex:"#6ee7b7"},
+    {name:"Lime",hex:"#84cc16"},
+    {name:"Amber",hex:"#f59e0b"},
+    {name:"Gold",hex:"#facc15"},
+    {name:"Tangerine",hex:"#fb923c"},
+    {name:"Violet",hex:"#8b5cf6"},
+    {name:"Plum",hex:"#a855f7"}
+  ]
+};
+
+/* ===== LEVELS ===== */
+
+const levels = {
+  fledgling:{interval:900,speed:5200},
+  artisan:{interval:650,speed:3600},
+  mastermind:{interval:480,speed:2600}
+};
+
+/* ===============================
+   GAME LOGIC
+================================ */
+
+const gameArea = document.getElementById("gameArea");
+
+function pickTarget(palette){
+  currentTarget = palette[Math.floor(Math.random()*palette.length)];
+  document.getElementById("targetColor").textContent = currentTarget.name;
+}
+
+function spawnBubble(){
+  const palette = palettes[paletteSelect.value];
+  const rect = gameArea.getBoundingClientRect();
+
+  const el = document.createElement("div");
+  el.className = "bubble";
+
+  const bias = Math.random() < 0.22;
+  const color = bias ? currentTarget : palette[Math.floor(Math.random()*palette.length)];
+
+  el.style.background = color.hex;
+  el.innerHTML = `<span>${color.name}</span>`;
+
+  const laneWidth = rect.width / LANES;
+  const lane = Math.floor(Math.random()*LANES);
+  el.style.left = (lane * laneWidth + (laneWidth-72)/2) + "px";
+  el.style.bottom = (-90 - Math.random()*60) + "px";
+
+  el.style.animationDuration = levels[levelSelect.value].speed+"ms";
+
+  const born = performance.now();
+
+  el.onclick = ()=>{
+    if(color.name === currentTarget.name){
+      const rt = performance.now() - born;
+      score += Math.max(5, Math.floor(3000/rt*10));
+    }else{
+      score -= 5;
+      misses++;
+    }
+    updateScore();
+    el.remove();
+  };
+
+  el.addEventListener("animationend",()=>{
+    misses++;
+    updateScore();
+    el.remove();
+  });
+
+  gameArea.appendChild(el);
+}
+
+function updateScore(){
+  document.getElementById("score").textContent = score;
+  document.getElementById("misses").textContent = misses;
+}
+
+function startGame(){
+  clearInterval(spawnTimer);
+  gameArea.innerHTML = "";
+  score = 0;
+  misses = 0;
+  updateScore();
+
+  const palette = palettes[paletteSelect.value];
+  pickTarget(palette);
+
+  spawnTimer = setInterval(spawnBubble, levels[levelSelect.value].interval);
+}
+
+/* ===== EVENTS ===== */
+
+startBtn.onclick = startGame;
+</script>
+
+</body>
+</html>
