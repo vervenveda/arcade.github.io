@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mind Garden</title>
+<style>
+:root {
+  --garden-bg: radial-gradient(circle at top, #14162b, #050513 60%);
+  --tile-size: 72px;
+  --tile-gap: 10px;
+  --text-color: #e0e0e0;
+
+  --accent-gold: #ffdf7e;
+  --accent-teal: #44e5ff;
+  --accent-rose: #f78da7;
+}
+
+/* Base */
+* { box-sizing: border-box; }
+html, body {
+  margin:0;
+  padding:0;
+  height:100%;
+  font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  background: var(--garden-bg);
+  color: var(--text-color);
+}
+body {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  overflow-x:hidden;
+  padding:18px 10px 32px;
+  position:relative;
+}
+
+/* Sky themes */
+body.sky-sunny {
+  background: radial-gradient(circle at top, #1f2345, #050513 65%);
+}
+body.sky-sunset {
+  background: linear-gradient(180deg, #26112f, #b23b63 35%, #050513 85%);
+}
+body.sky-night {
+  background: radial-gradient(circle at top, #091226, #02020a 75%);
+}
+body.sky-aurora {
+  background:
+    radial-gradient(circle at 10% 0%, rgba(140, 255, 255, 0.22), transparent 55%),
+    radial-gradient(circle at 90% 0%, rgba(255, 205, 250, 0.20), transparent 55%),
+    linear-gradient(180deg, #050615, #050513 70%);
+}
+
+/* Background sky layer */
+#skyLayer {
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:-1;
+  overflow:hidden;
+}
+.starfield {
+  position:absolute;
+  inset:0;
+  background-image:
+    radial-gradient(2px 2px at 10% 10%, rgba(255,255,255,0.7), transparent),
+    radial-gradient(2px 2px at 80% 20%, rgba(173,216,255,0.7), transparent),
+    radial-gradient(2px 2px at 30% 70%, rgba(255,255,255,0.7), transparent),
+    radial-gradient(1px 1px at 60% 40%, rgba(255,255,255,0.4), transparent),
+    radial-gradient(1px 1px at 90% 80%, rgba(173,216,255,0.5), transparent);
+  opacity:0.25;
+  animation: starDrift 40s linear infinite;
+}
+.glow-orb {
+  position:absolute;
+  width:260px;
+  height:260px;
+  border-radius:50%;
+  filter:blur(40px);
+  opacity:0.42;
+}
+.glow-orb.orb-left {
+  background:radial-gradient(circle, rgba(68,229,255,0.7), transparent 60%);
+  top:-40px;
+  left:-60px;
+  animation: orbFloat 28s ease-in-out infinite;
+}
+.glow-orb.orb-right {
+  background:radial-gradient(circle, rgba(255,223,126,0.7), transparent 60%);
+  top:40px;
+  right:-80px;
+  animation: orbFloat 32s ease-in-out infinite reverse;
+}
+.horizon {
+  position:absolute;
+  left:-10%;
+  right:-10%;
+  bottom:-40px;
+  height:220px;
+  background:radial-gradient(ellipse at top, rgba(40,60,90,0.9), transparent 70%);
+  opacity:0.8;
+}
+
+/* Generic buttons */
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/* Header */
+header {
+  width:100%;
+  text-align:center;
+  padding:10px 0 18px;
+  font-size:2.2em;
+  font-weight:bold;
+  color:#fff;
+  position:relative;
+}
+header::before {
+  content:"";
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  width:80%;
+  max-width:540px;
+  height:110%;
+  border-radius:999px;
+  background:radial-gradient(circle at top, rgba(68,229,255,0.28), transparent 65%);
+  filter:blur(16px);
+  opacity:0.7;
+  z-index:-1;
+}
+header .subtitle {
+  font-size:0.9rem;
+  font-weight:normal;
+  color:#b8c0ff;
+  margin-top:4px;
+  max-width:520px;
+  margin-left:auto;
+  margin-right:auto;
+}
+
+/* Info panel (stats + message) */
+#info-panel {
+  width: 95%;
+  max-width: 720px;
+  background: rgba(12,16,32,0.96);
+  padding: 14px 14px 12px;
+  border-radius: 18px;
+  margin-bottom: 12px;
+  text-align:center;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.65);
+  border:1px solid rgba(255,255,255,0.12);
+  backdrop-filter: blur(10px);
+}
+#info-panel .stats {
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:18px;
+  margin-bottom:6px;
+  font-size:0.95rem;
+}
+#info-panel .label {
+  color:#aeb8ff;
+}
+#daily-challenge {
+  margin-top:6px;
+  min-height:1.4em;
+  font-size:0.9rem;
+}
+
+/* Fullness bar */
+.fullness-bar {
+  width:100%;
+  max-width:420px;
+  margin:8px auto 2px;
+  height:8px;
+  border-radius:999px;
+  background:rgba(35,44,80,0.9);
+  box-shadow:0 0 0 1px rgba(255,255,255,0.06),
+             0 6px 14px rgba(0,0,0,0.8);
+  overflow:hidden;
+}
+.fullness-fill {
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg, #69f7ff, #ffdf7e, #ff8cf4);
+  transition:width .35s ease;
+}
+
+/* Control buttons */
+.control-row {
+  margin-top:8px;
+}
+.control-btn {
+  margin:4px 5px 4px;
+  padding:7px 14px;
+  border:none;
+  border-radius:10px;
+  font-weight:bold;
+  font-size:0.9rem;
+  background:var(--accent-teal);
+  color:#001018;
+  box-shadow: 0 0 10px rgba(0,255,255,0.35);
+  transition: all 0.18s ease;
+}
+.control-btn.secondary {
+  background:#273357;
+  color:#f0f0ff;
+  box-shadow: 0 0 8px rgba(0,0,0,0.6);
+}
+.control-btn:hover {
+  transform: translateY(-1px) scale(1.02);
+  box-shadow: 0 0 14px rgba(0,255,255,0.6);
+}
+.control-btn:active {
+  transform: translateY(1px) scale(0.97);
+  box-shadow: 0 0 6px rgba(0,0,0,0.8);
+}
+
+/* Toolbar */
+.toolbar {
+  width:95%;
+  max-width:720px;
+  background: radial-gradient(circle at top left, rgba(30,40,80,0.98), rgba(12,16,32,0.98));
+  border-radius: 18px;
+  padding:10px 12px 10px;
+  margin-bottom:14px;
+  border:1px solid rgba(255,255,255,0.10);
+  box-shadow:0 12px 28px rgba(0,0,0,0.6);
+}
+.toolbar-row {
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:8px;
+  margin-bottom:6px;
+}
+.toolbar-label {
+  font-size:0.86rem;
+  color:#b0b6ff;
+  min-width:60px;
+}
+.brush-bar,
+.sky-bar,
+.action-bar {
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+}
+
+/* Pills */
+.pill-btn {
+  padding:5px 10px;
+  border-radius:999px;
+  border:none;
+  font-size:0.85rem;
+  font-weight:600;
+  background:#222b4a;
+  color:#e5e9ff;
+  box-shadow:0 0 0 1px rgba(255,255,255,0.06);
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  transition: background .18s ease, box-shadow .18s ease, transform .12s ease;
+}
+.pill-btn span.emoji {
+  font-size:1.05rem;
+}
+.pill-btn:hover {
+  background:#313a5f;
+  transform:translateY(-1px);
+}
+.pill-btn.active {
+  background:var(--accent-gold);
+  color:#14131f;
+  box-shadow:0 0 12px rgba(255,223,126,0.85);
+}
+.pill-btn.locked {
+  opacity:0.5;
+  cursor:default;
+  background:#14162b;
+  box-shadow:none;
+}
+.action-bar .pill-btn {
+  background:#293354;
+}
+
+/* Garden grid wrapper */
+#game-container {
+  display:flex;
+  justify-content:center;
+  width:100%;
+}
+.grid-frame {
+  padding:12px 16px 16px;
+  border-radius:22px;
+  background: radial-gradient(circle at top, rgba(22,28,60,0.96), rgba(6,10,30,0.98));
+  box-shadow:0 18px 40px rgba(0,0,0,0.8);
+  border:1px solid rgba(255,255,255,0.08);
+}
+
+/* Garden grid */
+#gardenGrid {
+  display:grid;
+  grid-template-columns: repeat(6, var(--tile-size));
+  grid-gap: var(--tile-gap);
+  margin: 4px 0 4px;
+  justify-content:center;
+  position:relative;
+}
+
+/* Tiles */
+.tile {
+  width:var(--tile-size);
+  height:var(--tile-size);
+  background: radial-gradient(circle at top, rgba(30,38,80,0.95), rgba(9,12,30,0.98));
+  border:2px solid #3a4a78;
+  border-radius:18px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:2em;
+  transition: all 0.24s ease;
+  box-shadow: 0 10px 18px rgba(0,0,0,0.65);
+  position:relative;
+  overflow:hidden;
+}
+.tile::before {
+  content:"";
+  position:absolute;
+  inset:10%;
+  border-radius:14px;
+  border:0 solid rgba(255,255,255,0.05);
+  opacity:0;
+  pointer-events:none;
+}
+.tile.planted {
+  border-color:var(--accent-gold);
+  box-shadow:0 0 14px rgba(255,223,126,0.85);
+}
+.tile.planted::before {
+  opacity:1;
+  border-width:2px;
+}
+.tile:hover {
+  transform: translateY(-2px) scale(1.04);
+  background:radial-gradient(circle at top, rgba(45,55,100,0.98), rgba(14,18,42,0.98));
+}
+
+/* Per-brush styling (glow tints) */
+.tile.planted[data-brush="flower"] {
+  border-color:#ffb8d6;
+  box-shadow:0 0 18px rgba(255,184,214,0.9);
+}
+.tile.planted[data-brush="tree"] {
+  border-color:#8fff9b;
+  box-shadow:0 0 18px rgba(143,255,155,0.9);
+}
+.tile.planted[data-brush="butter"] {
+  border-color:#89f0ff;
+  box-shadow:0 0 18px rgba(137,240,255,0.9);
+}
+.tile.planted[data-brush="birds"] {
+  border-color:#ffc96b;
+  box-shadow:0 0 18px rgba(255,201,107,0.9);
+}
+.tile.planted[data-brush="insects"] {
+  border-color:#f9ca24;
+  box-shadow:0 0 18px rgba(249,202,36,0.9);
+}
+.tile.planted[data-brush="pieces"] {
+  border-color:#c0b5ff;
+  box-shadow:0 0 18px rgba(192,181,255,0.9);
+}
+.tile.planted[data-brush="water"] {
+  border-color:#69f7ff;
+  box-shadow:0 0 18px rgba(105,247,255,0.9);
+}
+.tile.planted[data-brush="magic"] {
+  border-color:#ff8cf4;
+  box-shadow:0 0 22px rgba(255,140,244,0.9);
+}
+.tile.planted[data-brush="trash"] {
+  border-color:#ff6b6b;
+  box-shadow:0 0 16px rgba(255,107,107,0.9);
+}
+
+/* Newly planted pulse */
+.tile.just-planted::before {
+  animation: plantPulse 650ms ease-out forwards;
+}
+.tile.just-planted {
+  animation: plantPop 380ms ease-out;
+}
+
+/* Inspiration card */
+.inspo-card {
+  width:95%;
+  max-width:720px;
+  background: radial-gradient(circle at top left, rgba(10,16,30,0.98), rgba(8,10,24,0.98));
+  border-radius:18px;
+  padding:12px 14px 10px;
+  margin-top:12px;
+  border:1px solid rgba(255,255,255,0.08);
+  box-shadow:0 12px 30px rgba(0,0,0,0.6);
+}
+.inspo-label {
+  font-size:0.9rem;
+  color:#b8c0ff;
+  margin-bottom:4px;
+}
+.inspo-text {
+  font-size:0.98rem;
+  line-height:1.5;
+  color:#f3f4ff;
+  margin-bottom:6px;
+}
+.inspo-actions {
+  display:flex;
+  justify-content:flex-end;
+}
+.inspo-btn {
+  padding:5px 10px;
+  border-radius:999px;
+  border:none;
+  font-size:0.82rem;
+  font-weight:600;
+  background:#273357;
+  color:#f0f0ff;
+  box-shadow:0 0 0 1px rgba(255,255,255,0.06);
+}
+.inspo-btn:hover {
+  background:#344069;
+}
+
+/* Footer note */
+.footer-note {
+  margin-top:12px;
+  font-size:0.85rem;
+  color:#b0b5d8;
+  text-align:center;
+}
+
+/* Animations */
+@keyframes starDrift {
+  0% { transform:translate3d(0,0,0); }
+  50% { transform:translate3d(-10px, 6px,0); }
+  100% { transform:translate3d(0,0,0); }
+}
+@keyframes orbFloat {
+  0% { transform:translate3d(0,0,0); }
+  50% { transform:translate3d(0,18px,0); }
+  100% { transform:translate3d(0,0,0); }
+}
+@keyframes plantPop {
+  0% { transform:scale(0.65) translateY(4px); }
+  50% { transform:scale(1.08) translateY(-2px); }
+  100% { transform:scale(1) translateY(0); }
+}
+@keyframes plantPulse {
+  0%   { transform:scale(1);   opacity:0.5; border-width:0; }
+  60%  { transform:scale(1.18); opacity:0.9; border-width:3px; }
+  100% { transform:scale(1.26); opacity:0; border-width:0; }
+}
+
+/* Responsive */
+@media (max-width: 520px) {
+  :root {
+    --tile-size: 46px;
+    --tile-gap: 6px;
+  }
+  header {
+    font-size:1.8em;
+    padding-top:2px;
+  }
+  #info-panel {
+    padding:12px 10px 8px;
+  }
+  .grid-frame {
+    padding:10px 10px 12px;
+    border-radius:18px;
+  }
+}
+</style>
+</head>
+<body class="sky-sunny">
+<div id="skyLayer">
+  <div class="starfield"></div>
+  <div class="glow-orb orb-left"></div>
+  <div class="glow-orb orb-right"></div>
+  <div class="horizon"></div>
+</div>
+
+<header>
+  🌿 Mind Garden 🌿
+  <div class="subtitle">
+    Click tiles to plant flowers, birds and butterflies. Let your garden grow with daily seed-thoughts.
+  </div>
+</header>
+
+<div id="info-panel">
+  <div class="stats">
+    <div><span class="label">Tiles planted:</span> <span id="statSeeds">0</span></div>
+    <div><span class="label">Garden fullness:</span> <span id="statFullness">0%</span></div>
+    <div><span class="label">Stewardship:</span> <span id="statSteward">0 pts · Visitor</span></div>
+  </div>
+  <div class="fullness-bar">
+    <div id="fullnessFill" class="fullness-fill"></div>
+  </div>
+  <div id="daily-challenge"></div>
+  <div class="control-row">
+    <button class="control-btn secondary" id="reset-garden">Reset Garden</button>
+  </div>
+</div>
+
+<div class="toolbar">
+  <div class="toolbar-row">
+    <div class="toolbar-label">Palette:</div>
+    <div id="brushBar" class="brush-bar"></div>
+  </div>
+  <div class="toolbar-row">
+    <div class="toolbar-label">Sky:</div>
+    <div id="skyBar" class="sky-bar"></div>
+  </div>
+  <div class="toolbar-row">
+    <div class="toolbar-label">Plots:</div>
+    <div id="plotBar" class="sky-bar"></div>
+  </div>
+  <div class="toolbar-row">
+    <div class="toolbar-label">Share:</div>
+    <div class="action-bar">
+      <button class="pill-btn" id="btnShare"><span class="emoji">📤</span><span>Share garden</span></button>
+      <button class="pill-btn" id="btnImport"><span class="emoji">📥</span><span>Import garden</span></button>
+      <button class="pill-btn" id="btnSave"><span class="emoji">💾</span><span>Save snapshot</span></button>
+    </div>
+  </div>
+</div>
+
+<div id="game-container">
+  <div class="grid-frame">
+    <div id="gardenGrid"></div>
+  </div>
+</div>
+
+<div class="inspo-card">
+  <div class="inspo-label">Today’s seed thought</div>
+  <div id="inspoText" class="inspo-text"></div>
+  <div class="inspo-actions">
+    <button id="btnNextInspo" class="inspo-btn">Next seed</button>
+  </div>
+</div>
+
+<div class="footer-note">
+  Mind Garden • from Jenny Pearl &amp; Liora • Mirrored at vervenveda.com/mirth_games
+</div>
+
+<script>
+/* =========================
+   Config & State
+   ========================= */
+const ROWS = 6;
+const COLS = 6;
+const PLOTS = 3;
+const GAME_URL = "https://www.vervenveda.com/mirth_games";
+
+const LS_GARDEN = "mindgarden_v3_plots";
+const LS_SKY    = "mindgarden_v2_sky";
+const LS_INSPO  = "mindgarden_v2_inspo_index";
+const LS_ECO    = "mindgarden_v3_eco";
+const LS_LITTER = "mindgarden_v3_litter_date";
+
+const BRUSHES = [
+  { id:"random",  label:"Mix", emojis:["🌱","🌷","🌻","🌼","🌳","🌲","🦋","🐦","🐝","🐞","✨","⛲","🧱","🪑","🏡","🌈"] },
+  { id:"flower",  label:"Flowers",  emojis:["🌱","🌷","🌹","🌻","🌼","💐","🌸"] },
+  { id:"tree",    label:"Trees",    emojis:["🌳","🌲","🌴","🌵","🎄"] },
+  { id:"butter",  label:"Butterflies", emojis:["🦋"] },
+  { id:"birds",   label:"Birds",    emojis:["🐦","🕊️","🦉","🦜"] },
+  { id:"insects", label:"Insects",  emojis:["🐝","🐞","🐛","🪲"] },
+  { id:"pieces",  label:"Garden Pieces", emojis:["🧱","🪴","🪑","🪵","⛲","🏡","🚶‍♀️","🚶‍♂️"] },
+  { id:"water",   label:"Water",    emojis:["💧","💦","🌊"] },
+  { id:"magic",   label:"Magic",    emojis:["✨","🌟","💫","🌈"] },
+  { id:"trash",   label:"Trash (be careful!)", emojis:["🗑️","🚮","🛢️","🧪"] },
+  { id:"empty",   label:"Eraser",   emojis:[""] }
+];
+
+const SKIES = [
+  { id:"sunny",  label:"Sunny" },
+  { id:"sunset", label:"Sunset" },
+  { id:"night",  label:"Night" },
+  { id:"aurora", label:"Aurora" }
+];
+
+const INSPIRATIONS = [
+  "Take three slow breaths and imagine the soil of your life becoming soft and ready for new roots.",
+  "Every tiny icon you plant is a choice to create beauty instead of noise.",
+  "Add one new plant and remove one you don’t love. That’s pruning—on the screen, and in your schedule.",
+  "Gardens don’t grow all at once. Neither do languages, dreams, or courage.",
+  "Notice which corner of your garden feels calmest. Can you give a corner of your day the same care?",
+  "You are allowed to grow slowly. Oaks and wildflowers both belong here.",
+  "Plant something bright in a dark corner. Sometimes one small light changes the whole mood.",
+  "Let one tile stay empty on purpose. Space is part of design—and part of rest.",
+  "Imagine each butterfly carrying away one worry you don’t need today.",
+  "Your garden is unique because you are. No one else will arrange the sky and leaves exactly like this.",
+  "Drink some water, stretch your shoulders, then plant one more tiny act of kindness in your day.",
+  "Rain, sun, and night all belong in a healthy garden. Your feelings do, too."
+];
+
+/* Stewardship tiers */
+const ECO_TIERS = [
+  { min:0,   name:"Visitor" },
+  { min:50,  name:"Sprout Steward" },
+  { min:130, name:"Garden Keeper" },
+  { min:230, name:"Grove Guardian" }
+];
+const POLLUTION_EMOJIS = new Set(["🗑️","🚮","🛢️","🧪"]);
+
+/* DOM helper */
+const $ = (id)=>document.getElementById(id);
+
+/* State */
+let plots = [];
+let currentPlot = 0;
+let currentBrushId = "flower";
+let currentSkyId = "sunny";
+let inspoIndex = 0;
+let ecoScore = 0;
+
+/* =========================
+   Garden loading / saving
+   ========================= */
+function emptyTiles(){
+  return Array(ROWS*COLS).fill("");
+}
+
+function loadGarden(){
+  const total = ROWS * COLS;
+  plots = Array(PLOTS).fill(0).map(()=>emptyTiles());
+
+  try{
+    const raw = localStorage.getItem(LS_GARDEN);
+    if(raw){
+      const parsed = JSON.parse(raw);
+      if(Array.isArray(parsed)){
+        if(parsed.length && Array.isArray(parsed[0])){
+          for(let i=0;i<Math.min(parsed.length, plots.length);i++){
+            if(Array.isArray(parsed[i]) && parsed[i].length === total){
+              plots[i] = parsed[i].map(v => typeof v === "string" ? v : "");
+            }
+          }
+          return;
+        } else if(parsed.length === total && typeof parsed[0] === "string"){
+          plots[0] = parsed.map(v => typeof v === "string" ? v : "");
+          return;
+        }
+      }
+    }
+    const oldRaw = localStorage.getItem("mindgarden_v2_tiles");
+    if(oldRaw){
+      const arr = JSON.parse(oldRaw);
+      if(Array.isArray(arr) && arr.length === total){
+        plots[0] = arr.map(v => typeof v === "string" ? v : "");
+      }
+    }
+  }catch(e){
+    // keep empty plots
+  }
+}
+
+function saveGarden(){
+  try{
+    localStorage.setItem(LS_GARDEN, JSON.stringify(plots));
+  }catch(e){}
+}
+
+/* Stewardship */
+function loadEco(){
+  const raw = parseInt(localStorage.getItem(LS_ECO) || "0", 10);
+  ecoScore = isNaN(raw) ? 0 : Math.max(0, raw);
+}
+function saveEco(){
+  try{ localStorage.setItem(LS_ECO, String(ecoScore)); }catch(e){}
+}
+function changeEco(delta){
+  if(!delta) return;
+  ecoScore = Math.max(0, ecoScore + delta);
+  saveEco();
+}
+function ecoTierName(){
+  let name = ECO_TIERS[0].name;
+  for(const t of ECO_TIERS){
+    if(ecoScore >= t.min) name = t.name;
+  }
+  return name;
+}
+function adjustEco(oldEmoji, newEmoji){
+  if(oldEmoji === newEmoji) return;
+  const wasPoll = POLLUTION_EMOJIS.has(oldEmoji);
+  const isPoll  = POLLUTION_EMOJIS.has(newEmoji);
+  const wasPlant = !!oldEmoji && !wasPoll;
+  const isPlant  = !!newEmoji && !isPoll;
+  let delta = 0;
+
+  if(isPlant && !wasPlant) delta += 1;
+  if(!newEmoji && wasPlant) delta -= 1;
+  if(isPoll && !wasPoll) delta -= 3;
+  if(!isPoll && wasPoll){
+    delta += newEmoji ? 4 : 3;
+  }
+  changeEco(delta);
+}
+
+/* =========================
+   Plot stats & unlocking
+   ========================= */
+function getPlotStats(idx){
+  const tiles = plots[idx] || emptyTiles();
+  const planted = tiles.filter(e=>!!e).length;
+  const total = ROWS*COLS;
+  const fullness = total ? Math.round((planted/total)*100) : 0;
+  return { planted, fullness };
+}
+
+function isPlotUnlocked(idx){
+  if(idx === 0) return true;
+  if(idx === 1) return ecoScore >= 50;
+  if(idx === 2) return ecoScore >= 130;
+  return false;
+}
+
+/* =========================
+   Sky
+   ========================= */
+function loadSky(){
+  const saved = localStorage.getItem(LS_SKY);
+  currentSkyId = SKIES.some(s=>s.id===saved) ? saved : "sunny";
+  applySky();
+}
+function applySky(){
+  const cls = SKIES.map(s=>"sky-" + s.id);
+  document.body.classList.remove(...cls);
+  document.body.classList.add("sky-" + currentSkyId);
+  try{
+    localStorage.setItem(LS_SKY, currentSkyId);
+  }catch(e){}
+}
+function renderSkyBar(){
+  const bar = $("skyBar");
+  bar.innerHTML = "";
+  SKIES.forEach(s=>{
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "pill-btn sky-btn";
+    btn.dataset.sky = s.id;
+    btn.textContent = s.label;
+    if(s.id === currentSkyId) btn.classList.add("active");
+    btn.addEventListener("click", ()=>{
+      currentSkyId = s.id;
+      applySky();
+      document.querySelectorAll(".sky-btn").forEach(b=>{
+        b.classList.toggle("active", b.dataset.sky === currentSkyId);
+      });
+    });
+    bar.appendChild(btn);
+  });
+}
+
+/* =========================
+   Brush palette
+   ========================= */
+function renderBrushBar(){
+  const bar = $("brushBar");
+  bar.innerHTML = "";
+  BRUSHES.forEach(b=>{
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "pill-btn brush-btn";
+    btn.dataset.id = b.id;
+    const emoji = (b.emojis && b.emojis[0]) || "";
+    btn.innerHTML = `<span class="emoji">${emoji || "⬜"}</span><span>${b.label}</span>`;
+    if(b.id === currentBrushId) btn.classList.add("active");
+    btn.addEventListener("click", ()=>{
+      currentBrushId = b.id;
+      document.querySelectorAll(".brush-btn").forEach(x=>{
+        x.classList.toggle("active", x.dataset.id === currentBrushId);
+      });
+    });
+    bar.appendChild(btn);
+  });
+}
+
+function getEmojiForBrush(){
+  const brush = BRUSHES.find(b=>b.id === currentBrushId) || BRUSHES[0];
+  if(brush.id === "empty") return "";
+  if(brush.id === "random"){
+    const pool = brush.emojis && brush.emojis.length ? brush.emojis : ["🌱"];
+    const idx = Math.floor(Math.random()*pool.length);
+    return pool[idx];
+  }
+  const pool = brush.emojis && brush.emojis.length ? brush.emojis : ["🌱"];
+  const idx = Math.floor(Math.random()*pool.length);
+  return pool[idx];
+}
+
+/* Classify emoji → brush style (for re-renders/imports) */
+function classifyEmoji(emoji){
+  if(!emoji) return "";
+  if(POLLUTION_EMOJIS.has(emoji)) return "trash";
+  for(const brush of BRUSHES){
+    if(brush.id === "random" || brush.id === "empty") continue;
+    if(brush.emojis && brush.emojis.includes(emoji)){
+      return brush.id;
+    }
+  }
+  return "flower";
+}
+
+/* =========================
+   Plot selector
+   ========================= */
+function renderPlotBar(){
+  const bar = $("plotBar");
+  bar.innerHTML = "";
+  for(let i=0;i<PLOTS;i++){
+    const stats = getPlotStats(i);
+    const unlocked = isPlotUnlocked(i);
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "pill-btn plot-btn";
+    if(!unlocked) btn.classList.add("locked");
+    if(i === currentPlot) btn.classList.add("active");
+
+    const name = `Plot ${i+1}`;
+    btn.innerHTML =
+      `<span class="emoji">${unlocked ? "🏡" : "🔒"}</span>` +
+      `<span>${name}</span>` +
+      `<span style="font-size:.75rem;opacity:.8;">${stats.fullness}%</span>`;
+
+    btn.addEventListener("click", ()=>{
+      if(!unlocked){
+        const needed = (i===1?50:130);
+        alert(`This plot unlocks at ${needed} Stewardship points.\nYou currently have ${ecoScore}.`);
+        return;
+      }
+      currentPlot = i;
+      renderGarden();
+      renderPlotBar();
+    });
+
+    bar.appendChild(btn);
+  }
+}
+
+/* =========================
+   Garden rendering
+   ========================= */
+function renderGarden(){
+  const grid = $("gardenGrid");
+  const tiles = plots[currentPlot];
+  grid.style.gridTemplateColumns = `repeat(${COLS}, var(--tile-size))`;
+  grid.innerHTML = "";
+
+  tiles.forEach((emoji, idx)=>{
+    const tile = document.createElement("button");
+    tile.type = "button";
+    tile.className = "tile" + (emoji ? " planted" : "");
+    tile.textContent = emoji;
+    const type = classifyEmoji(emoji);
+    if(type) tile.dataset.brush = type;
+    tile.addEventListener("click", ()=>{
+      const oldEmoji = plots[currentPlot][idx];
+      const newEmoji = getEmojiForBrush();
+      if(oldEmoji === newEmoji) return;
+      adjustEco(oldEmoji, newEmoji);
+      plots[currentPlot][idx] = newEmoji;
+      tile.textContent = newEmoji;
+      tile.classList.toggle("planted", !!newEmoji);
+
+      const newType = classifyEmoji(newEmoji);
+      if(newType) tile.dataset.brush = newType;
+      else tile.removeAttribute("data-brush");
+
+      if(newEmoji){
+        tile.classList.remove("just-planted");
+        void tile.offsetWidth; // restart animation
+        tile.classList.add("just-planted");
+      } else {
+        tile.classList.remove("just-planted");
+      }
+
+      saveGarden();
+      updateStats();
+      renderPlotBar();
+    });
+    grid.appendChild(tile);
+  });
+
+  updateStats();
+}
+
+/* Stats + daily note */
+function updateStats(){
+  const stats = getPlotStats(currentPlot);
+  $("statSeeds").textContent = stats.planted;
+  $("statFullness").textContent = stats.fullness + "%";
+  const bar = $("fullnessFill");
+  if(bar) bar.style.width = stats.fullness + "%";
+  $("statSteward").textContent = `${ecoScore} pts · ${ecoTierName()}`;
+  updateDailyNote();
+}
+
+function updateDailyNote(){
+  const el = $("daily-challenge");
+  if(!el) return;
+
+  if(!isPlotUnlocked(1)){
+    el.textContent =
+      `🌱 Earn 50 Stewardship points to unlock Plot 2 (you have ${ecoScore}). ` +
+      `Plant beauty and clean up any trash you see.`;
+  } else if(!isPlotUnlocked(2)){
+    el.textContent =
+      `🌱 Earn 130 Stewardship points to unlock Plot 3 (you have ${ecoScore}). ` +
+      `Keep tending and cleaning your garden.`;
+  } else {
+    el.textContent =
+      "🌟 All plots unlocked. Keep your stewardship high by planting beauty and cleaning any trash.";
+  }
+}
+
+/* =========================
+   Inspiration
+   ========================= */
+function initInspiration(){
+  const storedIndex = parseInt(localStorage.getItem(LS_INSPO) || "0", 10) || 0;
+  const today = new Date().toDateString();
+  const dateKey = LS_INSPO + "_date";
+  const lastDate = localStorage.getItem(dateKey);
+
+  inspoIndex = storedIndex % INSPIRATIONS.length;
+  if(lastDate !== today){
+    inspoIndex = (inspoIndex + 1) % INSPIRATIONS.length;
+    try{
+      localStorage.setItem(dateKey, today);
+      localStorage.setItem(LS_INSPO, String(inspoIndex));
+    }catch(e){}
+  }
+
+  showInspiration();
+
+  $("btnNextInspo").addEventListener("click", ()=>{
+    inspoIndex = (inspoIndex + 1) % INSPIRATIONS.length;
+    try{ localStorage.setItem(LS_INSPO, String(inspoIndex)); }catch(e){}
+    showInspiration();
+  });
+}
+
+function showInspiration(){
+  const el = $("inspoText");
+  const text = INSPIRATIONS[inspoIndex] || INSPIRATIONS[0];
+  el.textContent = text;
+}
+
+/* =========================
+   Daily litter (cleanup points)
+   ========================= */
+function scatterDailyLitter(){
+  try{
+    const today = new Date().toDateString();
+    const last = localStorage.getItem(LS_LITTER);
+    if(last === today) return;
+    localStorage.setItem(LS_LITTER, today);
+
+    const base = plots[0];
+    const empties = [];
+    for(let i=0;i<base.length;i++){
+      if(!base[i]) empties.push(i);
+    }
+    let count = Math.min(3, empties.length);
+    while(count>0 && empties.length){
+      const pickIndex = Math.floor(Math.random()*empties.length);
+      const idx = empties.splice(pickIndex,1)[0];
+      base[idx] = "🗑️";
+      count--;
+    }
+    saveGarden();
+  }catch(e){
+    // ignore if storage fails
+  }
+}
+
+/* =========================
+   Share / Import (per plot)
+   ========================= */
+function makeShareCode(){
+  try{
+    const tiles = plots[currentPlot];
+    const data = { t: tiles, s: currentSkyId };
+    const json = JSON.stringify(data);
+    return btoa(unescape(encodeURIComponent(json)));
+  }catch(e){
+    return "";
+  }
+}
+
+function handleShare(){
+  const code = makeShareCode();
+  if(!code){
+    alert("Sorry, I couldn’t create a share code for this garden.");
+    return;
+  }
+  const text = `Here is my Mind Garden (Plot ${currentPlot+1})!\n\nOpen ${GAME_URL} and use “Import garden” with this code:\n\n${code}`;
+
+  if(navigator.share){
+    navigator.share({
+      title: "Mind Garden",
+      text,
+      url: GAME_URL
+    }).catch(()=>{});
+  } else if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text)
+      .then(()=> alert("Share text copied! Paste it into a message to your friend."))
+      .catch(()=>{
+        prompt("Copy this share text and send it to a friend:", text);
+      });
+  } else {
+    prompt("Copy this share text and send it to a friend:", text);
+  }
+}
+
+function handleImport(){
+  const code = prompt("Select the plot you want first, then paste a Mind Garden share code:");
+  if(!code) return;
+  try{
+    const json = decodeURIComponent(escape(atob(code.trim())));
+    const data = JSON.parse(json);
+    if(!data || !Array.isArray(data.t)) throw new Error("bad data");
+
+    const total = ROWS * COLS;
+    const arr = Array(total);
+    for(let i=0;i<total;i++){
+      const v = data.t[i];
+      arr[i] = (typeof v === "string") ? v : "";
+    }
+    plots[currentPlot] = arr;
+
+    if(data.s && SKIES.some(s=>s.id === data.s)){
+      currentSkyId = data.s;
+      applySky();
+      renderSkyBar();
+    }
+
+    saveGarden();
+    renderGarden();
+    renderPlotBar();
+    alert("Garden imported into this plot! 🌿");
+  }catch(e){
+    alert("That code could not be read. Make sure it was copied completely.");
+  }
+}
+
+/* =========================
+   Reset
+   ========================= */
+function resetGarden(){
+  if(!confirm("Reset all plots on this device? All gardens and stewardship points will be cleared.")) return;
+  plots = Array(PLOTS).fill(0).map(()=>emptyTiles());
+  ecoScore = 0;
+  saveGarden();
+  saveEco();
+  localStorage.removeItem(LS_LITTER);
+  renderGarden();
+  renderPlotBar();
+}
+
+/* =========================
+   Init
+   ========================= */
+function init(){
+  loadGarden();
+  loadEco();
+  loadSky();
+  scatterDailyLitter();
+  renderBrushBar();
+  renderSkyBar();
+  renderPlotBar();
+  renderGarden();
+  initInspiration();
+
+  $("reset-garden").addEventListener("click", resetGarden);
+  $("btnShare").addEventListener("click", handleShare);
+  $("btnImport").addEventListener("click", handleImport);
+  $("btnSave").addEventListener("click", ()=>{
+    saveGarden();
+    alert("Garden snapshot saved on this device. 🌱");
+  });
+}
+
+init();
+</script>
+</body>
+</html>
