@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>The Testament Trivia — 5-Level Biblical Quiz</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+
+  <!-- Optional sacred fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Cormorant+Garamond:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --parchment:#f7f3ea;
+      --parchment-soft:#f0e9dc;
+      --gold:#d9b878;
+      --gold-deep:#b89252;
+      --gold-root:#7a5a28;
+      --midnight:#050713;
+      --midnight-soft:#141528;
+      --ink-soft:#e5ddc7;
+      --radius-shell:33px;
+      --radius-card:27px;
+      --shadow-shell:0 24px 72px rgba(0,0,0,0.85);
+      --shadow-card:0 16px 44px rgba(0,0,0,0.7);
+    }
+
+    *,*::before,*::after{
+      box-sizing:border-box;
+    }
+
+    html,body{
+      margin:0;
+      padding:0;
+      min-height:100vh;
+      font-family:'Cormorant Garamond',system-ui,-apple-system,'Segoe UI',serif;
+      background:radial-gradient(circle at top,#f9f3e3 0%,#e6d6b3 40%,#cfb68b 72%,#b89c6f 100%);
+      color:var(--parchment);
+    }
+
+    body{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:44px 14px;
+    }
+
+    .trivia-shell{
+      width:100%;
+      max-width:960px;
+      background:linear-gradient(180deg,#191b2a 0%,#050713 85%);
+      border-radius:var(--radius-shell);
+      border:1px solid rgba(60,43,18,0.6);
+      box-shadow:var(--shadow-shell);
+      padding:33px 27px 30px;
+      color:var(--parchment);
+    }
+
+    .trivia-header{
+      text-align:center;
+      margin-bottom:21px;
+    }
+
+    .trivia-title{
+      font-family:'Cinzel','Times New Roman',serif;
+      font-size:28px;
+      letter-spacing:0.2em;
+      text-transform:uppercase;
+      margin:0 0 7px;
+    }
+
+    .trivia-tagline{
+      font-size:14px;
+      letter-spacing:0.16em;
+      text-transform:uppercase;
+      color:var(--gold);
+      margin:0 0 12px;
+    }
+
+    .trivia-sub{
+      font-size:16px;
+      line-height:1.7;
+      color:var(--parchment-soft);
+      max-width:720px;
+      margin:0 auto;
+    }
+
+    /* Level + topic selector */
+
+    .level-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:9px;
+      align-items:center;
+      justify-content:center;
+      margin:18px 0 10px;
+    }
+
+    .topic-row{
+      margin-top:4px;
+      margin-bottom:18px;
+    }
+
+    .level-label{
+      font-size:13px;
+      letter-spacing:0.14em;
+      text-transform:uppercase;
+      color:var(--ink-soft);
+      margin-right:4px;
+    }
+
+    .level-btn{
+      border-radius:999px;
+      border:1px solid rgba(217,184,120,0.6);
+      background:rgba(10,12,30,0.95);
+      color:var(--parchment);
+      padding:7px 16px;
+      font-size:12px;
+      letter-spacing:0.11em;
+      text-transform:uppercase;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      white-space:nowrap;
+      transition:background .18s,box-shadow .18s,transform .18s,border-color .18s;
+    }
+
+    .level-btn:hover{
+      background:#252744;
+      box-shadow:0 7px 21px rgba(0,0,0,0.6);
+      transform:translateY(-1px);
+    }
+
+    .level-btn.level-active{
+      background:linear-gradient(135deg,var(--gold),var(--gold-deep));
+      color:#050713;
+      border-color:var(--gold);
+      box-shadow:0 9px 24px rgba(0,0,0,0.7);
+    }
+
+    .topic-select{
+      border-radius:999px;
+      border:1px solid rgba(217,184,120,0.6);
+      background:rgba(10,12,30,0.95);
+      color:var(--parchment);
+      padding:7px 16px;
+      font-size:13px;
+      letter-spacing:0.06em;
+      text-transform:none;
+      min-width:220px;
+    }
+
+    /* Top bar: score + progress */
+
+    .top-bar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:18px;
+      margin:0 0 18px;
+      flex-wrap:wrap;
+    }
+
+    .score-box{
+      font-size:15px;
+      color:var(--ink-soft);
+      min-width:180px;
+    }
+
+    .score-box strong{
+      color:var(--gold);
+    }
+
+    .best-label{
+      font-size:12px;
+      display:block;
+      margin-top:4px;
+      color:rgba(229,221,199,0.85);
+    }
+
+    .progress-wrap{
+      flex:1;
+      min-width:200px;
+    }
+
+    .progress-track{
+      width:100%;
+      height:9px;
+      border-radius:999px;
+      background:rgba(247,243,234,0.08);
+      overflow:hidden;
+      box-shadow:0 0 0 1px rgba(247,243,234,0.08);
+    }
+
+    .progress-bar{
+      width:0%;
+      height:100%;
+      border-radius:999px;
+      background:linear-gradient(90deg,var(--gold-root),var(--gold));
+      transition:width .25s ease-out;
+    }
+
+    .progress-label{
+      margin-top:6px;
+      font-size:13px;
+      text-align:right;
+      color:var(--ink-soft);
+    }
+
+    /* Question card */
+
+    .card{
+      background:var(--midnight-soft);
+      border-radius:var(--radius-card);
+      border:1px solid rgba(247,243,234,0.15);
+      box-shadow:var(--shadow-card);
+      padding:21px 18px 18px;
+    }
+
+    .question-text{
+      font-size:27px;
+      line-height:1.5;
+      margin:0 0 14px;
+      color:var(--parchment);
+    }
+
+    .options-area{
+      margin-top:8px;
+    }
+
+    .option-btn{
+      width:100%;
+      border-radius:21px;
+      border:1px solid rgba(217,184,120,0.65);
+      background:rgba(10,12,30,0.98);
+      color:var(--parchment);
+      font-size:21px;
+      padding:11px 14px;
+      margin-top:11px;
+      text-align:left;
+      cursor:pointer;
+      display:block;
+      transition:background .18s,transform .18s,box-shadow .18s,border-color .18s;
+    }
+
+    .option-btn:hover:not(:disabled){
+      background:#20223a;
+      transform:translateY(-1px);
+      box-shadow:0 7px 21px rgba(0,0,0,0.6);
+    }
+
+    .option-btn:disabled{
+      cursor:default;
+      opacity:0.92;
+    }
+
+    .option-correct{
+      border-color:#4caf50;
+      background:rgba(76,175,80,0.2);
+    }
+
+    .option-incorrect{
+      border-color:#e53935;
+      background:rgba(229,57,53,0.18);
+    }
+
+    .feedback-text{
+      margin-top:14px;
+      font-size:16px;
+      min-height:28px;
+      color:var(--ink-soft);
+    }
+
+    .feedback-correct{
+      color:#b2f0b0;
+    }
+
+    .feedback-incorrect{
+      color:#ffb8b0;
+    }
+
+    .feedback-neutral{
+      color:var(--ink-soft);
+    }
+
+    .feedback-link{
+      color:var(--gold);
+      text-decoration:none;
+      border-bottom:1px dotted rgba(217,184,120,0.7);
+      margin-left:6px;
+      font-size:0.95em;
+    }
+
+    .feedback-link:hover{
+      color:var(--gold-deep);
+    }
+
+    .controls-row{
+      margin-top:18px;
+      display:flex;
+      gap:11px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    .pill-btn{
+      border:none;
+      border-radius:999px;
+      padding:9px 24px;
+      font-size:12px;
+      letter-spacing:0.14em;
+      text-transform:uppercase;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      background:linear-gradient(135deg,var(--gold),var(--gold-deep));
+      color:#050713;
+      text-decoration:none;
+      box-shadow:0 9px 27px rgba(0,0,0,0.6);
+      transition:transform .2s,box-shadow .2s,background .2s,opacity .18s;
+      white-space:nowrap;
+    }
+
+    .pill-btn:disabled{
+      opacity:0.55;
+      cursor:default;
+      box-shadow:none;
+      transform:none;
+    }
+
+    .pill-btn:hover:not(:disabled){
+      transform:translateY(-1px);
+      box-shadow:0 12px 34px rgba(0,0,0,0.75);
+    }
+
+    .ghost-btn{
+      border-radius:999px;
+      border:1px solid rgba(247,243,234,0.35);
+      background:transparent;
+      color:var(--parchment-soft);
+      padding:8px 20px;
+      font-size:11px;
+      letter-spacing:0.13em;
+      text-transform:uppercase;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      white-space:nowrap;
+      transition:background .18s,box-shadow .18s,transform .18s,border-color .18s;
+    }
+
+    .ghost-btn:hover{
+      background:rgba(247,243,234,0.06);
+      box-shadow:0 7px 21px rgba(0,0,0,0.6);
+      transform:translateY(-1px);
+    }
+
+    .end-score{
+      display:block;
+      margin-top:6px;
+      font-size:21px;
+      color:var(--gold);
+    }
+
+    @media (max-width:720px){
+      body{
+        padding:24px 10px;
+      }
+      .trivia-shell{
+        padding:24px 16px 24px;
+        border-radius:24px;
+      }
+      .question-text{
+        font-size:24px;
+      }
+      .option-btn{
+        font-size:20px;
+      }
+      .top-bar{
+        flex-direction:column;
+        align-items:flex-start;
+      }
+      .progress-label{
+        text-align:left;
+      }
+      .controls-row{
+        justify-content:flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <section class="trivia-shell" aria-label="The Testament Trivia Game">
+    <header class="trivia-header">
+      <h1 class="trivia-title">THE TESTAMENT TRIVIA</h1>
+      <p class="trivia-tagline">5 LEVELS · SCRIPTURE · STORY · CONTEXT</p>
+      <p class="trivia-sub">
+        Choose a difficulty level and topic focus, answer each question, and watch your score grow.
+        Use this as a gentle way to remember stories, names, and verses—then return to
+        <strong>The Testament</strong> portal for deeper study.
+      </p>
+    </header>
+
+    <!-- Difficulty selector -->
+    <div class="level-row" aria-label="Choose difficulty">
+      <span class="level-label">Difficulty:</span>
+      <button class="level-btn level-active" data-level="1" type="button">Level 1 · Gentle</button>
+      <button class="level-btn" data-level="2" type="button">Level 2 · Steady</button>
+      <button class="level-btn" data-level="3" type="button">Level 3 · Deep</button>
+      <button class="level-btn" data-level="4" type="button">Level 4 · Scholar</button>
+      <button class="level-btn" data-level="5" type="button">Level 5 · Challenge</button>
+    </div>
+
+    <!-- Topic selector -->
+    <div class="level-row topic-row" aria-label="Choose topic focus">
+      <span class="level-label">Focus:</span>
+      <select id="topicFilter" class="topic-select">
+        <option value="all">All topics</option>
+        <option value="ot">Old Testament</option>
+        <option value="nt">New Testament (Gospels &amp; Acts)</option>
+        <option value="letters">Letters &amp; Epistles</option>
+        <option value="wisdom">Psalms &amp; Wisdom</option>
+        <option value="prophets">Prophets &amp; Apocalyptic</option>
+      </select>
+    </div>
+
+    <!-- Top bar: score & progress -->
+    <div class="top-bar">
+      <div class="score-box">
+        Score: <strong id="scoreValue">0 / 0</strong>
+        <span id="bestScoreLabel" class="best-label">Best (Level 1): —</span>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-track" aria-hidden="true">
+          <div id="progressBar" class="progress-bar"></div>
+        </div>
+        <div id="progressLabel" class="progress-label"></div>
+      </div>
+    </div>
+
+    <!-- Question card -->
+    <article class="card">
+      <div id="questionText" class="question-text">
+        Loading question…
+      </div>
+      <div id="optionsArea" class="options-area" aria-live="polite"></div>
+      <div id="feedback" class="feedback-text"></div>
+
+      <div class="controls-row">
+        <button id="nextBtn" class="pill-btn" type="button" disabled>Next Question</button>
+        <button id="restartBtn" class="ghost-btn" type="button">Restart Level</button>
+      </div>
+    </article>
+  </section>
+
+  <script>
+    // === Question bank ===
+    // level: 1 (Gentle) → 5 (Challenge)
+    // topic: 'ot', 'nt', 'letters', 'wisdom', 'prophets'
+    const QUESTIONS = [
+      // ---- Level 1: Gentle (stories everyone meets early) ----
+      {
+        level:1,
+        topic:"ot",
+        question:"Who built an ark to survive the great flood?",
+        choices:["Abraham","Noah","Moses","David"],
+        answer:1,
+        reference:"Genesis 6–9"
+      },
+      {
+        level:1,
+        topic:"nt",
+        question:"Where was Jesus born?",
+        choices:["Nazareth","Bethlehem","Jerusalem","Capernaum"],
+        answer:1,
+        reference:"Luke 2:1–7"
+      },
+      {
+        level:1,
+        topic:"ot",
+        question:"What did David use to defeat Goliath?",
+        choices:["A sword","A spear","A sling and a stone","A chariot"],
+        answer:2,
+        reference:"1 Samuel 17:40–50"
+      },
+      {
+        level:1,
+        topic:"ot",
+        question:"On which day did God rest from His work of creation?",
+        choices:["The fifth day","The sixth day","The seventh day","He did not rest"],
+        answer:2,
+        reference:"Genesis 2:1–3"
+      },
+      {
+        level:1,
+        topic:"nt",
+        question:"What was the first miracle of Jesus recorded in the Gospel of John?",
+        choices:["Feeding the 5,000","Healing a blind man","Walking on water","Turning water into wine"],
+        answer:3,
+        reference:"John 2:1–11"
+      },
+      {
+        level:1,
+        topic:"ot",
+        question:"Who was swallowed by a great fish after trying to flee from God’s command?",
+        choices:["Jonah","Daniel","Elijah","Peter"],
+        answer:0,
+        reference:"Jonah 1–2"
+      },
+
+      // ---- Level 2: Steady (names, places, simple connections) ----
+      {
+        level:2,
+        topic:"nt",
+        question:"Which disciple denied Jesus three times before the rooster crowed?",
+        choices:["John","Peter","James","Thomas"],
+        answer:1,
+        reference:"Luke 22:54–62"
+      },
+      {
+        level:2,
+        topic:"ot",
+        question:"Which Old Testament figure led Israel out of slavery in Egypt?",
+        choices:["Moses","Joshua","Samuel","Joseph"],
+        answer:0,
+        reference:"Exodus 3–14"
+      },
+      {
+        level:2,
+        topic:"letters",
+        question:"What weapon is the Word of God compared to in Ephesians 6?",
+        choices:["A shield","A helmet","A sword","An arrow"],
+        answer:2,
+        reference:"Ephesians 6:17"
+      },
+      {
+        level:2,
+        topic:"ot",
+        question:"Who was the first king of Israel?",
+        choices:["David","Solomon","Saul","Rehoboam"],
+        answer:2,
+        reference:"1 Samuel 10:1"
+      },
+      {
+        level:2,
+        topic:"wisdom",
+        question:"Which book of the Bible is known for its many songs and prayers?",
+        choices:["Proverbs","Psalms","Isaiah","Job"],
+        answer:1,
+        reference:"Book of Psalms"
+      },
+      {
+        level:2,
+        topic:"ot",
+        question:"What food did God provide from heaven for Israel in the wilderness?",
+        choices:["Quail","Fish","Bread from heaven (manna)","Figs"],
+        answer:2,
+        reference:"Exodus 16:4–15"
+      },
+
+      // ---- Level 3: Deep (details, order, specific sayings) ----
+      {
+        level:3,
+        topic:"nt",
+        question:"In the Parable of the Sower, what does the seed represent?",
+        choices:["Faith of the hearer","The Word of God","Good works","Prayer"],
+        answer:1,
+        reference:"Luke 8:11"
+      },
+      {
+        level:3,
+        topic:"prophets",
+        question:"Which prophet saw a vision of a valley full of dry bones?",
+        choices:["Isaiah","Jeremiah","Ezekiel","Hosea"],
+        answer:2,
+        reference:"Ezekiel 37:1–10"
+      },
+      {
+        level:3,
+        topic:"nt",
+        question:"To which city was Paul traveling when he encountered the risen Christ in a bright light?",
+        choices:["Corinth","Damascus","Antioch","Rome"],
+        answer:1,
+        reference:"Acts 9:1–9"
+      },
+      {
+        level:3,
+        topic:"letters",
+        question:"Which New Testament book includes the ‘fruit of the Spirit’ list?",
+        choices:["Romans","Galatians","Ephesians","Colossians"],
+        answer:1,
+        reference:"Galatians 5:22–23"
+      },
+      {
+        level:3,
+        topic:"ot",
+        question:"What did Solomon ask God for at the beginning of his reign?",
+        choices:["Riches","Long life","Victory over enemies","Wisdom"],
+        answer:3,
+        reference:"1 Kings 3:5–12"
+      },
+      {
+        level:3,
+        topic:"nt",
+        question:"Which Gospel contains the ‘I am the vine; you are the branches’ teaching?",
+        choices:["Matthew","Mark","Luke","John"],
+        answer:3,
+        reference:"John 15:1–5"
+      },
+
+      // ---- Level 4: Scholar (prophecy, structure, minor details) ----
+      {
+        level:4,
+        topic:"prophets",
+        question:"Which prophet prophesied about a ‘new covenant’ written on the heart?",
+        choices:["Isaiah","Jeremiah","Ezekiel","Micah"],
+        answer:1,
+        reference:"Jeremiah 31:31–34"
+      },
+      {
+        level:4,
+        topic:"prophets",
+        question:"In which book do we find the vision of ‘the Ancient of Days’ and ‘one like a son of man’?",
+        choices:["Isaiah","Daniel","Ezekiel","Zechariah"],
+        answer:1,
+        reference:"Daniel 7:9–14"
+      },
+      {
+        level:4,
+        topic:"letters",
+        question:"Which New Testament letter is addressed ‘to the twelve tribes in the Dispersion’?",
+        choices:["Hebrews","James","1 Peter","Jude"],
+        answer:1,
+        reference:"James 1:1"
+      },
+      {
+        level:4,
+        topic:"nt",
+        question:"According to the Gospel of Luke, which two people blessed the infant Jesus at the temple?",
+        choices:["Zechariah and Elizabeth","Annas and Caiaphas","Mary and Martha","Simeon and Anna"],
+        answer:3,
+        reference:"Luke 2:25–38"
+      },
+      {
+        level:4,
+        topic:"prophets",
+        question:"Which minor prophet describes a plague of locusts and calls for a solemn assembly and fast?",
+        choices:["Joel","Amos","Habakkuk","Haggai"],
+        answer:0,
+        reference:"Joel 1–2"
+      },
+      {
+        level:4,
+        topic:"nt",
+        question:"In Acts 15, which city hosted the council that discussed Gentile believers and the Law?",
+        choices:["Antioch","Jerusalem","Rome","Corinth"],
+        answer:1,
+        reference:"Acts 15:1–6"
+      },
+
+      // ---- Level 5: Challenge (precision, cross-threads, fine detail) ----
+      {
+        level:5,
+        topic:"ot",
+        question:"In Genesis, Melchizedek is described by which two roles when he meets Abram?",
+        choices:[
+          "King of Salem and prophet",
+          "Priest of God Most High and king of Salem",
+          "Priest of Levi and judge of Salem",
+          "Prophet and judge over Canaan"
+        ],
+        answer:1,
+        reference:"Genesis 14:18–20"
+      },
+      {
+        level:5,
+        topic:"wisdom",
+        question:"In which Psalm does the line ‘The stone that the builders rejected has become the cornerstone’ appear?",
+        choices:["Psalm 22","Psalm 51","Psalm 110","Psalm 118"],
+        answer:3,
+        reference:"Psalm 118:22"
+      },
+      {
+        level:5,
+        topic:"prophets",
+        question:"Which Old Testament book is structured as a series of disputes between the LORD and His people, including the question, ‘Will man rob God?’",
+        choices:["Habakkuk","Haggai","Malachi","Zechariah"],
+        answer:2,
+        reference:"Malachi 1–3"
+      },
+      {
+        level:5,
+        topic:"nt",
+        question:"According to the Gospel of John, which sign immediately precedes the plot to put Jesus to death by the council?",
+        choices:[
+          "Feeding the five thousand",
+          "Healing the man born blind",
+          "Raising Lazarus from the dead",
+          "Cleansing the temple"
+        ],
+        answer:2,
+        reference:"John 11:45–53"
+      },
+      {
+        level:5,
+        topic:"letters",
+        question:"Which New Testament letter uses the image of Jesus as a high priest ‘after the order of Melchizedek’ most extensively?",
+        choices:["Romans","Hebrews","1 Peter","Revelation"],
+        answer:1,
+        reference:"Hebrews 5–7"
+      },
+      {
+        level:5,
+        topic:"prophets",
+        question:"In Revelation, to which church is the message, ‘You have abandoned the love you had at first’ addressed?",
+        choices:["Ephesus","Smyrna","Pergamum","Laodicea"],
+        answer:0,
+        reference:"Revelation 2:1–4"
+      }
+    ];
+
+    const BEST_KEY_PREFIX = "testamentTriviaBestLevel";
+
+    // State
+    let currentLevel = 1;
+    let currentTopic = "all";
+    let currentIndex = 0;
+    let score = 0;
+    let shuffledQuestions = [];
+    let hasAnswered = false;
+
+    // DOM refs
+    const levelButtons = document.querySelectorAll(".level-btn");
+    const topicFilterEl = document.getElementById("topicFilter");
+    const scoreValueEl = document.getElementById("scoreValue");
+    const bestScoreLabelEl = document.getElementById("bestScoreLabel");
+    const progressBarEl = document.getElementById("progressBar");
+    const progressLabelEl = document.getElementById("progressLabel");
+    const questionTextEl = document.getElementById("questionText");
+    const optionsAreaEl = document.getElementById("optionsArea");
+    const feedbackEl = document.getElementById("feedback");
+    const nextBtn = document.getElementById("nextBtn");
+    const restartBtn = document.getElementById("restartBtn");
+
+    function shuffle(array){
+      for(let i=array.length-1;i>0;i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [array[i],array[j]] = [array[j],array[i]];
+      }
+      return array;
+    }
+
+    function getQuestionsForLevel(level){
+      return QUESTIONS.filter(q =>
+        q.level === level && (currentTopic === "all" || q.topic === currentTopic)
+      );
+    }
+
+    function getBestForLevel(){
+      const key = BEST_KEY_PREFIX + currentLevel;
+      try{
+        const raw = localStorage.getItem(key);
+        if(!raw) return null;
+        return JSON.parse(raw);
+      }catch(e){
+        return null;
+      }
+    }
+
+    function updateBestLabel(){
+      const data = getBestForLevel();
+      if(!bestScoreLabelEl) return;
+      if(data && typeof data.best === "number"){
+        bestScoreLabelEl.textContent = `Best (Level ${currentLevel}): ${data.best} / ${data.total}`;
+      }else{
+        bestScoreLabelEl.textContent = `Best (Level ${currentLevel}): —`;
+      }
+    }
+
+    function saveBestScoreIfNeeded(){
+      if(!shuffledQuestions.length) return;
+      const total = shuffledQuestions.length;
+      const key = BEST_KEY_PREFIX + currentLevel;
+      const prev = getBestForLevel();
+      let shouldUpdate = false;
+
+      if(!prev){
+        shouldUpdate = true;
+      }else if(score > prev.best){
+        shouldUpdate = true;
+      }else if(score === prev.best && total > prev.total){
+        shouldUpdate = true;
+      }
+
+      if(shouldUpdate){
+        try{
+          localStorage.setItem(key, JSON.stringify({ best: score, total }));
+        }catch(e){
+          // ignore storage errors
+        }
+      }
+
+      updateBestLabel();
+    }
+
+    function updateScoreBoard(){
+      const total = shuffledQuestions.length || 0;
+      scoreValueEl.textContent = `${score} / ${total}`;
+    }
+
+    function updateProgress(){
+      if(!shuffledQuestions.length){
+        progressBarEl.style.width = "0%";
+        progressLabelEl.textContent = "";
+        return;
+      }
+      const total = shuffledQuestions.length;
+      const current = Math.min(currentIndex, total);
+      const ratio = current / total;
+      progressBarEl.style.width = (ratio * 100) + "%";
+
+      if(currentIndex >= total){
+        progressLabelEl.textContent = `Completed ${total} questions`;
+      }else{
+        const displayIndex = Math.min(currentIndex + 1, total);
+        progressLabelEl.textContent = `Question ${displayIndex} of ${total}`;
+      }
+    }
+
+    function renderQuestion(){
+      if(!shuffledQuestions.length){
+        questionTextEl.textContent = "No questions found for this level and topic.";
+        optionsAreaEl.innerHTML = "";
+        feedbackEl.textContent = "";
+        nextBtn.disabled = true;
+        updateScoreBoard();
+        updateProgress();
+        return;
+      }
+
+      if(currentIndex >= shuffledQuestions.length){
+        showEndScreen();
+        return;
+      }
+
+      const q = shuffledQuestions[currentIndex];
+      hasAnswered = false;
+      questionTextEl.textContent = q.question;
+      optionsAreaEl.innerHTML = "";
+      feedbackEl.textContent = "";
+      feedbackEl.className = "feedback-text feedback-neutral";
+      nextBtn.disabled = true;
+
+      q.choices.forEach((choice, idx) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "option-btn";
+        btn.textContent = choice;
+        btn.dataset.index = String(idx);
+        btn.addEventListener("click", onOptionClick);
+        optionsAreaEl.appendChild(btn);
+      });
+
+      updateProgress();
+      updateScoreBoard();
+    }
+
+    function onOptionClick(evt){
+      if(hasAnswered) return;
+      hasAnswered = true;
+
+      const btn = evt.currentTarget;
+      const chosenIndex = parseInt(btn.dataset.index,10);
+      const q = shuffledQuestions[currentIndex];
+      const correctIndex = q.answer;
+
+      const optionButtons = optionsAreaEl.querySelectorAll(".option-btn");
+      optionButtons.forEach(b => b.disabled = true);
+
+      const linkHtml = ' <a href="https://www.vervenveda.com/testament" target="_blank" rel="noopener noreferrer" class="feedback-link">Open in The Testament</a>';
+
+      if(chosenIndex === correctIndex){
+        score++;
+        btn.classList.add("option-correct");
+        const refPart = q.reference ? " (" + q.reference + ")" : "";
+        feedbackEl.innerHTML = "Correct!" + refPart + linkHtml;
+        feedbackEl.className = "feedback-text feedback-correct";
+      }else{
+        btn.classList.add("option-incorrect");
+        optionButtons.forEach(b => {
+          const idx = parseInt(b.dataset.index,10);
+          if(idx === correctIndex){
+            b.classList.add("option-correct");
+          }
+        });
+        const correctText = q.choices[correctIndex];
+        const refPart = q.reference ? " (" + q.reference + ")" : "";
+        feedbackEl.innerHTML = "Not quite. Correct answer: " + correctText + refPart + "." + linkHtml;
+        feedbackEl.className = "feedback-text feedback-incorrect";
+      }
+
+      updateScoreBoard();
+      nextBtn.disabled = false;
+    }
+
+    function showEndScreen(){
+      const total = shuffledQuestions.length || 0;
+      const percent = total ? Math.round((score/total)*100) : 0;
+
+      questionTextEl.innerHTML = `
+        Level ${currentLevel} complete.
+        <span class="end-score">You scored ${score} / ${total} (${percent}%).</span>
+      `;
+      optionsAreaEl.innerHTML = "";
+      feedbackEl.innerHTML = 'Use “Restart Level” to play again, or choose another level or topic above.<a href="https://www.vervenveda.com/testament" target="_blank" rel="noopener noreferrer" class="feedback-link">Open in The Testament</a>';
+      feedbackEl.className = "feedback-text feedback-neutral";
+      nextBtn.disabled = true;
+
+      saveBestScoreIfNeeded();
+      updateProgress();
+    }
+
+    function startGame(level){
+      currentLevel = level;
+      const pool = getQuestionsForLevel(level);
+      shuffledQuestions = shuffle(pool.slice());
+      currentIndex = 0;
+      score = 0;
+      hasAnswered = false;
+
+      // Update active button styling
+      levelButtons.forEach(btn => btn.classList.remove("level-active"));
+      const activeBtn = Array.from(levelButtons).find(b => parseInt(b.dataset.level,10) === level);
+      if(activeBtn){
+        activeBtn.classList.add("level-active");
+      }
+
+      updateBestLabel();
+      renderQuestion();
+    }
+
+    // Wiring level buttons
+    levelButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const lvl = parseInt(btn.dataset.level,10) || 1;
+        startGame(lvl);
+      });
+    });
+
+    // Topic filter
+    if(topicFilterEl){
+      topicFilterEl.addEventListener("change", () => {
+        currentTopic = topicFilterEl.value || "all";
+        startGame(currentLevel);
+      });
+    }
+
+    // Next / restart controls
+    nextBtn.addEventListener("click", () => {
+      if(!hasAnswered) return;
+      if(currentIndex < shuffledQuestions.length){
+        currentIndex++;
+      }
+      if(currentIndex < shuffledQuestions.length){
+        renderQuestion();
+      }else{
+        showEndScreen();
+      }
+    });
+
+    restartBtn.addEventListener("click", () => {
+      startGame(currentLevel);
+    });
+
+    // Initial load
+    startGame(1);
+  </script>
+</body>
+</html>
