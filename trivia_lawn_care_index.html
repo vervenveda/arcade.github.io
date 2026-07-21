@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lawn Care Quiz - Thyme to Grow</title>
+
+    <!-- Google Font (Montserrat instead of Brandon Grotesque) -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #2E7D32; /* Dark Green */
+            color: white;
+            font-size: 22px;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #1B5E20; /* Darker Green */
+            color: white;
+            text-align: center;
+            padding: 2rem 1rem;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 36px;
+        }
+
+        .quiz-container {
+            width: 90%;
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: #388E3C;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+
+        .question {
+            margin-bottom: 1.5rem;
+        }
+
+        .question p {
+            font-size: 24px;
+            margin: 0.5rem 0 0.75rem;
+        }
+
+        .options {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .options li {
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        /* Visually hide radios but keep them accessible */
+        .options input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .options label {
+            cursor: pointer;
+            background-color: #4CAF50;
+            padding: 1rem;
+            border-radius: 5px;
+            width: 100%;
+            display: block;
+            color: white;
+            font-size: 18px;
+            box-sizing: border-box;
+            transition: background-color 0.2s ease;
+        }
+
+        .options label:hover {
+            background-color: #43A047;
+        }
+
+        .options input[type="radio"]:checked + label {
+            background-color: #2C6B2F;
+        }
+
+        .btn-submit {
+            background-color: #1B5E20;
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 20px;
+            width: 100%;
+            margin-top: 2rem;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+        }
+
+        .btn-submit:hover {
+            background-color: #145017;
+        }
+
+        .btn-submit:active {
+            transform: scale(0.98);
+        }
+
+        .result {
+            text-align: center;
+            font-size: 24px;
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background-color: #4CAF50;
+            border-radius: 8px;
+        }
+
+        .result span {
+            font-weight: bold;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                font-size: 18px;
+            }
+            h1 {
+                font-size: 28px;
+            }
+            .question p {
+                font-size: 20px;
+            }
+            .btn-submit {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Take the Lawn Care Quiz!</h1>
+        <p>Test your knowledge and become a Lawn Care Pro!</p>
+    </header>
+
+    <div class="quiz-container">
+        <div id="quiz">
+            <div class="question">
+                <p>What's the best time to mow your lawn?</p>
+                <ul class="options">
+                    <li>
+                        <input type="radio" id="q1-morning" name="q1" value="morning">
+                        <label for="q1-morning">Morning</label>
+                    </li>
+                    <li>
+                        <input type="radio" id="q1-afternoon" name="q1" value="afternoon">
+                        <label for="q1-afternoon">Afternoon</label>
+                    </li>
+                    <li>
+                        <input type="radio" id="q1-evening" name="q1" value="evening">
+                        <label for="q1-evening">Evening</label>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="question">
+                <p>Which fertilizer is good for Florida lawns?</p>
+                <ul class="options">
+                    <li>
+                        <input type="radio" id="q2-organic" name="q2" value="organic">
+                        <label for="q2-organic">Organic compost</label>
+                    </li>
+                    <li>
+                        <input type="radio" id="q2-10-10-10" name="q2" value="10-10-10">
+                        <label for="q2-10-10-10">10-10-10 Fertilizer</label>
+                    </li>
+                    <li>
+                        <input type="radio" id="q2-slow-release" name="q2" value="slow-release">
+                        <label for="q2-slow-release">Slow-release nitrogen fertilizer</label>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="question">
+                <p>How often should you water your grass in the summer?</p>
+                <ul class="options">
+                    <li>
+                        <input type="radio" id="q3-once-a-week" name="q3" value="once-a-week">
+                        <label for="q3-once-a-week">Once a week</label>
+                    </li>
+                    <li>
+                        <input type="radio" id="q3-every-other-day" name="q3" value="every-other-day">
+                        <label for="q3-every-other-day">Every other day</label>
+                    </li>
+                    <li>
+                        <input type="radio" id="q3-early-morning" name="q3" value="early-morning">
+                        <label for="q3-early-morning">Early morning, 2-3 times a week</label>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="question">
+                <p>How often should you fertilize your Florida lawn?</p>
+                <ul class="options">
+                    <li>
+                        <input type="radio" id="q4-once-a-year" name="q4" value="once-a-year">
+                        <label for="q4-once-a-year">Once a year</label>
+                    </li>
+                    <li>
+                        <input type="radio" id="q4-every-6-months" name="q4" value="every-6-months">
+                        <label for="q4-every-6-months">Every 6 months</label>
+                    </li>
+                    <li>
+                        <input type="radio" id="q4-4-times-a-year" name="q4" value="4-times-a-year">
+                        <label for="q4-4-times-a-year">4 times a year (Spring, Summer, Fall, Winter)</label>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="question">
+                <p>What’s the ideal mowing height for grass in Florida?</p>
+                <ul class="options">
+                    <li>
+                        <input type="radio" id="q5-1-2-inches" name="q5" value="1-2-inches">
+                        <label for="q5-1-2-inches">1–2 inches</label>
+                    </li>
+                    <li>
+                        <input type="radio" id="q5-2-5-3-inches" name="q5" value="2.5-3-inches">
+                        <label for="q5-2-5-3-inches">2.5–3 inches</label>
+                    </li>
+                    <li>
+                        <input type="radio" id="q5-3-5-4-inches" name="q5" value="3.5-4-inches">
+                        <label for="q5-3-5-4-inches">3.5–4 inches</label>
+                    </li>
+                </ul>
+            </div>
+
+            <button class="btn-submit" type="button" onclick="submitQuiz()">Submit Quiz</button>
+        </div>
+
+        <div id="result" class="result" style="display:none;"></div>
+    </div>
+
+    <script>
+        function submitQuiz() {
+            const answers = {
+                q1: 'morning',
+                q2: 'slow-release',
+                q3: 'early-morning',
+                q4: '4-times-a-year',
+                q5: '2.5-3-inches'
+            };
+
+            let score = 0;
+            let answeredCount = 0;
+            const totalQuestions = Object.keys(answers).length;
+
+            // Check answers and count completed questions
+            for (let question in answers) {
+                const userAnswer = document.querySelector(`input[name="${question}"]:checked`);
+                if (userAnswer) {
+                    answeredCount++;
+                    if (userAnswer.value === answers[question]) {
+                        score++;
+                    }
+                }
+            }
+
+            // Require all questions to be answered
+            if (answeredCount < totalQuestions) {
+                alert('Please answer all the questions before submitting the quiz.');
+                return;
+            }
+
+            let resultText = '';
+            if (score === 5) {
+                resultText = `You’re a Lawn Care Pro! You scored ${score}/5. Enjoy a 15% discount on your next service!`;
+            } else if (score >= 3) {
+                resultText = `Great job! You scored ${score}/5. You're on your way to becoming a Lawn Care Pro. Enjoy a 10% discount on your next service!`;
+            } else {
+                resultText = `Keep learning! You scored ${score}/5. Try again to earn your Lawn Care Pro badge!`;
+            }
+
+            // Hide quiz & show result
+            document.getElementById('quiz').style.display = 'none';
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+
+            resultDiv.innerHTML = `
+                <div>${resultText}</div>
+                <div style="margin-top:1.5rem;">
+                    <button class="btn-submit" type="button" onclick="resetQuiz()">Retake Quiz</button>
+                </div>
+            `;
+        }
+
+        function resetQuiz() {
+            // Clear all selections
+            document.querySelectorAll('.options input[type="radio"]').forEach(input => {
+                input.checked = false;
+            });
+
+            // Show quiz again
+            document.getElementById('quiz').style.display = 'block';
+
+            // Hide and clear result
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'none';
+            resultDiv.innerHTML = '';
+        }
+    </script>
+
+</body>
+</html>
