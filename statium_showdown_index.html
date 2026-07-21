@@ -1,0 +1,775 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Stadium Showdown — Sports Fiends Arcade</title>
+<style>
+:root{
+  --bg:#021124;
+  --panel:#071830;
+  --accent:#38bdf8;
+  --accent-2:#a855f7;
+  --muted:#cfeafe;
+  --good:#22c55e;
+  --danger:#ef4444;
+  --card-radius:14px;
+  --pad:14px;
+  --shadow:0 12px 36px rgba(2,6,23,0.6);
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+}
+*{box-sizing:border-box}
+html,body{height:99%;margin:0;padding:0;background:linear-gradient(180deg,var(--bg) 0,#041426 100%);color:var(--muted);font-family:var(--font);-webkit-font-smoothing:antialiased}
+.container{max-width:999px;margin:20px auto;padding:18px;display:grid;gap:16px}
+.header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.title{font-size:20px;font-weight:800;letter-spacing:.02em}
+.lead{color:rgba(207,234,254,0.85);font-size:13px}
+.controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.btn{background:linear-gradient(90deg,var(--accent),var(--accent-2));border:none;color:#06101a;padding:9px 12px;border-radius:999px;cursor:pointer;font-weight:700}
+.btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)}
+.card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:16px;border-radius:var(--card-radius);box-shadow:var(--shadow);border:1px solid rgba(255,255,255,0.03)}
+.layout{display:grid;grid-template-columns:360px 1fr;gap:16px}
+@media (max-width:980px){ .layout{grid-template-columns:1fr} }
+.sports-list{display:flex;flex-direction:column;gap:8px}
+.sport-btn{display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:10px;background:transparent;border:1px solid rgba(255,255,255,0.03);cursor:pointer}
+.sport-btn.active{background:linear-gradient(90deg, rgba(56,189,248,0.06), rgba(168,85,247,0.03));box-shadow:0 10px 30px rgba(3,7,18,0.35)}
+.panel-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.canvas-wrap{background:linear-gradient(180deg,#031524 0,#021124 100%);border-radius:10px;padding:12px;border:1px solid rgba(255,255,255,0.03)}
+.game-canvas{width:100%;height:360px;border-radius:8px;display:block;background:linear-gradient(180deg,#0b2a3a,#03202a)}
+.info-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.stat{background:rgba(255,255,255,0.02);padding:8px 12px;border-radius:999px;font-weight:700}
+.center{display:flex;align-items:center;justify-content:center}
+.instructions{font-size:13px;color:rgba(207,234,254,0.9);margin-top:8px}
+.controls-large{display:flex;gap:8px;margin-top:12px}
+.leaderboard{max-height:360px;overflow:auto;padding:8px;border-radius:8px;background:linear-gradient(180deg,rgba(255,255,255,0.01),transparent);border:1px solid rgba(255,255,255,0.02)}
+.lb-item{display:flex;justify-content:space-between;padding:8px;border-bottom:1px dashed rgba(255,255,255,0.03);font-size:14px}
+.footer-hint{font-size:12px;color:rgba(207,234,254,0.7);margin-top:8px}
+.small{font-size:13px;color:rgba(207,234,254,0.8)}
+kbd{background:rgba(255,255,255,0.03);padding:4px 8px;border-radius:6px;border:1px solid rgba(255,255,255,0.03)}
+.center-vertical{display:flex;align-items:center}
+.result-big{font-size:28px;font-weight:900;color:var(--accent-2)}
+.note{font-size:13px;color:rgba(207,234,254,0.75)}
+/* quick visual bars */
+.bar-bg{height:18px;background:rgba(255,255,255,0.03);border-radius:999px;overflow:hidden}
+.bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));width:0%;}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div>
+      <div class="title">Stadium Showdown</div>
+      <div class="lead">Pick a sport. Beat the rounds. Climb the local leaderboard. Quick, satisfying mini-games for sports fiends.</div>
+    </div>
+    <div class="controls">
+      <button id="startBtn" class="btn">Start Match</button>
+      <button id="resetBtn" class="btn ghost">Reset Leaderboard</button>
+      <button id="helpBtn" class="btn ghost">How to play</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <aside class="card">
+      <div class="panel-head">
+        <div style="font-weight:800">Choose your sport</div>
+        <div class="small">Rounds per match: <strong id="roundCountDisplay">3</strong></div>
+      </div>
+
+      <div class="sports-list" id="sportsList">
+        <!-- sport buttons inserted by JS -->
+      </div>
+
+      <div style="margin-top:12px">
+        <div class="small" style="margin-bottom:6px">Match Stats</div>
+        <div class="info-row">
+          <div class="stat">Round <strong id="roundDisplay">—</strong></div>
+          <div class="stat">Score <strong id="scoreDisplay">0</strong></div>
+          <div class="stat">Best <strong id="bestScoreDisplay">0</strong></div>
+        </div>
+
+        <div class="instructions" id="instrShort">Select a sport, then press <kbd>Start Match</kbd>. Controls vary per mini-game: see how-to.</div>
+
+        <div class="controls-large">
+          <button id="prevBtn" class="btn ghost">Prev Sport</button>
+          <button id="nextBtn" class="btn ghost">Next Sport</button>
+        </div>
+
+        <div style="margin-top:12px">
+          <div class="small" style="margin-bottom:6px">Local Leaderboard</div>
+          <div class="leaderboard" id="leaderboard"></div>
+        </div>
+      </div>
+    </aside>
+
+    <main>
+      <div class="card">
+        <div class="panel-head">
+          <div style="font-weight:800" id="gameTitle">Choose a sport</div>
+          <div class="small" id="gameSub">Pick a mini-game and press Start</div>
+        </div>
+
+        <div class="canvas-wrap center">
+          <canvas id="gameCanvas" class="game-canvas" width="760" height="360"></canvas>
+        </div>
+
+        <div class="info-row" style="margin-top:12px">
+          <div class="stat">Timer <strong id="timerDisplay">00:00</strong></div>
+          <div class="stat">Round Score <strong id="roundScore">0</strong></div>
+          <div class="stat">Match Score <strong id="matchScore">0</strong></div>
+        </div>
+
+        <div class="instructions" id="gameInstructions" style="margin-top:10px">
+          No sport selected yet.
+        </div>
+
+        <div style="margin-top:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <button id="actionBtn" class="btn ghost">Action</button>
+          <button id="skipBtn" class="btn ghost">Skip Round</button>
+          <button id="saveScoreBtn" class="btn ghost">Save Score</button>
+          <div class="note">Tip: use keyboard shortcuts where available (space / arrow keys)</div>
+        </div>
+
+        <div class="footer-hint">Designed for quick plays — great for break-time challenges and demos.</div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+/* Stadium Showdown
+   4 Mini-games:
+   1) Penalty Kick (timing + aim)
+   2) Free Throw (timing power bar)
+   3) Home Run Swing (timing hit, ball speed)
+   4) Sprint Start (reaction time)
+   Storage: localStorage 'stadium_sh_leaderboard'
+*/
+
+// ---------- config ----------
+const ROUNDS_PER_MATCH = 3;
+const SPORTS = [
+  { id:'soccer', name:'Penalty Kick', desc:'Aim + timing. Use mouse/touch to pick direction, press SPACE to kick.' },
+  { id:'basketball', name:'Free Throw', desc:'Timing power bar. Press SPACE to stop the bar in the green.' },
+  { id:'baseball', name:'Home Run', desc:'Timing swing. Press SPACE to swing when ball reaches the ideal zone.' },
+  { id:'sprint', name:'Sprint Start', desc:'Reaction test. Wait for the GO and press SPACE quickly.' }
+];
+const STORAGE_KEY = 'stadium_sh_leaderboard_v1';
+
+// ---------- state ----------
+let selectedSportIndex = 0;
+let inMatch = false;
+let roundIndex = 0;
+let roundScore = 0;
+let matchScore = 0;
+let bestScore = 0;
+let timerInterval = null;
+let gameTimerStart = null;
+let canvas, ctx, W, H;
+let currentMini = null; // holds mini-game state
+
+// ---------- DOM refs ----------
+const sportsList = document.getElementById('sportsList');
+const gameTitle = document.getElementById('gameTitle');
+const gameSub = document.getElementById('gameSub');
+const instrShort = document.getElementById('instrShort');
+const roundDisplay = document.getElementById('roundDisplay');
+const scoreDisplay = document.getElementById('scoreDisplay');
+const bestScoreDisplay = document.getElementById('bestScoreDisplay');
+const startBtn = document.getElementById('startBtn');
+const resetBtn = document.getElementById('resetBtn');
+const helpBtn = document.getElementById('helpBtn');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const leaderboardEl = document.getElementById('leaderboard');
+const gameCanvas = document.getElementById('gameCanvas');
+const gameInstructions = document.getElementById('gameInstructions');
+const timerDisplay = document.getElementById('timerDisplay');
+const roundScoreEl = document.getElementById('roundScore');
+const matchScoreEl = document.getElementById('matchScore');
+const actionBtn = document.getElementById('actionBtn');
+const skipBtn = document.getElementById('skipBtn');
+const saveScoreBtn = document.getElementById('saveScoreBtn');
+const roundCountDisplay = document.getElementById('roundCountDisplay');
+
+// ---------- setup canvas ----------
+canvas = gameCanvas; ctx = canvas.getContext('2d'); W = canvas.width; H = canvas.height;
+
+// ---------- utilities ----------
+function $(id){return document.getElementById(id);}
+function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+function formatTime(ms){
+  const s = Math.floor(ms/1000);
+  const mm = String(Math.floor(s/60)).padStart(2,'0');
+  const ss = String(s%60).padStart(2,'0');
+  return `${mm}:${ss}`;
+}
+function now(){ return performance.now(); }
+
+// ---------- leaderboard ----------
+function loadLeaderboard(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  }catch(e){ return []; }
+}
+function saveLeaderboard(list){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+}
+function resetLeaderboard(){
+  if(!confirm('Clear local leaderboard?')) return;
+  saveLeaderboard([]); renderLeaderboard(); alert('Leaderboard cleared.');
+}
+function addLeaderboardEntry(name, score, sportName){
+  const list = loadLeaderboard();
+  list.push({ name, score, sport: sportName, date: new Date().toISOString() });
+  list.sort((a,b)=>b.score - a.score);
+  while(list.length>50) list.pop();
+  saveLeaderboard(list);
+  renderLeaderboard();
+}
+function renderLeaderboard(){
+  const list = loadLeaderboard();
+  leaderboardEl.innerHTML = '';
+  if(list.length===0){ leaderboardEl.innerHTML = '<div class="small">No scores yet — be the first!</div>'; return; }
+  list.slice(0,30).forEach((r, i)=>{
+    const div = document.createElement('div');
+    div.className = 'lb-item';
+    div.innerHTML = `<div><strong>#${i+1} ${escapeHtml(r.name)}</strong><div class="small">${escapeHtml(r.sport)} · ${new Date(r.date).toLocaleString()}</div></div><div class="small">${r.score}</div>`;
+    leaderboardEl.appendChild(div);
+  });
+}
+function escapeHtml(s=''){ return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+// ---------- UI build ----------
+function buildSportsList(){
+  sportsList.innerHTML = '';
+  SPORTS.forEach((s, idx)=>{
+    const btn = document.createElement('div');
+    btn.className = 'sport-btn' + (idx===selectedSportIndex ? ' active' : '');
+    btn.dataset.idx = idx;
+    btn.innerHTML = `<div><strong>${escapeHtml(s.name)}</strong><div class="small">${escapeHtml(s.desc)}</div></div><div class="small">→</div>`;
+    btn.onclick = ()=> { selectedSportIndex = idx; refreshSportUI(); };
+    sportsList.appendChild(btn);
+  });
+}
+
+function refreshSportUI(){
+  buildSportsList();
+  const s = SPORTS[selectedSportIndex];
+  gameTitle.textContent = s.name;
+  gameSub.textContent = s.desc;
+  instrShort.textContent = `Selected: ${s.name} — ${s.desc}`;
+  bestScore = computeBestForSport(s.name);
+  bestScoreDisplay.textContent = bestScore;
+  // reset canvas / state
+  resetMiniState();
+  renderStaticScene();
+}
+
+// find best saved for a sport
+function computeBestForSport(sportName){
+  const list = loadLeaderboard();
+  const filtered = list.filter(r=>r.sport===sportName);
+  if(filtered.length===0) return 0;
+  return Math.max(...filtered.map(r=>r.score));
+}
+
+// ---------- match flow ----------
+function startMatch(){
+  if(inMatch){ if(!confirm('A match is in progress. Restart?')) return; }
+  inMatch = true;
+  roundIndex = 0; matchScore = 0; roundScore = 0;
+  roundCountDisplay.textContent = ROUNDS_PER_MATCH;
+  nextRound();
+  startBtn.textContent = 'Restart Match';
+}
+function nextRound(){
+  if(roundIndex >= ROUNDS_PER_MATCH){
+    endMatch(); return;
+  }
+  roundIndex++;
+  roundScore = 0;
+  updateStats();
+  prepareMiniFor(SPORTS[selectedSportIndex].id);
+}
+function endRound(){
+  matchScore += roundScore;
+  updateStats();
+  // small pause, then next round or end
+  setTimeout(()=>{
+    if(roundIndex < ROUNDS_PER_MATCH) nextRound();
+    else endMatch();
+  }, 700);
+}
+function endMatch(){
+  inMatch = false;
+  updateStats();
+  alert(`Match finished! Match Score: ${matchScore}`);
+  // update best
+  const sname = SPORTS[selectedSportIndex].name;
+  if(matchScore > computeBestForSport(sname)){
+    const name = prompt('New local best! Enter a short name for the leaderboard (or Cancel to skip):','Player');
+    if(name) addLeaderboardEntry(name.slice(0,24), matchScore, sname);
+  }
+}
+
+// ---------- timer / UI ----------
+function updateStats(){
+  roundDisplay.textContent = `${roundIndex} / ${ROUNDS_PER_MATCH}`;
+  scoreDisplay.textContent = matchScore;
+  roundScoreEl.textContent = roundScore;
+  matchScoreEl.textContent = matchScore;
+  bestScoreDisplay.textContent = bestScore;
+}
+
+// ---------- mini-games core ----------
+function resetMiniState(){ currentMini = null; clearTimer(); drawIdle(); }
+function clearTimer(){ if(timerInterval) { clearInterval(timerInterval); timerInterval = null; timerDisplay.textContent = '00:00'; } }
+function startTimer(){ gameTimerStart = now(); clearTimer(); timerInterval = setInterval(()=> {
+  const elapsed = Math.floor((now() - gameTimerStart));
+  timerDisplay.textContent = formatTime(elapsed);
+}, 200); }
+function stopTimer(){ clearTimer(); timerDisplay.textContent = '00:00'; gameTimerStart = null; }
+
+// ---------- rendering helpers ----------
+function clearCanvas(){ ctx.clearRect(0,0,W,H); }
+function drawIdle(){
+  clearCanvas();
+  ctx.save();
+  ctx.fillStyle = '#063b4b';
+  ctx.fillRect(0,0,W,H);
+  ctx.restore();
+  // center title
+  ctx.fillStyle = 'rgba(255,255,255,0.06)';
+  ctx.fillRect(40,40,W-80,H-120);
+  ctx.fillStyle = '#cfeafe';
+  ctx.font = '600 22px var(--font)';
+  ctx.textAlign = 'center';
+  ctx.fillText(SPORTS[selectedSportIndex].name || 'Pick a sport', W/2, H/2 - 8);
+  ctx.font = '13px var(--font)';
+  ctx.fillStyle = 'rgba(207,234,254,0.75)';
+  ctx.fillText('Press Start Match to play quick rounds', W/2, H/2 + 14);
+}
+
+// ---------- Penalty Kick mini ----------
+function preparePenalty(){
+  currentMini = {
+    type:'penalty',
+    state:'aim', // aim -> power -> result
+    aimAngle:0, // -1..1 (left..right)
+    aimSpeed:0.016,
+    power:0.0,
+    kickerX: W/2, kickerY: H - 80,
+    goalY: 80,
+    goalkeeperX: W/2,
+    keeperOffset: 0,
+    roundStartedAt: now()
+  };
+  // randomize keeper bias
+  currentMini.goalCenter = W/2 + (Math.random()-0.5)*120;
+  startTimer();
+  animatePenalty();
+  gameInstructions.innerText = 'Aim the kick: Move mouse / drag on canvas to pick direction. Press SPACE or click Action to kick.';
+}
+function animatePenalty(){
+  if(!currentMini || currentMini.type !== 'penalty') return;
+  // animation loop
+  const m = currentMini;
+  // auto sweep aim
+  if(m.state === 'aim'){
+    m.aimAngle += m.aimSpeed * (Math.random() > 0.5 ? 1 : -1);
+    m.aimAngle = clamp(m.aimAngle, -0.95, 0.95);
+  }
+  drawPenalty();
+  // continue
+  requestAnimationFrame(animatePenalty);
+}
+function drawPenalty(){
+  clearCanvas();
+  // pitch
+  ctx.fillStyle = '#08313e'; ctx.fillRect(0,0,W,H);
+  // goal area
+  const gy = 80;
+  ctx.fillStyle = '#e6f0f6';
+  ctx.fillRect(W/2 - 180, gy, 360, 6);
+  // goalkeeper
+  const keeperX = currentMini.goalCenter + Math.sin((now()/700)) * 60;
+  ctx.fillStyle = '#122a2f';
+  ctx.fillRect(keeperX - 30, gy - 40, 60, 40);
+  // kicker
+  ctx.fillStyle = '#e6f0f6';
+  ctx.beginPath(); ctx.arc(currentMini.kickerX, currentMini.kickerY, 14, 0, Math.PI*2); ctx.fill();
+  // aim arrow
+  if(currentMini.state === 'aim'){
+    const a = currentMini.aimAngle * Math.PI/2;
+    const len = 120;
+    const ax = currentMini.kickerX + Math.sin(a)*len;
+    const ay = currentMini.kickerY - Math.cos(a)*len;
+    ctx.strokeStyle = 'rgba(56,189,248,0.9)';
+    ctx.lineWidth = 4;
+    ctx.beginPath(); ctx.moveTo(currentMini.kickerX, currentMini.kickerY); ctx.lineTo(ax, ay); ctx.stroke();
+  }
+  // overlay text
+  ctx.fillStyle = 'rgba(207,234,254,0.9)';
+  ctx.font = '600 16px sans-serif'; ctx.textAlign = 'left';
+  ctx.fillText('Penalty Kick — Aim & Kick', 16, 28);
+}
+function kickPenalty(){
+  if(!currentMini || currentMini.state !== 'aim') return;
+  currentMini.state = 'kick';
+  stopTimer();
+  // compute landing based on aim and a bit of randomness and goalkeeper
+  const angle = currentMini.aimAngle; // -1..1
+  const targetX = currentMini.goalCenter + angle * 160 + (Math.random()-0.5)*30;
+  const keeperX = currentMini.goalCenter + Math.sin((now()/700)) * 60;
+  // success if targetX is sufficiently away from keeperX
+  const dist = Math.abs(targetX - keeperX);
+  let scored = dist > 60; // keep it simple
+  // more chance if center but speed matters — simulate power using time between aim start and kick
+  const timeHeld = Math.max(120, now() - currentMini.roundStartedAt);
+  if(timeHeld < 400) scored = scored && (Math.random() > 0.2); // rushed
+  // brief animation (ball travel)
+  animateBallTo(targetX, currentMini.goalY + 20, () => {
+    if(scored){
+      roundScore += 100;
+      flashMessage('GOAL!', '#22c55e');
+    } else {
+      flashMessage('SAVED', '#ef4444');
+    }
+    updateStats();
+    setTimeout(endRound, 900);
+  });
+}
+function animateBallTo(tx, ty, cb){
+  let t0 = now(), dur = 600;
+  const sx = currentMini.kickerX, sy = currentMini.kickerY;
+  function step(){
+    const t = (now()-t0)/dur;
+    if(t>=1){
+      drawBall(tx,ty); cb(); return;
+    }
+    const x = sx + (tx - sx) * easeOutQuad(t);
+    const y = sy + (ty - sy) * easeOutQuad(t) - 80 * Math.sin(Math.PI * t);
+    clearCanvas();
+    drawPenalty();
+    drawBall(x,y);
+    requestAnimationFrame(step);
+  }
+  step();
+}
+function drawBall(x,y){
+  ctx.fillStyle = '#ffd166'; ctx.beginPath(); ctx.arc(x,y,8,0,Math.PI*2); ctx.fill();
+}
+function easeOutQuad(t){ return t*(2-t); }
+
+// ---------- Free Throw mini ----------
+function prepareFreeThrow(){
+  currentMini = { type:'free', state:'waiting', bar:0, dir:1, speed:0.018, greenZone:[0.46,0.56], roundStartedAt: now() };
+  startTimer();
+  animateFreeThrow();
+  gameInstructions.innerText = 'Free Throw — press SPACE when the moving bar is inside the green zone. Good timing earns points.';
+}
+function animateFreeThrow(){
+  if(!currentMini || currentMini.type!=='free') return;
+  if(currentMini.state === 'waiting'){
+    currentMini.bar += currentMini.dir * currentMini.speed;
+    if(currentMini.bar >= 1){ currentMini.bar = 1; currentMini.dir = -1; }
+    if(currentMini.bar <= 0){ currentMini.bar = 0; currentMini.dir = 1; }
+  }
+  drawFreeThrow();
+  requestAnimationFrame(animateFreeThrow);
+}
+function drawFreeThrow(){
+  clearCanvas();
+  // court
+  ctx.fillStyle = '#042b35'; ctx.fillRect(0,0,W,H);
+  // hoop
+  ctx.fillStyle = '#ffd166'; ctx.fillRect(W-120,80,6,6);
+  // power bar
+  const bx = 60, by = H - 80, bw = W - 120, bh = 22;
+  ctx.fillStyle = 'rgba(255,255,255,0.06)'; ctx.fillRect(bx,by,bw,bh);
+  // green zone
+  const gz0 = bx + bw * currentMini.greenZone[0], gz1 = bx + bw * currentMini.greenZone[1];
+  ctx.fillStyle = 'rgba(34,197,94,0.28)'; ctx.fillRect(gz0,by,bw*(currentMini.greenZone[1]-currentMini.greenZone[0]),bh);
+  // moving fill
+  const fx = bx + bw * currentMini.bar;
+  ctx.fillStyle = 'rgba(56,189,248,0.9)'; ctx.fillRect(bx,by, fx-bx, bh);
+  // marker
+  ctx.fillStyle = '#cfeafe'; ctx.beginPath(); ctx.arc(fx, by + bh/2, 8,0,Math.PI*2); ctx.fill();
+  // text
+  ctx.fillStyle = 'rgba(207,234,254,0.95)'; ctx.font = '600 16px sans-serif';
+  ctx.fillText('Free Throw — Timing', 16, 28);
+}
+function fireFreeThrow(){
+  if(!currentMini || currentMini.type!=='free') return;
+  stopTimer();
+  const inGreen = currentMini.bar >= currentMini.greenZone[0] && currentMini.bar <= currentMini.greenZone[1];
+  // score scaled by closeness
+  const mid = (currentMini.greenZone[0] + currentMini.greenZone[1]) / 2;
+  const diff = Math.abs(currentMini.bar - mid);
+  let points = 0;
+  if(inGreen){
+    points = Math.round(100 * (1 - (diff / ((currentMini.greenZone[1]-currentMini.greenZone[0])/2 + 0.0001))));
+    points = clamp(points, 40, 100);
+    roundScore += points;
+    flashMessage('BANK!', '#22c55e');
+  } else {
+    points = 0;
+    flashMessage('MISS', '#ef4444');
+  }
+  updateStats();
+  setTimeout(endRound, 900);
+}
+
+// ---------- Home Run mini ----------
+function prepareHomeRun(){
+  currentMini = { type:'home', state:'pitch', ballX:50, ballY: H/2 - 20, speed: 3 + Math.random()*3, strikeZoneX: W*0.65 + (Math.random()-0.5)*40, swung:false, roundStartedAt: now() };
+  startTimer();
+  animateHomeRun();
+  gameInstructions.innerText = 'Home Run — press SPACE to swing when the ball reaches the strike zone. Perfect timing = big points.';
+}
+function animateHomeRun(){
+  if(!currentMini || currentMini.type!=='home') return;
+  if(currentMini.state === 'pitch'){
+    currentMini.ballX += currentMini.speed;
+    if(currentMini.ballX > W + 20) {
+      // ball passed -> foul/miss
+      stopTimer();
+      flashMessage('MISS', '#ef4444'); setTimeout(endRound, 800); return;
+    }
+  }
+  drawHomeRun();
+  requestAnimationFrame(animateHomeRun);
+}
+function drawHomeRun(){
+  clearCanvas();
+  // field
+  ctx.fillStyle = '#072d23'; ctx.fillRect(0,0,W,H);
+  // pitcher
+  ctx.fillStyle = '#cfeafe'; ctx.fillRect(30,H/2 - 36,40,60);
+  // ball
+  ctx.fillStyle = '#ffd166'; ctx.beginPath(); ctx.arc(currentMini.ballX, currentMini.ballY, 9,0,Math.PI*2); ctx.fill();
+  // strike zone marker
+  ctx.strokeStyle = 'rgba(56,189,248,0.8)'; ctx.lineWidth = 3;
+  ctx.strokeRect(currentMini.strikeZoneX - 28, H/2 - 40, 56, 80);
+  // batter
+  ctx.fillStyle = '#e6f0f6'; ctx.fillRect(W - 110, H/2 - 36, 30, 60);
+  // text
+  ctx.fillStyle = 'rgba(207,234,254,0.95)'; ctx.font = '600 16px sans-serif';
+  ctx.fillText('Home Run — Swing for timing', 16, 28);
+}
+function swingHomeRun(){
+  if(!currentMini || currentMini.type!=='home') return;
+  stopTimer();
+  currentMini.swung = true;
+  // check if ball within strike zone
+  const bx = currentMini.ballX;
+  const inZone = bx >= currentMini.strikeZoneX - 28 && bx <= currentMini.strikeZoneX + 28;
+  if(inZone){
+    const speedBonus = clamp(120 - Math.abs(currentMini.speed - 5) * 40, 30, 120);
+    const points = Math.round(100 + speedBonus);
+    roundScore += points;
+    flashMessage('HIT! 🚀', '#22c55e');
+  } else {
+    flashMessage('Foul', '#ef4444');
+  }
+  updateStats();
+  setTimeout(endRound, 900);
+}
+
+// ---------- Sprint Start mini ----------
+function prepareSprint(){
+  currentMini = { type:'sprint', state:'ready', waitAt: now() + 1000 + Math.random()*2200, goAt: null, reacted:false, bestReaction: null, roundStartedAt: now() };
+  drawSprintReady();
+  gameInstructions.innerText = 'Sprint Start — Wait. When screen turns GREEN or you see GO, press SPACE as quickly as you can.';
+  startTimer();
+  setTimeout(()=> {
+    currentMini.state = 'go';
+    currentMini.goAt = now();
+    flashColor('#0f4'); // visual GO
+    drawSprintGo();
+  }, currentMini.waitAt - now());
+}
+function drawSprintReady(){
+  clearCanvas();
+  ctx.fillStyle = '#06121a'; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle = 'rgba(207,234,254,0.95)'; ctx.font='600 20px sans-serif';
+  ctx.textAlign='center';
+  ctx.fillText('Get ready... Don\'t jump early!', W/2, H/2 - 6);
+}
+function drawSprintGo(){
+  clearCanvas();
+  ctx.fillStyle = '#013a0f'; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle = '#061'; ctx.strokeStyle = '#cfeafe';
+  ctx.font = '700 28px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#cfeafe';
+  ctx.fillText('GO!', W/2, H/2);
+}
+function reactSprint(){
+  if(!currentMini || currentMini.type!=='sprint') return;
+  if(currentMini.state === 'ready'){
+    // false start
+    stopTimer();
+    flashMessage('False Start!', '#ef4444');
+    roundScore += 0;
+    updateStats();
+    setTimeout(endRound, 700);
+    return;
+  }
+  if(currentMini.state === 'go'){
+    const reaction = now() - currentMini.goAt;
+    // score inversely proportional to reaction (faster better)
+    const points = Math.max(0, Math.round(300 - reaction));
+    roundScore += points;
+    flashMessage(`Reaction ${Math.round(reaction)}ms`, '#22c55e');
+    stopTimer();
+    updateStats();
+    setTimeout(endRound, 700);
+  }
+}
+
+// ---------- helpers: flash message ----------
+let flashTimer = null;
+function flashMessage(text, color='#22c55e'){
+  // overlay text briefly
+  clearCanvas(); // redraw static minimal
+  ctx.fillStyle = 'rgba(0,0,0,0.35)'; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle = color; ctx.font = '900 48px sans-serif'; ctx.textAlign='center';
+  ctx.fillText(text, W/2, H/2);
+  if(flashTimer) clearTimeout(flashTimer);
+  flashTimer = setTimeout(()=> { // after hide, redraw current mini
+    flashTimer = null;
+    if(currentMini){
+      switch(currentMini.type){
+        case 'penalty': drawPenalty(); break;
+        case 'free': drawFreeThrow(); break;
+        case 'home': drawHomeRun(); break;
+        case 'sprint': drawSprintReady(); break;
+        default: drawIdle();
+      }
+    } else drawIdle();
+  }, 700);
+}
+function flashColor(col){
+  clearCanvas();
+  ctx.fillStyle = col; ctx.fillRect(0,0,W,H);
+  setTimeout(()=> {
+    if(currentMini) {
+      if(currentMini.type === 'sprint' && currentMini.state === 'go') drawSprintGo();
+      else if(currentMini.type==='penalty') drawPenalty();
+      else if(currentMini.type==='free') drawFreeThrow();
+      else if(currentMini.type==='home') drawHomeRun();
+      else drawIdle();
+    } else drawIdle();
+  }, 220);
+}
+
+// ---------- input handling ----------
+function onAction(){
+  if(!inMatch){
+    alert('Start a match first!');
+    return;
+  }
+  if(!currentMini){ alert('No round ready.'); return; }
+  switch(currentMini.type){
+    case 'penalty': kickPenalty(); break;
+    case 'free': fireFreeThrow(); break;
+    case 'home': swingHomeRun(); break;
+    case 'sprint': reactSprint(); break;
+    default: break;
+  }
+}
+function onSkip(){
+  if(!inMatch) return;
+  roundScore = 0; updateStats();
+  endRound();
+}
+function onSaveScore(){
+  if(!inMatch){
+    const name = prompt('Enter name to save score (match):','Player');
+    if(!name) return;
+    const sname = SPORTS[selectedSportIndex].name;
+    addLeaderboardEntry(name.slice(0,24), matchScore, sname);
+    return;
+  }
+  // if in-match, ask to end early and save current match score
+  if(confirm('Save current match score and end match?')){
+    inMatch = false;
+    const name = prompt('Enter name for leaderboard:','Player');
+    if(name){
+      addLeaderboardEntry(name.slice(0,24), matchScore, SPORTS[selectedSportIndex].name);
+    }
+    updateStats();
+  }
+}
+
+// keyboard
+document.addEventListener('keydown', (e)=>{
+  if(e.code==='Space'){ e.preventDefault(); onAction(); }
+  if(e.key === 'ArrowRight') { selectedSportIndex = Math.min(SPORTS.length-1, selectedSportIndex+1); refreshSportUI(); }
+  if(e.key === 'ArrowLeft') { selectedSportIndex = Math.max(0, selectedSportIndex-1); refreshSportUI(); }
+});
+
+// canvas mouse/touch for penalty aim
+canvas.addEventListener('mousemove', (ev)=>{
+  if(!currentMini || currentMini.type !== 'penalty' || currentMini.state !== 'aim') return;
+  const r = canvas.getBoundingClientRect();
+  const mx = ev.clientX - r.left;
+  const relative = (mx - currentMini.kickerX) / 160; // -1..1
+  currentMini.aimAngle = clamp(relative, -0.95, 0.95);
+});
+canvas.addEventListener('touchmove', (ev)=>{
+  if(!ev.touches || ev.touches.length===0) return;
+  const t = ev.touches[0];
+  canvas.dispatchEvent(new MouseEvent('mousemove', {clientX:t.clientX, clientY:t.clientY}));
+});
+
+// ---------- prepare specific mini for current sport ----------
+function prepareMiniFor(sportId){
+  roundScore = 0;
+  updateStats();
+  switch(sportId){
+    case 'soccer': preparePenalty(); break;
+    case 'basketball': prepareFreeThrow(); break;
+    case 'baseball': prepareHomeRun(); break;
+    case 'sprint': prepareSprint(); break;
+    default: resetMiniState();
+  }
+}
+
+// ---------- initialization and event wiring ----------
+startBtn.addEventListener('click', ()=> startMatch());
+resetBtn.addEventListener('click', ()=> resetLeaderboard());
+helpBtn.addEventListener('click', ()=> {
+  alert(
+    'Stadium Showdown — How to play:\\n\\n' +
+    'Penalty Kick: Move mouse/tap to aim. Press SPACE or Action to kick.\\n' +
+    'Free Throw: Press SPACE to stop the moving bar — try to land in the green zone.\\n' +
+    'Home Run: Watch the ball. Press SPACE to swing when it arrives inside the strike box.\\n' +
+    'Sprint Start: Wait for GO, then press SPACE as fast as you can; false starts penalize you.\\n\\n' +
+    'Each match has 3 rounds. Scores are saved locally to the leaderboard. Have fun!'
+  );
+});
+prevBtn.addEventListener('click', ()=> { selectedSportIndex = Math.max(0, selectedSportIndex-1); refreshSportUI(); });
+nextBtn.addEventListener('click', ()=> { selectedSportIndex = Math.min(SPORTS.length-1, selectedSportIndex+1); refreshSportUI(); });
+actionBtn.addEventListener('click', onAction);
+skipBtn.addEventListener('click', onSkip);
+saveScoreBtn.addEventListener('click', onSaveScore);
+
+// visual interactions on resize
+window.addEventListener('resize', ()=> {
+  // keep canvas aspect ratio but scale CSS (canvas internal size fixed)
+  // no-op for now
+});
+
+// ---------- init ----------
+buildSportsList();
+renderLeaderboard();
+refreshSportUI();
+updateStats();
+drawIdle();
+
+</script>
+</body>
+</html>
