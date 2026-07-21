@@ -376,7 +376,7 @@
         <button class="btn btn-secondary" id="randomHero">Random Challenge</button>
       </div>
       <div class="hero-stats">
-        <div class="stat"><strong id="gameCount">36</strong><span>Playable experiences</span></div>
+        <div class="stat"><strong id="gameCount">43</strong><span>Playable experiences</span></div>
         <div class="stat"><strong>6</strong><span>Arcade wings</span></div>
         <div class="stat"><strong>∞</strong><span>Future possibilities</span></div>
       </div>
@@ -444,8 +444,8 @@
           <p class="eyebrow">Community center</p>
           <h3>The Arcade is Never Finished</h3>
           <div class="update-list">
-            <div class="update"><strong>Newest Games</strong><span>A future shelf for recently added experiences.</span></div>
-            <div class="update"><strong>Recently Updated</strong><span>A place to highlight upgraded games and revised platforms.</span></div>
+            <div class="update"><strong>Seven New Cabinets Linked</strong><span>Daily News Quiz, Testament Trivia, Kids Testament Trivia, Balloon Brigade, Stadium Showdown, Lawn Care Quiz, and Virtual Lawn Mower are now live in the master registry.</span></div>
+            <div class="update"><strong>Registry Total</strong><span>The Arcade now contains 43 searchable, filterable, and randomly selectable experiences.</span></div>
             <div class="update"><strong>Developer Notes</strong><span>Short updates about what is being designed, tested, and improved.</span></div>
             <div class="update"><strong>Community Favorites</strong><span>A future home for popular games and recommended trails.</span></div>
           </div>
@@ -568,10 +568,17 @@
     {id:"trivia-arts",title:"Arts Trivia",file:"Trivia_arts_index.html",category:"trivia",icon:"🎭",tags:"art artists trivia",description:"Challenge your knowledge of visual art, artists, and creative history."},
     {id:"trivia-bible",title:"Bible Trivia",file:"Trivia_bible_index.html",category:"trivia",icon:"📜",tags:"bible scripture trivia",description:"Explore people, places, themes, and stories from biblical texts."},
     {id:"trivia-canon",title:"Canon Trivia",file:"Trivia_canon_index.html",category:"trivia",icon:"📚",tags:"canon literature trivia",description:"Test your knowledge of influential works and cultural traditions."},
+    {id:"trivia-daily-news",title:"The Verifier Daily News Quiz",file:"Trivia_daily_news_index.html",category:"trivia",icon:"📰",tags:"daily news current events verifier quiz trivia",description:"Test current-events awareness through a daily news quiz from The Verifier."},
     {id:"trivia-health",title:"Health Trivia",file:"Trivia_health_index.html",category:"trivia",icon:"🩺",tags:"health wellness trivia",description:"Build practical knowledge about the body, health, and wellness."},
     {id:"trivia-music",title:"Music Trivia",file:"Trivia_music_index.html",category:"trivia",icon:"🎵",tags:"music composers trivia",description:"Explore instruments, traditions, rhythm, and musical history."},
     {id:"trivia-oddball",title:"Oddball Trivia",file:"Trivia_oddball_index.html",category:"trivia",icon:"🤹",tags:"odd facts trivia",description:"A surprising collection of strange, memorable, and unexpected facts."},
     {id:"trivia-remnant",title:"Remnant Nations Trivia",file:"Trivia_remnenat_nations_index.html",category:"trivia",icon:"🗺️",tags:"nations cultures history trivia",description:"Explore peoples, identities, histories, and lesser-known national stories."},
+    {id:"trivia-testament",title:"The Testament Trivia",file:"Trivia_testament_index.html",category:"trivia",icon:"📖",tags:"testament biblical bible scripture five level quiz trivia",description:"A five-level biblical quiz exploring people, events, teachings, and scriptural knowledge."},
+    {id:"trivia-testament-kids",title:"The Testament Trivia — Kids Mode",file:"Trivia_testament_kids_index.html",category:"trivia",icon:"🌟",tags:"testament kids bible biblical scripture family quiz trivia",description:"A younger-player edition of Testament Trivia with an approachable family-friendly format."},
+    {id:"balloon-brigade",title:"Balloon Brigade",file:"balloon_brigade_index.html",category:"classic",icon:"🎈",tags:"balloon cooperative birthday arcade action co-op",description:"A colorful cooperative birthday-edition arcade challenge built for quick shared play."},
+    {id:"stadium-showdown",title:"Stadium Showdown",file:"statium_showdown_index.html",category:"classic",icon:"🏟️",tags:"stadium sports showdown arcade competition",description:"Enter a fast sports-themed arcade showdown with energetic competitive play."},
+    {id:"lawn-care-trivia",title:"Lawn Care Quiz — Thyme to Grow",file:"trivia_lawn_care_index.html",category:"trivia",icon:"🌱",tags:"lawn care gardening plants quiz trivia thyme grow",description:"Test practical lawn-care and growing knowledge through a green-thumb trivia challenge."},
+    {id:"virtual-lawn-mower",title:"Virtual Lawn Mower — Thyme to Grow",file:"virtual_lawn_mower_index.html",category:"classic",icon:"🌿",tags:"virtual lawn mower gardening simulation arcade thyme grow",description:"A playful lawn-mowing simulation that turns yard care into an arcade experience."},
   ];
 
   const wings = [
@@ -587,7 +594,9 @@
     {title:"Strategy Initiation",description:"Build from simple grids toward deeper tactical play.",ids:["tictactoe","connect-four","checkers-lab","backgammon","chess-studio"]},
     {title:"Pattern Intelligence",description:"Move through focus, signals, geometry, and number structures.",ids:["chromatic-focus","signal-garden","geometry-sanctuary","affixsix","sixbysix"]},
     {title:"Creative Circuit",description:"Explore color, character design, mandalas, and visual experimentation.",ids:["critter-crafter","mandala-rings","color-clash","colorshift-cascade","chromatic-focus"]},
-    {title:"Knowledge Run",description:"Travel through language, history, art, music, and unexpected facts.",ids:["trivia-esl","trivia-ancients","trivia-arts","trivia-music","trivia-oddball"]}
+    {title:"Knowledge Run",description:"Travel through language, history, art, music, current events, and unexpected facts.",ids:["trivia-esl","trivia-ancients","trivia-arts","trivia-daily-news","trivia-music","trivia-oddball"]},
+    {title:"Testament Trail",description:"Explore biblical knowledge through the general and younger-player Testament editions.",ids:["trivia-bible","trivia-testament","trivia-testament-kids"]},
+    {title:"Outdoor Action Run",description:"Move from cooperative celebration to sports competition and green-thumb arcade play.",ids:["balloon-brigade","stadium-showdown","lawn-care-trivia","virtual-lawn-mower"]}
   ];
 
   const labels = {
