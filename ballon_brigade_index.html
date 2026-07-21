@@ -1,0 +1,1730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Balloon Brigade — Co-Op Birthday Edition (v1.7)</title>
+<style>
+  :root{
+    --bg:#0f1421; --ink:#eaf2ff; --panel:#121a2b; --panel2:#0b1020;
+    --accent:#ff66a5; --accent2:#5be2ff; --good:#31d07b; --warn:#ffce3a; --bad:#ff5a5a;
+    --muted:#bcd0ff; --line:#1e2a46; --radius:16px; --shadow:0 10px 20px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    background:
+      radial-gradient(1200px 800px at 20% -10%,#1a2242 0%,#0f1421 55%),
+      linear-gradient(135deg,#0c1120 0%,#101832 50%,#0a0f1b 100%);
+    color:var(--ink);
+    font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,sans-serif
+  }
+  h1,h2,h3{margin:0}
+  .wrap{max-width:1180px;margin:0 auto;padding:18px}
+  .title{display:flex;align-items:center;gap:12px}
+  .logo{width:44px;height:44px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%,#ffd6e8,#ff66a5 45%,#ab2771 75%);
+    box-shadow:0 6px 18px rgba(255,102,165,.45)}
+  .subtitle{color:var(--muted);font-size:14px}
+  .bar{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+  .chip{padding:8px 12px;border-radius:999px;background:var(--panel);border:1px solid var(--line);color:var(--ink);cursor:pointer}
+  .chip.active{background:linear-gradient(180deg,#1a2544,#0f1731);border-color:#26345a}
+
+  .pill{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:6px 10px;
+    border-radius:999px;
+    background:var(--panel2);
+    border:1px solid var(--line);
+    font-size:13px;
+  }
+
+  .row{display:flex;gap:16px;align-items:stretch;flex-wrap:wrap}
+  .col{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+  .col.pad{padding:14px}
+  .col.half{flex:1;min-width:520px;position:relative;overflow:hidden}
+  .col.third{flex:0 0 360px}
+  .col.full{width:100%}
+  .btn{background:var(--accent);color:#0b0410;border:none;border-radius:12px;padding:10px 14px;font-weight:700;cursor:pointer;box-shadow:0 6px 16px rgba(255,102,165,.35)}
+  .btn:disabled{opacity:.55;cursor:not-allowed}
+  .btn.alt{background:var(--accent2);color:#031018;box-shadow:0 6px 16px rgba(91,226,255,.25)}
+  .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
+  .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .kv{display:flex;justify-content:space-between;gap:8px;padding:8px 10px;border-radius:10px;background:var(--panel2);border:1px solid var(--line)}
+  .tag{padding:2px 8px;border-radius:12px;background:#18213a;border:1px solid var(--line);color:var(--muted);font-size:12px}
+  .note{color:var(--muted);font-size:12px}
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap}
+  .status{min-height:28px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .status .dot{width:10px;height:10px;border-radius:50%}
+  .runprog{flex:1; min-width:180px; height:10px; border-radius:8px; background:#0e162c; border:1px solid var(--line); overflow:hidden}
+  .runprog > span{display:block;height:100%;background:linear-gradient(90deg,#7cffb7,#5be2ff)}
+  .filelist{max-height:196px;overflow:auto;border:1px dashed #304068;border-radius:12px;padding:8px}
+  .filelist div{padding:6px 8px;border-radius:8px}
+  .filelist div:hover{background:#132044}
+  .sr-only{position:absolute;left:-9999px}
+  .canvas-wrap{position:relative;width:100%;aspect-ratio:900/460;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:linear-gradient(180deg,#0e1730 0%,#061024 60%)}
+  .canvas-wrap canvas{position:absolute;inset:0;width:100%;height:100%}
+  .shield{position:absolute;border-radius:14px;border:2px dashed rgba(255,255,255,.35);pointer-events:none}
+  .console {border-radius:24px; padding:14px; background:linear-gradient(180deg,#0a1124 0%,#0a0e1a 100%); border:1px solid #213057; box-shadow:0 20px 40px rgba(0,0,0,.45), inset 0 1px 0 #2b3c6b;}
+  .bezel {border-radius:18px; padding:12px; background:linear-gradient(180deg,#0e1730,#0a0f1f); border:1px solid #26365f; box-shadow:inset 0 0 0 1px #1c2b4a, 0 12px 22px rgba(0,0,0,.35); position:relative;}
+  .power-led{position:absolute; right:22px; top:18px; width:10px; height:10px; border-radius:50%; background:var(--accent); box-shadow:0 0 12px var(--accent), 0 0 28px rgba(255,102,165,.4); animation:ledblink 2.4s ease-in-out infinite; pointer-events:none;}
+  @keyframes ledblink{0%,90%{opacity:1}95%{opacity:.35}100%{opacity:1}}
+  #coopArea textarea{width:100%;min-height:100px;border-radius:12px;border:1px solid var(--line);background:#0c1327;color:var(--ink);padding:8px}
+  #remoteHint{position:absolute;border:2px dashed #ffaf66; border-radius:14px; pointer-events:none; display:none}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="title">
+      <div class="logo" aria-hidden="true"></div>
+      <div>
+        <h1>Balloon Brigade</h1>
+        <div class="subtitle">Birthday Co-Op • sovereign sandbox • no external deps • local mini-cloud</div>
+      </div>
+    </div>
+
+    <!-- Nav -->
+    <div class="bar" id="tabs">
+      <button class="chip active" data-tab="play">▶ Play</button>
+      <button class="chip" data-tab="editor">🧱 Stage Editor</button>
+      <button class="chip" data-tab="upgrades">🔧 Upgrades</button>
+      <button class="chip" data-tab="coop">👥 Co-Op</button>
+      <button class="chip" data-tab="directory">🗂️ Mini-Cloud</button>
+      <button class="chip" data-tab="settings">⚙️ Settings</button>
+      <button class="chip" data-tab="help">❓ Help</button>
+    </div>
+
+    <!-- PLAY -->
+    <section id="tab-play">
+      <div class="row console">
+        <div class="power-led" aria-hidden="true"></div>
+
+        <div class="col half pad bezel">
+          <div class="toolbar">
+            <div class="pill"><label>Stage
+              <select id="stageSel">
+                <option value="neighborhood">Neighborhood</option>
+                <option value="park">City Park</option>
+                <option value="school">School Zone</option>
+                <option value="carnival">Carnival Grounds</option>
+                <option value="storm">Stormy Skies</option>
+                <option value="diagonal">Diagonal Defense</option>
+                <option value="chaos">Storm Chaos</option>
+              </select>
+              <span class="note" id="stageHint" style="margin-left:6px;display:none;">⭐ Recommended: Normal / Hard</span>
+            </label></div>
+            <div class="pill"><label>Custom
+              <select id="customStageSel"><option value="">(none)</option></select></label>
+            </div>
+            <div class="pill"><label>Difficulty
+              <select id="diffSel">
+                <option value="easy">Easy</option>
+                <option value="normal" selected>Normal</option>
+                <option value="hard">Hard</option>
+                <option value="challenge">Challenge</option>
+              </select></label>
+            </div>
+            <div class="pill"><label>Character
+              <select id="charSel">
+                <option value="careful">Careful Carrier</option>
+                <option value="speedster">Speedster</option>
+                <option value="fixer">The Fixer</option>
+                <option value="planner">The Planner</option>
+              </select></label>
+            </div>
+            <button class="btn" id="btnStart">Start</button>
+            <button class="btn ghost" id="btnPause">Pause</button>
+            <button class="btn ghost" id="btnReset">Reset</button>
+          </div>
+
+          <!-- Stage info line -->
+          <div class="note" id="stageInfo" style="margin-top:4px;"></div>
+
+          <div class="status" id="status">
+            <span class="dot" id="dotState" style="background:var(--warn)"></span>
+            <span id="statusText">Ready</span>
+            <span class="tag">🎈 <span id="statBalloon">0</span></span>
+            <span class="tag">⭐ <span id="statStars">0</span></span>
+            <span class="tag">⏱ <span id="statTime">0</span>s</span>
+            <span class="tag">🛡 <span id="statShield">100</span>%</span>
+            <div class="runprog" title="Run progress"><span id="barProg" style="width:0%"></span></div>
+          </div>
+
+          <div class="canvas-wrap" id="playWrap">
+            <canvas id="bg" aria-hidden="true"></canvas>
+            <canvas id="game" aria-label="Balloon Brigade playfield"></canvas>
+            <div id="shieldHint" class="shield" style="display:none"></div>
+            <div id="remoteHint"></div>
+          </div>
+        </div>
+
+        <div class="col third pad bezel">
+          <h3>Loadout</h3>
+          <div class="grid" style="margin-top:8px">
+            <button class="btn alt" id="toolShield">Drag Shield (∞)</button>
+            <button class="btn alt" id="toolFan" title="Hold to charge; release for gust">Wind Fan (Hold)</button>
+            <button class="btn alt" id="toolHelper">Helper Drone</button>
+            <button class="btn alt" id="toolBubble">Bubble (AoE)</button>
+          </div>
+
+          <div style="margin-top:12px">
+            <label>Number of Balloons
+              <input type="range" min="1" max="12" value="6" id="balloonCount">
+            </label>
+            <div class="note">More balloons = more rewards, but harder to defend.</div>
+          </div>
+
+          <div style="margin-top:16px">
+            <h3>AI Director</h3>
+            <div class="kv">Enabled <input type="checkbox" id="aiEnabled" checked></div>
+            <div class="kv">IQ
+              <select id="aiIQ">
+                <option value="gentle">Gentle</option>
+                <option value="smart" selected>Smart</option>
+                <option value="relentless">Relentless</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="margin-top:12px">
+            <h3>Avatar</h3>
+            <input type="file" id="avatarFile" accept="image/*" />
+            <canvas id="avatarPreview" width="140" height="140" style="margin-top:6px;border-radius:12px;border:1px solid var(--line)"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- EDITOR -->
+    <section id="tab-editor" style="display:none">
+      <div class="row console">
+        <div class="col half pad bezel">
+          <div class="toolbar">
+            <div class="pill"><label class="mini">Tool
+              <select id="edTool">
+                <option value="wind">Wind Brush</option>
+                <option value="pin">Pin Spawner</option>
+                <option value="debris">Debris Spawner</option>
+                <option value="bird">Bird Spawner</option>
+                <option value="erase">Erase</option>
+              </select></label>
+            </div>
+            <div class="pill"><label class="mini">Brush <input id="edBrush" type="range" min="6" max="60" value="18"></label></div>
+            <input id="stageName" placeholder="stage name" class="pill" style="background:#0e162c;border:1px solid var(--line);color:var(--ink);padding:8px 10px;border-radius:999px" />
+            <button class="btn" id="btnEdSave">Save Stage</button>
+            <button class="btn ghost" id="btnEdClear">Clear</button>
+          </div>
+          <div class="canvas-wrap" id="editWrap"><canvas id="editor" aria-label="Stage editor canvas"></canvas></div>
+        </div>
+        <div class="col third pad bezel">
+          <h3>Palette</h3>
+          <p class="note">Paint wind arrows and place spawners. Saved under <code>stages/</code> in the mini-cloud.</p>
+          <div class="filelist" id="stageList"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- UPGRADES -->
+    <section id="tab-upgrades" style="display:none">
+      <div class="col full pad bezel console">
+        <h3>Between-Stage Upgrades (persistent)</h3>
+        <div class="grid" style="margin-top:8px">
+          <button class="btn" data-upg="reinforce">Reinforced Strings (🎈dur)</button>
+          <button class="btn" data-upg="stability">Float Stabilizers (🎈stability)</button>
+          <button class="btn" data-upg="repair">Quick Patch Kit (🛠️)</button>
+          <button class="btn" data-upg="slots">Extra Plan Slots (🧠)</button>
+          <button class="btn" data-upg="sparkle">Sparkle FX (✨)</button>
+          <button class="btn" data-upg="bubble">Auto-Bubble (🛡️)</button>
+          <button class="btn" data-upg="trail">Rainbow Trails (🎨)</button>
+          <button class="btn" data-upg="magnet">Coin Magnet (⭐)</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- CO-OP -->
+    <section id="tab-coop" style="display:none">
+      <div class="row console">
+        <div class="col half pad bezel" id="coopArea">
+          <h3>Peer-to-Peer Co-Op (second shield)</h3>
+          <p class="note">No servers. Share codes manually. One player presses <b>Host</b>, the other presses <b>Join</b>.</p>
+          <div class="toolbar">
+            <button class="btn" id="btnHost">Host</button>
+            <button class="btn alt" id="btnJoin">Join</button>
+            <button class="btn ghost" id="btnCopy">Copy Code</button>
+          </div>
+          <textarea id="coopBox" placeholder="Code shows here. Paste your friend's code here to connect."></textarea>
+          <div class="note" id="coopStatus">Status: idle</div>
+        </div>
+        <div class="col third pad bezel">
+          <h3>How it works</h3>
+          <ol class="note">
+            <li><b>Host</b> → Copy code → send to friend.</li>
+            <li>Friend clicks <b>Join</b> → pastes host code → copies their code back to you.</li>
+            <li>Host pastes friend’s code. Connected!</li>
+          </ol>
+          <p class="note">Friend gets a <b>remote shield</b> (orange). They drag to help block hazards.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- MINI-CLOUD -->
+    <section id="tab-directory" style="display:none">
+      <div class="row console">
+        <div class="col half pad bezel">
+          <h3>Directory</h3>
+          <div class="filelist" id="fileList" role="listbox" aria-label="Files"></div>
+          <div class="toolbar" style="margin-top:10px">
+            <button class="btn" id="btnNewSave">Save Run</button>
+            <button class="btn ghost" id="btnExport">Export .json</button>
+            <label class="btn ghost" for="importFile" style="cursor:pointer">Import .json</label>
+            <input id="importFile" class="sr-only" type="file" accept="application/json" />
+          </div>
+        </div>
+        <div class="col half pad bezel">
+          <h3>Mini-Server</h3>
+          <div class="kv"><span>Endpoint</span><code>/api/dir</code></div>
+          <div class="kv"><span>Files</span><span id="svrCount">0</span></div>
+          <div class="note">All data is local to your browser; export anytime.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section id="tab-settings" style="display:none">
+      <div class="row console">
+        <div class="col half pad bezel">
+          <h3>Accessibility & FX</h3>
+          <label class="kv">Low stimulation mode <input type="checkbox" id="lowStim" /></label>
+          <label class="kv">Colorblind-safe palette <input type="checkbox" id="cbSafe" /></label>
+          <label class="kv">SFX volume <input type="range" min="0" max="1" step="0.05" id="vol" value="0.4" /></label>
+          <label class="kv">Balloon size <input type="range" id="balloonSize" min="14" max="28" value="20" /></label>
+          <label class="kv">Rescue drone capacity
+            <input type="range" id="droneCapacity" min="1" max="12" value="3" />
+          </label>
+          <label class="kv">Rescue target
+            <select id="droneTarget">
+              <option value="center">Center cluster</option>
+              <option value="left">Left side</option>
+              <option value="cursor">Near cursor</option>
+            </select>
+          </label>
+          <label class="kv">Bubble color
+            <select id="bubblePalette">
+              <option value="aqua">Aqua shield</option>
+              <option value="gold">Gold halo</option>
+              <option value="rose">Rose glow</option>
+              <option value="rainbow">Rainbow pulse</option>
+            </select>
+          </label>
+        </div>
+        <div class="col half pad bezel">
+          <h3>Storage</h3>
+          <div class="toolbar">
+            <button class="btn" id="btnWipe" style="background:var(--bad)">Factory Reset</button>
+            <button class="btn ghost" id="btnBackup">Quick Backup</button>
+            <button class="btn ghost" id="btnRestore">Restore Backup</button>
+          </div>
+          <div class="note">Backups are in RAM for this tab unless exported.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HELP -->
+    <section id="tab-help" style="display:none">
+      <div class="col full pad bezel console">
+        <h3>How to Play</h3>
+        <ol>
+          <li>Press <b>Start</b>. Balloons float left ➜ right.</li>
+          <li>Drag the <b>Shield</b> to block hazards (time slows slightly while dragging). Shield has limited energy on higher difficulties.</li>
+          <li>Use the <b>Wind Fan</b>: hold on the field to charge, then release. Use ← ↑ ↓ → to aim the gust. Blow against the route to slow objects.</li>
+          <li><b>Helper Drone</b> regroups balloons (capacity & target in Settings) and clears hazards around them.</li>
+          <li><b>Bubble</b> gives nearby balloons a temporary colored shield. Choose your color in Settings.</li>
+          <li>Difficulty increases balloons & hazards. Deliver as many as you can before the escort ends.</li>
+        </ol>
+      </div>
+    </section>
+  </div>
+
+<script>
+(()=>{
+'use strict';
+
+/* =============================== Mini-Cloud =============================== */
+const NS='BBRIGADE_BDAY_v1';
+const DEFAULT_FS={
+  profiles:{
+    'default.json':{
+      stars:0,
+      upgrades:{
+        reinforce:0,
+        stability:0,
+        repair:0,
+        slots:0,
+        sparkle:0,
+        bubble:0,
+        trail:0,
+        magnet:0
+      },
+      createdAt:Date.now(),
+      last:Date.now()
+    }
+  },
+  saves:{},
+  stages:{}
+};
+
+function deepClone(obj){
+  return JSON.parse(JSON.stringify(obj));
+}
+
+const MC={
+  load(){
+    try{
+      const raw=localStorage.getItem(NS);
+      return raw ? JSON.parse(raw) : deepClone(DEFAULT_FS);
+    }catch(e){
+      return deepClone(DEFAULT_FS);
+    }
+  },
+  save(fs){
+    localStorage.setItem(NS,JSON.stringify(fs));
+  },
+  list(){
+    const fs=MC.load();
+    const list=[];
+    for(const dir of Object.keys(fs)){
+      for(const name of Object.keys(fs[dir])){
+        if(typeof fs[dir][name]==='object'){
+          list.push(`${dir}/${name}`);
+        }
+      }
+    }
+    return list.sort();
+  },
+  export(){
+    return new Blob([JSON.stringify(MC.load(),null,2)],{type:'application/json'});
+  },
+  import(obj){
+    MC.save(obj);
+  }
+};
+
+async function mcFetch(path,{method='GET',body=null}={}){
+  const fs=MC.load();let data=null,status='OK';
+  try{
+    if(path==='/api/dir'&&method==='GET') data={files:MC.list()};
+    else if(path==='/api/profile'&&method==='GET') data={profile:fs.profiles['default.json']};
+    else if(path==='/api/profile'&&method==='POST'){
+      fs.profiles['default.json']={...fs.profiles['default.json'],...(body||{}),last:Date.now()};
+      MC.save(fs);
+      data={ok:true};
+    }
+    else if(path==='/api/save'&&method==='POST'){
+      const stamp=new Date().toISOString().replace(/[:.]/g,'-');
+      fs.saves[`run-${stamp}.json`]=body||{when:Date.now()};
+      MC.save(fs);
+      data={ok:true};
+    }
+    else if(path==='/api/stage-save'&&method==='POST'){
+      const name=(body?.name||'custom').replace(/[^a-z0-9_-]/gi,'_');
+      fs.stages[name+'.json']={name,model:body?.model||{}};
+      MC.save(fs);
+      data={ok:true,name};
+    }
+    else if(path==='/api/stage-list'&&method==='GET'){
+      data={names:Object.keys(fs.stages)};
+    }
+    else if(path==='/api/stage-load'&&method==='POST'){
+      data={stage:fs.stages[body?.name]||null};
+    }
+    else if(path==='/api/wipe'&&method==='POST'){
+      localStorage.removeItem(NS);
+      data={ok:true};
+    }
+    else status='NOT_FOUND';
+  }catch(e){
+    status='ERR';data={error:String(e)};
+  }
+  return {status,data};
+}
+
+/* ================================= Audio ================================= */
+const SFX=(()=>{
+  const ctx=new (window.AudioContext||window.webkitAudioContext)();
+  let vol=.4;
+  const master=ctx.createGain();
+  master.gain.value=vol;
+  master.connect(ctx.destination);
+
+  function tone(f=440,ms=120,type='sine',gain=vol){
+    const o=ctx.createOscillator(),g=ctx.createGain();
+    o.type=type;
+    o.frequency.value=f;
+    o.connect(g);
+    g.connect(master);
+    const t=ctx.currentTime;
+    g.gain.setValueAtTime(0.0001,t);
+    g.gain.exponentialRampToValueAtTime(gain,t+.01);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+ms/1000);
+    o.start(t);
+    o.stop(t+ms/1000+.05);
+  }
+
+  return {
+    beep:(f,m,t='sine')=>tone(f,m,t),
+    setVolume:v=>{vol=v;master.gain.value=v;}
+  };
+})();
+
+/* ================================== UI ================================== */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+
+const STAGE_INFO = {
+  neighborhood:{name:'Neighborhood', blurb:'Gentle starter route with light hazards. Great for warming up.'},
+  park:{name:'City Park', blurb:'More birds and mid-range hazards weaving through the trees.'},
+  school:{name:'School Zone', blurb:'Tighter lanes and extra debris near the ground line.'},
+  carnival:{name:'Carnival Grounds', blurb:'Busy midway with faster hazards and playful chaos.'},
+  storm:{name:'Stormy Skies', blurb:'Stronger winds and more intense pressure throughout the route.'},
+  diagonal:{name:'Diagonal Defense', blurb:'Hazards arranged along a slanted lane—defend the diagonal corridor.'},
+  chaos:{name:'Storm Chaos', blurb:'Heavy storm with mixed hazards and swirling wind fields. For brave pilots.'}
+};
+
+function updateStageInfo(){
+  const sel = $('#stageSel');
+  if(!sel) return;
+  const id = sel.value;
+  const info = STAGE_INFO[id];
+  const box = $('#stageInfo');
+  if(info && box){
+    box.textContent = info.name + ' — ' + info.blurb;
+  } else if(box){
+    box.textContent = '';
+  }
+  const hint = $('#stageHint');
+  if(hint){
+    if(id==='diagonal' || id==='chaos'){
+      hint.style.display='inline';
+    }else{
+      hint.style.display='none';
+    }
+  }
+}
+
+function initStageOptionTitles(){
+  const sel = $('#stageSel');
+  if(!sel) return;
+  [...sel.options].forEach(opt=>{
+    const id = opt.value;
+    const info = STAGE_INFO[id];
+    if(info) opt.title = info.blurb;
+  });
+}
+
+let profileCache = null;
+function setStarsDisplay(){
+  $('#statStars').textContent = String(profileCache ? (profileCache.stars|0) : 0);
+}
+async function getProfile(){
+  if(profileCache) return profileCache;
+  const {data} = await mcFetch('/api/profile',{method:'GET'});
+  profileCache = data.profile;
+  setStarsDisplay();
+  return profileCache;
+}
+async function saveProfile(profile){
+  profileCache = profile;
+  setStarsDisplay();
+  await mcFetch('/api/profile',{method:'POST', body: profile});
+}
+
+function setStatus(t,c){
+  $('#statusText').textContent=t;
+  $('#dotState').style.background=c||'var(--warn)';
+}
+const DPR=()=>Math.max(1,window.devicePixelRatio||1);
+const CANVAS=$('#game'),CTX=CANVAS.getContext('2d');
+const BG=$('#bg'),BGX=BG.getContext('2d');
+function sizeCanvas(wrap,c1,x1,c2,x2){
+  const dpr=DPR();
+  const r=wrap.getBoundingClientRect();
+  const w=Math.max(320,Math.round(r.width));
+  const h=Math.round(w*(460/900));
+  for(const [c,x] of [[c1,x1],[c2,x2]]){
+    c.width=Math.floor(w*dpr);
+    c.height=Math.floor(h*dpr);
+    c.style.width=w+'px';
+    c.style.height=h+'px';
+    x.setTransform(dpr,0,0,dpr,0,0);
+  }
+}
+function CW(){return CANVAS.width/DPR();}
+function CH(){return CANVAS.height/DPR();}
+
+/* ==================== Parallax / Particles / Helpers ==================== */
+const particles=[];
+function spawnConfetti(x,y){
+  for(let i=0;i<20;i++){
+    particles.push({
+      x,y,
+      vx:(Math.random()*2-1)*50,
+      vy:(Math.random()*-60-20),
+      life:.6,
+      col:['#ff66a5','#5be2ff','#ffd166','#7cffb7'][i%4]
+    });
+  }
+}
+function stepParticles(dt){
+  for(const p of particles){
+    p.life-=dt;
+    p.x+=(p.vx||0)*dt;
+    p.y+=(p.vy||0)*dt;
+  }
+  for(let i=particles.length-1;i>=0;i--){
+    if(particles[i].life<=0)particles.splice(i,1);
+  }
+}
+function drawParticles(){
+  for(const p of particles){
+    CTX.fillStyle=p.col+'bb';
+    CTX.fillRect(p.x,p.y,3,3);
+  }
+}
+function drawParallax(t){
+  const w=CW(),h=CH();
+  BGX.clearRect(0,0,w,h);
+  BGX.globalAlpha=.7;
+  for(let i=0;i<60;i++){
+    const x=(i*37+(t*.02))%w;
+    const y=(i*i*19%h);
+    BGX.fillStyle='#ffffff18';
+    BGX.fillRect(x,y,2,2);
+  }
+  BGX.globalAlpha=.6;
+  BGX.strokeStyle='#ffffff10';
+  for(let r=0;r<3;r++){
+    const y=120+r*80+Math.sin(t*.001+r)*6;
+    BGX.beginPath();
+    BGX.moveTo(0,y);
+    for(let x=0;x<w;x+=40){
+      BGX.lineTo(x+20,y+Math.sin((x+t*.06+r*33)/50)*6);
+    }
+    BGX.stroke();
+  }
+  BGX.globalAlpha=1;
+}
+function rand(a,b){return Math.random()*(b-a)+a;}
+function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+function now(){return performance.now()/1000;}
+
+function paletteColorForShield(){
+  switch(settings.bubblePalette){
+    case 'gold': return '#ffd166';
+    case 'rose': return '#ff66a5';
+    case 'rainbow': {
+      const t = now();
+      const colors = ['#ff66a5','#ffd166','#7cffb7','#5be2ff'];
+      return colors[Math.floor(t*2)%colors.length];
+    }
+    case 'aqua':
+    default: return '#7cf7ff';
+  }
+}
+
+/* ================================ Game State ================================ */
+let RUN=null,lastT=0,rafId=0,playing=false,paused=false,elapsed=0,shake=0;
+let pointer={x:0,y:0,down:false},activeTool='shield';
+const settings={
+  balloonR:20,
+  droneCapacity:3,
+  droneTarget:'center',
+  bubblePalette:'aqua'
+};
+const BASE_SPEED=60;           // slower base speed for floaty escort
+const WIND_FAN_FORCE=140;      // strength of fan gusts
+const ENERGY_REGEN=22;
+let windDirIcon='←';
+
+const CHAR_TRAITS={
+  careful:{popRes:1.15,speed:1,repair:1,slots:0},
+  speedster:{popRes:.95,speed:1.12,repair:1,slots:0},
+  fixer:{popRes:1,speed:1,repair:1.3,slots:0},
+  planner:{popRes:1,speed:1,repair:1,slots:1}
+};
+const DIFF={
+  easy:{wind:.6,hazards:.6,dmg:.75, shield:0.6},
+  normal:{wind:1,hazards:1,dmg:1, shield:1},
+  hard:{wind:1.2,hazards:1.2,dmg:1.15, shield:1.4},
+  challenge:{wind:1.4,hazards:1.4,dmg:1.3, shield:1.8}
+};
+const BALLOON_TYPES=[
+  {name:'Classic',dur:1,stab:1,speed:1,fx:null},
+  {name:'Reinforced',dur:1.25,stab:1,speed:.97,fx:null},
+  {name:'Sparkle',dur:.95,stab:.95,speed:1.05,fx:'sparkle'},
+  {name:'Shield',dur:1,stab:1,speed:.95,fx:'shield1'},
+  {name:'Buddy',dur:1.05,stab:1.1,speed:.98,fx:'buddy'},
+  {name:'Trail',dur:1,stab:1.05,speed:1,fx:'trail'}
+];
+
+class Balloon{
+  constructor(x,y,t){
+    this.x=x;this.y=y;this.type=t;
+    this.r=settings.balloonR;
+    this.alive=true;
+    this.shield=0;
+    this.shieldColor=null;
+    this.vx=BASE_SPEED*t.speed;
+    this.vy=rand(-12,12)*t.stab;
+    this.hp=100*t.dur;
+    this.wob=rand(0,6.28);
+  }
+  draw(){
+    if(!this.alive)return;
+    const wobY=Math.sin(now()*2+this.wob)*.8;
+    let col;
+    if(this.shield>0){
+      col = this.shieldColor || paletteColorForShield();
+    }else if(this.type.fx==='shield1'){
+      col='#7cf7ff';
+    }else{
+      col='#ff6fb2';
+    }
+    CTX.save();
+    if(this.type.fx==='sparkle'||this.shield>0){
+      CTX.shadowColor=col;
+      CTX.shadowBlur=12;
+    }
+    CTX.fillStyle=col;
+    CTX.strokeStyle='#ffffff22';
+    CTX.beginPath();
+    CTX.ellipse(this.x,this.y+wobY,this.r*.9,this.r*1.1,0,0,6.28);
+    CTX.fill();
+    CTX.stroke();
+    CTX.restore();
+    CTX.strokeStyle='#8aa9ff55';
+    CTX.beginPath();
+    CTX.moveTo(this.x,this.y+this.r*1.1);
+    CTX.lineTo(this.x,this.y+this.r*2.2);
+    CTX.stroke();
+  }
+}
+class Debris{
+  constructor(x,y,vx,vy,type='pin'){
+    this.x=x;this.y=y;this.vx=vx;this.vy=vy;
+    this.r= type==='bird'?10:6;
+    this.type=type;
+    this.alive=true;
+  }
+  draw(){
+    if(!this.alive)return;
+    CTX.fillStyle= this.type==='pin'?'#ffe15a':this.type==='bird'?'#66d9ff':'#c9d0ff';
+    CTX.beginPath();
+    CTX.arc(this.x,this.y,this.r,0,6.28);
+    CTX.fill();
+  }
+}
+class Drone{
+  constructor(){
+    this.x=120;this.y=340;this.r=12;this.t=2.5;this.alive=true;
+  }
+  step(dt){
+    this.t-=dt;
+    if(this.t<=0)this.alive=false;
+    const b=findLastAlive(RUN?.balloons||[]);
+    if(b){
+      this.x+=(b.x-40-this.x)*.08;
+      this.y+=(b.y-this.y)*.12;
+    }
+    for(const d of RUN.debris){
+      if(!d.alive)continue;
+      const dx=d.x-this.x,dy=d.y-this.y;
+      if(Math.hypot(dx,dy)<this.r+8){
+        d.alive=false;
+        spawnConfetti(d.x,d.y);
+        SFX.beep(300,80,'square');
+      }
+    }
+  }
+  draw(){
+    CTX.fillStyle='#5be2ffbb';
+    CTX.beginPath();
+    CTX.arc(this.x,this.y,this.r,0,6.28);
+    CTX.fill();
+    CTX.strokeStyle='#5be2ff';
+    CTX.stroke();
+  }
+}
+class Shield{
+  constructor(color='#8bd7ffaa',fill='#8bd7ff22'){
+    this.active=false;
+    this.x=0;this.y=0;
+    this.w=140;this.h=28;
+    this.color=color;this.fill=fill;
+  }
+  update(px,py){
+    this.x=px-this.w/2;
+    this.y=py-this.h/2;
+  }
+  draw(){
+    if(!this.active)return;
+    CTX.fillStyle=this.fill;
+    CTX.fillRect(this.x,this.y,this.w,this.h);
+    CTX.strokeStyle=this.color;
+    CTX.strokeRect(this.x,this.y,this.w,this.h);
+  }
+  blocks(px,py,pr){
+    if(!this.active)return false;
+    return(px+pr>this.x&&px-pr<this.x+this.w&&py+pr>this.y&&py-pr<this.y+this.h);
+  }
+}
+const SHIELD=new Shield();           // local shield (blue)
+const REMOTE_SHIELD=new Shield('#ffaf66','#ffaf6622'); // remote shield (orange)
+function findLastAlive(arr){
+  for(let i=arr.length-1;i>=0;i--)if(arr[i].alive)return arr[i];
+  for(const a of arr)if(a.alive)return a;
+  return null;
+}
+
+function drainShield(amount){
+  if(!RUN) return;
+  const mult = RUN.mod?.shield || 1;
+  RUN.shieldEnergy = clamp(RUN.shieldEnergy - amount*mult, 0, 100);
+  if(RUN.shieldEnergy <= 0){
+    SHIELD.active = false;
+    setStatus('Shield exhausted — wait to recharge','var(--warn)');
+  }
+}
+
+/* ================================ Avatar ================================ */
+const avatarCanvas=$('#avatarPreview'),avatarCtx=avatarCanvas.getContext('2d');
+function drawAvatar(img){
+  const c=avatarCanvas,g=avatarCtx,s=Math.min(img.width,img.height);
+  g.clearRect(0,0,c.width,c.height);
+  g.save();
+  g.translate(c.width/2,c.height/2);
+  g.beginPath();
+  g.arc(0,0,60,0,6.28);
+  g.clip();
+  g.drawImage(img,(img.width-s)/2,(img.height-s)/2,s,s,-60,-60,120,120);
+  g.restore();
+  g.strokeStyle='#ff66a5';
+  g.lineWidth=6;
+  g.beginPath();
+  g.arc(c.width/2,c.height/2,64,0,6.28);
+  g.stroke();
+}
+$('#avatarFile').addEventListener('change',e=>{
+  const f=e.target.files?.[0];
+  if(!f)return;
+  const img=new Image();
+  img.onload=()=>drawAvatar(img);
+  img.src=URL.createObjectURL(f);
+});
+
+/* ================================ Stages ================================ */
+function builtinStageModel(id){
+  const base={windField:[],spawners:[]};
+  const add=(type,x,y,rate)=>base.spawners.push({type,x,y,rate});
+
+  if(id==='neighborhood'){
+    add('pin',300,80,1.0);
+    add('debris',420,260,0.8);
+  }
+  if(id==='park'){
+    add('bird',520,160,0.7);
+    add('pin',360,100,1.0);
+  }
+  if(id==='school'){
+    add('pin',420,80,1.1);
+    add('debris',500,240,0.9);
+    add('bird',640,160,0.7);
+  }
+  if(id==='carnival'){
+    add('debris',280,220,1.2);
+    add('pin',520,120,1.1);
+    add('bird',600,190,0.9);
+  }
+  if(id==='storm'){
+    add('pin',360,90,1.2);
+    add('bird',520,150,1.0);
+    base.windField.push({x:0,y:0,str:40});
+  }
+
+  if(id==='diagonal'){
+    add('pin',260,120,1.0);
+    add('pin',340,170,1.0);
+    add('debris',430,220,0.9);
+    add('debris',520,270,0.9);
+    add('bird',580,190,0.8);
+    base.windField.push({x:80,y:80,str:20});
+    base.windField.push({x:520,y:260,str:15});
+  }
+  if(id==='chaos'){
+    add('pin',320,90,1.3);
+    add('debris',420,200,1.4);
+    add('debris',540,260,1.3);
+    add('bird',600,150,1.1);
+    add('bird',260,180,1.0);
+    base.windField.push({x:100,y:60,str:40});
+    base.windField.push({x:400,y:200,str:-35});
+    base.windField.push({x:700,y:140,str:45});
+  }
+
+  return base;
+}
+
+/* ================================ Upgrades ================================ */
+function effFromUpgrades(prof){
+  const u=prof.upgrades||{};
+  return{
+    dur:1+.06*(u.reinforce||0),
+    stab:1+.05*(u.stability||0),
+    repair:1+.05*(u.repair||0),
+    slots:(u.slots||0),
+    sparkle:(u.sparkle||0),
+    bubble:(u.bubble||0),
+    trail:(u.trail||0),
+    magnet:(u.magnet||0)
+  };
+}
+
+/* ======================== Progressive Difficulty (Ramp) ======================== */
+function rampFactor(t){
+  const minutes=t/60;
+  return clamp(1+minutes*0.20,1,2);
+}
+
+/* ================================ Run Setup ================================ */
+async function newRun(){
+  const stageId=$('#stageSel').value;
+  const diff=$('#diffSel').value;
+  const charK=$('#charSel').value;
+  const balloons=Number($('#balloonCount').value)|0;
+  const trait=CHAR_TRAITS[charK];
+  const mod=DIFF[diff];
+  const prof=await getProfile();
+  const eff=effFromUpgrades(prof);
+  const arr=[];
+  const baseY = CH()/2;
+  for(let i=0;i<balloons;i++){
+    let t=JSON.parse(JSON.stringify(BALLOON_TYPES[i%BALLOON_TYPES.length]));
+    t.dur*=eff.dur;
+    t.stab*=eff.stab;
+    const speedJitter = rand(0.6, 1.05);
+    t.speed *= speedJitter;
+    const startX = rand(40, 120) + i*8;
+    const offsetY = rand(-80, 80);
+    arr.push(new Balloon(startX, baseY + offsetY, t));
+  }
+  let model=builtinStageModel(stageId);
+  const custom=$('#customStageSel').value;
+  if(custom){
+    const {data}=await mcFetch('/api/stage-load',{method:'POST',body:{name:custom}});
+    if(data?.stage?.model) model=data.stage.model;
+  }
+  return {
+    stage:stageId,
+    diff,
+    charK,
+    trait,
+    mod,
+    balloons:arr,
+    debris:[],
+    drones:[],
+    time:0,
+    score:0,
+    delivered:0,
+    lost:0,
+    wind:0,
+    model,
+    eff,
+    energy:100,
+    combo:1,
+    gustImpulse:0,
+    shieldEnergy:100,
+    windDirX:-1,
+    windDirY:0
+  };
+}
+
+/* =============================== Inputs & Tools =============================== */
+const SHINT=$('#shieldHint');let charging=false,charge=0;
+CANVAS.addEventListener('pointerdown',e=>{
+  const r=e.currentTarget.getBoundingClientRect();
+  pointer.down=true;
+  pointer.x=e.clientX-r.left;
+  pointer.y=e.clientY-r.top;
+  if(activeTool==='bubble'&&RUN){
+    if(RUN.energy<25)return setStatus('Low energy','var(--warn)');
+    RUN.energy-=25;
+    for(const b of RUN.balloons){
+      if(Math.hypot(b.x-pointer.x,b.y-pointer.y)<80){
+        b.shield=1;
+        b.shieldColor = paletteColorForShield();
+        setTimeout(()=>{
+          if(b){
+            b.shield=0;
+            b.shieldColor=null;
+          }
+        },1600);
+      }
+    }
+    SFX.beep(520,90);
+  }
+  if(activeTool==='fan'){
+    charging=true;
+    charge=0;
+  }
+  sendPeer({t:'ptr',x:pointer.x,y:pointer.y,d:pointer.down});
+});
+CANVAS.addEventListener('pointerup',()=>{
+  pointer.down=false;
+  SHIELD.active=false;
+  SHINT.style.display='none';
+  if(charging&&RUN){
+    RUN.gustImpulse+=clamp(charge,0,.9);
+    charging=false;
+    setStatus('Gust released','var(--accent2)');
+  }
+  sendPeer({t:'ptr',x:pointer.x,y:pointer.y,d:false});
+});
+CANVAS.addEventListener('pointermove',e=>{
+  const r=e.currentTarget.getBoundingClientRect();
+  pointer.x=e.clientX-r.left;
+  pointer.y=e.clientY-r.top;
+  if(pointer.down&&activeTool==='shield'){
+    SHIELD.active=true;
+    SHINT.style.display='block';
+    SHINT.style.left=(pointer.x-70)+'px';
+    SHINT.style.top=(pointer.y-14)+'px';
+    SHINT.style.width='140px';
+    SHINT.style.height='28px';
+  }
+  if(pointer.down&&activeTool==='fan'&&RUN){
+    charge=clamp(charge+.0048,0,.9);
+    $('#statusText').textContent=`Charging fan ${(charge*100|0)}%`;
+  }
+  sendPeer({t:'ptr',x:pointer.x,y:pointer.y,d:pointer.down});
+});
+
+$('#toolShield').onclick=()=>{
+  activeTool='shield';
+  setStatus('Tool: Shield (drag)','var(--accent2)');
+};
+$('#toolFan').onclick=()=>{
+  activeTool='fan';
+  setStatus('Hold on canvas to charge, release to gust. Use arrow keys to aim.','var(--accent2)');
+};
+$('#toolHelper').onclick=()=>{
+  if(!RUN)return;
+  if(RUN.energy<30)return setStatus('Low energy','var(--warn)');
+  RUN.energy-=30;
+  RUN.drones.push(new Drone()); // hazard-clearing drone
+
+  const cap = settings.droneCapacity || 3;
+  const alive = RUN.balloons.filter(b=>b.alive);
+  if(!alive.length){
+    setStatus('No balloons to rescue','var(--warn)');
+    return;
+  }
+  const chosen = alive.slice(0, cap);
+  let targetX, targetY;
+  const mode = settings.droneTarget || 'center';
+  if(mode==='left'){
+    targetX = 80;
+    targetY = CH()/2;
+  }else if(mode==='cursor' && pointer.x && pointer.y){
+    targetX = pointer.x;
+    targetY = pointer.y;
+  }else{
+    targetX = CW()/2;
+    targetY = CH()/2;
+  }
+  chosen.forEach((b,i)=>{
+    b.x = targetX + (i - (chosen.length-1)/2)* (b.r*2.2);
+    b.y = targetY + Math.sin(i)*12;
+    spawnConfetti(b.x,b.y);
+  });
+  setStatus(`Rescue drone regrouped ${chosen.length} balloons`,'var(--accent2)');
+  SFX.beep(520,120,'sine');
+};
+$('#toolBubble').onclick=()=>{
+  activeTool='bubble';
+  setStatus('Tap near balloons for AoE bubble (color in Settings)','var(--accent2)');
+};
+
+$('#btnStart').onclick=start;
+$('#btnReset').onclick=reset;
+$('#btnPause').onclick=()=>{
+  if(!playing)return;
+  paused=!paused;
+  setStatus(paused?'Paused':'Escorting…',paused?'var(--warn)':'var(--accent2)');
+  if(!paused){
+    lastT=0;
+    rafId=requestAnimationFrame(frame);
+  }
+};
+
+// react to stage/difficulty changes
+$('#stageSel').addEventListener('change', updateStageInfo);
+$('#diffSel').addEventListener('change', ()=>{
+  const d = $('#diffSel').value;
+  const slider = $('#balloonCount');
+  if(d==='easy') slider.value = 6;
+  else if(d==='normal') slider.value = 8;
+  else if(d==='hard') slider.value = 10;
+  else if(d==='challenge') slider.value = 12;
+  updateStageInfo();
+});
+
+/* ================================ Stats & UI ================================ */
+function updateStats(){
+  if(!RUN){
+    $('#statBalloon').textContent='0';
+    $('#statTime').textContent='0';
+    $('#statShield').textContent='100';
+  }else{
+    $('#statBalloon').textContent=String(RUN.delivered);
+    $('#statTime').textContent=String(RUN.time|0);
+    $('#statShield').textContent=String(RUN.shieldEnergy|0);
+  }
+  setStarsDisplay();
+}
+function progressBar(){
+  if(!RUN){
+    $('#barProg').style.width='0%';
+    return;
+  }
+  const total=(CW()-62)-60;
+  const lead=Math.max(...RUN.balloons.map(b=>b.x||0));
+  const pct=clamp((lead-60)/total,0,1);
+  $('#barProg').style.width=(pct*100).toFixed(1)+'%';
+}
+
+/* ================================ Step & Draw ================================ */
+function step(dtms){
+  if(!RUN)return;
+  let dt=dtms/1000;
+  const R=RUN;
+  R.time+=dt;
+  const ramp=rampFactor(R.time);
+
+  // vertical base wind from stage
+  let baseWind=Math.sin(R.time*.9)*15*R.mod.wind*ramp;
+  if(R.model.windField){
+    for(const w of R.model.windField) baseWind+=w.str*.015*ramp;
+  }
+  R.wind+=(baseWind-R.wind)*.9*dt;
+
+  // energy + shield regen / drain
+  R.energy=clamp(R.energy+ENERGY_REGEN*dt,0,100);
+  R.shieldEnergy = clamp(R.shieldEnergy + 20*dt, 0, 100);
+  if(pointer.down && activeTool==='shield'){
+    drainShield(30*dt);
+  }
+
+  // stage spawners (time-based & lightly aimed)
+  if(Array.isArray(R.model.spawners)){
+    const targetB=findLastAlive(R.balloons);
+    for(const s of R.model.spawners){
+      const ratePerSec=0.3;
+      const chance=ratePerSec*dt*R.mod.hazards*ramp*(s.rate||1);
+      if(Math.random()<chance){
+        const type=s.type;
+        let x,y,vx,vy;
+        if(targetB){
+          const offsetX=(Math.random()*80-40);
+          const offsetY=(Math.random()*60-30);
+          x=s.x+offsetX;
+          y=s.y+offsetY;
+          const tx=targetB.x+(Math.random()*60-30);
+          const ty=targetB.y+(Math.random()*60-30);
+          const dx=tx-x,dy=ty-y;
+          const dist=Math.hypot(dx,dy)||1;
+          const speed=type==='bird'?rand(90,130):rand(50,80);
+          vx=(dx/dist)*speed;
+          vy=(dy/dist)*speed;
+        }else{
+          const j=()=> (Math.random()*20-10);
+          vx = type==='pin'?rand(-30,30):
+               type==='bird'?rand(70,110)*(Math.random()<.5?1:-1):
+               rand(-40,40);
+          vy = type==='pin'?rand(100,140):
+               type==='bird'?rand(-10,10):
+               rand(-30,30);
+          x = type==='bird' ? (vx>0?-10:CW()+10) : s.x+j();
+          y = s.y+j();
+        }
+        R.debris.push(new Debris(x,y,vx,vy,type));
+      }
+    }
+  }
+
+  // fan gust: push objects in chosen direction
+  if(R.gustImpulse>0){
+    const strength = R.gustImpulse * WIND_FAN_FORCE;
+    for(const b of R.balloons){
+      b.vx += strength * R.windDirX * dt;
+      b.vy += strength * R.windDirY * dt;
+    }
+    for(const d of R.debris){
+      d.vx += strength * 0.8 * R.windDirX * dt;
+      d.vy += strength * 0.8 * R.windDirY * dt;
+    }
+    R.gustImpulse = Math.max(0, R.gustImpulse - dt*0.45);
+  }
+
+  // slow-mo while shielding
+  if(pointer.down&&activeTool==='shield') dt*=0.86;
+
+  // shield positions
+  SHIELD.update(pointer.x||0,pointer.y||0);
+  if(peer.state==='open'){
+    REMOTE_SHIELD.active=peer.remote.down;
+    REMOTE_SHIELD.update(peer.remote.x||-999,peer.remote.y||-999);
+    $('#remoteHint').style.cssText=
+      `display:${peer.remote.down?'block':'none'};`+
+      `left:${(peer.remote.x-70)||0}px;top:${(peer.remote.y-14)||0}px;`+
+      `width:140px;height:28px`;
+  }
+
+  const goalX=CW()-62;
+
+  // balloons + collisions
+  for(const b of R.balloons){
+    if(!b.alive) continue;
+    b.r=settings.balloonR;
+
+    // shield can pop balloons in arcade mode
+    if(SHIELD.active && SHIELD.blocks(b.x,b.y,b.r)){
+      b.alive=false;
+      R.lost++;
+      spawnConfetti(b.x,b.y);
+      SFX.beep(900,140,'square');
+      drainShield(18);
+      continue;
+    }
+    if(REMOTE_SHIELD.active && REMOTE_SHIELD.blocks(b.x,b.y,b.r)){
+      b.alive=false;
+      R.lost++;
+      spawnConfetti(b.x,b.y);
+      SFX.beep(880,140,'square');
+      continue;
+    }
+
+    // movement
+    b.x+=b.vx*R.trait.speed*dt;
+    const wobPush = Math.sin(R.time*0.7 + b.wob)*6;
+    b.vy += wobPush*dt;
+    b.y+= (R.wind*3 + b.vy)*dt;
+    b.y=clamp(b.y, 80, CH()-70);
+
+    // debris hits
+    for(const d of R.debris){
+      if(!d.alive)continue;
+
+      if(SHIELD.active && SHIELD.blocks(d.x,d.y,d.r)){
+        d.alive=false;
+        spawnConfetti(d.x,d.y);
+        SFX.beep(200,70,'square');
+        drainShield(12);
+        continue;
+      }
+      if(REMOTE_SHIELD.active && REMOTE_SHIELD.blocks(d.x,d.y,d.r)){
+        d.alive=false;
+        spawnConfetti(d.x,d.y);
+        SFX.beep(220,70,'square');
+        continue;
+      }
+
+      const dx=b.x-d.x, dy=b.y-d.y;
+      if(Math.hypot(dx,dy)<b.r+d.r){
+        if(b.shield>0){
+          d.alive=false;
+          b.shield=0;
+          b.shieldColor=null;
+          SFX.beep(240,80,'triangle');
+          spawnConfetti(d.x,d.y);
+          continue;
+        }
+        const dmg=({pin:40,bird:28,debris:22}[d.type]||22) * R.mod.dmg / R.trait.popRes * ramp;
+        b.hp-=dmg;
+        d.alive=false;
+        SFX.beep(260,90,'triangle');
+        if(Math.random()<.2) shake=.1;
+        if(b.hp<=0){
+          b.alive=false;
+          R.lost++;
+          SFX.beep(120,180,'sawtooth');
+        }
+      }
+    }
+
+    // goal line
+    if(b.x>=goalX){
+      b.alive=false;
+      R.delivered++;
+      R.score += 10 + (R.eff.magnet||0);
+      SFX.beep(720,120,'sine');
+      spawnConfetti(goalX,120);
+    }
+  }
+
+  // debris motion & cleanup
+  for(const d of R.debris){
+    d.x+=d.vx*dt;
+    d.y+=d.vy*dt;
+  }
+  R.debris = R.debris.filter(d=>d.alive&&d.x>-60&&d.x<CW()+60&&d.y>-60&&d.y<CH()+60);
+
+  // drones
+  for(const dr of R.drones) dr.step(dt);
+  R.drones=R.drones.filter(d=>d.alive);
+
+  // particles
+  stepParticles(dt);
+  progressBar();
+
+  // end
+  const alive = R.balloons.some(b=>b.alive);
+  if(!alive){
+    stop();
+    getProfile().then(p=>{
+      p.stars += (R.delivered*2) + (R.eff.magnet||0);
+      return saveProfile(p);
+    }).then(()=>{
+      setStatus(`Run complete — Delivered ${R.delivered}, Lost ${R.lost}`,'var(--good)');
+      updateStats();
+    });
+    mcFetch('/api/save',{method:'POST',body:{
+      when:Date.now(),
+      delivered:R.delivered,
+      lost:R.lost,
+      score:R.score,
+      stage:R.stage,
+      diff:R.diff,
+      char:R.charK
+    }});
+  }
+}
+
+function draw(){
+  if(!RUN)return;
+  const goalX=CW()-62;
+  CTX.save();
+  if(shake>0){
+    const sx=(Math.random()*2-1)*6*shake;
+    const sy=(Math.random()*2-1)*6*shake;
+    CTX.translate(sx,sy);
+    shake=Math.max(0,shake-.02);
+  }
+  CTX.clearRect(0,0,CW(),CH());
+  CTX.fillStyle='#ffffff30';
+  CTX.fillRect(goalX,110,28,16);
+  CTX.fillRect(goalX,126,4,260);
+  for(const d of RUN.debris) d.draw();
+  for(const dr of RUN.drones) dr.draw();
+  for(const b of RUN.balloons) b.draw();
+  SHIELD.draw();
+  if(peer.state==='open') REMOTE_SHIELD.draw();
+  drawParticles();
+  CTX.fillStyle='#ffffffcc';
+  CTX.font='12px system-ui,sans-serif';
+  CTX.fillText(`Vertical wind ${RUN.wind.toFixed(1)}`,80,70);
+  CTX.fillText(`Fan dir ${windDirIcon}`,220,70);
+  CTX.fillText(`Delivered ${RUN.delivered}`,320,70);
+  CTX.fillText(`Score ${RUN.score|0}`,420,70);
+  CTX.restore();
+}
+
+/* ================================ Loop & Boot ================================ */
+function frame(t){
+  if(!playing||paused)return;
+  if(!lastT)lastT=t;
+  const dt=Math.min(40,t-lastT);
+  lastT=t;
+  drawParallax(t);
+  step(dt);
+  draw();
+  updateStats();
+  rafId=requestAnimationFrame(frame);
+}
+function start(){
+  if(playing)return;
+  newRun().then(r=>{
+    RUN=r;
+    playing=true;
+    paused=false;
+    lastT=0;
+    setStatus('Escorting…','var(--accent2)');
+    rafId=requestAnimationFrame(frame);
+  });
+}
+function stop(){
+  playing=false;
+  cancelAnimationFrame(rafId);
+  setStatus('Stopped','var(--warn)');
+}
+function reset(){
+  stop();
+  RUN=null;
+  elapsed=0;
+  updateStats();
+  CTX.clearRect(0,0,CW(),CH());
+}
+
+/* ================================ Upgrades/Dir/Settings ================================ */
+function upgradeCost(level){return 3+level*2+Math.floor(level*level/3);}
+$$('#tab-upgrades .btn').forEach(b=>b.addEventListener('click',async()=>{
+  const key=b.dataset.upg;
+  const prof=await getProfile();
+  const lvl=(prof.upgrades[key]||0);
+  const cost=upgradeCost(lvl);
+  if((prof.stars||0)<cost){
+    setStatus('Not enough ⭐','var(--bad)');
+    SFX.beep(140,120,'square');
+    return;
+  }
+  prof.stars-=cost;
+  prof.upgrades[key]=lvl+1;
+  await saveProfile(prof);
+  setStatus(`Upgraded ${key} → ${prof.upgrades[key]} (−${cost}⭐)`,'var(--good)');
+  SFX.beep(620,90,'sine');
+  updateStats();
+}));
+
+async function refreshDir(){
+  const {data}=await mcFetch('/api/dir',{method:'GET'});
+  $('#svrCount').textContent=String(data.files.length);
+  const box=$('#fileList');
+  box.innerHTML='';
+  data.files.forEach(f=>{
+    const d=document.createElement('div');
+    d.textContent=f;
+    box.appendChild(d);
+  });
+  refreshCustomStages();
+}
+$('#btnNewSave').onclick=()=>{
+  if(!RUN){
+    setStatus('Run something first','var(--warn)');
+    return;
+  }
+  mcFetch('/api/save',{method:'POST',body:{
+    when:Date.now(),
+    stage:RUN.stage,
+    diff:RUN.diff,
+    delivered:RUN.delivered,
+    lost:RUN.lost,
+    score:RUN.score
+  }}).then(()=>{
+    setStatus('Saved to saves/','var(--good)');
+    refreshDir();
+  });
+};
+$('#btnExport').onclick=()=>{
+  const blob=MC.export();
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='balloon-brigade-bday.json';
+  a.click();
+};
+$('#importFile').addEventListener('change',e=>{
+  const f=e.target.files?.[0];
+  if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{
+    try{
+      const obj=JSON.parse(String(r.result));
+      MC.import(obj);
+      profileCache=null;
+      setStatus('Imported JSON','var(--good)');
+      refreshDir();
+      getProfile().then(()=>updateStats());
+    }catch{
+      setStatus('Invalid JSON','var(--bad)');
+    }
+  };
+  r.readAsText(f);
+});
+$('#lowStim').onchange=e=>{
+  document.body.style.transition='filter .25s';
+  document.body.style.filter=e.target.checked?'saturate(.75) brightness(.95)':'none';
+};
+$('#cbSafe').onchange=e=>{
+  document.body.style.transition='filter .25s';
+  document.body.style.filter=e.target.checked?'hue-rotate(18deg)':'none';
+};
+$('#vol').oninput=e=>SFX.setVolume(Number(e.target.value));
+$('#balloonSize').oninput=e=>{settings.balloonR=Number(e.target.value);};
+$('#droneCapacity').oninput=e=>{settings.droneCapacity=Number(e.target.value);};
+$('#droneTarget').onchange=e=>{settings.droneTarget=e.target.value;};
+$('#bubblePalette').onchange=e=>{settings.bubblePalette=e.target.value;};
+
+let __backup=null;
+$('#btnBackup').onclick=()=>{
+  __backup=MC.load();
+  setStatus('Backup captured (RAM)','var(--good)');
+};
+$('#btnRestore').onclick=()=>{
+  if(!__backup) return setStatus('No backup yet','var(--warn)');
+  MC.save(__backup);
+  profileCache=null;
+  setStatus('Restored backup','var(--good)');
+  refreshDir();
+  getProfile().then(()=>updateStats());
+};
+$('#btnWipe').onclick=()=>{
+  if(confirm('Factory reset the mini-cloud?')){
+    localStorage.removeItem(NS);
+    profileCache=null;
+    setStatus('Mini-cloud reset','var(--good)');
+    refreshDir();
+    getProfile().then(()=>updateStats());
+  }
+};
+
+/* ================================ Tabs & Editor ================================ */
+const TABS=['play','editor','upgrades','coop','directory','settings','help'];
+$('#tabs').addEventListener('click',e=>{
+  const b=e.target.closest('button');
+  if(!b)return;
+  const id=b.dataset.tab;
+  if(!TABS.includes(id))return;
+  $$('#tabs .chip').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  TABS.forEach(t=>{
+    $('#tab-'+t).style.display=(t===id)?'block':'none';
+  });
+  if(id==='directory')refreshDir();
+  if(id==='editor')refreshCustomStages();
+});
+
+const ED=$('#editor'),EDX=ED.getContext('2d');
+const edModel={windField:[],spawners:[]};
+function edDraw(){
+  EDX.clearRect(0,0,ED.width/DPR(),ED.height/DPR());
+  EDX.strokeStyle='#ffffff12';
+  for(let x=0;x<ED.width/DPR();x+=40){
+    EDX.beginPath();
+    EDX.moveTo(x,0);
+    EDX.lineTo(x,ED.height/DPR());
+    EDX.stroke();
+  }
+  for(let y=0;y<ED.height/DPR();y+=40){
+    EDX.beginPath();
+    EDX.moveTo(0,y);
+    EDX.lineTo(ED.width/DPR(),y);
+    EDX.stroke();
+  }
+  for(const w of edModel.windField){
+    EDX.strokeStyle='#5be2ffaa';
+    EDX.beginPath();
+    EDX.moveTo(w.x-10,w.y);
+    EDX.lineTo(w.x+10,w.y);
+    EDX.stroke();
+  }
+  for(const s of edModel.spawners){
+    EDX.fillStyle=s.type==='pin'?'#ffe15a':s.type==='bird'?'#66d9ff':'#c9d0ff';
+    EDX.beginPath();
+    EDX.arc(s.x,s.y,6,0,6.28);
+    EDX.fill();
+  }
+}
+let edDown=false;
+ED.addEventListener('pointerdown',e=>{edDown=true;edAct(e);});
+ED.addEventListener('pointerup',()=>{edDown=false;});
+ED.addEventListener('pointermove',e=>{if(edDown)edAct(e);});
+function edPos(e){
+  const r=ED.getBoundingClientRect();
+  return{
+    x:(e.clientX-r.left)*(ED.width/DPR()/r.width),
+    y:(e.clientY-r.top)*(ED.height/DPR()/r.height)
+  };
+}
+function edAct(e){
+  const p=edPos(e);
+  const tool=$('#edTool').value;
+  const size=Number($('#edBrush').value);
+  if(tool==='erase'){
+    edModel.spawners=edModel.spawners.filter(s=>Math.hypot(s.x-p.x,s.y-p.y)>size);
+    edModel.windField=edModel.windField.filter(w=>Math.hypot(w.x-p.x,w.y-p.y)>size);
+  }else if(tool==='wind'){
+    edModel.windField.push({x:p.x,y:p.y,str:20});
+  }else{
+    edModel.spawners.push({type:tool,x:p.x,y:p.y,rate:1});
+  }
+  edDraw();
+}
+$('#btnEdSave').onclick=async()=>{
+  const name=$('#stageName').value.trim()||'custom-stage';
+  await mcFetch('/api/stage-save',{method:'POST',body:{name,model:edModel}});
+  setStatus(`Saved stage: ${name}`,'var(--good)');
+  edModel.windField=[];
+  edModel.spawners=[];
+  edDraw();
+  refreshCustomStages();
+};
+$('#btnEdClear').onclick=()=>{
+  edModel.windField=[];
+  edModel.spawners=[];
+  edDraw();
+};
+async function refreshCustomStages(){
+  const {data}=await mcFetch('/api/stage-list',{method:'GET'});
+  const sel=$('#customStageSel');
+  const list=data?.names||[];
+  sel.innerHTML='<option value="">(none)</option>'+list.map(n=>`<option value="${n}">${n.replace('.json','')}</option>`).join('');
+  const box=$('#stageList');
+  if(box)box.innerHTML=list.map(n=>`<div>${n}</div>`).join('');
+}
+
+/* ================================ Co-Op (WebRTC, manual codes) ================================ */
+const peer={
+  pc:null,chan:null,state:'closed',
+  remote:{x:0,y:0,down:false}
+};
+function setCoopStatus(s){$('#coopStatus').textContent='Status: '+s;}
+function sendPeer(msg){
+  try{
+    if(peer.chan&&peer.chan.readyState==='open'){
+      peer.chan.send(JSON.stringify(msg));
+    }
+  }catch{}
+}
+function handlePeer(msg){
+  if(msg.t==='ptr'){peer.remote=msg;}
+}
+
+const RTCPeer = window.RTCPeerConnection || window.webkitRTCPeerConnection;
+if(!RTCPeer){
+  setCoopStatus('WebRTC not supported in this browser');
+  $('#btnHost').disabled = true;
+  $('#btnJoin').disabled = true;
+}
+
+$('#btnHost').onclick=async()=>{
+  if(!RTCPeer) return;
+  if(peer.pc) try{peer.pc.close();}catch{}
+  peer.pc=new RTCPeer({iceServers:[]});
+  peer.chan=peer.pc.createDataChannel('bb');
+  peer.chan.onopen=()=>{
+    peer.state='open';
+    setCoopStatus('connected (host)');
+  };
+  peer.chan.onmessage=e=>{
+    try{handlePeer(JSON.parse(e.data));}catch{}
+  };
+  peer.pc.onicecandidate=e=>{
+    if(!e.candidate){
+      $('#coopBox').value=btoa(JSON.stringify({role:'host', sdp:peer.pc.localDescription}));
+    }
+  };
+  const offer=await peer.pc.createOffer();
+  await peer.pc.setLocalDescription(offer);
+  setCoopStatus('offer created — copy code and send to friend');
+};
+$('#btnJoin').onclick=async()=>{
+  if(!RTCPeer) return;
+  if(peer.pc) try{peer.pc.close();}catch{}
+  peer.pc=new RTCPeer({iceServers:[]});
+  peer.pc.ondatachannel=(ev)=>{
+    peer.chan=ev.channel;
+    peer.chan.onopen=()=>{
+      peer.state='open';
+      setCoopStatus('connected (guest)');
+    };
+    peer.chan.onmessage=e=>{
+      try{handlePeer(JSON.parse(e.data));}catch{}
+    };
+  };
+  peer.pc.onicecandidate=e=>{
+    if(!e.candidate){
+      $('#coopBox').value=btoa(JSON.stringify({role:'guest', sdp:peer.pc.localDescription}));
+    }
+  };
+  try{
+    const hostBlob=JSON.parse(atob(($('#coopBox').value||'').trim()));
+    await peer.pc.setRemoteDescription(hostBlob.sdp);
+    const ans=await peer.pc.createAnswer();
+    await peer.pc.setLocalDescription(ans);
+    setCoopStatus('answer created — send code back to host');
+  }catch{
+    setCoopStatus('invalid host code');
+  }
+};
+
+$('#btnCopy').onclick=()=>{
+  const text = $('#coopBox').value || '';
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(
+      ()=>setCoopStatus('code copied to clipboard'),
+      ()=>setCoopStatus('copy failed')
+    );
+  }else{
+    const t=$('#coopBox');
+    t.select();
+    document.execCommand('copy');
+    setCoopStatus('code copied (legacy)');
+  }
+};
+
+$('#coopBox').addEventListener('input',async(e)=>{
+  try{
+    const blob=JSON.parse(atob(e.target.value.trim()));
+    if(blob.role==='guest' && peer.pc && peer.pc.signalingState==='have-local-offer'){
+      await peer.pc.setRemoteDescription(blob.sdp);
+      setCoopStatus('connecting…');
+    }
+  }catch{}
+});
+
+/* ================================ Wind direction keys ================================ */
+window.addEventListener('keydown',e=>{
+  if(!RUN) return;
+  if(e.key==='ArrowLeft' || e.key==='ArrowRight' || e.key==='ArrowUp' || e.key==='ArrowDown'){
+    e.preventDefault();
+    if(e.key==='ArrowLeft'){ RUN.windDirX=-1; RUN.windDirY=0; windDirIcon='←'; }
+    if(e.key==='ArrowRight'){ RUN.windDirX=1; RUN.windDirY=0; windDirIcon='→'; }
+    if(e.key==='ArrowUp'){ RUN.windDirX=0; RUN.windDirY=-1; windDirIcon='↑'; }
+    if(e.key==='ArrowDown'){ RUN.windDirX=0; RUN.windDirY=1; windDirIcon='↓'; }
+    setStatus(`Gust direction: ${windDirIcon} (hold Fan, release to push)`, 'var(--accent2)');
+  }
+});
+
+/* ================================ Resize & Init ================================ */
+function resizeAll(){
+  sizeCanvas(document.querySelector('#playWrap'),CANVAS,CTX,BG,BGX);
+  const wrap=document.querySelector('#editWrap');
+  if(wrap){
+    const dpr=DPR();
+    const r=wrap.getBoundingClientRect();
+    const w=Math.max(320,Math.round(r.width));
+    const h=Math.round(w*(460/900));
+    ED.width=Math.floor(w*dpr);
+    ED.height=Math.floor(h*dpr);
+    ED.style.width=w+'px';
+    ED.style.height=h+'px';
+    EDX.setTransform(dpr,0,0,dpr,0,0);
+    edDraw();
+  }
+}
+window.addEventListener('resize',resizeAll);
+
+async function refreshAll(){
+  resizeAll();
+  refreshDir();
+  initStageOptionTitles();
+  updateStageInfo();
+  await getProfile();
+  updateStats();
+  setStatus('Ready','var(--warn)');
+}
+refreshAll();
+
+})();
+</script>
+</body>
+</html>
