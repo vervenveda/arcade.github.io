@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>The Testament Trivia — Kids Mode</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+
+  <!-- Optional fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Cormorant+Garamond:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --parchment:#f7f3ea;
+      --parchment-soft:#f0e9dc;
+      --gold:#d9b878;
+      --gold-deep:#b89252;
+      --gold-root:#7a5a28;
+      --midnight:#050713;
+      --midnight-soft:#191a30;
+      --ink-soft:#e5ddc7;
+      --radius-shell:33px;
+      --radius-card:27px;
+      --shadow-shell:0 24px 72px rgba(0,0,0,0.85);
+      --shadow-card:0 16px 44px rgba(0,0,0,0.7);
+    }
+
+    *,*::before,*::after{
+      box-sizing:border-box;
+    }
+
+    html,body{
+      margin:0;
+      padding:0;
+      min-height:100vh;
+      font-family:'Cormorant Garamond',system-ui,-apple-system,'Segoe UI',serif;
+      background:radial-gradient(circle at top,#f9f3e3 0%,#e6d6b3 40%,#cfb68b 72%,#b89c6f 100%);
+      color:var(--parchment);
+    }
+
+    body{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:36px 12px;
+    }
+
+    .kids-shell{
+      width:100%;
+      max-width:900px;
+      background:linear-gradient(180deg,#191b2a 0%,#050713 85%);
+      border-radius:var(--radius-shell);
+      border:1px solid rgba(60,43,18,0.6);
+      box-shadow:var(--shadow-shell);
+      padding:27px 22px 26px;
+      color:var(--parchment);
+    }
+
+    .kids-header{
+      text-align:center;
+      margin-bottom:18px;
+    }
+
+    .kids-title{
+      font-family:'Cinzel','Times New Roman',serif;
+      font-size:26px;
+      letter-spacing:0.18em;
+      text-transform:uppercase;
+      margin:0 0 6px;
+    }
+
+    .kids-tagline{
+      font-size:14px;
+      letter-spacing:0.16em;
+      text-transform:uppercase;
+      color:var(--gold);
+      margin:0 0 10px;
+    }
+
+    .kids-sub{
+      font-size:16px;
+      line-height:1.7;
+      color:var(--parchment-soft);
+      max-width:680px;
+      margin:0 auto;
+    }
+
+    .kids-sub span{
+      color:var(--gold);
+      font-weight:bold;
+    }
+
+    /* Level selector */
+
+    .kids-level-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:center;
+      justify-content:center;
+      margin:18px 0 14px;
+    }
+
+    .kids-level-label{
+      font-size:13px;
+      letter-spacing:0.14em;
+      text-transform:uppercase;
+      color:var(--ink-soft);
+      margin-right:4px;
+    }
+
+    .kids-level-btn{
+      border-radius:999px;
+      border:1px solid rgba(217,184,120,0.6);
+      background:rgba(10,12,30,0.95);
+      color:var(--parchment);
+      padding:7px 18px;
+      font-size:13px;
+      letter-spacing:0.11em;
+      text-transform:uppercase;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      white-space:nowrap;
+      transition:background .18s,box-shadow .18s,transform .18s,border-color .18s;
+    }
+
+    .kids-level-btn:hover{
+      background:#252744;
+      box-shadow:0 7px 21px rgba(0,0,0,0.6);
+      transform:translateY(-1px);
+    }
+
+    .kids-level-btn.kids-level-active{
+      background:linear-gradient(135deg,var(--gold),var(--gold-deep));
+      color:#050713;
+      border-color:var(--gold);
+      box-shadow:0 9px 24px rgba(0,0,0,0.7);
+    }
+
+    /* Score + progress */
+
+    .kids-top-bar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:16px;
+      margin:0 0 16px;
+      flex-wrap:wrap;
+    }
+
+    .kids-score-box{
+      font-size:16px;
+      color:var(--ink-soft);
+      min-width:180px;
+    }
+
+    .kids-score-box strong{
+      color:var(--gold);
+    }
+
+    .kids-best-label{
+      font-size:13px;
+      display:block;
+      margin-top:4px;
+      color:rgba(229,221,199,0.9);
+    }
+
+    .kids-progress-wrap{
+      flex:1;
+      min-width:200px;
+    }
+
+    .kids-progress-track{
+      width:100%;
+      height:10px;
+      border-radius:999px;
+      background:rgba(247,243,234,0.1);
+      overflow:hidden;
+      box-shadow:0 0 0 1px rgba(247,243,234,0.12);
+    }
+
+    .kids-progress-bar{
+      width:0%;
+      height:100%;
+      border-radius:999px;
+      background:linear-gradient(90deg,var(--gold-root),var(--gold));
+      transition:width .25s ease-out;
+    }
+
+    .kids-progress-label{
+      margin-top:6px;
+      font-size:14px;
+      text-align:right;
+      color:var(--ink-soft);
+    }
+
+    /* Question card */
+
+    .kids-card{
+      background:var(--midnight-soft);
+      border-radius:var(--radius-card);
+      border:1px solid rgba(247,243,234,0.15);
+      box-shadow:var(--shadow-card);
+      padding:20px 16px 18px;
+    }
+
+    .kids-question-text{
+      font-size:26px;
+      line-height:1.6;
+      margin:0 0 14px;
+      color:var(--parchment);
+    }
+
+    .kids-options-area{
+      margin-top:8px;
+    }
+
+    .kids-option-btn{
+      width:100%;
+      border-radius:22px;
+      border:1px solid rgba(217,184,120,0.65);
+      background:rgba(10,12,30,0.98);
+      color:var(--parchment);
+      font-size:22px;
+      padding:12px 16px;
+      margin-top:10px;
+      text-align:left;
+      cursor:pointer;
+      display:block;
+      transition:background .18s,transform .18s,box-shadow .18s,border-color .18s;
+    }
+
+    .kids-option-btn:hover:not(:disabled){
+      background:#252744;
+      transform:translateY(-1px);
+      box-shadow:0 7px 21px rgba(0,0,0,0.6);
+    }
+
+    .kids-option-btn:disabled{
+      cursor:default;
+      opacity:0.95;
+    }
+
+    .kids-option-correct{
+      border-color:#4caf50;
+      background:rgba(76,175,80,0.22);
+    }
+
+    .kids-option-incorrect{
+      border-color:#e53935;
+      background:rgba(229,57,53,0.18);
+    }
+
+    .kids-feedback{
+      margin-top:14px;
+      font-size:18px;
+      min-height:30px;
+      color:var(--ink-soft);
+    }
+
+    .kids-feedback-correct{
+      color:#b2f0b0;
+    }
+
+    .kids-feedback-incorrect{
+      color:#ffb8b0;
+    }
+
+    .kids-feedback-neutral{
+      color:var(--ink-soft);
+    }
+
+    .kids-feedback small{
+      display:block;
+      font-size:14px;
+      margin-top:4px;
+      color:var(--parchment-soft);
+    }
+
+    .kids-feedback-link{
+      color:var(--gold);
+      text-decoration:none;
+      border-bottom:1px dotted rgba(217,184,120,0.7);
+      margin-left:4px;
+      font-size:0.9em;
+    }
+
+    .kids-feedback-link:hover{
+      color:var(--gold-deep);
+    }
+
+    .kids-controls-row{
+      margin-top:18px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    .kids-pill-btn{
+      border:none;
+      border-radius:999px;
+      padding:9px 22px;
+      font-size:13px;
+      letter-spacing:0.14em;
+      text-transform:uppercase;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      background:linear-gradient(135deg,var(--gold),var(--gold-deep));
+      color:#050713;
+      text-decoration:none;
+      box-shadow:0 9px 27px rgba(0,0,0,0.6);
+      transition:transform .2s,box-shadow .2s,opacity .18s;
+      white-space:nowrap;
+    }
+
+    .kids-pill-btn:disabled{
+      opacity:0.55;
+      cursor:default;
+      box-shadow:none;
+      transform:none;
+    }
+
+    .kids-pill-btn:hover:not(:disabled){
+      transform:translateY(-1px);
+      box-shadow:0 12px 34px rgba(0,0,0,0.75);
+    }
+
+    .kids-ghost-btn{
+      border-radius:999px;
+      border:1px solid rgba(247,243,234,0.35);
+      background:transparent;
+      color:var(--parchment-soft);
+      padding:8px 20px;
+      font-size:11px;
+      letter-spacing:0.13em;
+      text-transform:uppercase;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      white-space:nowrap;
+      transition:background .18s,box-shadow .18s,transform .18s;
+    }
+
+    .kids-ghost-btn:hover{
+      background:rgba(247,243,234,0.06);
+      box-shadow:0 7px 21px rgba(0,0,0,0.6);
+      transform:translateY(-1px);
+    }
+
+    .kids-end-score{
+      display:block;
+      margin-top:6px;
+      font-size:22px;
+      color:var(--gold);
+    }
+
+    @media (max-width:720px){
+      body{
+        padding:20px 8px;
+      }
+      .kids-shell{
+        padding:22px 14px 22px;
+        border-radius:24px;
+      }
+      .kids-question-text{
+        font-size:22px;
+      }
+      .kids-option-btn{
+        font-size:20px;
+      }
+      .kids-top-bar{
+        flex-direction:column;
+        align-items:flex-start;
+      }
+      .kids-progress-label{
+        text-align:left;
+      }
+      .kids-controls-row{
+        justify-content:flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <section class="kids-shell" aria-label="The Testament Trivia — Kids Mode">
+    <header class="kids-header">
+      <h1 class="kids-title">TESTAMENT TRIVIA — KIDS</h1>
+      <p class="kids-tagline">BIBLE FUN · 2 LEVELS · FOR FAMILIES</p>
+      <p class="kids-sub">
+        This game is a gentle Bible quiz for children and families.
+        Choose a level, read the question out loud, and let kids pick an answer.
+        <span>Cheering and giggles are encouraged.</span>
+      </p>
+    </header>
+
+    <!-- Levels -->
+    <div class="kids-level-row" aria-label="Choose difficulty">
+      <span class="kids-level-label">Kids Level:</span>
+      <button class="kids-level-btn kids-level-active" data-level="1" type="button">
+        Level 1 · Little Learners
+      </button>
+      <button class="kids-level-btn" data-level="2" type="button">
+        Level 2 · Brave Explorers
+      </button>
+    </div>
+
+    <!-- Score + progress -->
+    <div class="kids-top-bar">
+      <div class="kids-score-box">
+        Score: <strong id="kidsScoreValue">0 / 0</strong>
+        <span id="kidsBestScoreLabel" class="kids-best-label">Best (Level 1): —</span>
+      </div>
+      <div class="kids-progress-wrap">
+        <div class="kids-progress-track" aria-hidden="true">
+          <div id="kidsProgressBar" class="kids-progress-bar"></div>
+        </div>
+        <div id="kidsProgressLabel" class="kids-progress-label"></div>
+      </div>
+    </div>
+
+    <!-- Question card -->
+    <article class="kids-card">
+      <div id="kidsQuestionText" class="kids-question-text">
+        Loading question…
+      </div>
+      <div id="kidsOptionsArea" class="kids-options-area" aria-live="polite"></div>
+      <div id="kidsFeedback" class="kids-feedback kids-feedback-neutral"></div>
+
+      <div class="kids-controls-row">
+        <button id="kidsNextBtn" class="kids-pill-btn" type="button" disabled>
+          Next Question
+        </button>
+        <button id="kidsRestartBtn" class="kids-ghost-btn" type="button">
+          Restart Level
+        </button>
+      </div>
+    </article>
+  </section>
+
+  <script>
+    // === Kids question bank ===
+    // level: 1 (Little Learners), 2 (Brave Explorers)
+    const KIDS_QUESTIONS = [
+      // ---- Level 1: Little Learners (very simple stories) ----
+      {
+        level:1,
+        question:"Who made the world, the sky, and all the animals?",
+        choices:["Moses","Noah","God","Abraham"],
+        answer:2,
+        reference:"Genesis 1:1"
+      },
+      {
+        level:1,
+        question:"Who built a big boat called an ark when God sent a flood?",
+        choices:["Jonah","Noah","David","Peter"],
+        answer:1,
+        reference:"Genesis 6–9"
+      },
+      {
+        level:1,
+        question:"What did God put in the sky as a sign of His promise after the flood?",
+        choices:["A star","A rainbow","A cloud","A mountain"],
+        answer:1,
+        reference:"Genesis 9:13–17"
+      },
+      {
+        level:1,
+        question:"Who was thrown into a den of lions but God kept him safe?",
+        choices:["Daniel","Joseph","Elijah","Jacob"],
+        answer:0,
+        reference:"Daniel 6:16–23"
+      },
+      {
+        level:1,
+        question:"Where was baby Jesus laid when He was born?",
+        choices:["In a palace","In a manger","In a boat","In a cave with bears"],
+        answer:1,
+        reference:"Luke 2:7"
+      },
+      {
+        level:1,
+        question:"What did the wise men bring to baby Jesus?",
+        choices:["Toys","Crowns","Gifts","Food"],
+        answer:2,
+        reference:"Matthew 2:11"
+      },
+      {
+        level:1,
+        question:"Who calmed the storm by telling the wind and waves to be still?",
+        choices:["Peter","Paul","Jesus","Moses"],
+        answer:2,
+        reference:"Mark 4:39"
+      },
+      {
+        level:1,
+        question:"How many days did it take God to make the heavens and the earth and all that is in them?",
+        choices:["Three days","Six days","Ten days","One day"],
+        answer:1,
+        reference:"Genesis 1; 2:1–3"
+      },
+
+      // ---- Level 2: Brave Explorers (a little more detail) ----
+      {
+        level:2,
+        question:"What did David use to knock down the giant Goliath?",
+        choices:["A sword and shield","A sling and a stone","A big stick","A net"],
+        answer:1,
+        reference:"1 Samuel 17:40–50"
+      },
+      {
+        level:2,
+        question:"Who was swallowed by a big fish after trying to run away from God?",
+        choices:["Jonah","Elijah","Samuel","John"],
+        answer:0,
+        reference:"Jonah 1–2"
+      },
+      {
+        level:2,
+        question:"What did Jesus use to feed more than 5,000 people?",
+        choices:[
+          "Two fish and five loaves of bread",
+          "One big cake",
+          "A basket of grapes",
+          "A jar of honey"
+        ],
+        answer:0,
+        reference:"John 6:5–13"
+      },
+      {
+        level:2,
+        question:"Who walked on water toward Jesus before becoming afraid of the wind and waves?",
+        choices:["James","John","Peter","Paul"],
+        answer:2,
+        reference:"Matthew 14:28–31"
+      },
+      {
+        level:2,
+        question:"What was the name of the garden where Adam and Eve first lived?",
+        choices:["Garden of Hope","Garden of Eden","Garden of Peace","Garden of Kings"],
+        answer:1,
+        reference:"Genesis 2:8"
+      },
+      {
+        level:2,
+        question:"What did God use to guide the Israelites at night as they left Egypt?",
+        choices:["A golden statue","A rainbow","A pillar of fire","A loud trumpet"],
+        answer:2,
+        reference:"Exodus 13:21"
+      },
+      {
+        level:2,
+        question:"What did Jesus do for His friend Lazarus?",
+        choices:["Gave him food","Helped him find a job","Raised him from the dead","Built him a house"],
+        answer:2,
+        reference:"John 11:38–44"
+      },
+      {
+        level:2,
+        question:"What did Jesus teach is the greatest commandment?",
+        choices:[
+          "Love the Lord your God with all your heart",
+          "Always be first in line",
+          "Collect many treasures",
+          "Never talk to anyone"
+        ],
+        answer:0,
+        reference:"Matthew 22:36–38"
+      }
+    ];
+
+    const KIDS_BEST_KEY_PREFIX = "testamentTriviaKidsBestLevel";
+
+    // State
+    let kidsCurrentLevel = 1;
+    let kidsCurrentIndex = 0;
+    let kidsScore = 0;
+    let kidsShuffledQuestions = [];
+    let kidsHasAnswered = false;
+
+    // DOM refs
+    const kidsLevelButtons = document.querySelectorAll(".kids-level-btn");
+    const kidsScoreValueEl = document.getElementById("kidsScoreValue");
+    const kidsBestScoreLabelEl = document.getElementById("kidsBestScoreLabel");
+    const kidsProgressBarEl = document.getElementById("kidsProgressBar");
+    const kidsProgressLabelEl = document.getElementById("kidsProgressLabel");
+    const kidsQuestionTextEl = document.getElementById("kidsQuestionText");
+    const kidsOptionsAreaEl = document.getElementById("kidsOptionsArea");
+    const kidsFeedbackEl = document.getElementById("kidsFeedback");
+    const kidsNextBtn = document.getElementById("kidsNextBtn");
+    const kidsRestartBtn = document.getElementById("kidsRestartBtn");
+
+    function kidsShuffle(array){
+      for(let i=array.length-1;i>0;i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [array[i],array[j]] = [array[j],array[i]];
+      }
+      return array;
+    }
+
+    function kidsQuestionsForLevel(level){
+      return KIDS_QUESTIONS.filter(q => q.level === level);
+    }
+
+    function kidsGetBestForLevel(){
+      const key = KIDS_BEST_KEY_PREFIX + kidsCurrentLevel;
+      try{
+        const raw = localStorage.getItem(key);
+        if(!raw) return null;
+        return JSON.parse(raw);
+      }catch(e){
+        return null;
+      }
+    }
+
+    function kidsUpdateBestLabel(){
+      const data = kidsGetBestForLevel();
+      if(!kidsBestScoreLabelEl) return;
+      if(data && typeof data.best === "number"){
+        kidsBestScoreLabelEl.textContent =
+          `Best (Level ${kidsCurrentLevel}): ${data.best} / ${data.total}`;
+      }else{
+        kidsBestScoreLabelEl.textContent = `Best (Level ${kidsCurrentLevel}): —`;
+      }
+    }
+
+    function kidsSaveBestIfNeeded(){
+      if(!kidsShuffledQuestions.length) return;
+      const total = kidsShuffledQuestions.length;
+      const key = KIDS_BEST_KEY_PREFIX + kidsCurrentLevel;
+      const prev = kidsGetBestForLevel();
+      let shouldUpdate = false;
+
+      if(!prev){
+        shouldUpdate = true;
+      }else if(kidsScore > prev.best){
+        shouldUpdate = true;
+      }else if(kidsScore === prev.best && total > prev.total){
+        shouldUpdate = true;
+      }
+
+      if(shouldUpdate){
+        try{
+          localStorage.setItem(key, JSON.stringify({ best:kidsScore, total }));
+        }catch(e){
+          // ignore
+        }
+      }
+
+      kidsUpdateBestLabel();
+    }
+
+    function kidsUpdateScoreBoard(){
+      const total = kidsShuffledQuestions.length || 0;
+      kidsScoreValueEl.textContent = `${kidsScore} / ${total}`;
+    }
+
+    function kidsUpdateProgress(){
+      if(!kidsShuffledQuestions.length){
+        kidsProgressBarEl.style.width = "0%";
+        kidsProgressLabelEl.textContent = "";
+        return;
+      }
+      const total = kidsShuffledQuestions.length;
+      const current = Math.min(kidsCurrentIndex, total);
+      const ratio = current / total;
+      kidsProgressBarEl.style.width = (ratio * 100) + "%";
+
+      if(kidsCurrentIndex >= total){
+        kidsProgressLabelEl.textContent = `All done! ${total} questions played.`;
+      }else{
+        const displayIndex = Math.min(kidsCurrentIndex + 1, total);
+        kidsProgressLabelEl.textContent = `Question ${displayIndex} of ${total}`;
+      }
+    }
+
+    function kidsRenderQuestion(){
+      if(!kidsShuffledQuestions.length){
+        kidsQuestionTextEl.textContent = "No questions found for this level.";
+        kidsOptionsAreaEl.innerHTML = "";
+        kidsFeedbackEl.textContent = "";
+        kidsNextBtn.disabled = true;
+        kidsUpdateScoreBoard();
+        kidsUpdateProgress();
+        return;
+      }
+
+      if(kidsCurrentIndex >= kidsShuffledQuestions.length){
+        kidsShowEndScreen();
+        return;
+      }
+
+      const q = kidsShuffledQuestions[kidsCurrentIndex];
+      kidsHasAnswered = false;
+
+      kidsQuestionTextEl.textContent = q.question;
+      kidsOptionsAreaEl.innerHTML = "";
+      kidsFeedbackEl.textContent = "";
+      kidsFeedbackEl.className = "kids-feedback kids-feedback-neutral";
+      kidsNextBtn.disabled = true;
+
+      q.choices.forEach((choice, idx) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "kids-option-btn";
+        btn.textContent = choice;
+        btn.dataset.index = String(idx);
+        btn.addEventListener("click", kidsOnOptionClick);
+        kidsOptionsAreaEl.appendChild(btn);
+      });
+
+      kidsUpdateProgress();
+      kidsUpdateScoreBoard();
+    }
+
+    function kidsOnOptionClick(evt){
+      if(kidsHasAnswered) return;
+      kidsHasAnswered = true;
+
+      const btn = evt.currentTarget;
+      const chosenIndex = parseInt(btn.dataset.index,10);
+      const q = kidsShuffledQuestions[kidsCurrentIndex];
+      const correctIndex = q.answer;
+
+      const optionButtons = kidsOptionsAreaEl.querySelectorAll(".kids-option-btn");
+      optionButtons.forEach(b => b.disabled = true);
+
+      const linkHtml =
+        ' <a href="https://www.vervenveda.com/testament" target="_blank" rel="noopener noreferrer" class="kids-feedback-link">Visit The Testament</a>';
+
+      if(chosenIndex === correctIndex){
+        kidsScore++;
+        btn.classList.add("kids-option-correct");
+        const refText = q.reference ? q.reference : "";
+        kidsFeedbackEl.innerHTML =
+          '🎉 Great job! That’s correct.' +
+          (refText ? `<small>Check it out in your Bible: ${refText}.</small>` : "") +
+          linkHtml;
+        kidsFeedbackEl.className = "kids-feedback kids-feedback-correct";
+      }else{
+        btn.classList.add("kids-option-incorrect");
+        optionButtons.forEach(b => {
+          const idx = parseInt(b.dataset.index,10);
+          if(idx === correctIndex){
+            b.classList.add("kids-option-correct");
+          }
+        });
+        const correctText = q.choices[correctIndex];
+        const refText = q.reference ? q.reference : "";
+        kidsFeedbackEl.innerHTML =
+          'Nice try! Let’s learn together. The right answer is: <strong>' +
+          correctText +
+          '</strong>.' +
+          (refText ? `<small>Look it up together: ${refText}.</small>` : "") +
+          linkHtml;
+        kidsFeedbackEl.className = "kids-feedback kids-feedback-incorrect";
+      }
+
+      kidsUpdateScoreBoard();
+      kidsNextBtn.disabled = false;
+    }
+
+    function kidsShowEndScreen(){
+      const total = kidsShuffledQuestions.length || 0;
+      const percent = total ? Math.round((kidsScore/total)*100) : 0;
+
+      kidsQuestionTextEl.innerHTML =
+        `You finished Level ${kidsCurrentLevel}!` +
+        `<span class="kids-end-score">Score: ${kidsScore} / ${total} (${percent}%).</span>`;
+      kidsOptionsAreaEl.innerHTML = "";
+      kidsFeedbackEl.innerHTML =
+        'You can play again, switch levels, or open <a href="https://www.vervenveda.com/testament" target="_blank" rel="noopener noreferrer" class="kids-feedback-link">The Testament</a> to read the stories.';
+      kidsFeedbackEl.className = "kids-feedback kids-feedback-neutral";
+      kidsNextBtn.disabled = true;
+
+      kidsSaveBestIfNeeded();
+      kidsUpdateProgress();
+    }
+
+    function kidsStartGame(level){
+      kidsCurrentLevel = level;
+      const pool = kidsQuestionsForLevel(level);
+      kidsShuffledQuestions = kidsShuffle(pool.slice());
+      kidsCurrentIndex = 0;
+      kidsScore = 0;
+      kidsHasAnswered = false;
+
+      kidsLevelButtons.forEach(btn => btn.classList.remove("kids-level-active"));
+      const activeBtn = Array.from(kidsLevelButtons).find(
+        b => parseInt(b.dataset.level,10) === level
+      );
+      if(activeBtn){
+        activeBtn.classList.add("kids-level-active");
+      }
+
+      kidsUpdateBestLabel();
+      kidsRenderQuestion();
+    }
+
+    // Level button events
+    kidsLevelButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const lvl = parseInt(btn.dataset.level,10) || 1;
+        kidsStartGame(lvl);
+      });
+    });
+
+    // Next / restart
+    kidsNextBtn.addEventListener("click", () => {
+      if(!kidsHasAnswered) return;
+      if(kidsCurrentIndex < kidsShuffledQuestions.length){
+        kidsCurrentIndex++;
+      }
+      if(kidsCurrentIndex < kidsShuffledQuestions.length){
+        kidsRenderQuestion();
+      }else{
+        kidsShowEndScreen();
+      }
+    });
+
+    kidsRestartBtn.addEventListener("click", () => {
+      kidsStartGame(kidsCurrentLevel);
+    });
+
+    // Initial load
+    kidsStartGame(1);
+  </script>
+</body>
+</html>
