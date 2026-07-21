@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Virtual Lawn Mower – Thyme to Grow</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root{
+      --bg:#1b5e20;
+      --card:#2e7d32;
+      --accent:#c8e6c9;
+      --ink:#ffffff;
+      --accent2:#a5d6a7;
+      --danger:#ef5350;
+    }
+
+    *{box-sizing:border-box;}
+
+    body{
+      margin:0;
+      font-family: "Montserrat", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: radial-gradient(circle at top, #33691e 0%, #1b5e20 45%, #0b3d16 100%);
+      color:var(--ink);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      min-height:100vh;
+      padding:12px;
+    }
+
+    .game-shell{
+      width:100%;
+      max-width:960px;
+      background:var(--card);
+      border-radius:18px;
+      box-shadow:0 14px 30px rgba(0,0,0,0.35);
+      padding:18px;
+    }
+
+    header{
+      text-align:center;
+      margin-bottom:12px;
+    }
+
+    header h1{
+      margin:0;
+      font-size:1.9rem;
+      letter-spacing:0.03em;
+    }
+
+    header p{
+      margin:6px 0 0;
+      font-size:0.95rem;
+      color:var(--accent);
+    }
+
+    .top-bar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-bottom:10px;
+      font-size:0.95rem;
+    }
+
+    .badge{
+      background:rgba(0,0,0,0.25);
+      padding:6px 10px;
+      border-radius:999px;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+    }
+
+    .badge span.value{
+      font-weight:700;
+      color:var(--accent2);
+    }
+
+    .tip-box{
+      flex:1;
+      min-width:220px;
+      background:rgba(0,0,0,0.22);
+      border-radius:999px;
+      padding:6px 12px;
+      font-size:0.85rem;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+
+    .tip-label{
+      font-weight:600;
+      color:var(--accent2);
+      white-space:nowrap;
+    }
+
+    #tipText{
+      flex:1;
+    }
+
+    .game-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:14px;
+      align-items:flex-start;
+      justify-content:center;
+    }
+
+    .canvas-wrap{
+      position:relative;
+      flex:1 1 540px;
+      max-width:640px;
+      background:#1b5e20;
+      border-radius:14px;
+      padding:8px;
+    }
+
+    canvas{
+      display:block;
+      width:100%;
+      height:auto;
+      border-radius:10px;
+      background:#43a047;
+    }
+
+    .side-panel{
+      flex:0 1 230px;
+      font-size:0.9rem;
+      background:rgba(0,0,0,0.2);
+      border-radius:14px;
+      padding:12px;
+    }
+
+    .side-panel h2{
+      font-size:1.05rem;
+      margin-top:0;
+    }
+
+    .start-btn{
+      width:100%;
+      border:none;
+      border-radius:999px;
+      padding:10px 16px;
+      font-size:1rem;
+      font-weight:600;
+      cursor:pointer;
+      margin-top:8px;
+      background:#c8e6c9;
+      color:#1b5e20;
+      transition:background 0.2s ease, transform 0.1s ease;
+    }
+
+    .start-btn:hover{
+      background:#aed581;
+    }
+
+    .start-btn:active{
+      transform:scale(0.97);
+    }
+
+    ul.controls{
+      padding-left:20px;
+      margin:8px 0 0;
+    }
+
+    ul.controls li{
+      margin-bottom:4px;
+    }
+
+    .overlay{
+      position:absolute;
+      inset:8px;
+      border-radius:10px;
+      background:rgba(0,0,0,0.78);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding:20px;
+      color:#e8f5e9;
+      z-index:5;
+    }
+
+    .overlay-card{
+      max-width:360px;
+      width:100%;
+    }
+
+    .overlay h2{
+      margin-top:0;
+      margin-bottom:8px;
+    }
+
+    .overlay .score-big{
+      font-size:1.6rem;
+      font-weight:700;
+      margin-bottom:4px;
+      color:var(--accent2);
+    }
+
+    .label-badge{
+      display:inline-block;
+      padding:4px 10px;
+      border-radius:999px;
+      background:rgba(255,255,255,0.1);
+      margin-bottom:10px;
+      font-size:0.85rem;
+    }
+
+    .cta-link{
+      margin-top:10px;
+      font-size:0.9rem;
+    }
+
+    .cta-link a{
+      color:var(--accent2);
+      font-weight:600;
+      text-decoration:none;
+    }
+
+    .cta-link a:hover{
+      text-decoration:underline;
+    }
+
+    .play-again{
+      border:none;
+      border-radius:999px;
+      padding:8px 16px;
+      font-size:0.95rem;
+      font-weight:600;
+      cursor:pointer;
+      margin-top:10px;
+      background:#c8e6c9;
+      color:#1b5e20;
+      width:100%;
+    }
+
+    .play-again:hover{
+      background:#aed581;
+    }
+
+    .notice{
+      margin-top:6px;
+      font-size:0.8rem;
+      opacity:0.85;
+    }
+
+    @media (max-width:720px){
+      header h1{font-size:1.4rem;}
+      .game-shell{padding:14px;}
+      .side-panel{font-size:0.85rem;}
+      canvas{max-height:340px;}
+    }
+  </style>
+</head>
+<body>
+  <div class="game-shell">
+    <header>
+      <h1>Virtual Lawn Mower</h1>
+      <p>Mow the lawn, dodge obstacles, and earn your <strong>Green Thumb</strong> badge!</p>
+    </header>
+
+    <div class="top-bar">
+      <div class="badge">
+        Score: <span class="value" id="scoreValue">0</span>
+      </div>
+      <div class="badge">
+        Time left: <span class="value" id="timeValue">60</span>s
+      </div>
+      <div class="tip-box">
+        <span class="tip-label">Lawn Tip:</span>
+        <span id="tipText">Mow at the right height to keep grass healthy.</span>
+      </div>
+    </div>
+
+    <div class="game-row">
+      <div class="canvas-wrap">
+        <canvas id="gameCanvas" width="800" height="480"></canvas>
+        <!-- overlay will be shown/hidden via JS -->
+        <div id="overlay" class="overlay" style="display:flex;">
+          <div class="overlay-card">
+            <h2>Get Your Mower Ready!</h2>
+            <p>Use the <strong>arrow keys</strong> to drive your mower.<br>
+              Cut as much grass as you can in <strong>60 seconds</strong> and avoid rocks &amp; trees.</p>
+            <button id="startBtn" class="start-btn">Start Mowing</button>
+            <p class="notice">Tip: Mow in neat rows for maximum coverage.</p>
+          </div>
+        </div>
+      </div>
+
+      <aside class="side-panel">
+        <h2>How to Play</h2>
+        <ul class="controls">
+          <li><strong>Arrow keys</strong> to drive the mower.</li>
+          <li>Mow over tall grass tiles to earn points.</li>
+          <li>Avoid rocks, trees, and puddles – they’ll stop you.</li>
+          <li>Fill as much of the lawn as you can before time runs out.</li>
+        </ul>
+        <button class="start-btn" id="sideStartBtn">Start Game</button>
+        <p class="notice">
+          As you play, watch for new lawn care tips. Perfect for Florida yards – and storm clean-up practice!
+        </p>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    // --- Basic setup ---
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    const scoreEl = document.getElementById('scoreValue');
+    const timeEl  = document.getElementById('timeValue');
+    const tipEl   = document.getElementById('tipText');
+    const overlay = document.getElementById('overlay');
+    const startBtn = document.getElementById('startBtn');
+    const sideStartBtn = document.getElementById('sideStartBtn');
+
+    // Grid / lawn settings
+    const TILE_SIZE = 40;
+    const COLS = Math.floor(canvas.width / TILE_SIZE);   // 20
+    const ROWS = Math.floor(canvas.height / TILE_SIZE);  // 12
+
+    let grassGrid = [];
+    let mower;
+    let obstacles = [];
+    let keys = {};
+    let score = 0;
+    let mowedCount = 0;
+    let totalTiles = COLS * ROWS;
+    let timeLeft = 60; // seconds
+    let lastTime = 0;
+    let running = false;
+
+    const tips = [
+      "Mow in different directions to keep grass standing tall.",
+      "Never cut more than one-third of the grass blade at once.",
+      "Early morning is the best time to mow in hot climates.",
+      "Keep mower blades sharp for a clean, healthy cut.",
+      "Leave grass clippings – they return nutrients to the soil.",
+      "Avoid mowing when the lawn is soaked after a storm.",
+      "Longer grass shades the soil and helps prevent weeds.",
+      "Slow-release fertilizers are great for Florida lawns.",
+      "Mowing at 2.5–3 inches helps roots grow deeper.",
+      "Clean debris before mowing to protect your blades."
+    ];
+
+    let tipTimer = 0;
+    const TIP_INTERVAL = 7; // seconds between tip changes
+
+    function randomTip(){
+      const t = tips[Math.floor(Math.random()*tips.length)];
+      tipEl.textContent = t;
+    }
+
+    // --- Helpers to build the lawn/obstacles ---
+    function initGrass(){
+      grassGrid = [];
+      for(let r=0;r<ROWS;r++){
+        const row = [];
+        for(let c=0;c<COLS;c++){
+          row.push(false); // false = unmowed
+        }
+        grassGrid.push(row);
+      }
+      mowedCount = 0;
+    }
+
+    function initObstacles(){
+      obstacles = [];
+      // simple rectangles as rocks/trees/puddles
+      // values in tile units, convert to px
+      const obstacleTiles = [
+        {c:6,  r:3,  w:2, h:2, type:"rock"},
+        {c:12, r:5,  w:3, h:2, type:"tree"},
+        {c:3,  r:8,  w:2, h:1, type:"puddle"},
+        {c:15, r:2,  w:2, h:2, type:"branch"},
+        {c:9,  r:9,  w:2, h:2, type:"tool"}
+      ];
+      obstacleTiles.forEach(o=>{
+        obstacles.push({
+          x:o.c * TILE_SIZE,
+          y:o.r * TILE_SIZE,
+          w:o.w * TILE_SIZE,
+          h:o.h * TILE_SIZE,
+          type:o.type
+        });
+      });
+    }
+
+    function initMower(){
+      mower = {
+        x: TILE_SIZE,         // start near upper-left
+        y: TILE_SIZE,
+        w: TILE_SIZE*0.9,
+        h: TILE_SIZE*1.2,
+        speed: 180, // pixels per second
+        vx: 0,
+        vy: 0
+      };
+    }
+
+    function resetGame(){
+      initGrass();
+      initObstacles();
+      initMower();
+      score = 0;
+      scoreEl.textContent = score;
+      timeLeft = 60;
+      timeEl.textContent = timeLeft.toFixed(0);
+      tipTimer = 0;
+      randomTip();
+    }
+
+    // --- Input handling ---
+    window.addEventListener('keydown', (e)=>{
+      if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(e.code)){
+        e.preventDefault();
+      }
+      keys[e.code] = true;
+    });
+
+    window.addEventListener('keyup', (e)=>{
+      keys[e.code] = false;
+    });
+
+    // --- Game loop ---
+    function startGame(){
+      resetGame();
+      running = true;
+      overlay.style.display = "none";
+      lastTime = performance.now();
+      requestAnimationFrame(loop);
+    }
+
+    function loop(timestamp){
+      if(!running) return;
+      const dt = (timestamp - lastTime)/1000;
+      lastTime = timestamp;
+
+      update(dt);
+      draw();
+
+      if(running){
+        requestAnimationFrame(loop);
+      }
+    }
+
+    function update(dt){
+      // Time
+      timeLeft -= dt;
+      if(timeLeft <= 0){
+        timeLeft = 0;
+        running = false;
+        showEndOverlay();
+      }
+      timeEl.textContent = Math.ceil(timeLeft);
+
+      // Tips
+      tipTimer += dt;
+      if(tipTimer >= TIP_INTERVAL){
+        tipTimer = 0;
+        randomTip();
+      }
+
+      // Movement based on keys
+      mower.vx = 0;
+      mower.vy = 0;
+      if(keys["ArrowUp"])    mower.vy = -mower.speed;
+      if(keys["ArrowDown"])  mower.vy =  mower.speed;
+      if(keys["ArrowLeft"])  mower.vx = -mower.speed;
+      if(keys["ArrowRight"]) mower.vx =  mower.speed;
+
+      const oldX = mower.x;
+      const oldY = mower.y;
+
+      mower.x += mower.vx * dt;
+      mower.y += mower.vy * dt;
+
+      // Stay in bounds
+      if(mower.x < 0) mower.x = 0;
+      if(mower.y < 0) mower.y = 0;
+      if(mower.x + mower.w > canvas.width)  mower.x = canvas.width - mower.w;
+      if(mower.y + mower.h > canvas.height) mower.y = canvas.height - mower.h;
+
+      // Collide with obstacles
+      for(const o of obstacles){
+        if(rectIntersect(mower, o)){
+          // simple resolution: revert position
+          mower.x = oldX;
+          mower.y = oldY;
+          break;
+        }
+      }
+
+      // Mow grass under mower center
+      const cx = mower.x + mower.w/2;
+      const cy = mower.y + mower.h/2;
+      const c = Math.floor(cx / TILE_SIZE);
+      const r = Math.floor(cy / TILE_SIZE);
+      if(r>=0 && r<ROWS && c>=0 && c<COLS){
+        if(!grassGrid[r][c]){
+          grassGrid[r][c] = true;
+          mowedCount++;
+          score += 10;
+          scoreEl.textContent = score;
+        }
+      }
+    }
+
+    function rectIntersect(a,b){
+      return !(
+        a.x + a.w <= b.x ||
+        a.x >= b.x + b.w ||
+        a.y + a.h <= b.y ||
+        a.y >= b.y + b.h
+      );
+    }
+
+    // --- Drawing ---
+    function draw(){
+      // Background lawn
+      ctx.fillStyle = "#3fa34d";
+      ctx.fillRect(0,0,canvas.width,canvas.height);
+
+      // Tiles
+      for(let r=0;r<ROWS;r++){
+        for(let c=0;c<COLS;c++){
+          const x = c*TILE_SIZE;
+          const y = r*TILE_SIZE;
+          if(grassGrid[r][c]){
+            // mowed: lighter
+            ctx.fillStyle = "#a5d6a7";
+          }else{
+            // unmowed: darker
+            ctx.fillStyle = "#2e7d32";
+          }
+          ctx.fillRect(x,y,TILE_SIZE,TILE_SIZE);
+        }
+      }
+
+      // grid lines (subtle)
+      ctx.strokeStyle = "rgba(0,0,0,0.12)";
+      ctx.lineWidth = 1;
+      for(let c=0;c<=COLS;c++){
+        ctx.beginPath();
+        ctx.moveTo(c*TILE_SIZE,0);
+        ctx.lineTo(c*TILE_SIZE,canvas.height);
+        ctx.stroke();
+      }
+      for(let r=0;r<=ROWS;r++){
+        ctx.beginPath();
+        ctx.moveTo(0,r*TILE_SIZE);
+        ctx.lineTo(canvas.width,r*TILE_SIZE);
+        ctx.stroke();
+      }
+
+      // Obstacles
+      for(const o of obstacles){
+        if(o.type === "puddle"){
+          ctx.fillStyle = "#1e88e5";
+        }else if(o.type === "tree"){
+          ctx.fillStyle = "#33691e";
+        }else if(o.type === "rock"){
+          ctx.fillStyle = "#757575";
+        }else if(o.type === "branch" || o.type==="tool"){
+          ctx.fillStyle = "#6d4c41";
+        }else{
+          ctx.fillStyle = "#616161";
+        }
+        roundedRect(ctx,o.x+4,o.y+4,o.w-8,o.h-8,6,true,false);
+      }
+
+      // Mower
+      drawMower(mower);
+    }
+
+    function roundedRect(ctx,x,y,w,h,r,fill,stroke){
+      if(typeof r === 'number'){
+        r = {tl:r,tr:r,br:r,bl:r};
+      }
+      ctx.beginPath();
+      ctx.moveTo(x+r.tl,y);
+      ctx.lineTo(x+w-r.tr,y);
+      ctx.quadraticCurveTo(x+w,y,x+w,y+r.tr);
+      ctx.lineTo(x+w,y+h-r.br);
+      ctx.quadraticCurveTo(x+w,y+h,x+w-r.br,y+h);
+      ctx.lineTo(x+r.bl,y+h);
+      ctx.quadraticCurveTo(x,y+h,x,y+h-r.bl);
+      ctx.lineTo(x,y+r.tl);
+      ctx.quadraticCurveTo(x,y,x+r.tl,y);
+      ctx.closePath();
+      if(fill) ctx.fill();
+      if(stroke) ctx.stroke();
+    }
+
+    function drawMower(m){
+      // body
+      ctx.fillStyle = "#ffeb3b";
+      roundedRect(ctx,m.x,m.y,m.w,m.h,8,true,false);
+
+      // wheels
+      const wheelH = m.h*0.18;
+      ctx.fillStyle = "#212121";
+      ctx.fillRect(m.x-4,m.y+4, m.w+8, wheelH);
+      ctx.fillRect(m.x-4,m.y+m.h-wheelH-4, m.w+8, wheelH);
+
+      // handle
+      ctx.strokeStyle = "#37474f";
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(m.x + m.w*0.7, m.y);
+      ctx.lineTo(m.x + m.w*0.7, m.y - m.h*0.4);
+      ctx.stroke();
+
+      // stripe / detail
+      ctx.fillStyle = "#f57f17";
+      ctx.fillRect(m.x + m.w*0.2, m.y + m.h*0.3, m.w*0.6, m.h*0.15);
+    }
+
+    // --- End screen ---
+    function showEndOverlay(){
+      const coverage = (mowedCount / totalTiles)*100;
+      let title;
+      if(coverage >= 75){
+        title = "Lawn Mower Master";
+      }else if(coverage >= 45){
+        title = "Grass Cutter Extraordinaire";
+      }else if(coverage >= 25){
+        title = "Green Thumb Trainee";
+      }else{
+        title = "Lawn Rookie";
+      }
+
+      let discountText = "";
+      if(coverage >= 60){
+        discountText = "You unlocked a 10% discount on your next lawn care service!";
+      }
+
+      overlay.innerHTML = `
+        <div class="overlay-card">
+          <h2>Time's Up!</h2>
+          <div class="score-big">${score} pts</div>
+          <div class="label-badge">${title}</div>
+          <p>You mowed about ${coverage.toFixed(1)}% of the lawn.</p>
+          ${discountText ? `<p><strong>${discountText}</strong></p>` : ""}
+          <p class="cta-link">
+            Visit <a href="https://www.thymetogrow.com" target="_blank" rel="noopener">
+              www.thymetogrow.com
+            </a> for real-world lawn care, storm clean-up, and more tips.
+          </p>
+          <button class="play-again" id="playAgainBtn">Play Again</button>
+        </div>
+      `;
+      overlay.style.display = "flex";
+
+      // reattach play again handler
+      document.getElementById('playAgainBtn').addEventListener('click', ()=>{
+        running = true;
+        overlay.style.display = "none";
+        resetGame();
+        lastTime = performance.now();
+        requestAnimationFrame(loop);
+      });
+    }
+
+    // --- Wire up buttons ---
+    startBtn.addEventListener('click', ()=>{
+      if(!running){
+        startGame();
+      }
+    });
+
+    sideStartBtn.addEventListener('click', ()=>{
+      if(!running){
+        startGame();
+      }
+    });
+
+    // initial draw
+    resetGame();
+    draw();
+  </script>
+</body>
+</html>
