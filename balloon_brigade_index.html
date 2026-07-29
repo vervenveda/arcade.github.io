@@ -1,359 +1,856 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Balloon Brigade — Co-Op Birthday Edition (v1.7)</title>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport"/>
+<meta content="Balloon Brigade — a responsive cooperative balloon-defense arcade game with stages, upgrades, a stage editor, local saves, accessibility settings, and manual peer-to-peer co-op." name="description"/>
+<meta content="#080b13" name="theme-color"/>
+<meta content="dark" name="color-scheme"/>
+<meta content="same-origin" name="referrer"/>
+<meta content="default-src 'self' blob:; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none';" http-equiv="Content-Security-Policy"/>
+<title>Balloon Brigade — After Dark Co-Op Edition</title>
 <style>
-  :root{
-    --bg:#0f1421; --ink:#eaf2ff; --panel:#121a2b; --panel2:#0b1020;
-    --accent:#ff66a5; --accent2:#5be2ff; --good:#31d07b; --warn:#ffce3a; --bad:#ff5a5a;
-    --muted:#bcd0ff; --line:#1e2a46; --radius:16px; --shadow:0 10px 20px rgba(0,0,0,.35);
-  }
-  *{box-sizing:border-box}
-  html,body{height:100%}
-  body{
-    margin:0;
-    background:
-      radial-gradient(1200px 800px at 20% -10%,#1a2242 0%,#0f1421 55%),
-      linear-gradient(135deg,#0c1120 0%,#101832 50%,#0a0f1b 100%);
-    color:var(--ink);
-    font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,sans-serif
-  }
-  h1,h2,h3{margin:0}
-  .wrap{max-width:1180px;margin:0 auto;padding:18px}
-  .title{display:flex;align-items:center;gap:12px}
-  .logo{width:44px;height:44px;border-radius:50%;
-    background:radial-gradient(circle at 35% 30%,#ffd6e8,#ff66a5 45%,#ab2771 75%);
-    box-shadow:0 6px 18px rgba(255,102,165,.45)}
-  .subtitle{color:var(--muted);font-size:14px}
-  .bar{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
-  .chip{padding:8px 12px;border-radius:999px;background:var(--panel);border:1px solid var(--line);color:var(--ink);cursor:pointer}
-  .chip.active{background:linear-gradient(180deg,#1a2544,#0f1731);border-color:#26345a}
+:root{
+  --bg:#080b13;
+  --bg-2:#0b111a;
+  --wall:#101722;
+  --panel:#131d29;
+  --panel-2:#182432;
+  --screen:#07131c;
+  --ink:#f2f3f0;
+  --ink-soft:#d2d7dc;
+  --muted:#aab4bf;
+  --faint:#778390;
+  --cyan:#63cddd;
+  --cyan-soft:#a0e8ef;
+  --pink:#cf6da8;
+  --pink-soft:#efa1cb;
+  --violet:#897bd5;
+  --amber:#d6b36a;
+  --mint:#79c8ad;
+  --red:#c96c78;
+  --line:rgba(160,232,239,.15);
+  --line-strong:rgba(160,232,239,.30);
+  --shadow:0 24px 66px rgba(0,0,0,.34);
+  --shadow-small:0 12px 33px rgba(0,0,0,.25);
+  --radius:7px;
+  --weight-text:333;
+  --weight-emphasis:444;
+  --s3:3px;
+  --s7:7px;
+  --s11:11px;
+  --s14:14px;
+  --s24:24px;
+  --s33:33px;
+  --s55:55px;
+  --s66:66px;
+  --max:1240px;
+  --display:"Eurostile Extended","Microgramma D Extended","Bank Gothic","Arial Narrow","Trebuchet MS",sans-serif;
+  --sans:"Trebuchet MS",Verdana,"Segoe UI",sans-serif;
+  --mono:"Courier New",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:84px;font-synthesis:none;text-rendering:geometricPrecision;-webkit-font-smoothing:antialiased}
+body{
+  margin:0;
+  min-width:300px;
+  min-height:100vh;
+  overflow-x:hidden;
+  color:var(--ink);
+  background:var(--bg);
+  font-family:var(--sans);
+  font-size:14px;
+  font-weight:var(--weight-text);
+  line-height:1.65;
+}
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-3;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 14% -3%,rgba(99,205,221,.075),transparent 31rem),
+    radial-gradient(circle at 88% 6%,rgba(207,109,168,.07),transparent 29rem),
+    linear-gradient(180deg,#080b13,#0b111a 50%,#070a10);
+}
+body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-2;
+  pointer-events:none;
+  opacity:.5;
+  background-image:
+    linear-gradient(rgba(137,123,213,.035) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(99,205,221,.03) 1px,transparent 1px);
+  background-size:33px 33px;
+  mask-image:linear-gradient(to bottom,black,transparent 92%);
+}
+body[data-low-stim="true"] *,
+body[data-low-stim="true"] *::before,
+body[data-low-stim="true"] *::after{
+  animation:none!important;
+  transition:none!important;
+  box-shadow:none!important;
+  text-shadow:none!important;
+}
+body[data-low-stim="true"]::after{opacity:.16}
+body[data-cb-safe="true"]{
+  --pink:#dd9d32;
+  --pink-soft:#f1c36a;
+  --cyan:#4eb3d3;
+  --cyan-soft:#9dd8ea;
+  --mint:#66b86f;
+  --red:#d55e4d;
+}
+a{color:inherit}
+button,input,select,textarea{font:inherit}
+button{color:inherit;cursor:pointer}
+strong,b,h1,h2,h3{font-weight:var(--weight-emphasis)}
+code{font-family:var(--mono)}
+::selection{color:#071018;background:var(--cyan-soft)}
+:focus-visible{outline:3px solid var(--cyan-soft);outline-offset:3px}
+[hidden]{display:none!important}
+.wrap{width:min(calc(100% - 22px),var(--max));margin-inline:auto;padding:0}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 
-  .pill{
-    display:inline-flex;
-    align-items:center;
-    gap:6px;
-    padding:6px 10px;
-    border-radius:999px;
-    background:var(--panel2);
-    border:1px solid var(--line);
-    font-size:13px;
-  }
+/* Header */
+.game-header{
+  position:sticky;
+  top:0;
+  z-index:1200;
+  min-height:66px;
+  display:grid;
+  grid-template-columns:minmax(190px,1fr) auto minmax(190px,1fr);
+  align-items:center;
+  gap:14px;
+  margin-bottom:14px;
+  padding:7px 0;
+  border-bottom:1px solid var(--line);
+  background:rgba(8,11,19,.94);
+  backdrop-filter:blur(18px);
+  box-shadow:0 11px 33px rgba(0,0,0,.25);
+}
+.game-header .title{
+  justify-self:start;
+  display:inline-flex;
+  align-items:center;
+  gap:11px;
+  min-width:0;
+  color:inherit;
+  text-decoration:none;
+}
+.logo{
+  width:44px;
+  height:44px;
+  flex:0 0 44px;
+  display:grid;
+  place-items:center;
+  border:1px solid var(--pink);
+  border-radius:50%;
+  background:
+    radial-gradient(circle at 34% 25%,rgba(255,255,255,.62),transparent 21%),
+    linear-gradient(145deg,var(--pink-soft),var(--pink));
+  box-shadow:0 0 22px rgba(207,109,168,.14);
+}
+.logo::after{
+  content:"BB";
+  color:#13111a;
+  font-family:var(--display);
+  font-size:11px;
+  font-weight:var(--weight-emphasis);
+  letter-spacing:.04em;
+}
+.title h1{
+  margin:0;
+  font-family:var(--display);
+  font-size:14px;
+  font-weight:var(--weight-emphasis);
+  letter-spacing:.15em;
+  line-height:1.05;
+  text-transform:uppercase;
+}
+.subtitle{
+  margin-top:7px;
+  color:var(--muted);
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.04em;
+}
+.header-center{
+  justify-self:center;
+  color:var(--pink-soft);
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.14em;
+  text-align:center;
+  text-transform:uppercase;
+}
+.header-right{
+  justify-self:end;
+  color:var(--muted);
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.08em;
+  text-align:right;
+  text-transform:uppercase;
+}
+.header-right strong{color:var(--mint)}
 
-  .row{display:flex;gap:16px;align-items:stretch;flex-wrap:wrap}
-  .col{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
-  .col.pad{padding:14px}
-  .col.half{flex:1;min-width:520px;position:relative;overflow:hidden}
-  .col.third{flex:0 0 360px}
-  .col.full{width:100%}
-  .btn{background:var(--accent);color:#0b0410;border:none;border-radius:12px;padding:10px 14px;font-weight:700;cursor:pointer;box-shadow:0 6px 16px rgba(255,102,165,.35)}
-  .btn:disabled{opacity:.55;cursor:not-allowed}
-  .btn.alt{background:var(--accent2);color:#031018;box-shadow:0 6px 16px rgba(91,226,255,.25)}
-  .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
-  .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-  .kv{display:flex;justify-content:space-between;gap:8px;padding:8px 10px;border-radius:10px;background:var(--panel2);border:1px solid var(--line)}
-  .tag{padding:2px 8px;border-radius:12px;background:#18213a;border:1px solid var(--line);color:var(--muted);font-size:12px}
-  .note{color:var(--muted);font-size:12px}
-  .toolbar{display:flex;gap:8px;flex-wrap:wrap}
-  .status{min-height:28px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-  .status .dot{width:10px;height:10px;border-radius:50%}
-  .runprog{flex:1; min-width:180px; height:10px; border-radius:8px; background:#0e162c; border:1px solid var(--line); overflow:hidden}
-  .runprog > span{display:block;height:100%;background:linear-gradient(90deg,#7cffb7,#5be2ff)}
-  .filelist{max-height:196px;overflow:auto;border:1px dashed #304068;border-radius:12px;padding:8px}
-  .filelist div{padding:6px 8px;border-radius:8px}
-  .filelist div:hover{background:#132044}
-  .sr-only{position:absolute;left:-9999px}
-  .canvas-wrap{position:relative;width:100%;aspect-ratio:900/460;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:linear-gradient(180deg,#0e1730 0%,#061024 60%)}
-  .canvas-wrap canvas{position:absolute;inset:0;width:100%;height:100%}
-  .shield{position:absolute;border-radius:14px;border:2px dashed rgba(255,255,255,.35);pointer-events:none}
-  .console {border-radius:24px; padding:14px; background:linear-gradient(180deg,#0a1124 0%,#0a0e1a 100%); border:1px solid #213057; box-shadow:0 20px 40px rgba(0,0,0,.45), inset 0 1px 0 #2b3c6b;}
-  .bezel {border-radius:18px; padding:12px; background:linear-gradient(180deg,#0e1730,#0a0f1f); border:1px solid #26365f; box-shadow:inset 0 0 0 1px #1c2b4a, 0 12px 22px rgba(0,0,0,.35); position:relative;}
-  .power-led{position:absolute; right:22px; top:18px; width:10px; height:10px; border-radius:50%; background:var(--accent); box-shadow:0 0 12px var(--accent), 0 0 28px rgba(255,102,165,.4); animation:ledblink 2.4s ease-in-out infinite; pointer-events:none;}
-  @keyframes ledblink{0%,90%{opacity:1}95%{opacity:.35}100%{opacity:1}}
-  #coopArea textarea{width:100%;min-height:100px;border-radius:12px;border:1px solid var(--line);background:#0c1327;color:var(--ink);padding:8px}
-  #remoteHint{position:absolute;border:2px dashed #ffaf66; border-radius:14px; pointer-events:none; display:none}
+/* Tabs */
+.bar{
+  display:grid;
+  grid-template-columns:repeat(7,minmax(0,1fr));
+  gap:7px;
+  margin:0 0 14px;
+}
+.chip{
+  min-height:44px;
+  padding:7px 11px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  color:var(--ink-soft);
+  background:rgba(19,29,41,.82);
+  font-family:var(--mono);
+  font-size:11px;
+  font-weight:var(--weight-emphasis);
+  letter-spacing:.055em;
+  text-transform:uppercase;
+}
+.chip:hover{color:var(--cyan-soft);border-color:var(--cyan)}
+.chip.active{
+  color:#071018;
+  border-color:var(--cyan);
+  background:linear-gradient(135deg,var(--cyan-soft),var(--cyan));
+  box-shadow:0 0 22px rgba(99,205,221,.11);
+}
+
+/* Layout */
+.row{
+  display:grid;
+  grid-template-columns:minmax(0,1.45fr) minmax(300px,.55fr);
+  gap:14px;
+  align-items:start;
+}
+.col{
+  min-width:0;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:var(--panel);
+  box-shadow:var(--shadow-small);
+}
+.col.pad{padding:14px}
+.col.half,.col.third{min-width:0;position:relative;overflow:hidden}
+.col.full{width:100%}
+.console{
+  position:relative;
+  padding:14px;
+  border:1px solid var(--line-strong);
+  border-radius:var(--radius);
+  background:linear-gradient(180deg,#0c131e,#090e16);
+  box-shadow:var(--shadow);
+}
+.bezel{
+  padding:14px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:linear-gradient(160deg,#162230,#0d151f);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.018);
+}
+h3{
+  margin:0;
+  font-family:var(--display);
+  font-size:18px;
+  letter-spacing:.01em;
+  text-transform:uppercase;
+}
+p{margin:0}
+.note{
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.6;
+}
+.power-led{
+  position:absolute;
+  right:22px;
+  top:18px;
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:var(--pink);
+  box-shadow:0 0 14px rgba(207,109,168,.35);
+  animation:ledblink 2.4s ease-in-out infinite;
+  pointer-events:none;
+}
+@keyframes ledblink{0%,88%,100%{opacity:1}94%{opacity:.34}}
+
+/* Controls */
+.toolbar{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  flex-wrap:wrap;
+}
+.pill{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  min-height:42px;
+  padding:7px 11px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  color:var(--ink-soft);
+  background:var(--panel-2);
+  font-size:13px;
+}
+.pill label{display:flex;align-items:center;gap:7px}
+select,input[type="text"],input:not([type]),textarea{
+  min-height:38px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  color:var(--ink);
+  background:var(--screen);
+}
+select{padding:7px 30px 7px 9px}
+input[type="range"]{width:100%;accent-color:var(--cyan)}
+input[type="file"]{
+  width:100%;
+  color:var(--muted);
+  font-size:12px;
+}
+input[type="checkbox"]{accent-color:var(--cyan)}
+textarea{
+  width:100%;
+  min-height:120px;
+  padding:11px;
+  resize:vertical;
+}
+.btn{
+  min-height:42px;
+  padding:7px 11px;
+  border:1px solid transparent;
+  border-radius:var(--radius);
+  color:#071018;
+  background:linear-gradient(135deg,var(--pink-soft),var(--pink));
+  box-shadow:0 0 18px rgba(207,109,168,.10);
+  font-family:var(--mono);
+  font-size:11px;
+  font-weight:var(--weight-emphasis);
+  letter-spacing:.055em;
+  text-transform:uppercase;
+}
+.btn:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.04)}
+.btn:disabled{cursor:not-allowed;opacity:.42}
+.btn.alt{
+  color:#071018;
+  background:linear-gradient(135deg,var(--cyan-soft),var(--cyan));
+  box-shadow:0 0 18px rgba(99,205,221,.10);
+}
+.btn.ghost{
+  color:var(--ink-soft);
+  border-color:var(--line);
+  background:var(--panel-2);
+  box-shadow:none;
+}
+.btn.ghost:hover:not(:disabled){color:var(--cyan-soft);border-color:var(--cyan)}
+.btn.danger{color:#fff;border-color:var(--red);background:var(--red)}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:7px;
+}
+.kv{
+  min-height:44px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:11px;
+  padding:7px 11px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  color:var(--ink-soft);
+  background:var(--panel-2);
+}
+.kv input,.kv select{max-width:55%}
+.tag{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  padding:5px 8px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  color:var(--ink-soft);
+  background:var(--panel-2);
+  font-family:var(--mono);
+  font-size:11px;
+}
+.tag strong,.tag span:last-child{color:var(--cyan-soft)}
+.status{
+  min-height:48px;
+  display:flex;
+  align-items:center;
+  gap:7px;
+  flex-wrap:wrap;
+  margin:11px 0;
+}
+.status .dot{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+}
+#statusText{
+  color:var(--ink);
+  font-family:var(--mono);
+  font-size:12px;
+}
+.runprog{
+  flex:1 1 180px;
+  min-width:140px;
+  height:7px;
+  overflow:hidden;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:var(--screen);
+}
+.runprog>span{
+  display:block;
+  height:100%;
+  width:0;
+  border-radius:var(--radius);
+  background:linear-gradient(90deg,var(--mint),var(--cyan),var(--pink));
+  transition:width .12s linear;
+}
+
+/* Canvas */
+.canvas-wrap{
+  position:relative;
+  width:100%;
+  aspect-ratio:900/460;
+  min-height:260px;
+  overflow:hidden;
+  border:7px solid #05080d;
+  border-radius:var(--radius);
+  background:
+    radial-gradient(circle at 50% 8%,rgba(99,205,221,.08),transparent 28rem),
+    linear-gradient(180deg,#07131d,#080c15);
+  touch-action:none;
+  user-select:none;
+  isolation:isolate;
+}
+.canvas-wrap canvas{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  touch-action:none;
+}
+.shield,#remoteHint{
+  position:absolute;
+  z-index:10;
+  border:2px dashed rgba(255,255,255,.42);
+  border-radius:var(--radius);
+  pointer-events:none;
+}
+#remoteHint{border-color:#ffaf66;display:none}
+.canvas-note{
+  margin-top:7px;
+  color:var(--muted);
+  font-family:var(--mono);
+  font-size:11px;
+  text-align:center;
+}
+#avatarPreview{
+  display:block;
+  width:min(100%,140px);
+  height:auto;
+  margin:7px auto 0;
+  border:1px solid var(--line);
+  border-radius:var(--radius)!important;
+  background:var(--screen);
+}
+
+/* Lists, editor, cloud */
+.filelist{
+  max-height:240px;
+  overflow:auto;
+  padding:7px;
+  border:1px dashed var(--line-strong);
+  border-radius:var(--radius);
+  background:var(--screen);
+}
+.filelist div,.stage-entry{
+  min-height:38px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:7px;
+  padding:7px;
+  border-radius:var(--radius);
+  color:var(--ink-soft);
+  overflow-wrap:anywhere;
+}
+.filelist div:hover,.stage-entry:hover{background:var(--panel-2)}
+.upgrade-card{
+  min-height:88px;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  justify-content:space-between;
+  text-align:left;
+}
+.upgrade-card small{
+  display:block;
+  margin-top:7px;
+  color:rgba(7,16,24,.72);
+  font-size:10px;
+}
+.upgrade-card:disabled small{color:var(--muted)}
+#coopArea textarea{margin-top:11px}
+
+/* Help and sections */
+section[id^="tab-"]{padding-bottom:33px}
+ol{padding-left:24px}
+li{margin:7px 0;color:var(--ink-soft)}
+kbd{
+  padding:3px 7px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  color:var(--cyan-soft);
+  background:var(--screen);
+  font-family:var(--mono);
+  font-size:11px;
+}
+footer{
+  padding:24px 0 33px;
+  border-top:1px solid var(--line);
+  color:var(--muted);
+  text-align:center;
+  font-family:var(--mono);
+  font-size:11px;
+}
+
+/* Responsive */
+@media(max-width:1040px){
+  .game-header{grid-template-columns:1fr auto}.header-center{display:none}
+  .bar{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .row{grid-template-columns:1fr}
+  .col.third{width:100%}
+}
+@media(max-width:720px){
+  body{font-size:15px}
+  .bar{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .grid{grid-template-columns:1fr}
+  .toolbar{display:grid;grid-template-columns:1fr 1fr}
+  .toolbar .pill{width:100%}
+  .toolbar .pill label{width:100%;justify-content:space-between}
+  .toolbar .pill select{max-width:62%}
+  .status{justify-content:center}
+  .runprog{flex-basis:100%}
+  .canvas-wrap{min-height:320px;aspect-ratio:4/3}
+}
+@media(max-width:520px){
+  .wrap{width:min(calc(100% - 14px),var(--max))}
+  .game-header{grid-template-columns:minmax(0,1fr) auto}
+  .title h1{font-size:12px}
+  .subtitle{display:none}
+  .header-right{font-size:10px}
+  .bar{gap:5px}
+  .chip{min-height:42px;padding:7px;font-size:10px}
+  .toolbar{grid-template-columns:1fr}
+  .toolbar .pill select{max-width:58%}
+  .console,.bezel,.col.pad{padding:11px}
+  .canvas-wrap{min-height:340px;aspect-ratio:1/1}
+  .status .tag{flex:1 1 calc(50% - 7px);justify-content:center}
+  .kv{align-items:flex-start;flex-direction:column}
+  .kv input,.kv select{max-width:100%;width:100%}
+}
+@media(max-width:380px){
+  .logo{width:40px;height:40px;flex-basis:40px}
+  .title h1{display:none}
+  .header-right{max-width:120px}
+}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
 </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="title">
-      <div class="logo" aria-hidden="true"></div>
-      <div>
-        <h1>Balloon Brigade</h1>
-        <div class="subtitle">Birthday Co-Op • sovereign sandbox • no external deps • local mini-cloud</div>
-      </div>
-    </div>
-
-    <!-- Nav -->
-    <div class="bar" id="tabs">
-      <button class="chip active" data-tab="play">▶ Play</button>
-      <button class="chip" data-tab="editor">🧱 Stage Editor</button>
-      <button class="chip" data-tab="upgrades">🔧 Upgrades</button>
-      <button class="chip" data-tab="coop">👥 Co-Op</button>
-      <button class="chip" data-tab="directory">🗂️ Mini-Cloud</button>
-      <button class="chip" data-tab="settings">⚙️ Settings</button>
-      <button class="chip" data-tab="help">❓ Help</button>
-    </div>
-
-    <!-- PLAY -->
-    <section id="tab-play">
-      <div class="row console">
-        <div class="power-led" aria-hidden="true"></div>
-
-        <div class="col half pad bezel">
-          <div class="toolbar">
-            <div class="pill"><label>Stage
+<div class="wrap">
+<header class="game-header">
+<a aria-label="Return to the Arcade landing page" class="title" href="index.html">
+<div aria-hidden="true" class="logo"></div>
+<div>
+<h1>Balloon Brigade</h1>
+<div class="subtitle">Co-Op Defense Cabinet · Local Mini-Cloud</div>
+</div>
+</a>
+<div class="header-center">Arcade After Dark · Free Play</div>
+<div class="header-right">System · <strong id="headerGameState">Ready</strong></div>
+</header>
+<!-- Nav -->
+<div class="bar" id="tabs">
+<button class="chip active" data-tab="play" type="button">Play</button>
+<button class="chip" data-tab="editor" type="button">Stage Editor</button>
+<button class="chip" data-tab="upgrades" type="button">Upgrades</button>
+<button class="chip" data-tab="coop" type="button">Co-Op</button>
+<button class="chip" data-tab="directory" type="button">Mini-Cloud</button>
+<button class="chip" data-tab="settings" type="button">Settings</button>
+<button class="chip" data-tab="help" type="button">Help</button>
+</div>
+<!-- PLAY -->
+<section id="tab-play">
+<div class="row console">
+<div aria-hidden="true" class="power-led"></div>
+<div class="col half pad bezel">
+<div class="toolbar">
+<div class="pill"><label>Stage
               <select id="stageSel">
-                <option value="neighborhood">Neighborhood</option>
-                <option value="park">City Park</option>
-                <option value="school">School Zone</option>
-                <option value="carnival">Carnival Grounds</option>
-                <option value="storm">Stormy Skies</option>
-                <option value="diagonal">Diagonal Defense</option>
-                <option value="chaos">Storm Chaos</option>
-              </select>
-              <span class="note" id="stageHint" style="margin-left:6px;display:none;">⭐ Recommended: Normal / Hard</span>
-            </label></div>
-            <div class="pill"><label>Custom
+<option value="neighborhood">Neighborhood</option>
+<option value="park">City Park</option>
+<option value="school">School Zone</option>
+<option value="carnival">Carnival Grounds</option>
+<option value="storm">Stormy Skies</option>
+<option value="diagonal">Diagonal Defense</option>
+<option value="chaos">Storm Chaos</option>
+</select>
+<span class="note" id="stageHint" style="margin-left:6px;display:none;">⭐ Recommended: Normal / Hard</span>
+</label></div>
+<div class="pill"><label>Custom
               <select id="customStageSel"><option value="">(none)</option></select></label>
-            </div>
-            <div class="pill"><label>Difficulty
+</div>
+<div class="pill"><label>Difficulty
               <select id="diffSel">
-                <option value="easy">Easy</option>
-                <option value="normal" selected>Normal</option>
-                <option value="hard">Hard</option>
-                <option value="challenge">Challenge</option>
-              </select></label>
-            </div>
-            <div class="pill"><label>Character
+<option value="easy">Easy</option>
+<option selected="" value="normal">Normal</option>
+<option value="hard">Hard</option>
+<option value="challenge">Challenge</option>
+</select></label>
+</div>
+<div class="pill"><label>Character
               <select id="charSel">
-                <option value="careful">Careful Carrier</option>
-                <option value="speedster">Speedster</option>
-                <option value="fixer">The Fixer</option>
-                <option value="planner">The Planner</option>
-              </select></label>
-            </div>
-            <button class="btn" id="btnStart">Start</button>
-            <button class="btn ghost" id="btnPause">Pause</button>
-            <button class="btn ghost" id="btnReset">Reset</button>
-          </div>
-
-          <!-- Stage info line -->
-          <div class="note" id="stageInfo" style="margin-top:4px;"></div>
-
-          <div class="status" id="status">
-            <span class="dot" id="dotState" style="background:var(--warn)"></span>
-            <span id="statusText">Ready</span>
-            <span class="tag">🎈 <span id="statBalloon">0</span></span>
-            <span class="tag">⭐ <span id="statStars">0</span></span>
-            <span class="tag">⏱ <span id="statTime">0</span>s</span>
-            <span class="tag">🛡 <span id="statShield">100</span>%</span>
-            <div class="runprog" title="Run progress"><span id="barProg" style="width:0%"></span></div>
-          </div>
-
-          <div class="canvas-wrap" id="playWrap">
-            <canvas id="bg" aria-hidden="true"></canvas>
-            <canvas id="game" aria-label="Balloon Brigade playfield"></canvas>
-            <div id="shieldHint" class="shield" style="display:none"></div>
-            <div id="remoteHint"></div>
-          </div>
-        </div>
-
-        <div class="col third pad bezel">
-          <h3>Loadout</h3>
-          <div class="grid" style="margin-top:8px">
-            <button class="btn alt" id="toolShield">Drag Shield (∞)</button>
-            <button class="btn alt" id="toolFan" title="Hold to charge; release for gust">Wind Fan (Hold)</button>
-            <button class="btn alt" id="toolHelper">Helper Drone</button>
-            <button class="btn alt" id="toolBubble">Bubble (AoE)</button>
-          </div>
-
-          <div style="margin-top:12px">
-            <label>Number of Balloons
-              <input type="range" min="1" max="12" value="6" id="balloonCount">
-            </label>
-            <div class="note">More balloons = more rewards, but harder to defend.</div>
-          </div>
-
-          <div style="margin-top:16px">
-            <h3>AI Director</h3>
-            <div class="kv">Enabled <input type="checkbox" id="aiEnabled" checked></div>
-            <div class="kv">IQ
+<option value="careful">Careful Carrier</option>
+<option value="speedster">Speedster</option>
+<option value="fixer">The Fixer</option>
+<option value="planner">The Planner</option>
+</select></label>
+</div>
+<button class="btn" id="btnStart" type="button">Start</button>
+<button class="btn ghost" id="btnPause" type="button">Pause</button>
+<button class="btn ghost" id="btnReset" type="button">Reset</button>
+</div>
+<!-- Stage info line -->
+<div class="note" id="stageInfo" style="margin-top:4px;"></div>
+<div aria-live="polite" class="status" id="status">
+<span class="dot" id="dotState" style="background:var(--amber)"></span>
+<span id="statusText">Ready</span>
+<span class="tag">Delivered <strong id="statBalloon">0</strong></span>
+<span class="tag">Score <strong id="statScore">0</strong></span>
+<span class="tag">Stars <strong id="statStars">0</strong></span>
+<span class="tag">Time <strong id="statTime">0</strong>s</span>
+<span class="tag">Shield <strong id="statShield">100</strong>%</span>
+<span class="tag">Energy <strong id="statEnergy">100</strong>%</span>
+<div class="runprog" title="Run progress"><span id="barProg" style="width:0%"></span></div>
+</div>
+<div class="canvas-wrap" id="playWrap">
+<canvas aria-hidden="true" id="bg"></canvas>
+<canvas aria-label="Balloon Brigade playfield" id="game"></canvas>
+<div class="shield" id="shieldHint" style="display:none"></div>
+<div id="remoteHint"></div>
+</div>
+<div class="canvas-note">Desktop, tablet, and mobile coordinates use the same 900 × 460 logical playfield. On small phones, landscape orientation offers the widest defense view.</div>
+</div>
+<div class="col third pad bezel">
+<h3>Loadout</h3>
+<div class="grid" style="margin-top:8px">
+<button class="btn alt" id="toolShield" type="button">Drag Shield (∞)</button>
+<button class="btn alt" id="toolFan" title="Hold to charge; release for gust" type="button">Wind Fan (Hold)</button>
+<button class="btn alt" id="toolHelper" type="button">Helper Drone</button>
+<button class="btn alt" id="toolBubble" type="button">Bubble (AoE)</button>
+</div>
+<div style="margin-top:12px">
+<label>Number of Balloons
+              <input id="balloonCount" max="12" min="1" type="range" value="6"/> <output for="balloonCount" id="balloonCountOut">6</output>
+</label>
+<div class="note">More balloons = more rewards, but harder to defend.</div>
+</div>
+<div style="margin-top:16px">
+<h3>AI Director</h3><p class="note">Adapts hazard pressure and targeting to the selected personality and the current run.</p>
+<div class="kv">Enabled <input checked="" id="aiEnabled" type="checkbox"/></div>
+<div class="kv">IQ
               <select id="aiIQ">
-                <option value="gentle">Gentle</option>
-                <option value="smart" selected>Smart</option>
-                <option value="relentless">Relentless</option>
-              </select>
-            </div>
-          </div>
-
-          <div style="margin-top:12px">
-            <h3>Avatar</h3>
-            <input type="file" id="avatarFile" accept="image/*" />
-            <canvas id="avatarPreview" width="140" height="140" style="margin-top:6px;border-radius:12px;border:1px solid var(--line)"></canvas>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- EDITOR -->
-    <section id="tab-editor" style="display:none">
-      <div class="row console">
-        <div class="col half pad bezel">
-          <div class="toolbar">
-            <div class="pill"><label class="mini">Tool
+<option value="gentle">Gentle</option>
+<option selected="" value="smart">Smart</option>
+<option value="relentless">Relentless</option>
+</select>
+</div>
+</div>
+<div style="margin-top:12px">
+<h3>Avatar</h3>
+<input accept="image/*" id="avatarFile" type="file">
+<canvas height="140" id="avatarPreview" style="margin-top:6px;border-radius:12px;border:1px solid var(--line)" width="140"></canvas>
+</input></div>
+</div>
+</div>
+</section>
+<!-- EDITOR -->
+<section id="tab-editor" style="display:none">
+<div class="row console">
+<div class="col half pad bezel">
+<div class="toolbar">
+<div class="pill"><label class="mini">Tool
               <select id="edTool">
-                <option value="wind">Wind Brush</option>
-                <option value="pin">Pin Spawner</option>
-                <option value="debris">Debris Spawner</option>
-                <option value="bird">Bird Spawner</option>
-                <option value="erase">Erase</option>
-              </select></label>
-            </div>
-            <div class="pill"><label class="mini">Brush <input id="edBrush" type="range" min="6" max="60" value="18"></label></div>
-            <input id="stageName" placeholder="stage name" class="pill" style="background:#0e162c;border:1px solid var(--line);color:var(--ink);padding:8px 10px;border-radius:999px" />
-            <button class="btn" id="btnEdSave">Save Stage</button>
-            <button class="btn ghost" id="btnEdClear">Clear</button>
-          </div>
-          <div class="canvas-wrap" id="editWrap"><canvas id="editor" aria-label="Stage editor canvas"></canvas></div>
-        </div>
-        <div class="col third pad bezel">
-          <h3>Palette</h3>
-          <p class="note">Paint wind arrows and place spawners. Saved under <code>stages/</code> in the mini-cloud.</p>
-          <div class="filelist" id="stageList"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- UPGRADES -->
-    <section id="tab-upgrades" style="display:none">
-      <div class="col full pad bezel console">
-        <h3>Between-Stage Upgrades (persistent)</h3>
-        <div class="grid" style="margin-top:8px">
-          <button class="btn" data-upg="reinforce">Reinforced Strings (🎈dur)</button>
-          <button class="btn" data-upg="stability">Float Stabilizers (🎈stability)</button>
-          <button class="btn" data-upg="repair">Quick Patch Kit (🛠️)</button>
-          <button class="btn" data-upg="slots">Extra Plan Slots (🧠)</button>
-          <button class="btn" data-upg="sparkle">Sparkle FX (✨)</button>
-          <button class="btn" data-upg="bubble">Auto-Bubble (🛡️)</button>
-          <button class="btn" data-upg="trail">Rainbow Trails (🎨)</button>
-          <button class="btn" data-upg="magnet">Coin Magnet (⭐)</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- CO-OP -->
-    <section id="tab-coop" style="display:none">
-      <div class="row console">
-        <div class="col half pad bezel" id="coopArea">
-          <h3>Peer-to-Peer Co-Op (second shield)</h3>
-          <p class="note">No servers. Share codes manually. One player presses <b>Host</b>, the other presses <b>Join</b>.</p>
-          <div class="toolbar">
-            <button class="btn" id="btnHost">Host</button>
-            <button class="btn alt" id="btnJoin">Join</button>
-            <button class="btn ghost" id="btnCopy">Copy Code</button>
-          </div>
-          <textarea id="coopBox" placeholder="Code shows here. Paste your friend's code here to connect."></textarea>
-          <div class="note" id="coopStatus">Status: idle</div>
-        </div>
-        <div class="col third pad bezel">
-          <h3>How it works</h3>
-          <ol class="note">
-            <li><b>Host</b> → Copy code → send to friend.</li>
-            <li>Friend clicks <b>Join</b> → pastes host code → copies their code back to you.</li>
-            <li>Host pastes friend’s code. Connected!</li>
-          </ol>
-          <p class="note">Friend gets a <b>remote shield</b> (orange). They drag to help block hazards.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- MINI-CLOUD -->
-    <section id="tab-directory" style="display:none">
-      <div class="row console">
-        <div class="col half pad bezel">
-          <h3>Directory</h3>
-          <div class="filelist" id="fileList" role="listbox" aria-label="Files"></div>
-          <div class="toolbar" style="margin-top:10px">
-            <button class="btn" id="btnNewSave">Save Run</button>
-            <button class="btn ghost" id="btnExport">Export .json</button>
-            <label class="btn ghost" for="importFile" style="cursor:pointer">Import .json</label>
-            <input id="importFile" class="sr-only" type="file" accept="application/json" />
-          </div>
-        </div>
-        <div class="col half pad bezel">
-          <h3>Mini-Server</h3>
-          <div class="kv"><span>Endpoint</span><code>/api/dir</code></div>
-          <div class="kv"><span>Files</span><span id="svrCount">0</span></div>
-          <div class="note">All data is local to your browser; export anytime.</div>
-        </div>
-      </div>
-    </section>
-
-    <!-- SETTINGS -->
-    <section id="tab-settings" style="display:none">
-      <div class="row console">
-        <div class="col half pad bezel">
-          <h3>Accessibility & FX</h3>
-          <label class="kv">Low stimulation mode <input type="checkbox" id="lowStim" /></label>
-          <label class="kv">Colorblind-safe palette <input type="checkbox" id="cbSafe" /></label>
-          <label class="kv">SFX volume <input type="range" min="0" max="1" step="0.05" id="vol" value="0.4" /></label>
-          <label class="kv">Balloon size <input type="range" id="balloonSize" min="14" max="28" value="20" /></label>
-          <label class="kv">Rescue drone capacity
-            <input type="range" id="droneCapacity" min="1" max="12" value="3" />
-          </label>
-          <label class="kv">Rescue target
+<option value="wind">Wind Brush</option>
+<option value="pin">Pin Spawner</option>
+<option value="debris">Debris Spawner</option>
+<option value="bird">Bird Spawner</option>
+<option value="erase">Erase</option>
+</select></label>
+</div>
+<div class="pill"><label class="mini">Brush <input id="edBrush" max="60" min="6" type="range" value="18"/></label></div>
+<input class="pill" id="stageName" placeholder="stage name" style="background:#0e162c;border:1px solid var(--line);color:var(--ink);padding:8px 10px;border-radius:999px">
+<button class="btn" id="btnEdSave" type="button">Save Stage</button>
+<button class="btn ghost" id="btnEdClear" type="button">Clear</button>
+</input></div>
+<div class="canvas-wrap" id="editWrap"><canvas aria-label="Stage editor canvas" id="editor"></canvas></div>
+</div>
+<div class="col third pad bezel">
+<h3>Palette</h3>
+<p class="note">Paint wind arrows and place spawners. Saved under <code>stages/</code> in the mini-cloud.</p>
+<div class="filelist" id="stageList"></div>
+</div>
+</div>
+</section>
+<!-- UPGRADES -->
+<section id="tab-upgrades" style="display:none">
+<div class="col full pad bezel console">
+<h3>Between-Stage Upgrades (persistent)</h3>
+<div class="grid" style="margin-top:8px">
+<button class="btn upgrade-card" data-description="Balloon durability" data-label="Reinforced Strings" data-upg="reinforce" type="button">Reinforced Strings</button>
+<button class="btn upgrade-card" data-description="Reduced vertical drift" data-label="Float Stabilizers" data-upg="stability" type="button">Float Stabilizers</button>
+<button class="btn upgrade-card" data-description="Passive damage repair" data-label="Quick Patch Kit" data-upg="repair" type="button">Quick Patch Kit</button>
+<button class="btn upgrade-card" data-description="Higher tool-energy capacity" data-label="Extra Plan Slots" data-upg="slots" type="button">Extra Plan Slots</button>
+<button class="btn upgrade-card" data-description="Celebration bonus effects" data-label="Sparkle FX" data-upg="sparkle" type="button">Sparkle FX</button>
+<button class="btn upgrade-card" data-description="Starting one-hit shields" data-label="Auto-Bubble" data-upg="bubble" type="button">Auto-Bubble</button>
+<button class="btn upgrade-card" data-description="Visible flight trails" data-label="Rainbow Trails" data-upg="trail" type="button">Rainbow Trails</button>
+<button class="btn upgrade-card" data-description="Delivery score and star bonus" data-label="Coin Magnet" data-upg="magnet" type="button">Coin Magnet</button>
+</div>
+</div>
+</section>
+<!-- CO-OP -->
+<section id="tab-coop" style="display:none">
+<div class="row console">
+<div class="col half pad bezel" id="coopArea">
+<h3>Peer-to-Peer Co-Op (second shield)</h3>
+<p class="note">No application server is used. Share codes manually. Direct connections work best on compatible browsers and networks.</p>
+<div class="toolbar">
+<button class="btn" id="btnHost" type="button">Host</button>
+<button class="btn alt" id="btnJoin" type="button">Join</button>
+<button class="btn ghost" id="btnCopy" type="button">Copy Code</button>
+<button class="btn ghost" id="btnDisconnect" type="button">Disconnect</button>
+</div>
+<textarea id="coopBox" placeholder="Code shows here. Paste your friend's code here to connect."></textarea>
+<div class="note" id="coopStatus">Status: idle</div>
+</div>
+<div class="col third pad bezel">
+<h3>How it works</h3>
+<ol class="note">
+<li><b>Host</b> → Copy code → send to friend.</li>
+<li>Friend clicks <b>Join</b> → pastes host code → copies their code back to you.</li>
+<li>Host pastes friend’s code. Connected!</li>
+</ol>
+<p class="note">Friend gets a <b>remote shield</b> (orange). They drag to help block hazards.</p>
+</div>
+</div>
+</section>
+<!-- MINI-CLOUD -->
+<section id="tab-directory" style="display:none">
+<div class="row console">
+<div class="col half pad bezel">
+<h3>Directory</h3>
+<div aria-label="Files" class="filelist" id="fileList" role="listbox"></div>
+<div class="toolbar" style="margin-top:10px">
+<button class="btn" id="btnNewSave" type="button">Save Run</button>
+<button class="btn ghost" id="btnExport" type="button">Export .json</button>
+<label class="btn ghost" for="importFile" style="cursor:pointer">Import .json</label>
+<input accept="application/json" class="sr-only" id="importFile" type="file">
+</input></div>
+</div>
+<div class="col half pad bezel">
+<h3>Mini-Server</h3>
+<div class="kv"><span>Endpoint</span><code>/api/dir</code></div>
+<div class="kv"><span>Files</span><span id="svrCount">0</span></div>
+<div class="note">All data is local to your browser; export anytime.</div>
+</div>
+</div>
+</section>
+<!-- SETTINGS -->
+<section id="tab-settings" style="display:none">
+<div class="row console">
+<div class="col half pad bezel">
+<h3>Accessibility &amp; FX</h3>
+<label class="kv">Low stimulation mode <input id="lowStim" type="checkbox"/></label>
+<label class="kv">Colorblind-safe palette <input id="cbSafe" type="checkbox"/></label>
+<label class="kv">SFX volume <input id="vol" max="1" min="0" step="0.05" type="range" value="0.4"/></label>
+<label class="kv">Balloon size <input id="balloonSize" max="28" min="14" type="range" value="20"/></label>
+<label class="kv">Rescue drone capacity
+            <input id="droneCapacity" max="12" min="1" type="range" value="3"/>
+</label>
+<label class="kv">Rescue target
             <select id="droneTarget">
-              <option value="center">Center cluster</option>
-              <option value="left">Left side</option>
-              <option value="cursor">Near cursor</option>
-            </select>
-          </label>
-          <label class="kv">Bubble color
+<option value="center">Center cluster</option>
+<option value="left">Left side</option>
+<option value="cursor">Near cursor</option>
+</select>
+</label>
+<label class="kv">Bubble color
             <select id="bubblePalette">
-              <option value="aqua">Aqua shield</option>
-              <option value="gold">Gold halo</option>
-              <option value="rose">Rose glow</option>
-              <option value="rainbow">Rainbow pulse</option>
-            </select>
-          </label>
-        </div>
-        <div class="col half pad bezel">
-          <h3>Storage</h3>
-          <div class="toolbar">
-            <button class="btn" id="btnWipe" style="background:var(--bad)">Factory Reset</button>
-            <button class="btn ghost" id="btnBackup">Quick Backup</button>
-            <button class="btn ghost" id="btnRestore">Restore Backup</button>
-          </div>
-          <div class="note">Backups are in RAM for this tab unless exported.</div>
-        </div>
-      </div>
-    </section>
-
-    <!-- HELP -->
-    <section id="tab-help" style="display:none">
-      <div class="col full pad bezel console">
-        <h3>How to Play</h3>
-        <ol>
-          <li>Press <b>Start</b>. Balloons float left ➜ right.</li>
-          <li>Drag the <b>Shield</b> to block hazards (time slows slightly while dragging). Shield has limited energy on higher difficulties.</li>
-          <li>Use the <b>Wind Fan</b>: hold on the field to charge, then release. Use ← ↑ ↓ → to aim the gust. Blow against the route to slow objects.</li>
-          <li><b>Helper Drone</b> regroups balloons (capacity & target in Settings) and clears hazards around them.</li>
-          <li><b>Bubble</b> gives nearby balloons a temporary colored shield. Choose your color in Settings.</li>
-          <li>Difficulty increases balloons & hazards. Deliver as many as you can before the escort ends.</li>
-        </ol>
-      </div>
-    </section>
-  </div>
-
+<option value="aqua">Aqua shield</option>
+<option value="gold">Gold halo</option>
+<option value="rose">Rose glow</option>
+<option value="rainbow">Rainbow pulse</option>
+</select>
+</label>
+</div>
+<div class="col half pad bezel">
+<h3>Storage</h3>
+<div class="toolbar">
+<button class="btn danger" id="btnWipe" type="button">Factory Reset</button>
+<button class="btn ghost" id="btnBackup" type="button">Quick Backup</button>
+<button class="btn ghost" id="btnRestore" type="button">Restore Backup</button>
+</div>
+<div class="note">Backups are in RAM for this tab unless exported.</div>
+</div>
+</div>
+</section>
+<!-- HELP -->
+<section id="tab-help" style="display:none">
+<div class="col full pad bezel console">
+<h3>How to Play</h3>
+<ol>
+<li>Press <b>Start</b>. Balloons float left ➜ right.</li>
+<li>Drag the <b>Shield</b> to block hazards. The shield never harms balloons. Time slows slightly while dragging, and shield energy recharges when released.</li>
+<li>Use the <b>Wind Fan</b>: hold on the field to charge, then release. Use ← ↑ ↓ → to aim the gust. Blow against the route to slow objects.</li>
+<li><b>Helper Drone</b> regroups balloons (capacity &amp; target in Settings) and clears hazards around them.</li>
+<li><b>Bubble</b> gives nearby balloons a temporary colored shield. Choose your color in Settings.</li>
+<li>The AI Director and progressive ramp gradually increase pressure. Deliver as many balloons as possible before the escort ends.</li>
+<li><kbd>Space</kbd> pauses or resumes. <kbd>R</kbd> starts a new run. The game also pauses when the tab is hidden.</li>
+</ol>
+</div>
+</section>
+</div>
 <script>
 (()=>{
 'use strict';
 
 /* =============================== Mini-Cloud =============================== */
-const NS='BBRIGADE_BDAY_v1';
+const NS='BBRIGADE_BDAY_v2';
+const PREF_NS=NS+'_prefs';
+const LOGICAL_W=900;
+const LOGICAL_H=460;
+const MAX_IMPORT_BYTES=2*1024*1024;
 const DEFAULT_FS={
   profiles:{
     'default.json':{
@@ -380,26 +877,81 @@ function deepClone(obj){
   return JSON.parse(JSON.stringify(obj));
 }
 
+function safeNumber(value,min,max,fallback=0){
+  const n=Number(value);
+  return Number.isFinite(n)?Math.max(min,Math.min(max,n)):fallback;
+}
+function normalizeStageModel(model){
+  const src=model&&typeof model==='object'?model:{};
+  const windField=Array.isArray(src.windField)?src.windField.slice(0,600).map(item=>({
+    x:safeNumber(item?.x,0,LOGICAL_W,0),
+    y:safeNumber(item?.y,0,LOGICAL_H,0),
+    str:safeNumber(item?.str,-100,100,0)
+  })):[];
+  const allowed=new Set(['pin','debris','bird']);
+  const spawners=Array.isArray(src.spawners)?src.spawners.slice(0,300).filter(item=>allowed.has(item?.type)).map(item=>({
+    type:item.type,
+    x:safeNumber(item.x,0,LOGICAL_W,0),
+    y:safeNumber(item.y,0,LOGICAL_H,0),
+    rate:safeNumber(item.rate,.1,4,1)
+  })):[];
+  return{windField,spawners};
+}
+function normalizeFS(input){
+  const fs=deepClone(DEFAULT_FS);
+  const source=input&&typeof input==='object'?input:{};
+  const rawProfile=source.profiles?.['default.json'];
+  if(rawProfile&&typeof rawProfile==='object'){
+    fs.profiles['default.json'].stars=Math.floor(safeNumber(rawProfile.stars,0,999999,0));
+    for(const key of Object.keys(fs.profiles['default.json'].upgrades)){
+      fs.profiles['default.json'].upgrades[key]=Math.floor(safeNumber(rawProfile.upgrades?.[key],0,25,0));
+    }
+    fs.profiles['default.json'].createdAt=safeNumber(rawProfile.createdAt,0,Date.now(),Date.now());
+    fs.profiles['default.json'].last=safeNumber(rawProfile.last,0,Date.now(),Date.now());
+  }
+  fs.saves={};
+  if(source.saves&&typeof source.saves==='object'){
+    Object.entries(source.saves).slice(-200).forEach(([name,value])=>{
+      const safeName=String(name).replace(/[^a-z0-9_.-]/gi,'_').slice(0,96);
+      if(value&&typeof value==='object')fs.saves[safeName]=value;
+    });
+  }
+  fs.stages={};
+  if(source.stages&&typeof source.stages==='object'){
+    Object.entries(source.stages).slice(0,100).forEach(([name,value])=>{
+      const safeName=String(name).replace(/[^a-z0-9_.-]/gi,'_').slice(0,80);
+      fs.stages[safeName]={
+        name:String(value?.name||safeName.replace(/\.json$/,'')).slice(0,60),
+        model:normalizeStageModel(value?.model)
+      };
+    });
+  }
+  return fs;
+}
+
 const MC={
   load(){
     try{
       const raw=localStorage.getItem(NS);
-      return raw ? JSON.parse(raw) : deepClone(DEFAULT_FS);
-    }catch(e){
+      return raw?normalizeFS(JSON.parse(raw)):deepClone(DEFAULT_FS);
+    }catch{
       return deepClone(DEFAULT_FS);
     }
   },
   save(fs){
-    localStorage.setItem(NS,JSON.stringify(fs));
+    try{
+      localStorage.setItem(NS,JSON.stringify(normalizeFS(fs)));
+      return true;
+    }catch{
+      return false;
+    }
   },
   list(){
     const fs=MC.load();
     const list=[];
     for(const dir of Object.keys(fs)){
       for(const name of Object.keys(fs[dir])){
-        if(typeof fs[dir][name]==='object'){
-          list.push(`${dir}/${name}`);
-        }
+        if(typeof fs[dir][name]==='object')list.push(`${dir}/${name}`);
       }
     }
     return list.sort();
@@ -408,7 +960,8 @@ const MC={
     return new Blob([JSON.stringify(MC.load(),null,2)],{type:'application/json'});
   },
   import(obj){
-    MC.save(obj);
+    const normalized=normalizeFS(obj);
+    if(!MC.save(normalized))throw new Error('Storage is unavailable or full.');
   }
 };
 
@@ -453,29 +1006,44 @@ async function mcFetch(path,{method='GET',body=null}={}){
 
 /* ================================= Audio ================================= */
 const SFX=(()=>{
-  const ctx=new (window.AudioContext||window.webkitAudioContext)();
+  let ctx=null;
+  let master=null;
   let vol=.4;
-  const master=ctx.createGain();
-  master.gain.value=vol;
-  master.connect(ctx.destination);
-
+  function ensure(){
+    try{
+      if(!ctx){
+        const AudioCtor=window.AudioContext||window.webkitAudioContext;
+        if(!AudioCtor)return false;
+        ctx=new AudioCtor();
+        master=ctx.createGain();
+        master.gain.value=vol;
+        master.connect(ctx.destination);
+      }
+      if(ctx.state==='suspended')ctx.resume();
+      return true;
+    }catch{return false;}
+  }
   function tone(f=440,ms=120,type='sine',gain=vol){
-    const o=ctx.createOscillator(),g=ctx.createGain();
+    if(!ensure())return;
+    const o=ctx.createOscillator();
+    const g=ctx.createGain();
     o.type=type;
     o.frequency.value=f;
     o.connect(g);
     g.connect(master);
     const t=ctx.currentTime;
-    g.gain.setValueAtTime(0.0001,t);
-    g.gain.exponentialRampToValueAtTime(gain,t+.01);
-    g.gain.exponentialRampToValueAtTime(0.0001,t+ms/1000);
+    g.gain.setValueAtTime(.0001,t);
+    g.gain.exponentialRampToValueAtTime(Math.max(.001,gain),t+.01);
+    g.gain.exponentialRampToValueAtTime(.0001,t+ms/1000);
     o.start(t);
     o.stop(t+ms/1000+.05);
   }
-
-  return {
+  return{
     beep:(f,m,t='sine')=>tone(f,m,t),
-    setVolume:v=>{vol=v;master.gain.value=v;}
+    setVolume:v=>{
+      vol=Math.max(0,Math.min(1,Number(v)||0));
+      if(master)master.gain.value=vol;
+    }
   };
 })();
 
@@ -525,7 +1093,7 @@ function initStageOptionTitles(){
 
 let profileCache = null;
 function setStarsDisplay(){
-  $('#statStars').textContent = String(profileCache ? (profileCache.stars|0) : 0);
+  $('#statStars').textContent=String(profileCache?(profileCache.stars|0):0);
 }
 async function getProfile(){
   if(profileCache) return profileCache;
@@ -542,31 +1110,46 @@ async function saveProfile(profile){
 
 function setStatus(t,c){
   $('#statusText').textContent=t;
-  $('#dotState').style.background=c||'var(--warn)';
+  $('#dotState').style.background=c||'var(--amber)';
+  $('#headerGameState').textContent=t;
 }
-const DPR=()=>Math.max(1,window.devicePixelRatio||1);
+const DPR=()=>Math.min(2,Math.max(1,window.devicePixelRatio||1));
 const CANVAS=$('#game'),CTX=CANVAS.getContext('2d');
 const BG=$('#bg'),BGX=BG.getContext('2d');
 function sizeCanvas(wrap,c1,x1,c2,x2){
   const dpr=DPR();
-  const r=wrap.getBoundingClientRect();
-  const w=Math.max(320,Math.round(r.width));
-  const h=Math.round(w*(460/900));
-  for(const [c,x] of [[c1,x1],[c2,x2]]){
-    c.width=Math.floor(w*dpr);
-    c.height=Math.floor(h*dpr);
-    c.style.width=w+'px';
-    c.style.height=h+'px';
-    x.setTransform(dpr,0,0,dpr,0,0);
+  for(const [canvas,ctx] of [[c1,x1],[c2,x2]]){
+    canvas.width=Math.round(LOGICAL_W*dpr);
+    canvas.height=Math.round(LOGICAL_H*dpr);
+    canvas.style.width='100%';
+    canvas.style.height='100%';
+    ctx.setTransform(dpr,0,0,dpr,0,0);
   }
 }
-function CW(){return CANVAS.width/DPR();}
-function CH(){return CANVAS.height/DPR();}
+function CW(){return LOGICAL_W;}
+function CH(){return LOGICAL_H;}
+function canvasPoint(event,canvas=CANVAS){
+  const rect=canvas.getBoundingClientRect();
+  return{
+    x:(event.clientX-rect.left)*(LOGICAL_W/Math.max(1,rect.width)),
+    y:(event.clientY-rect.top)*(LOGICAL_H/Math.max(1,rect.height))
+  };
+}
+function updateHtmlHint(element,x,y,w,h){
+  const rect=CANVAS.getBoundingClientRect();
+  const sx=rect.width/LOGICAL_W;
+  const sy=rect.height/LOGICAL_H;
+  element.style.left=`${x*sx}px`;
+  element.style.top=`${y*sy}px`;
+  element.style.width=`${w*sx}px`;
+  element.style.height=`${h*sy}px`;
+}
 
 /* ==================== Parallax / Particles / Helpers ==================== */
 const particles=[];
 function spawnConfetti(x,y){
-  for(let i=0;i<20;i++){
+  const amount=settings.lowStim?4:20;
+  for(let i=0;i<amount;i++){
     particles.push({
       x,y,
       vx:(Math.random()*2-1)*50,
@@ -640,8 +1223,38 @@ const settings={
   balloonR:20,
   droneCapacity:3,
   droneTarget:'center',
-  bubblePalette:'aqua'
+  bubblePalette:'aqua',
+  lowStim:false,
+  colorblindSafe:false,
+  volume:.4
 };
+function loadPreferences(){
+  try{
+    const saved=JSON.parse(localStorage.getItem(PREF_NS)||'{}');
+    settings.balloonR=safeNumber(saved.balloonR,14,28,20);
+    settings.droneCapacity=Math.floor(safeNumber(saved.droneCapacity,1,12,3));
+    settings.droneTarget=['center','left','cursor'].includes(saved.droneTarget)?saved.droneTarget:'center';
+    settings.bubblePalette=['aqua','gold','rose','rainbow'].includes(saved.bubblePalette)?saved.bubblePalette:'aqua';
+    settings.lowStim=Boolean(saved.lowStim);
+    settings.colorblindSafe=Boolean(saved.colorblindSafe);
+    settings.volume=safeNumber(saved.volume,0,1,.4);
+  }catch{}
+}
+function savePreferences(){
+  try{localStorage.setItem(PREF_NS,JSON.stringify(settings));}catch{}
+}
+function applyPreferencesToUI(){
+  $('#balloonSize').value=String(settings.balloonR);
+  $('#droneCapacity').value=String(settings.droneCapacity);
+  $('#droneTarget').value=settings.droneTarget;
+  $('#bubblePalette').value=settings.bubblePalette;
+  $('#lowStim').checked=settings.lowStim;
+  $('#cbSafe').checked=settings.colorblindSafe;
+  $('#vol').value=String(settings.volume);
+  document.body.dataset.lowStim=String(settings.lowStim);
+  document.body.dataset.cbSafe=String(settings.colorblindSafe);
+  SFX.setVolume(settings.volume);
+}
 const BASE_SPEED=60;           // slower base speed for floaty escort
 const WIND_FAN_FORCE=140;      // strength of fan gusts
 const ENERGY_REGEN=22;
@@ -674,36 +1287,58 @@ class Balloon{
     this.r=settings.balloonR;
     this.alive=true;
     this.shield=0;
+    this.shieldTime=0;
     this.shieldColor=null;
     this.vx=BASE_SPEED*t.speed;
-    this.vy=rand(-12,12)*t.stab;
-    this.hp=100*t.dur;
+    this.vy=rand(-12,12)/Math.max(.5,t.stab);
+    this.maxHp=100*t.dur;
+    this.hp=this.maxHp;
     this.wob=rand(0,6.28);
+    this.trail=[];
   }
   draw(){
     if(!this.alive)return;
     const wobY=Math.sin(now()*2+this.wob)*.8;
     let col;
-    if(this.shield>0){
-      col = this.shieldColor || paletteColorForShield();
-    }else if(this.type.fx==='shield1'){
-      col='#7cf7ff';
-    }else{
-      col='#ff6fb2';
+    if(this.shield>0)col=this.shieldColor||paletteColorForShield();
+    else if(this.type.fx==='shield1')col='#7cf7ff';
+    else col=settings.colorblindSafe?'#e69f00':'#ff6fb2';
+
+    if(this.trail.length>1){
+      CTX.save();
+      CTX.strokeStyle=settings.colorblindSafe?'#56b4e9aa':'#5be2ffaa';
+      CTX.lineWidth=2;
+      CTX.beginPath();
+      this.trail.forEach((point,index)=>{
+        if(index===0)CTX.moveTo(point.x,point.y);
+        else CTX.lineTo(point.x,point.y);
+      });
+      CTX.stroke();
+      CTX.restore();
     }
+
     CTX.save();
-    if(this.type.fx==='sparkle'||this.shield>0){
+    if(!settings.lowStim&&(this.type.fx==='sparkle'||this.shield>0)){
       CTX.shadowColor=col;
       CTX.shadowBlur=12;
     }
     CTX.fillStyle=col;
-    CTX.strokeStyle='#ffffff22';
+    CTX.strokeStyle=settings.colorblindSafe?'#111':'#ffffff33';
+    CTX.lineWidth=settings.colorblindSafe?3:1;
     CTX.beginPath();
     CTX.ellipse(this.x,this.y+wobY,this.r*.9,this.r*1.1,0,0,6.28);
     CTX.fill();
     CTX.stroke();
+    if(settings.colorblindSafe){
+      CTX.strokeStyle='rgba(17,17,17,.58)';
+      CTX.beginPath();
+      CTX.moveTo(this.x-this.r*.52,this.y-this.r*.4);
+      CTX.lineTo(this.x+this.r*.52,this.y+this.r*.4);
+      CTX.stroke();
+    }
     CTX.restore();
-    CTX.strokeStyle='#8aa9ff55';
+
+    CTX.strokeStyle='#8aa9ff77';
     CTX.beginPath();
     CTX.moveTo(this.x,this.y+this.r*1.1);
     CTX.lineTo(this.x,this.y+this.r*2.2);
@@ -719,10 +1354,28 @@ class Debris{
   }
   draw(){
     if(!this.alive)return;
-    CTX.fillStyle= this.type==='pin'?'#ffe15a':this.type==='bird'?'#66d9ff':'#c9d0ff';
+    CTX.save();
+    CTX.fillStyle=this.type==='pin'?'#f0c94b':this.type==='bird'?'#56b4e9':'#d5d7df';
+    CTX.strokeStyle='#10131a';
+    CTX.lineWidth=2;
     CTX.beginPath();
-    CTX.arc(this.x,this.y,this.r,0,6.28);
+    if(this.type==='pin'){
+      CTX.moveTo(this.x,this.y-this.r);
+      CTX.lineTo(this.x+this.r,this.y+this.r);
+      CTX.lineTo(this.x-this.r,this.y+this.r);
+      CTX.closePath();
+    }else if(this.type==='bird'){
+      CTX.moveTo(this.x-this.r,this.y);
+      CTX.quadraticCurveTo(this.x-this.r/2,this.y-this.r,this.x,this.y);
+      CTX.quadraticCurveTo(this.x+this.r/2,this.y-this.r,this.x+this.r,this.y);
+      CTX.lineTo(this.x,this.y+this.r*.6);
+      CTX.closePath();
+    }else{
+      CTX.rect(this.x-this.r,this.y-this.r,this.r*2,this.r*2);
+    }
     CTX.fill();
+    CTX.stroke();
+    CTX.restore();
   }
 }
 class Drone{
@@ -793,7 +1446,7 @@ function drainShield(amount){
   RUN.shieldEnergy = clamp(RUN.shieldEnergy - amount*mult, 0, 100);
   if(RUN.shieldEnergy <= 0){
     SHIELD.active = false;
-    setStatus('Shield exhausted — wait to recharge','var(--warn)');
+    setStatus('Shield exhausted — wait to recharge','var(--amber)');
   }
 }
 
@@ -815,12 +1468,25 @@ function drawAvatar(img){
   g.arc(c.width/2,c.height/2,64,0,6.28);
   g.stroke();
 }
-$('#avatarFile').addEventListener('change',e=>{
-  const f=e.target.files?.[0];
-  if(!f)return;
-  const img=new Image();
-  img.onload=()=>drawAvatar(img);
-  img.src=URL.createObjectURL(f);
+$('#avatarFile').addEventListener('change',event=>{
+  const file=event.target.files?.[0];
+  if(!file)return;
+  if(!file.type.startsWith('image/')||file.size>5*1024*1024){
+    setStatus('Avatar must be an image under 5 MB','var(--red)');
+    event.target.value='';
+    return;
+  }
+  const url=URL.createObjectURL(file);
+  const image=new Image();
+  image.onload=()=>{
+    drawAvatar(image);
+    URL.revokeObjectURL(url);
+  };
+  image.onerror=()=>{
+    URL.revokeObjectURL(url);
+    setStatus('Avatar image could not be read','var(--red)');
+  };
+  image.src=url;
 });
 
 /* ================================ Stages ================================ */
@@ -893,7 +1559,28 @@ function effFromUpgrades(prof){
 /* ======================== Progressive Difficulty (Ramp) ======================== */
 function rampFactor(t){
   const minutes=t/60;
-  return clamp(1+minutes*0.20,1,2);
+  return clamp(1+minutes*.20,1,2);
+}
+function directorProfile(run){
+  if(!run?.aiEnabled)return{intensity:1,aimSpread:85};
+  const personalities={
+    gentle:{base:.82,spread:120},
+    smart:{base:1,spread:65},
+    relentless:{base:1.18,spread:34}
+  };
+  const selected=personalities[run.aiIQ]||personalities.smart;
+  const resolved=run.delivered+run.lost;
+  const success=resolved?run.delivered/resolved:.5;
+  const adaptive=clamp(.86+success*.28,.82,1.14);
+  return{
+    intensity:selected.base*adaptive,
+    aimSpread:selected.spread
+  };
+}
+function toolCost(base){
+  if(!RUN)return base;
+  const discount=Math.min(.28,(RUN.eff.slots||0)*.035+(RUN.trait.slots||0)*.08);
+  return Math.max(5,Math.round(base*(1-discount)));
 }
 
 /* ================================ Run Setup ================================ */
@@ -907,16 +1594,23 @@ async function newRun(){
   const prof=await getProfile();
   const eff=effFromUpgrades(prof);
   const arr=[];
-  const baseY = CH()/2;
+  const baseY=CH()/2;
   for(let i=0;i<balloons;i++){
-    let t=JSON.parse(JSON.stringify(BALLOON_TYPES[i%BALLOON_TYPES.length]));
+    const t=deepClone(BALLOON_TYPES[i%BALLOON_TYPES.length]);
     t.dur*=eff.dur;
     t.stab*=eff.stab;
-    const speedJitter = rand(0.6, 1.05);
-    t.speed *= speedJitter;
-    const startX = rand(40, 120) + i*8;
-    const offsetY = rand(-80, 80);
-    arr.push(new Balloon(startX, baseY + offsetY, t));
+    if(eff.sparkle>0&&Math.random()<Math.min(.65,eff.sparkle*.12))t.fx='sparkle';
+    const speedJitter=rand(.72,1.04);
+    t.speed*=speedJitter;
+    const startX=rand(40,120)+i*8;
+    const offsetY=rand(-80,80);
+    const balloon=new Balloon(startX,baseY+offsetY,t);
+    if(eff.bubble>i){
+      balloon.shield=1;
+      balloon.shieldTime=Infinity;
+      balloon.shieldColor=paletteColorForShield();
+    }
+    arr.push(balloon);
   }
   let model=builtinStageModel(stageId);
   const custom=$('#customStageSel').value;
@@ -940,35 +1634,52 @@ async function newRun(){
     wind:0,
     model,
     eff,
-    energy:100,
+    energyMax:100+(eff.slots||0)*10+(trait.slots||0)*15,
+    energy:100+(eff.slots||0)*10+(trait.slots||0)*15,
     combo:1,
     gustImpulse:0,
     shieldEnergy:100,
     windDirX:-1,
-    windDirY:0
+    windDirY:0,
+    initialCount:balloons,
+    aiEnabled:$('#aiEnabled').checked,
+    aiIQ:$('#aiIQ').value
   };
 }
 
 /* =============================== Inputs & Tools =============================== */
-const SHINT=$('#shieldHint');let charging=false,charge=0;
-CANVAS.addEventListener('pointerdown',e=>{
-  const r=e.currentTarget.getBoundingClientRect();
+const SHINT=$('#shieldHint');
+let charging=false,charge=0;
+function updatePointer(event){
+  const point=canvasPoint(event);
+  pointer.x=point.x;
+  pointer.y=point.y;
+}
+function releasePointer(event){
+  pointer.down=false;
+  SHIELD.active=false;
+  SHINT.style.display='none';
+  if(charging&&RUN){
+    RUN.gustImpulse+=clamp(charge,0,.9);
+    charging=false;
+    setStatus('Gust released','var(--cyan)');
+  }
+  try{if(event?.pointerId!==undefined)CANVAS.releasePointerCapture(event.pointerId);}catch{}
+  sendPeer({t:'ptr',nx:pointer.x/CW(),ny:pointer.y/CH(),d:false});
+}
+CANVAS.addEventListener('pointerdown',event=>{
+  updatePointer(event);
   pointer.down=true;
-  pointer.x=e.clientX-r.left;
-  pointer.y=e.clientY-r.top;
+  try{CANVAS.setPointerCapture(event.pointerId);}catch{}
   if(activeTool==='bubble'&&RUN){
-    if(RUN.energy<25)return setStatus('Low energy','var(--warn)');
-    RUN.energy-=25;
-    for(const b of RUN.balloons){
-      if(Math.hypot(b.x-pointer.x,b.y-pointer.y)<80){
-        b.shield=1;
-        b.shieldColor = paletteColorForShield();
-        setTimeout(()=>{
-          if(b){
-            b.shield=0;
-            b.shieldColor=null;
-          }
-        },1600);
+    const cost=toolCost(25);
+    if(RUN.energy<cost)return setStatus(`Low energy — bubble requires ${cost}`,'var(--amber)');
+    RUN.energy-=cost;
+    for(const balloon of RUN.balloons){
+      if(balloon.alive&&Math.hypot(balloon.x-pointer.x,balloon.y-pointer.y)<90){
+        balloon.shield=1;
+        balloon.shieldTime=1.8;
+        balloon.shieldColor=paletteColorForShield();
       }
     }
     SFX.beep(520,90);
@@ -977,56 +1688,44 @@ CANVAS.addEventListener('pointerdown',e=>{
     charging=true;
     charge=0;
   }
-  sendPeer({t:'ptr',x:pointer.x,y:pointer.y,d:pointer.down});
+  sendPeer({t:'ptr',nx:pointer.x/CW(),ny:pointer.y/CH(),d:true});
 });
-CANVAS.addEventListener('pointerup',()=>{
-  pointer.down=false;
-  SHIELD.active=false;
-  SHINT.style.display='none';
-  if(charging&&RUN){
-    RUN.gustImpulse+=clamp(charge,0,.9);
-    charging=false;
-    setStatus('Gust released','var(--accent2)');
-  }
-  sendPeer({t:'ptr',x:pointer.x,y:pointer.y,d:false});
-});
-CANVAS.addEventListener('pointermove',e=>{
-  const r=e.currentTarget.getBoundingClientRect();
-  pointer.x=e.clientX-r.left;
-  pointer.y=e.clientY-r.top;
+CANVAS.addEventListener('pointerup',releasePointer);
+CANVAS.addEventListener('pointercancel',releasePointer);
+CANVAS.addEventListener('lostpointercapture',releasePointer);
+CANVAS.addEventListener('pointermove',event=>{
+  updatePointer(event);
   if(pointer.down&&activeTool==='shield'){
-    SHIELD.active=true;
-    SHINT.style.display='block';
-    SHINT.style.left=(pointer.x-70)+'px';
-    SHINT.style.top=(pointer.y-14)+'px';
-    SHINT.style.width='140px';
-    SHINT.style.height='28px';
+    SHIELD.active=RUN?RUN.shieldEnergy>0:false;
+    SHINT.style.display=SHIELD.active?'block':'none';
+    updateHtmlHint(SHINT,pointer.x-70,pointer.y-14,140,28);
   }
   if(pointer.down&&activeTool==='fan'&&RUN){
     charge=clamp(charge+.0048,0,.9);
-    $('#statusText').textContent=`Charging fan ${(charge*100|0)}%`;
+    $('#statusText').textContent=`Charging fan ${Math.round(charge*100)}%`;
   }
-  sendPeer({t:'ptr',x:pointer.x,y:pointer.y,d:pointer.down});
+  sendPeer({t:'ptr',nx:pointer.x/CW(),ny:pointer.y/CH(),d:pointer.down});
 });
 
 $('#toolShield').onclick=()=>{
   activeTool='shield';
-  setStatus('Tool: Shield (drag)','var(--accent2)');
+  setStatus('Tool: Shield (drag)','var(--cyan)');
 };
 $('#toolFan').onclick=()=>{
   activeTool='fan';
-  setStatus('Hold on canvas to charge, release to gust. Use arrow keys to aim.','var(--accent2)');
+  setStatus('Hold on canvas to charge, release to gust. Use arrow keys to aim.','var(--cyan)');
 };
 $('#toolHelper').onclick=()=>{
   if(!RUN)return;
-  if(RUN.energy<30)return setStatus('Low energy','var(--warn)');
-  RUN.energy-=30;
+  const cost=toolCost(30);
+  if(RUN.energy<cost)return setStatus(`Low energy — drone requires ${cost}`,'var(--amber)');
+  RUN.energy-=cost;
   RUN.drones.push(new Drone()); // hazard-clearing drone
 
   const cap = settings.droneCapacity || 3;
   const alive = RUN.balloons.filter(b=>b.alive);
   if(!alive.length){
-    setStatus('No balloons to rescue','var(--warn)');
+    setStatus('No balloons to rescue','var(--amber)');
     return;
   }
   const chosen = alive.slice(0, cap);
@@ -1047,27 +1746,52 @@ $('#toolHelper').onclick=()=>{
     b.y = targetY + Math.sin(i)*12;
     spawnConfetti(b.x,b.y);
   });
-  setStatus(`Rescue drone regrouped ${chosen.length} balloons`,'var(--accent2)');
+  setStatus(`Rescue drone regrouped ${chosen.length} balloons`,'var(--cyan)');
   SFX.beep(520,120,'sine');
 };
 $('#toolBubble').onclick=()=>{
   activeTool='bubble';
-  setStatus('Tap near balloons for AoE bubble (color in Settings)','var(--accent2)');
+  setStatus('Tap near balloons for AoE bubble (color in Settings)','var(--cyan)');
 };
 
 $('#btnStart').onclick=start;
 $('#btnReset').onclick=reset;
-$('#btnPause').onclick=()=>{
+$('#btnPause').disabled=true;
+function setPaused(next,reason='Paused'){
   if(!playing)return;
-  paused=!paused;
-  setStatus(paused?'Paused':'Escorting…',paused?'var(--warn)':'var(--accent2)');
-  if(!paused){
+  paused=Boolean(next);
+  $('#btnPause').textContent=paused?'Resume':'Pause';
+  $('#btnPause').setAttribute('aria-pressed',String(paused));
+  if(paused){
+    cancelAnimationFrame(rafId);
+    setStatus(reason,'var(--amber)');
+  }else{
     lastT=0;
+    setStatus('Escorting…','var(--cyan)');
     rafId=requestAnimationFrame(frame);
   }
-};
+}
+$('#btnPause').onclick=()=>setPaused(!paused);
+
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden&&playing&&!paused)setPaused(true,'Paused while tab is hidden');
+});
+window.addEventListener('keydown',event=>{
+  if(/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName||''))return;
+  if(event.code==='Space'){
+    event.preventDefault();
+    setPaused(!paused);
+  }
+  if(event.key.toLowerCase()==='r'){
+    event.preventDefault();
+    start();
+  }
+});
 
 // react to stage/difficulty changes
+$('#balloonCount').addEventListener('input',event=>{
+  $('#balloonCountOut').value=event.target.value;
+});
 $('#stageSel').addEventListener('change', updateStageInfo);
 $('#diffSel').addEventListener('change', ()=>{
   const d = $('#diffSel').value;
@@ -1076,6 +1800,7 @@ $('#diffSel').addEventListener('change', ()=>{
   else if(d==='normal') slider.value = 8;
   else if(d==='hard') slider.value = 10;
   else if(d==='challenge') slider.value = 12;
+  $('#balloonCountOut').value=slider.value;
   updateStageInfo();
 });
 
@@ -1083,12 +1808,16 @@ $('#diffSel').addEventListener('change', ()=>{
 function updateStats(){
   if(!RUN){
     $('#statBalloon').textContent='0';
+    $('#statScore').textContent='0';
     $('#statTime').textContent='0';
     $('#statShield').textContent='100';
+    $('#statEnergy').textContent='100';
   }else{
     $('#statBalloon').textContent=String(RUN.delivered);
-    $('#statTime').textContent=String(RUN.time|0);
-    $('#statShield').textContent=String(RUN.shieldEnergy|0);
+    $('#statScore').textContent=String(Math.round(RUN.score));
+    $('#statTime').textContent=String(Math.floor(RUN.time));
+    $('#statShield').textContent=String(Math.floor(RUN.shieldEnergy));
+    $('#statEnergy').textContent=String(Math.round(RUN.energy/RUN.energyMax*100));
   }
   setStarsDisplay();
 }
@@ -1097,8 +1826,9 @@ function progressBar(){
     $('#barProg').style.width='0%';
     return;
   }
-  const total=(CW()-62)-60;
-  const lead=Math.max(...RUN.balloons.map(b=>b.x||0));
+  const total=Math.max(1,(CW()-62)-60);
+  const positions=RUN.balloons.map(b=>Number.isFinite(b.x)?b.x:0);
+  const lead=positions.length?Math.max(...positions):60;
   const pct=clamp((lead-60)/total,0,1);
   $('#barProg').style.width=(pct*100).toFixed(1)+'%';
 }
@@ -1119,8 +1849,8 @@ function step(dtms){
   R.wind+=(baseWind-R.wind)*.9*dt;
 
   // energy + shield regen / drain
-  R.energy=clamp(R.energy+ENERGY_REGEN*dt,0,100);
-  R.shieldEnergy = clamp(R.shieldEnergy + 20*dt, 0, 100);
+  R.energy=clamp(R.energy+ENERGY_REGEN*dt,0,R.energyMax);
+  R.shieldEnergy=clamp(R.shieldEnergy+20*dt,0,100);
   if(pointer.down && activeTool==='shield'){
     drainShield(30*dt);
   }
@@ -1128,15 +1858,16 @@ function step(dtms){
   // stage spawners (time-based & lightly aimed)
   if(Array.isArray(R.model.spawners)){
     const targetB=findLastAlive(R.balloons);
+    const director=directorProfile(R);
     for(const s of R.model.spawners){
-      const ratePerSec=0.3;
-      const chance=ratePerSec*dt*R.mod.hazards*ramp*(s.rate||1);
+      const ratePerSec=.3;
+      const chance=ratePerSec*dt*R.mod.hazards*ramp*(s.rate||1)*director.intensity;
       if(Math.random()<chance){
         const type=s.type;
         let x,y,vx,vy;
         if(targetB){
-          const offsetX=(Math.random()*80-40);
-          const offsetY=(Math.random()*60-30);
+          const offsetX=rand(-director.aimSpread,director.aimSpread);
+          const offsetY=rand(-director.aimSpread*.72,director.aimSpread*.72);
           x=s.x+offsetX;
           y=s.y+offsetY;
           const tx=targetB.x+(Math.random()*60-30);
@@ -1182,12 +1913,13 @@ function step(dtms){
   // shield positions
   SHIELD.update(pointer.x||0,pointer.y||0);
   if(peer.state==='open'){
+    const remoteX=(peer.remote.nx??0)*CW();
+    const remoteY=(peer.remote.ny??0)*CH();
     REMOTE_SHIELD.active=peer.remote.down;
-    REMOTE_SHIELD.update(peer.remote.x||-999,peer.remote.y||-999);
-    $('#remoteHint').style.cssText=
-      `display:${peer.remote.down?'block':'none'};`+
-      `left:${(peer.remote.x-70)||0}px;top:${(peer.remote.y-14)||0}px;`+
-      `width:140px;height:28px`;
+    REMOTE_SHIELD.update(remoteX,remoteY);
+    const hint=$('#remoteHint');
+    hint.style.display=peer.remote.down?'block':'none';
+    if(peer.remote.down)updateHtmlHint(hint,remoteX-70,remoteY-14,140,28);
   }
 
   const goalX=CW()-62;
@@ -1196,28 +1928,27 @@ function step(dtms){
   for(const b of R.balloons){
     if(!b.alive) continue;
     b.r=settings.balloonR;
+    if(Number.isFinite(b.shieldTime)){
+      b.shieldTime=Math.max(0,b.shieldTime-dt);
+      if(b.shieldTime===0){
+        b.shield=0;
+        b.shieldColor=null;
+      }
+    }
+    const repairRate=((R.eff.repair-1)*2.2+(R.trait.repair-1)*1.5);
+    if(repairRate>0&&b.hp<b.maxHp)b.hp=Math.min(b.maxHp,b.hp+repairRate*dt);
+    if(R.eff.trail>0){
+      b.trail.push({x:b.x,y:b.y});
+      const maxTrail=Math.min(28,4+R.eff.trail*4);
+      if(b.trail.length>maxTrail)b.trail.shift();
+    }
 
-    // shield can pop balloons in arcade mode
-    if(SHIELD.active && SHIELD.blocks(b.x,b.y,b.r)){
-      b.alive=false;
-      R.lost++;
-      spawnConfetti(b.x,b.y);
-      SFX.beep(900,140,'square');
-      drainShield(18);
-      continue;
-    }
-    if(REMOTE_SHIELD.active && REMOTE_SHIELD.blocks(b.x,b.y,b.r)){
-      b.alive=false;
-      R.lost++;
-      spawnConfetti(b.x,b.y);
-      SFX.beep(880,140,'square');
-      continue;
-    }
+    // Shields protect balloons by blocking hazards only.
 
     // movement
     b.x+=b.vx*R.trait.speed*dt;
-    const wobPush = Math.sin(R.time*0.7 + b.wob)*6;
-    b.vy += wobPush*dt;
+    const wobPush=Math.sin(R.time*.7+b.wob)*6/Math.max(.55,b.type.stab);
+    b.vy+=wobPush*dt;
     b.y+= (R.wind*3 + b.vy)*dt;
     b.y=clamp(b.y, 80, CH()-70);
 
@@ -1244,6 +1975,7 @@ function step(dtms){
         if(b.shield>0){
           d.alive=false;
           b.shield=0;
+          b.shieldTime=0;
           b.shieldColor=null;
           SFX.beep(240,80,'triangle');
           spawnConfetti(d.x,d.y);
@@ -1253,10 +1985,11 @@ function step(dtms){
         b.hp-=dmg;
         d.alive=false;
         SFX.beep(260,90,'triangle');
-        if(Math.random()<.2) shake=.1;
+        if(!settings.lowStim&&Math.random()<.2)shake=.1;
         if(b.hp<=0){
           b.alive=false;
           R.lost++;
+          R.combo=1;
           SFX.beep(120,180,'sawtooth');
         }
       }
@@ -1266,7 +1999,8 @@ function step(dtms){
     if(b.x>=goalX){
       b.alive=false;
       R.delivered++;
-      R.score += 10 + (R.eff.magnet||0);
+      R.combo=Math.min(8,R.combo+.25);
+      R.score+=Math.round((10+(R.eff.magnet||0))*R.combo);
       SFX.beep(720,120,'sine');
       spawnConfetti(goalX,120);
     }
@@ -1295,7 +2029,7 @@ function step(dtms){
       p.stars += (R.delivered*2) + (R.eff.magnet||0);
       return saveProfile(p);
     }).then(()=>{
-      setStatus(`Run complete — Delivered ${R.delivered}, Lost ${R.lost}`,'var(--good)');
+      setStatus(`Run complete — Delivered ${R.delivered}, Lost ${R.lost}`,'var(--mint)');
       updateStats();
     });
     mcFetch('/api/save',{method:'POST',body:{
@@ -1330,12 +2064,13 @@ function draw(){
   SHIELD.draw();
   if(peer.state==='open') REMOTE_SHIELD.draw();
   drawParticles();
-  CTX.fillStyle='#ffffffcc';
-  CTX.font='12px system-ui,sans-serif';
-  CTX.fillText(`Vertical wind ${RUN.wind.toFixed(1)}`,80,70);
-  CTX.fillText(`Fan dir ${windDirIcon}`,220,70);
-  CTX.fillText(`Delivered ${RUN.delivered}`,320,70);
-  CTX.fillText(`Score ${RUN.score|0}`,420,70);
+  CTX.fillStyle='#f2f3f0';
+  CTX.font='444 14px Trebuchet MS';
+  CTX.fillText(`Wind ${RUN.wind.toFixed(1)}`,60,42);
+  CTX.fillText(`Fan ${windDirIcon}`,180,42);
+  CTX.fillText(`Delivered ${RUN.delivered}`,270,42);
+  CTX.fillText(`Score ${Math.round(RUN.score)}`,420,42);
+  CTX.fillText(`Director ${RUN.aiEnabled?RUN.aiIQ:'off'}`,560,42);
   CTX.restore();
 }
 
@@ -1351,48 +2086,81 @@ function frame(t){
   updateStats();
   rafId=requestAnimationFrame(frame);
 }
-function start(){
-  if(playing)return;
-  newRun().then(r=>{
-    RUN=r;
-    playing=true;
-    paused=false;
-    lastT=0;
-    setStatus('Escorting…','var(--accent2)');
-    rafId=requestAnimationFrame(frame);
-  });
+async function start(){
+  if(playing)stop(false);
+  RUN=await newRun();
+  playing=true;
+  paused=false;
+  lastT=0;
+  $('#btnPause').disabled=false;
+  $('#btnPause').textContent='Pause';
+  $('#btnPause').setAttribute('aria-pressed','false');
+  setStatus('Escorting…','var(--cyan)');
+  updateStats();
+  rafId=requestAnimationFrame(frame);
 }
-function stop(){
+function stop(showStatus=true){
   playing=false;
+  paused=false;
   cancelAnimationFrame(rafId);
-  setStatus('Stopped','var(--warn)');
+  $('#btnPause').disabled=true;
+  $('#btnPause').textContent='Pause';
+  $('#btnPause').setAttribute('aria-pressed','false');
+  if(showStatus)setStatus('Stopped','var(--amber)');
 }
 function reset(){
-  stop();
+  stop(false);
   RUN=null;
   elapsed=0;
+  particles.length=0;
+  SHIELD.active=false;
+  REMOTE_SHIELD.active=false;
   updateStats();
+  progressBar();
   CTX.clearRect(0,0,CW(),CH());
+  setStatus('Ready','var(--amber)');
 }
 
 /* ================================ Upgrades/Dir/Settings ================================ */
+const UPGRADE_LABELS={
+  reinforce:['Reinforced Strings','Balloon durability'],
+  stability:['Float Stabilizers','Reduced vertical drift'],
+  repair:['Quick Patch Kit','Passive damage repair'],
+  slots:['Extra Plan Slots','Higher tool-energy capacity'],
+  sparkle:['Sparkle FX','Celebration bonus effects'],
+  bubble:['Auto-Bubble','Starting one-hit shields'],
+  trail:['Rainbow Trails','Visible flight trails'],
+  magnet:['Coin Magnet','Delivery score and star bonus']
+};
 function upgradeCost(level){return 3+level*2+Math.floor(level*level/3);}
+async function renderUpgrades(){
+  const profile=await getProfile();
+  $$('#tab-upgrades [data-upg]').forEach(button=>{
+    const key=button.dataset.upg;
+    const level=profile.upgrades[key]||0;
+    const cost=upgradeCost(level);
+    const [label,description]=UPGRADE_LABELS[key];
+    button.innerHTML=`<span>${label}</span><small>Level ${level} · ${cost} stars · ${description}</small>`;
+    button.disabled=(profile.stars||0)<cost;
+  });
+}
 $$('#tab-upgrades .btn').forEach(b=>b.addEventListener('click',async()=>{
   const key=b.dataset.upg;
   const prof=await getProfile();
   const lvl=(prof.upgrades[key]||0);
   const cost=upgradeCost(lvl);
   if((prof.stars||0)<cost){
-    setStatus('Not enough ⭐','var(--bad)');
+    setStatus('Not enough ⭐','var(--red)');
     SFX.beep(140,120,'square');
     return;
   }
   prof.stars-=cost;
   prof.upgrades[key]=lvl+1;
   await saveProfile(prof);
-  setStatus(`Upgraded ${key} → ${prof.upgrades[key]} (−${cost}⭐)`,'var(--good)');
+  setStatus(`Upgraded ${key} → ${prof.upgrades[key]} (−${cost}⭐)`,'var(--mint)');
   SFX.beep(620,90,'sine');
   updateStats();
+  renderUpgrades();
 }));
 
 async function refreshDir(){
@@ -1409,7 +2177,7 @@ async function refreshDir(){
 }
 $('#btnNewSave').onclick=()=>{
   if(!RUN){
-    setStatus('Run something first','var(--warn)');
+    setStatus('Run something first','var(--amber)');
     return;
   }
   mcFetch('/api/save',{method:'POST',body:{
@@ -1420,59 +2188,88 @@ $('#btnNewSave').onclick=()=>{
     lost:RUN.lost,
     score:RUN.score
   }}).then(()=>{
-    setStatus('Saved to saves/','var(--good)');
+    setStatus('Saved to saves/','var(--mint)');
     refreshDir();
   });
 };
 $('#btnExport').onclick=()=>{
   const blob=MC.export();
   const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  a.download='balloon-brigade-bday.json';
+  const url=URL.createObjectURL(blob);
+  a.href=url;
+  a.download='balloon-brigade-after-dark.json';
   a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
 };
-$('#importFile').addEventListener('change',e=>{
-  const f=e.target.files?.[0];
-  if(!f)return;
-  const r=new FileReader();
-  r.onload=()=>{
+$('#importFile').addEventListener('change',event=>{
+  const file=event.target.files?.[0];
+  if(!file)return;
+  if(file.size>MAX_IMPORT_BYTES){
+    setStatus('Import rejected — file exceeds 2 MB','var(--red)');
+    event.target.value='';
+    return;
+  }
+  const reader=new FileReader();
+  reader.onload=()=>{
     try{
-      const obj=JSON.parse(String(r.result));
-      MC.import(obj);
+      MC.import(JSON.parse(String(reader.result)));
       profileCache=null;
-      setStatus('Imported JSON','var(--good)');
+      setStatus('Validated local data imported','var(--mint)');
       refreshDir();
-      getProfile().then(()=>updateStats());
-    }catch{
-      setStatus('Invalid JSON','var(--bad)');
+      getProfile().then(()=>{
+        updateStats();
+        renderUpgrades();
+      });
+    }catch(error){
+      setStatus(`Import rejected — ${error.message||'invalid JSON'}`,'var(--red)');
+    }finally{
+      event.target.value='';
     }
   };
-  r.readAsText(f);
+  reader.readAsText(file);
 });
-$('#lowStim').onchange=e=>{
-  document.body.style.transition='filter .25s';
-  document.body.style.filter=e.target.checked?'saturate(.75) brightness(.95)':'none';
+$('#lowStim').onchange=event=>{
+  settings.lowStim=event.target.checked;
+  document.body.dataset.lowStim=String(settings.lowStim);
+  savePreferences();
 };
-$('#cbSafe').onchange=e=>{
-  document.body.style.transition='filter .25s';
-  document.body.style.filter=e.target.checked?'hue-rotate(18deg)':'none';
+$('#cbSafe').onchange=event=>{
+  settings.colorblindSafe=event.target.checked;
+  document.body.dataset.cbSafe=String(settings.colorblindSafe);
+  savePreferences();
 };
-$('#vol').oninput=e=>SFX.setVolume(Number(e.target.value));
-$('#balloonSize').oninput=e=>{settings.balloonR=Number(e.target.value);};
-$('#droneCapacity').oninput=e=>{settings.droneCapacity=Number(e.target.value);};
-$('#droneTarget').onchange=e=>{settings.droneTarget=e.target.value;};
-$('#bubblePalette').onchange=e=>{settings.bubblePalette=e.target.value;};
+$('#vol').oninput=event=>{
+  settings.volume=Number(event.target.value);
+  SFX.setVolume(settings.volume);
+  savePreferences();
+};
+$('#balloonSize').oninput=event=>{
+  settings.balloonR=Number(event.target.value);
+  savePreferences();
+};
+$('#droneCapacity').oninput=event=>{
+  settings.droneCapacity=Number(event.target.value);
+  savePreferences();
+};
+$('#droneTarget').onchange=event=>{
+  settings.droneTarget=event.target.value;
+  savePreferences();
+};
+$('#bubblePalette').onchange=event=>{
+  settings.bubblePalette=event.target.value;
+  savePreferences();
+};
 
 let __backup=null;
 $('#btnBackup').onclick=()=>{
   __backup=MC.load();
-  setStatus('Backup captured (RAM)','var(--good)');
+  setStatus('Backup captured (RAM)','var(--mint)');
 };
 $('#btnRestore').onclick=()=>{
-  if(!__backup) return setStatus('No backup yet','var(--warn)');
+  if(!__backup) return setStatus('No backup yet','var(--amber)');
   MC.save(__backup);
   profileCache=null;
-  setStatus('Restored backup','var(--good)');
+  setStatus('Restored backup','var(--mint)');
   refreshDir();
   getProfile().then(()=>updateStats());
 };
@@ -1480,7 +2277,7 @@ $('#btnWipe').onclick=()=>{
   if(confirm('Factory reset the mini-cloud?')){
     localStorage.removeItem(NS);
     profileCache=null;
-    setStatus('Mini-cloud reset','var(--good)');
+    setStatus('Mini-cloud reset','var(--mint)');
     refreshDir();
     getProfile().then(()=>updateStats());
   }
@@ -1498,25 +2295,27 @@ $('#tabs').addEventListener('click',e=>{
   TABS.forEach(t=>{
     $('#tab-'+t).style.display=(t===id)?'block':'none';
   });
+  if(id!=='play'&&playing&&!paused)setPaused(true,'Paused while another panel is open');
   if(id==='directory')refreshDir();
   if(id==='editor')refreshCustomStages();
+  if(id==='upgrades')renderUpgrades();
 });
 
 const ED=$('#editor'),EDX=ED.getContext('2d');
 const edModel={windField:[],spawners:[]};
 function edDraw(){
-  EDX.clearRect(0,0,ED.width/DPR(),ED.height/DPR());
+  EDX.clearRect(0,0,LOGICAL_W,LOGICAL_H);
   EDX.strokeStyle='#ffffff12';
-  for(let x=0;x<ED.width/DPR();x+=40){
+  for(let x=0;x<LOGICAL_W;x+=40){
     EDX.beginPath();
     EDX.moveTo(x,0);
-    EDX.lineTo(x,ED.height/DPR());
+    EDX.lineTo(x,LOGICAL_H);
     EDX.stroke();
   }
-  for(let y=0;y<ED.height/DPR();y+=40){
+  for(let y=0;y<LOGICAL_H;y+=40){
     EDX.beginPath();
     EDX.moveTo(0,y);
-    EDX.lineTo(ED.width/DPR(),y);
+    EDX.lineTo(LOGICAL_W,y);
     EDX.stroke();
   }
   for(const w of edModel.windField){
@@ -1534,20 +2333,33 @@ function edDraw(){
   }
 }
 let edDown=false;
-ED.addEventListener('pointerdown',e=>{edDown=true;edAct(e);});
-ED.addEventListener('pointerup',()=>{edDown=false;});
-ED.addEventListener('pointermove',e=>{if(edDown)edAct(e);});
-function edPos(e){
-  const r=ED.getBoundingClientRect();
+let lastEdPoint=null;
+ED.addEventListener('pointerdown',event=>{
+  edDown=true;
+  lastEdPoint=null;
+  try{ED.setPointerCapture(event.pointerId);}catch{}
+  edAct(event);
+});
+ED.addEventListener('pointerup',event=>{
+  edDown=false;
+  lastEdPoint=null;
+  try{ED.releasePointerCapture(event.pointerId);}catch{}
+});
+ED.addEventListener('pointercancel',()=>{edDown=false;lastEdPoint=null;});
+ED.addEventListener('pointermove',event=>{if(edDown)edAct(event);});
+function edPos(event){
+  const rect=ED.getBoundingClientRect();
   return{
-    x:(e.clientX-r.left)*(ED.width/DPR()/r.width),
-    y:(e.clientY-r.top)*(ED.height/DPR()/r.height)
+    x:(event.clientX-rect.left)*(LOGICAL_W/Math.max(1,rect.width)),
+    y:(event.clientY-rect.top)*(LOGICAL_H/Math.max(1,rect.height))
   };
 }
-function edAct(e){
-  const p=edPos(e);
+function edAct(event){
+  const p=edPos(event);
   const tool=$('#edTool').value;
   const size=Number($('#edBrush').value);
+  if(lastEdPoint&&Math.hypot(lastEdPoint.x-p.x,lastEdPoint.y-p.y)<Math.max(4,size*.28))return;
+  lastEdPoint=p;
   if(tool==='erase'){
     edModel.spawners=edModel.spawners.filter(s=>Math.hypot(s.x-p.x,s.y-p.y)>size);
     edModel.windField=edModel.windField.filter(w=>Math.hypot(w.x-p.x,w.y-p.y)>size);
@@ -1561,7 +2373,7 @@ function edAct(e){
 $('#btnEdSave').onclick=async()=>{
   const name=$('#stageName').value.trim()||'custom-stage';
   await mcFetch('/api/stage-save',{method:'POST',body:{name,model:edModel}});
-  setStatus(`Saved stage: ${name}`,'var(--good)');
+  setStatus(`Saved stage: ${name}`,'var(--mint)');
   edModel.windField=[];
   edModel.spawners=[];
   edDraw();
@@ -1574,11 +2386,22 @@ $('#btnEdClear').onclick=()=>{
 };
 async function refreshCustomStages(){
   const {data}=await mcFetch('/api/stage-list',{method:'GET'});
-  const sel=$('#customStageSel');
-  const list=data?.names||[];
-  sel.innerHTML='<option value="">(none)</option>'+list.map(n=>`<option value="${n}">${n.replace('.json','')}</option>`).join('');
+  const list=Array.isArray(data?.names)?data.names:[];
+  const select=$('#customStageSel');
+  select.replaceChildren(new Option('(none)',''));
+  list.forEach(name=>select.add(new Option(String(name).replace(/\.json$/,''),String(name))));
   const box=$('#stageList');
-  if(box)box.innerHTML=list.map(n=>`<div>${n}</div>`).join('');
+  if(box){
+    box.replaceChildren();
+    list.forEach(name=>{
+      const row=document.createElement('div');
+      row.className='stage-entry';
+      const label=document.createElement('span');
+      label.textContent=String(name);
+      row.appendChild(label);
+      box.appendChild(row);
+    });
+  }
 }
 
 /* ================================ Co-Op (WebRTC, manual codes) ================================ */
@@ -1587,6 +2410,17 @@ const peer={
   remote:{x:0,y:0,down:false}
 };
 function setCoopStatus(s){$('#coopStatus').textContent='Status: '+s;}
+function disconnectPeer(){
+  try{peer.chan?.close();}catch{}
+  try{peer.pc?.close();}catch{}
+  peer.pc=null;
+  peer.chan=null;
+  peer.state='closed';
+  peer.remote={nx:0,ny:0,down:false};
+  REMOTE_SHIELD.active=false;
+  $('#remoteHint').style.display='none';
+  setCoopStatus('disconnected');
+}
 function sendPeer(msg){
   try{
     if(peer.chan&&peer.chan.readyState==='open'){
@@ -1595,7 +2429,13 @@ function sendPeer(msg){
   }catch{}
 }
 function handlePeer(msg){
-  if(msg.t==='ptr'){peer.remote=msg;}
+  if(msg.t==='ptr'){
+    peer.remote={
+      nx:safeNumber(msg.nx,0,1,0),
+      ny:safeNumber(msg.ny,0,1,0),
+      down:Boolean(msg.d)
+    };
+  }
 }
 
 const RTCPeer = window.RTCPeerConnection || window.webkitRTCPeerConnection;
@@ -1646,7 +2486,9 @@ $('#btnJoin').onclick=async()=>{
     }
   };
   try{
-    const hostBlob=JSON.parse(atob(($('#coopBox').value||'').trim()));
+    const raw=($('#coopBox').value||'').trim();
+    if(raw.length>200000)throw new Error('Code too large');
+    const hostBlob=JSON.parse(atob(raw));
     await peer.pc.setRemoteDescription(hostBlob.sdp);
     const ans=await peer.pc.createAnswer();
     await peer.pc.setLocalDescription(ans);
@@ -1656,6 +2498,7 @@ $('#btnJoin').onclick=async()=>{
   }
 };
 
+$('#btnDisconnect').onclick=disconnectPeer;
 $('#btnCopy').onclick=()=>{
   const text = $('#coopBox').value || '';
   if(navigator.clipboard && navigator.clipboard.writeText){
@@ -1673,7 +2516,9 @@ $('#btnCopy').onclick=()=>{
 
 $('#coopBox').addEventListener('input',async(e)=>{
   try{
-    const blob=JSON.parse(atob(e.target.value.trim()));
+    const raw=e.target.value.trim();
+    if(raw.length>200000)return;
+    const blob=JSON.parse(atob(raw));
     if(blob.role==='guest' && peer.pc && peer.pc.signalingState==='have-local-offer'){
       await peer.pc.setRemoteDescription(blob.sdp);
       setCoopStatus('connecting…');
@@ -1690,37 +2535,46 @@ window.addEventListener('keydown',e=>{
     if(e.key==='ArrowRight'){ RUN.windDirX=1; RUN.windDirY=0; windDirIcon='→'; }
     if(e.key==='ArrowUp'){ RUN.windDirX=0; RUN.windDirY=-1; windDirIcon='↑'; }
     if(e.key==='ArrowDown'){ RUN.windDirX=0; RUN.windDirY=1; windDirIcon='↓'; }
-    setStatus(`Gust direction: ${windDirIcon} (hold Fan, release to push)`, 'var(--accent2)');
+    setStatus(`Gust direction: ${windDirIcon} (hold Fan, release to push)`, 'var(--cyan)');
   }
 });
 
 /* ================================ Resize & Init ================================ */
 function resizeAll(){
   sizeCanvas(document.querySelector('#playWrap'),CANVAS,CTX,BG,BGX);
-  const wrap=document.querySelector('#editWrap');
-  if(wrap){
-    const dpr=DPR();
-    const r=wrap.getBoundingClientRect();
-    const w=Math.max(320,Math.round(r.width));
-    const h=Math.round(w*(460/900));
-    ED.width=Math.floor(w*dpr);
-    ED.height=Math.floor(h*dpr);
-    ED.style.width=w+'px';
-    ED.style.height=h+'px';
-    EDX.setTransform(dpr,0,0,dpr,0,0);
-    edDraw();
-  }
+  const dpr=DPR();
+  ED.width=Math.round(LOGICAL_W*dpr);
+  ED.height=Math.round(LOGICAL_H*dpr);
+  ED.style.width='100%';
+  ED.style.height='100%';
+  EDX.setTransform(dpr,0,0,dpr,0,0);
+  edDraw();
 }
 window.addEventListener('resize',resizeAll);
 
+function drawDefaultAvatar(){
+  avatarCtx.clearRect(0,0,avatarCanvas.width,avatarCanvas.height);
+  avatarCtx.fillStyle='#07131c';
+  avatarCtx.fillRect(0,0,avatarCanvas.width,avatarCanvas.height);
+  avatarCtx.fillStyle='#63cddd';
+  avatarCtx.font='444 33px Trebuchet MS';
+  avatarCtx.textAlign='center';
+  avatarCtx.textBaseline='middle';
+  avatarCtx.fillText('BB',avatarCanvas.width/2,avatarCanvas.height/2);
+}
 async function refreshAll(){
+  loadPreferences();
+  applyPreferencesToUI();
   resizeAll();
   refreshDir();
   initStageOptionTitles();
   updateStageInfo();
+  drawDefaultAvatar();
   await getProfile();
+  renderUpgrades();
   updateStats();
-  setStatus('Ready','var(--warn)');
+  $('#balloonCountOut').value=$('#balloonCount').value;
+  setStatus('Ready','var(--amber)');
 }
 refreshAll();
 
