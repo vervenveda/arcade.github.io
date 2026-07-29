@@ -762,6 +762,116 @@ footer{
   *,*::before,*::after{animation:none!important;transition:none!important}
   .target-orb{opacity:1;transform:none}
 }
+
+/* ==========================================================
+   TARGET SCALE, TYPE LEGIBILITY, AND COLOR-CHANGE REFINEMENT
+   ========================================================== */
+:root{
+  --ink:#f5f6f3;
+  --ink-soft:#d8dde1;
+  --muted:#b3bdc7;
+  --faint:#8e99a5;
+}
+body[data-theme="soft"]{
+  --ink:#25222d;
+  --ink-soft:#46414f;
+  --muted:#625c6a;
+  --faint:#7e7686;
+}
+body{
+  font-size:16px;
+  line-height:1.7;
+}
+.brand-copy strong,
+.brand-copy small,
+.game-id small,
+.header-state,
+.open-line,
+.micro-guide span,
+.control-group label,
+.control-button,
+.target-label,
+.target-meta,
+.board-topline,
+.score-item span,
+.help-list span,
+footer{
+  font-size:13px;
+}
+.game-id strong{
+  font-size:16px;
+}
+.subtitle{
+  font-size:clamp(16px,1.8vw,19px);
+}
+select,.control-button{
+  font-size:14px;
+}
+.target-orb{
+  width:clamp(66px,11vw,98px);
+  border-width:3px;
+  margin:14px auto 11px;
+  box-shadow:
+    0 0 0 3px color-mix(in srgb,var(--target) 14%,transparent),
+    0 0 24px color-mix(in srgb,var(--target) 28%,transparent);
+}
+.target-orb span{
+  max-width:88%;
+  padding:3px 7px;
+  font-size:clamp(14px,2.6vw,18px);
+}
+.target-panel{
+  width:min(100%,660px);
+}
+.target-meta strong,
+.board-topline,
+.result-note{
+  color:var(--ink-soft);
+}
+.score-item strong{
+  font-size:22px;
+}
+.score-item span{
+  color:var(--ink-soft);
+}
+.help-panel p,
+.subtitle,
+.overlay-card p{
+  color:var(--ink-soft);
+}
+.micro-guide span,
+.help-list span{
+  color:var(--ink-soft);
+}
+.control-group label,
+.target-label,
+.header-state{
+  color:var(--ink-soft);
+}
+.bubble span{
+  font-size:clamp(11px,2vw,15px);
+}
+@media(max-width:520px){
+  body{font-size:15px}
+  .target-orb{width:72px}
+  .target-orb span{font-size:14px}
+  .brand-copy strong,
+  .brand-copy small,
+  .header-state,
+  .open-line,
+  .micro-guide span,
+  .control-group label,
+  .control-button,
+  .target-label,
+  .target-meta,
+  .board-topline,
+  .score-item span,
+  .help-list span,
+  footer{
+    font-size:12px;
+  }
+}
+
 </style>
 </head>
 <body data-theme="neon">
@@ -769,12 +879,12 @@ footer{
 
 <header class="site-header">
   <div class="wrap header-inner">
-    <a class="arcade-home" href="./" aria-label="Return to the Arcade landing page">
+    <a class="arcade-home" href="index.html" aria-label="Return to the Arcade landing page">
       <span class="brand-mark" aria-hidden="true">A</span>
       <span class="brand-copy"><strong>Arcade</strong><small>Return to game hall</small></span>
     </a>
     <div class="game-id"><strong>Chromatic Focus</strong><small>Arcade Edition</small></div>
-    <div class="header-state">Status · <span id="headerStatus">Ready</span></div>
+    <div class="header-state">Game Status · <span id="headerStatus">Ready</span></div>
   </div>
 </header>
 
@@ -1136,7 +1246,7 @@ function effectiveDifficulty(){
     speedScale:scale
   };
 }
-function pickTarget(clear=true){
+function pickTarget(reclassify=true){
   const colors=currentScheme().colors;
   let next=colors[Math.floor(Math.random()*colors.length)];
   if(colors.length>1&&state.currentTarget){
@@ -1144,12 +1254,39 @@ function pickTarget(clear=true){
       next=colors[Math.floor(Math.random()*colors.length)];
     }
   }
+
   state.currentTarget=next;
   state.targetTime=0;
   $("#targetColor").textContent=next.name;
   $("#targetOrb").style.setProperty("--target",next.hex);
-  if(clear)clearBubbles(false);
+  if(state.pulse&&typeof $("#targetOrb").animate==="function")announceTargetChange();
+
+  // Keep the board visually continuous when the target changes.
+  // Existing bubbles are reclassified against the new target rather
+  // than being deleted, preventing the former flash/reset glitch.
+  if(reclassify){
+    state.bubbles.forEach(bubble=>{
+      bubble.isTarget=bubble.color.name===next.name;
+      bubble.el.setAttribute(
+        "aria-label",
+        `${bubble.color.name} bubble${bubble.isTarget?", current target":""}`
+      );
+    });
+  }
 }
+
+function announceTargetChange(){
+  const orb=$("#targetOrb");
+  orb.animate(
+    [
+      {opacity:.72,transform:"scale(.92)"},
+      {opacity:1,transform:"scale(1.04)"},
+      {opacity:1,transform:"scale(1)"}
+    ],
+    {duration:320,easing:"ease-out"}
+  );
+}
+
 function clearBubbles(animate=false){
   state.bubbles.forEach(bubble=>{
     if(animate)bubble.el.classList.add("pop-wrong");
@@ -1513,5 +1650,4 @@ window.addEventListener("resize",()=>{
 })();
 </script>
 </body>
-</html>'''
-
+</html>
