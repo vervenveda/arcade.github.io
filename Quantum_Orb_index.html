@@ -1,741 +1,2130 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>Quantum Story Seed Orb</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <style>
-    :root{
-      --bg-deep:#050713;
-      --bg-soft:#120f23;
-      --accent:#f5d37a;
-      --accent-soft:#ffe8a9;
-      --ink:#fdf7ec;
-      --muted:#9da3c4;
-      --card:#161525;
-      --card-soft:#1e1c33;
-      --chip:#25223c;
-      --radius:14px;
-    }
-    *{box-sizing:border-box;}
-    body{
-      margin:0;
-      min-height:100vh;
-      font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-      background:
-        radial-gradient(circle at top,#27235a 0,#050713 55%,#02020a 100%);
-      color:var(--ink);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:16px;
-    }
-    #qs-app{
-      width:100%;
-      max-width:900px;
-      background:radial-gradient(circle at top,#221f3f 0,var(--bg-soft) 60%);
-      border-radius:18px;
-      border:1px solid rgba(255,255,255,0.08);
-      box-shadow:
-        0 0 0 2px rgba(255,255,255,0.04),
-        0 18px 40px rgba(0,0,0,0.7);
-      padding:18px 18px 20px;
-      display:grid;
-      grid-template-columns:280px minmax(0,1fr);
-      gap:16px;
-      position:relative;
-      overflow:hidden;
-    }
-    @media(max-width:780px){
-      #qs-app{
-        grid-template-columns: minmax(0,1fr);
-      }
-    }
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Quantum Story Seed Orb — a local-first creative writing game with deterministic story seeds, component locks, individual rerolls, timed writing, autosaved drafts, searchable favorites, and validated import/export.">
+<meta name="theme-color" content="#080a15">
+<meta name="color-scheme" content="dark">
+<meta name="referrer" content="same-origin">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data:; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none';">
+<title>Quantum Story Seed Orb — After Dark Writing Studio</title>
+<style>
+:root{
+  --bg:#070914;
+  --bg-2:#0b0f1c;
+  --panel:#141a2b;
+  --panel-2:#1b2438;
+  --screen:#080e1a;
+  --ink:#f5f4f0;
+  --ink-soft:#d9dce4;
+  --muted:#aeb7c8;
+  --faint:#758096;
+  --gold:#ddb96e;
+  --gold-soft:#f2d99c;
+  --cyan:#6bc8d9;
+  --cyan-soft:#b5eaf0;
+  --violet:#9180d9;
+  --violet-soft:#c8bdf1;
+  --rose:#c977a9;
+  --mint:#79c8ad;
+  --red:#cf707b;
+  --line:rgba(181,234,240,.15);
+  --line-strong:rgba(181,234,240,.30);
+  --shadow:0 24px 66px rgba(0,0,0,.34);
+  --shadow-small:0 12px 33px rgba(0,0,0,.25);
+  --radius:7px;
+  --weight-text:333;
+  --weight-emphasis:444;
+  --s3:3px;
+  --s7:7px;
+  --s11:11px;
+  --s14:14px;
+  --s24:24px;
+  --s33:33px;
+  --s55:55px;
+  --s66:66px;
+  --max:1320px;
+  --display:"Eurostile Extended","Microgramma D Extended","Bank Gothic","Arial Narrow","Trebuchet MS",sans-serif;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --sans:"Trebuchet MS",Verdana,"Segoe UI",sans-serif;
+  --mono:"Courier New",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:84px;font-synthesis:none;text-rendering:geometricPrecision;-webkit-font-smoothing:antialiased}
+body{
+  margin:0;
+  min-width:300px;
+  min-height:100vh;
+  overflow-x:hidden;
+  color:var(--ink);
+  background:var(--bg);
+  font-family:var(--sans);
+  font-size:14px;
+  font-weight:var(--weight-text);
+  line-height:1.65;
+}
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-3;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 13% -4%,rgba(107,200,217,.075),transparent 31rem),
+    radial-gradient(circle at 86% 4%,rgba(145,128,217,.075),transparent 30rem),
+    radial-gradient(circle at 50% 105%,rgba(221,185,110,.055),transparent 32rem),
+    linear-gradient(180deg,#070914,#0b0f1c 52%,#060811);
+}
+body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-2;
+  pointer-events:none;
+  opacity:.52;
+  background-image:
+    radial-gradient(circle at 18% 22%,rgba(255,255,255,.14) 0 1px,transparent 1.3px),
+    radial-gradient(circle at 72% 17%,rgba(255,255,255,.10) 0 1px,transparent 1.3px),
+    radial-gradient(circle at 85% 67%,rgba(255,255,255,.09) 0 1px,transparent 1.3px),
+    radial-gradient(circle at 35% 80%,rgba(255,255,255,.08) 0 1px,transparent 1.3px),
+    linear-gradient(rgba(145,128,217,.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(107,200,217,.025) 1px,transparent 1px);
+  background-size:auto,auto,auto,auto,33px 33px,33px 33px;
+  mask-image:linear-gradient(to bottom,black,transparent 94%);
+}
+body[data-motion="reduced"] *,
+body[data-motion="reduced"] *::before,
+body[data-motion="reduced"] *::after{
+  animation:none!important;
+  transition:none!important;
+}
+body[data-reading="serif"] .draft-text,
+body[data-reading="serif"] .quest-copy{font-family:var(--serif)}
+a{color:inherit}
+button,input,select,textarea{font:inherit}
+button{color:inherit;cursor:pointer}
+strong,b,h1,h2,h3{font-weight:var(--weight-emphasis)}
+::selection{color:#071018;background:var(--cyan-soft)}
+:focus-visible{outline:3px solid var(--cyan-soft);outline-offset:3px}
+[hidden]{display:none!important}
+.wrap{width:min(calc(100% - 22px),var(--max));margin-inline:auto}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 
-    /* Tiny star field */
-    #qs-app::before{
-      content:"";
-      position:absolute;
-      inset:0;
-      pointer-events:none;
-      background-image:
-        radial-gradient(circle at 10% 20%,rgba(255,255,255,0.15) 0,transparent 55%),
-        radial-gradient(circle at 80% 10%,rgba(255,255,255,0.10) 0,transparent 55%),
-        radial-gradient(circle at 70% 80%,rgba(255,255,255,0.10) 0,transparent 55%);
-      opacity:0.4;
-      mix-blend-mode:screen;
-    }
-    #qs-inner{
-      position:relative;
-      z-index:1;
-      display:contents;
-    }
+/* Header */
+.site-header{
+  position:sticky;
+  top:0;
+  z-index:1200;
+  border-bottom:1px solid var(--line);
+  background:rgba(7,9,20,.94);
+  backdrop-filter:blur(18px);
+  box-shadow:0 11px 33px rgba(0,0,0,.25);
+}
+.header-inner{
+  min-height:66px;
+  display:grid;
+  grid-template-columns:minmax(190px,1fr) auto minmax(190px,1fr);
+  align-items:center;
+  gap:14px;
+  padding:7px 0;
+}
+.arcade-home{
+  justify-self:start;
+  display:inline-flex;
+  align-items:center;
+  gap:11px;
+  min-width:0;
+  text-decoration:none;
+}
+.brand-mark{
+  width:44px;
+  height:44px;
+  flex:0 0 44px;
+  display:grid;
+  place-items:center;
+  border:1px solid var(--gold);
+  border-radius:50%;
+  color:#170f04;
+  background:
+    radial-gradient(circle at 32% 24%,rgba(255,255,255,.76),transparent 20%),
+    linear-gradient(145deg,var(--gold-soft),var(--gold));
+  font-family:var(--display);
+  font-size:11px;
+  letter-spacing:.04em;
+  box-shadow:0 0 22px rgba(221,185,110,.15);
+}
+.brand-copy{display:grid;min-width:0;line-height:1.05}
+.brand-copy strong{
+  font-family:var(--display);
+  font-size:11px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+.brand-copy small{
+  margin-top:7px;
+  color:var(--muted);
+  font-family:var(--mono);
+  font-size:11px;
+  white-space:nowrap;
+}
+.game-id{justify-self:center;text-align:center}
+.game-id strong{
+  display:block;
+  font-family:var(--display);
+  font-size:14px;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+}
+.game-id small{
+  display:block;
+  margin-top:3px;
+  color:var(--violet-soft);
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.11em;
+  text-transform:uppercase;
+}
+.header-state{
+  justify-self:end;
+  color:var(--muted);
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.08em;
+  text-align:right;
+  text-transform:uppercase;
+}
+.header-state strong{color:var(--mint)}
 
-    /* Left: Orb + counters */
-    .qs-left{
-      padding:10px;
-      border-radius:var(--radius);
-      background:linear-gradient(145deg,#17152a,#211f3e);
-      border:1px solid rgba(255,255,255,0.08);
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-    }
-    .qs-brand{
-      text-align:center;
-      margin-bottom:4px;
-    }
-    .qs-brand-title{
-      font-family:"Cinzel","Times New Roman",serif;
-      letter-spacing:0.16em;
-      font-size:14px;
-      text-transform:uppercase;
-      color:var(--accent-soft);
-    }
-    .qs-brand-sub{
-      font-size:11px;
-      color:var(--muted);
-      margin-top:2px;
-    }
+/* Intro */
+.intro{
+  padding:33px 0 24px;
+  text-align:center;
+}
+.open-line{
+  display:inline-flex;
+  align-items:center;
+  gap:11px;
+  color:var(--mint);
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+}
+.open-dot{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:var(--mint);
+  box-shadow:0 0 14px rgba(121,200,173,.38);
+}
+.intro h1{
+  margin:18px auto 0;
+  font-family:var(--display);
+  font-size:clamp(48px,7.4vw,80px);
+  line-height:.88;
+  letter-spacing:-.06em;
+  text-transform:uppercase;
+  text-shadow:3px 3px 0 rgba(107,200,217,.14),-3px -3px 0 rgba(145,128,217,.14);
+}
+.intro p{
+  max-width:920px;
+  margin:18px auto 0;
+  color:var(--ink-soft);
+  font-size:clamp(14px,1.45vw,17px);
+  line-height:1.8;
+}
 
-    .qs-orb-wrap{
-      margin-top:8px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-    }
-    .qs-orb{
-      width:180px;
-      height:180px;
-      border-radius:50%;
-      background:
-        radial-gradient(circle at 30% 20%,#fff 0,#ffe7a6 10%,#f7c96b 22%,#f3a947 32%,#8b4bd6 60%,#050713 100%);
-      box-shadow:
-        0 0 30px rgba(245,211,122,0.6),
-        0 0 70px rgba(139,75,214,0.9),
-        inset 0 0 18px rgba(0,0,0,0.7);
-      position:relative;
-      cursor:pointer;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      transition:transform 0.2s ease, box-shadow 0.3s ease;
-    }
-    .qs-orb-ring{
-      position:absolute;
-      width:140%;
-      height:140%;
-      border-radius:50%;
-      border:1px dashed rgba(245,211,122,0.3);
-      box-shadow:0 0 20px rgba(245,211,122,0.3);
-      animation:slow-spin 16s linear infinite;
-      pointer-events:none;
-    }
-    .qs-orb-inner-dot{
-      width:18px;
-      height:18px;
-      border-radius:50%;
-      background:rgba(0,0,0,0.6);
-      box-shadow:0 0 8px rgba(255,255,255,0.7);
-    }
-    .qs-orb:hover{
-      transform:scale(1.03);
-      box-shadow:
-        0 0 40px rgba(245,211,122,0.9),
-        0 0 110px rgba(139,75,214,1);
-    }
-    .qs-orb.qs-spin{
-      animation:pulse 0.6s ease-out;
-    }
+/* Main studio */
+.studio{
+  display:grid;
+  grid-template-columns:minmax(330px,.34fr) minmax(620px,.66fr);
+  gap:14px;
+  align-items:start;
+  padding:14px;
+  border:1px solid var(--line-strong);
+  border-radius:var(--radius);
+  background:linear-gradient(180deg,#0d1221,#080c15);
+  box-shadow:var(--shadow);
+}
+.left-column,.right-column{display:grid;gap:11px}
+.panel{
+  min-width:0;
+  padding:14px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:linear-gradient(160deg,#182135,#0e1524);
+  box-shadow:var(--shadow-small);
+}
+.panel h2,.panel h3{
+  margin:0;
+  font-family:var(--display);
+  letter-spacing:.02em;
+  text-transform:uppercase;
+}
+.panel h2{font-size:24px}
+.panel h3{font-size:16px}
+.panel-sub{
+  margin:7px 0 0;
+  color:var(--muted);
+  font-size:13px;
+}
 
-    @keyframes slow-spin{
-      from{transform:rotate(0deg);}
-      to{transform:rotate(360deg);}
-    }
-    @keyframes pulse{
-      0%{transform:scale(1);box-shadow:0 0 30px rgba(245,211,122,0.6),0 0 70px rgba(139,75,214,0.9);}
-      50%{transform:scale(1.07);box-shadow:0 0 60px rgba(245,211,122,1),0 0 120px rgba(139,75,214,1);}
-      100%{transform:scale(1);box-shadow:0 0 30px rgba(245,211,122,0.6),0 0 70px rgba(139,75,214,0.9);}
-    }
+/* Orb chamber */
+.orb-panel{text-align:center}
+.orb-chamber{
+  position:relative;
+  min-height:365px;
+  display:grid;
+  place-items:center;
+  margin-top:11px;
+  overflow:hidden;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:
+    radial-gradient(circle at 50% 46%,rgba(145,128,217,.11),transparent 34%),
+    radial-gradient(circle at 50% 55%,rgba(107,200,217,.06),transparent 52%),
+    var(--screen);
+}
+.orb-chamber::before,.orb-chamber::after{
+  content:"";
+  position:absolute;
+  border:1px dashed rgba(181,234,240,.18);
+  border-radius:50%;
+  pointer-events:none;
+}
+.orb-chamber::before{width:285px;height:285px;animation:orbitSpin 22s linear infinite}
+.orb-chamber::after{width:325px;height:190px;transform:rotate(-22deg);animation:orbitCounter 28s linear infinite}
+@keyframes orbitSpin{to{transform:rotate(360deg)}}
+@keyframes orbitCounter{from{transform:rotate(-22deg)}to{transform:rotate(-382deg)}}
+.orb-button{
+  position:relative;
+  z-index:3;
+  width:214px;
+  height:214px;
+  padding:0;
+  border:1px solid rgba(255,255,255,.34);
+  border-radius:50%;
+  color:var(--ink);
+  background:
+    radial-gradient(circle at 31% 22%,rgba(255,255,255,.98) 0 3%,var(--orb-light,#f2d99c) 8%,var(--orb-mid,#d78a67) 24%,var(--orb-violet,#7a55c1) 58%,#070914 100%);
+  box-shadow:
+    0 0 33px color-mix(in srgb,var(--orb-light,#f2d99c) 35%,transparent),
+    0 0 88px color-mix(in srgb,var(--orb-violet,#7a55c1) 45%,transparent),
+    inset 0 0 33px rgba(0,0,0,.62);
+  overflow:hidden;
+  transition:transform .18s ease,box-shadow .24s ease;
+}
+.orb-button:hover{transform:scale(1.025)}
+.orb-button:active{transform:scale(.985)}
+.orb-button.spin{animation:orbPulse .75s ease-out}
+.orb-button::before{
+  content:"";
+  position:absolute;
+  inset:12px;
+  border:1px solid rgba(255,255,255,.23);
+  border-radius:50%;
+}
+.orb-button::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(circle at 70% 30%,rgba(255,255,255,.22) 0 2px,transparent 3px),
+    radial-gradient(circle at 34% 68%,rgba(255,255,255,.17) 0 2px,transparent 3px),
+    radial-gradient(circle at 74% 72%,rgba(255,255,255,.16) 0 1px,transparent 2px);
+}
+.orb-core{
+  position:absolute;
+  inset:0;
+  z-index:2;
+  display:grid;
+  place-items:center;
+}
+.orb-core span{
+  display:grid;
+  place-items:center;
+  width:72px;
+  height:72px;
+  padding:7px;
+  border:1px solid rgba(255,255,255,.25);
+  border-radius:50%;
+  color:#f9f6ed;
+  background:rgba(5,7,19,.58);
+  font-family:var(--display);
+  font-size:11px;
+  letter-spacing:.06em;
+  line-height:1.25;
+  text-transform:uppercase;
+}
+@keyframes orbPulse{
+  0%,100%{transform:scale(1) rotate(0)}
+  45%{transform:scale(1.07) rotate(2deg)}
+}
+.orb-caption{
+  position:absolute;
+  left:14px;
+  right:14px;
+  bottom:14px;
+  z-index:4;
+  color:var(--muted);
+  font-family:var(--mono);
+  font-size:11px;
+}
+.orb-caption strong{color:var(--gold-soft)}
+.orb-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:7px;
+  margin-top:11px;
+}
 
-    .qs-orb-label{
-      margin-top:8px;
-      text-align:center;
-      font-size:11px;
-      color:var(--muted);
-    }
-    .qs-orb-label span{
-      color:var(--accent-soft);
-    }
+/* Buttons / controls */
+.btn{
+  min-height:42px;
+  padding:7px 11px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  color:var(--ink-soft);
+  background:var(--panel-2);
+  font-family:var(--mono);
+  font-size:11px;
+  font-weight:var(--weight-emphasis);
+  letter-spacing:.05em;
+  text-transform:uppercase;
+}
+.btn:hover:not(:disabled){color:var(--cyan-soft);border-color:var(--cyan);transform:translateY(-1px)}
+.btn:disabled{cursor:not-allowed;opacity:.38}
+.btn.primary{
+  color:#171004;
+  border-color:var(--gold);
+  background:linear-gradient(135deg,var(--gold-soft),var(--gold));
+}
+.btn.cyan{
+  color:#071018;
+  border-color:var(--cyan);
+  background:linear-gradient(135deg,var(--cyan-soft),var(--cyan));
+}
+.btn.violet{
+  color:#100b1a;
+  border-color:var(--violet);
+  background:linear-gradient(135deg,var(--violet-soft),var(--violet));
+}
+.btn.danger{color:#fff;border-color:var(--red);background:var(--red)}
+.button-row{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:7px;
+  margin-top:11px;
+}
+.control-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:7px;
+  margin-top:11px;
+}
+.control-group{
+  display:grid;
+  gap:7px;
+  min-width:0;
+}
+.control-group.full{grid-column:1/-1}
+.control-group label{
+  color:var(--muted);
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+}
+select,input[type="text"],input[type="search"],textarea{
+  width:100%;
+  min-height:44px;
+  padding:7px 11px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  color:var(--ink);
+  background:var(--screen);
+}
+textarea{resize:vertical}
 
-    .qs-metrics{
-      margin-top:8px;
-      padding:8px;
-      border-radius:10px;
-      background:rgba(0,0,0,0.35);
-      border:1px solid rgba(255,255,255,0.06);
-      font-size:11px;
-      color:var(--muted);
-    }
-    .qs-metrics-row{
-      display:flex;
-      justify-content:space-between;
-      margin-bottom:2px;
-    }
-    .qs-metrics-row strong{
-      color:var(--accent-soft);
-      font-weight:500;
-    }
+/* Metrics */
+.metrics{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:7px;
+  margin-top:11px;
+}
+.metric{
+  min-width:0;
+  padding:11px 7px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:var(--screen);
+  text-align:center;
+}
+.metric strong{
+  display:block;
+  color:var(--gold-soft);
+  font-family:var(--mono);
+  font-size:19px;
+  overflow-wrap:anywhere;
+}
+.metric:nth-child(2) strong{color:var(--cyan-soft)}
+.metric:nth-child(3) strong{color:var(--violet-soft)}
+.metric:nth-child(4) strong{color:var(--mint)}
+.metric span{
+  display:block;
+  margin-top:3px;
+  color:var(--muted);
+  font-family:var(--mono);
+  font-size:10px;
+  text-transform:uppercase;
+}
 
-    .qs-left-footer{
-      margin-top:6px;
-      font-size:10px;
-      color:var(--muted);
-      text-align:center;
-    }
+/* Seed card */
+.seed-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:14px;
+}
+.seed-code{
+  padding:7px 11px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  color:var(--cyan-soft);
+  background:var(--screen);
+  font-family:var(--mono);
+  font-size:10px;
+  text-transform:uppercase;
+}
+.seed-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:7px;
+  margin-top:11px;
+}
+.seed-part{
+  min-width:0;
+  padding:11px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:var(--screen);
+}
+.seed-part-head{
+  display:flex;
+  justify-content:space-between;
+  gap:7px;
+  align-items:center;
+}
+.seed-part-head span{
+  color:var(--muted);
+  font-family:var(--mono);
+  font-size:10px;
+  letter-spacing:.07em;
+  text-transform:uppercase;
+}
+.lock-btn,.reroll-btn{
+  min-width:30px;
+  min-height:30px;
+  padding:3px 7px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  color:var(--muted);
+  background:var(--panel-2);
+  font-family:var(--mono);
+  font-size:10px;
+}
+.lock-btn.active{
+  color:#171004;
+  border-color:var(--gold);
+  background:var(--gold);
+}
+.seed-part strong{
+  display:block;
+  margin-top:7px;
+  color:var(--ink);
+  font-size:14px;
+  line-height:1.45;
+}
+.seed-part-actions{
+  display:flex;
+  gap:5px;
+}
 
-    /* Right: Current seed + log */
-    .qs-right{
-      padding:10px;
-      border-radius:var(--radius);
-      background:radial-gradient(circle at top,#282549,#17152b 55%);
-      border:1px solid rgba(255,255,255,0.09);
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-    }
-    .qs-section-title{
-      font-size:12px;
-      text-transform:uppercase;
-      letter-spacing:0.18em;
-      color:var(--muted);
-    }
+/* Quest */
+.quest-card{
+  margin-top:11px;
+  padding:17px;
+  border:1px solid var(--line-strong);
+  border-radius:var(--radius);
+  background:
+    radial-gradient(circle at 0 0,rgba(221,185,110,.08),transparent 35%),
+    linear-gradient(145deg,#1f2337,#141a2a);
+}
+.quest-kicker{
+  color:var(--gold-soft);
+  font-family:var(--mono);
+  font-size:10px;
+  letter-spacing:.10em;
+  text-transform:uppercase;
+}
+.quest-copy{
+  margin:7px 0 0;
+  color:var(--ink);
+  font-family:var(--serif);
+  font-size:17px;
+  line-height:1.72;
+}
+.quest-constraint{
+  margin-top:11px;
+  padding:11px;
+  border-left:3px solid var(--violet);
+  border-radius:var(--radius);
+  color:var(--ink-soft);
+  background:rgba(145,128,217,.06);
+  font-size:12px;
+}
 
-    .qs-current-card{
-      margin-top:4px;
-      padding:12px;
-      border-radius:var(--radius);
-      background:var(--card);
-      box-shadow:0 0 0 1px rgba(255,255,255,0.03),
-                 0 10px 24px rgba(0,0,0,0.7);
-      display:flex;
-      flex-direction:column;
-      gap:8px;
-    }
-    .qs-chip-row{
-      display:flex;
-      flex-wrap:wrap;
-      gap:6px;
-    }
-    .qs-chip{
-      padding:5px 9px;
-      border-radius:999px;
-      font-size:11px;
-      background:var(--chip);
-      color:var(--accent-soft);
-      border:1px solid rgba(255,255,255,0.08);
-      display:inline-flex;
-      align-items:center;
-      gap:4px;
-    }
-    .qs-chip-label{
-      text-transform:uppercase;
-      font-size:9px;
-      letter-spacing:0.14em;
-      color:var(--muted);
-    }
+/* Writing desk */
+.desk-head{
+  display:flex;
+  justify-content:space-between;
+  gap:14px;
+  align-items:flex-start;
+}
+.timer-box{
+  min-width:124px;
+  padding:7px 11px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  color:var(--gold-soft);
+  background:var(--screen);
+  font-family:var(--mono);
+  font-size:19px;
+  text-align:center;
+}
+.draft-title{margin-top:11px}
+.draft-text{
+  min-height:270px;
+  margin-top:7px;
+  color:var(--ink);
+  background:#f0eadc;
+  color:#22252a;
+  font-family:var(--serif);
+  font-size:16px;
+  line-height:1.72;
+}
+.desk-metrics{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:7px;
+  margin-top:7px;
+}
+.desk-metric{
+  padding:7px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  color:var(--muted);
+  background:var(--screen);
+  font-family:var(--mono);
+  font-size:10px;
+  text-align:center;
+  text-transform:uppercase;
+}
+.desk-metric strong{
+  display:block;
+  color:var(--cyan-soft);
+  font-size:14px;
+}
 
-    .qs-quest{
-      font-size:12px;
-      line-height:1.5;
-      color:#f8f2df;
-      border-radius:10px;
-      background:linear-gradient(135deg,#262141,#322a4d);
-      padding:8px 10px;
-    }
-    .qs-quest strong{
-      color:var(--accent-soft);
-      font-weight:600;
-    }
+/* Archive */
+.archive-tools{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:7px;
+  margin-top:11px;
+}
+.archive-list{
+  max-height:430px;
+  overflow:auto;
+  display:grid;
+  gap:7px;
+  margin-top:11px;
+  padding-right:3px;
+}
+.empty-state{
+  padding:24px;
+  border:1px dashed var(--line-strong);
+  border-radius:var(--radius);
+  color:var(--muted);
+  background:var(--screen);
+  text-align:center;
+}
+.archive-item{
+  display:grid;
+  grid-template-columns:33px minmax(0,1fr) auto;
+  gap:9px;
+  align-items:start;
+  padding:9px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:var(--screen);
+}
+.archive-item.pinned{border-color:var(--gold)}
+.archive-pin{
+  width:33px;
+  height:33px;
+  display:grid;
+  place-items:center;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  color:var(--muted);
+  background:var(--panel-2);
+}
+.archive-item.pinned .archive-pin{color:#171004;border-color:var(--gold);background:var(--gold)}
+.archive-copy{min-width:0}
+.archive-copy strong{
+  display:block;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.archive-copy small{
+  display:block;
+  margin-top:3px;
+  color:var(--muted);
+  font-family:var(--mono);
+  font-size:10px;
+}
+.archive-copy p{
+  margin:7px 0 0;
+  color:var(--ink-soft);
+  font-size:11px;
+  line-height:1.45;
+}
+.archive-actions{
+  display:grid;
+  gap:5px;
+}
+.archive-actions .btn{
+  min-height:30px;
+  padding:3px 7px;
+  font-size:9px;
+}
 
-    .qs-actions{
-      display:flex;
-      flex-wrap:wrap;
-      gap:8px;
-      margin-top:4px;
-    }
-    .qs-btn{
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,0.2);
-      background:rgba(0,0,0,0.4);
-      color:var(--ink);
-      font-size:11px;
-      padding:7px 12px;
-      cursor:pointer;
-      display:inline-flex;
-      align-items:center;
-      gap:4px;
-      transition:background 0.16s ease, transform 0.05s ease, box-shadow 0.16s ease;
-    }
-    .qs-btn.primary{
-      background:linear-gradient(135deg,#f5d37a,#f3a947);
-      color:#1a1020;
-      box-shadow:0 0 18px rgba(245,211,122,0.5);
-      border-color:rgba(0,0,0,0.5);
-    }
-    .qs-btn.primary:hover{
-      box-shadow:0 0 26px rgba(245,211,122,0.8);
-    }
-    .qs-btn:hover{
-      background:rgba(255,255,255,0.08);
-      box-shadow:0 4px 12px rgba(0,0,0,0.6);
-    }
-    .qs-btn:active{
-      transform:translateY(1px);
-      box-shadow:none;
-    }
+/* Dialog */
+dialog{
+  width:min(700px,calc(100% - 28px));
+  max-height:88vh;
+  overflow:auto;
+  padding:24px;
+  border:1px solid var(--line-strong);
+  border-radius:var(--radius);
+  color:var(--ink);
+  background:var(--panel);
+  box-shadow:var(--shadow);
+}
+dialog::backdrop{background:rgba(3,5,10,.78);backdrop-filter:blur(5px)}
+dialog h2{margin:0;font-family:var(--display);font-size:24px;text-transform:uppercase}
+dialog textarea{min-height:300px;margin-top:11px}
+.dialog-actions{display:flex;justify-content:flex-end;gap:7px;flex-wrap:wrap;margin-top:11px}
+.guide-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:11px;
+  margin-top:14px;
+}
+.guide-card{
+  padding:11px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:var(--screen);
+}
+.guide-card strong{
+  display:block;
+  color:var(--gold-soft);
+  font-family:var(--display);
+  text-transform:uppercase;
+}
+.guide-card p{margin:7px 0 0;color:var(--muted);font-size:12px}
 
-    .qs-log-header{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      margin-top:4px;
-      font-size:11px;
-      color:var(--muted);
-    }
-    .qs-log-list{
-      margin-top:4px;
-      max-height:190px;
-      overflow-y:auto;
-      padding-right:2px;
-    }
-    .qs-log-item{
-      margin-bottom:5px;
-      padding:6px 8px;
-      border-radius:10px;
-      background:var(--card-soft);
-      border:1px solid rgba(255,255,255,0.06);
-      font-size:11px;
-    }
-    .qs-log-top{
-      display:flex;
-      justify-content:space-between;
-      gap:6px;
-      margin-bottom:3px;
-      color:var(--muted);
-    }
-    .qs-log-title{
-      font-weight:500;
-      color:var(--accent-soft);
-    }
-    .qs-log-tags{
-      font-size:10px;
-      opacity:0.9;
-    }
-    .qs-log-body{
-      font-size:11px;
-      color:#f7f1df;
-    }
-    .qs-log-body span{
-      color:var(--accent-soft);
-    }
-    .qs-log-actions{
-      margin-top:4px;
-      display:flex;
-      gap:6px;
-      justify-content:flex-end;
-    }
-    .qs-log-actions button{
-      font-size:10px;
-      padding:3px 7px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,0.18);
-      background:rgba(0,0,0,0.4);
-      color:var(--muted);
-      cursor:pointer;
-    }
-    .qs-log-actions button:hover{
-      background:rgba(255,255,255,0.08);
-      color:var(--accent-soft);
-    }
+.footer{
+  padding:24px 0 33px;
+  color:var(--muted);
+  text-align:center;
+  font-family:var(--mono);
+  font-size:11px;
+}
+.toast{
+  position:fixed;
+  right:14px;
+  bottom:14px;
+  z-index:3000;
+  max-width:min(410px,calc(100% - 28px));
+  padding:11px 14px;
+  border:1px solid var(--gold);
+  border-radius:var(--radius);
+  color:var(--ink);
+  background:var(--panel);
+  box-shadow:var(--shadow);
+  font-family:var(--mono);
+  font-size:11px;
+  transform:translateY(160%);
+  opacity:0;
+  transition:.18s ease;
+}
+.toast.show{transform:none;opacity:1}
 
-    .qs-footer-note{
-      margin-top:4px;
-      font-size:10px;
-      color:var(--muted);
-      text-align:right;
-    }
-  </style>
+@media(max-width:1080px){
+  .header-inner{grid-template-columns:1fr auto}.game-id{display:none}
+  .studio{grid-template-columns:1fr}
+  .left-column{grid-template-columns:1fr 1fr}
+  .left-column .orb-panel{grid-row:span 2}
+}
+@media(max-width:780px){
+  body{font-size:15px}
+  .left-column{grid-template-columns:1fr}
+  .left-column .orb-panel{grid-row:auto}
+  .seed-grid{grid-template-columns:1fr 1fr}
+  .button-row{grid-template-columns:1fr 1fr}
+  .desk-metrics{grid-template-columns:1fr 1fr}
+}
+@media(max-width:560px){
+  .wrap{width:min(calc(100% - 14px),var(--max))}
+  .header-inner{grid-template-columns:minmax(0,1fr) auto}
+  .brand-copy small{display:none}
+  .intro{padding-top:24px}
+  .intro h1{font-size:46px}
+  .studio,.panel{padding:11px}
+  .orb-chamber{min-height:340px}
+  .orb-button{width:190px;height:190px}
+  .seed-header,.desk-head{display:grid}
+  .seed-grid{grid-template-columns:1fr}
+  .control-grid{grid-template-columns:1fr}
+  .control-group.full{grid-column:auto}
+  .timer-box{width:100%}
+  .archive-item{grid-template-columns:33px minmax(0,1fr)}
+  .archive-actions{grid-column:1/-1;grid-template-columns:repeat(3,1fr)}
+  .guide-grid{grid-template-columns:1fr}
+}
+@media(max-width:380px){
+  .brand-copy strong{display:none}
+  .brand-mark{width:40px;height:40px;flex-basis:40px}
+  .header-state{max-width:125px;font-size:10px}
+  .orb-actions{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+</style>
 </head>
 <body>
-<div id="qs-app">
-  <div id="qs-inner">
-    <!-- LEFT: ORB -->
-    <section class="qs-left">
-      <div class="qs-brand">
-        <div class="qs-brand-title">Quantum Orb</div>
-        <div class="qs-brand-sub">Tiny Sovereign Story Seed Engine</div>
-      </div>
-
-      <div class="qs-orb-wrap">
-        <div id="qs-orb" class="qs-orb" title="Tap to spin a new quantum seed">
-          <div class="qs-orb-ring"></div>
-          <div class="qs-orb-inner-dot"></div>
-        </div>
-      </div>
-      <div class="qs-orb-label">
-        Tap the orb to spin a <span>new seed</span>.<br/>
-        Each spin = one tiny adventure.
-      </div>
-
-      <div class="qs-metrics">
-        <div class="qs-metrics-row">
-          <span>Seeds spun today</span>
-          <strong id="qs-count-today">0</strong>
-        </div>
-        <div class="qs-metrics-row">
-          <span>Favorite seeds saved</span>
-          <strong id="qs-count-faves">0</strong>
-        </div>
-        <div class="qs-metrics-row">
-          <span>Lifetime spins</span>
-          <strong id="qs-count-total">0</strong>
-        </div>
-      </div>
-
-      <div class="qs-left-footer">
-        No accounts · No ads · No tracking.<br/>
-        Everything lives only in this browser.
-      </div>
-    </section>
-
-    <!-- RIGHT: CURRENT SEED + LOG -->
-    <section class="qs-right">
-      <div class="qs-section-title">Current Seed</div>
-      <article class="qs-current-card">
-        <div class="qs-chip-row">
-          <div class="qs-chip">
-            <span class="qs-chip-label">Tone</span>
-            <span id="qs-tone">—</span>
-          </div>
-          <div class="qs-chip">
-            <span class="qs-chip-label">World</span>
-            <span id="qs-world">—</span>
-          </div>
-          <div class="qs-chip">
-            <span class="qs-chip-label">Focus</span>
-            <span id="qs-focus">—</span>
-          </div>
-          <div class="qs-chip">
-            <span class="qs-chip-label">Twist</span>
-            <span id="qs-twist">—</span>
-          </div>
-        </div>
-
-        <div class="qs-quest" id="qs-quest">
-          Tap the orb to receive your first quantum quest.
-        </div>
-
-        <div class="qs-actions">
-          <button class="qs-btn primary" id="qs-new-seed-btn">New Seed</button>
-          <button class="qs-btn" id="qs-save-seed-btn">Save to Favorites</button>
-          <button class="qs-btn" id="qs-clear-today-btn">Reset Today Counter</button>
-        </div>
-      </article>
-
-      <div class="qs-log-header">
-        <span>Favorites Log</span>
-        <button class="qs-btn" id="qs-clear-faves-btn" style="padding:4px 9px;font-size:10px;">Clear All</button>
-      </div>
-      <div id="qs-log-list" class="qs-log-list"></div>
-
-      <div class="qs-footer-note">
-        Try: 3 minutes per seed — one paragraph, one doodle, or one small scene.
-      </div>
-    </section>
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="arcade-home" href="index.html" aria-label="Return to the Arcade landing page">
+      <span class="brand-mark" aria-hidden="true">QO</span>
+      <span class="brand-copy"><strong>Arcade</strong><small>Return to game hall</small></span>
+    </a>
+    <div class="game-id"><strong>Quantum Story Seed Orb</strong><small>After Dark Writing Studio</small></div>
+    <div class="header-state">Orb Status · <strong id="headerStatus">Attuned</strong></div>
   </div>
-</div>
+</header>
+
+<main>
+  <section class="intro">
+    <div class="wrap">
+      <div class="open-line"><span class="open-dot"></span><span>Sovereign story engine and writing chamber online</span></div>
+      <h1>Quantum Story Seed Orb</h1>
+      <p>Spin a coherent story constellation, lock the pieces you love, reroll individual elements, enter a timed writing chamber, and preserve favorite seeds and drafts in a searchable local archive.</p>
+    </div>
+  </section>
+
+  <section class="wrap studio" aria-label="Quantum Story Seed Orb writing studio">
+    <aside class="left-column">
+      <section class="panel orb-panel">
+        <h2>Story Orb</h2>
+        <p class="panel-sub">The orb generates one complete constellation. Locked components survive the next spin.</p>
+
+        <div class="orb-chamber">
+          <button class="orb-button" id="orbButton" type="button" aria-label="Spin a new story seed">
+            <span class="orb-core"><span>Spin<br>Seed</span></span>
+          </button>
+          <div class="orb-caption"><strong>Enter</strong> or <strong>Space</strong> while focused also spins the orb.</div>
+        </div>
+
+        <div class="orb-actions">
+          <button class="btn primary" id="spinBtn" type="button">Spin New Seed</button>
+          <button class="btn violet" id="dailyBtn" type="button">Daily Constellation</button>
+        </div>
+
+        <div class="metrics">
+          <div class="metric"><strong id="todayMetric">0</strong><span>Today</span></div>
+          <div class="metric"><strong id="totalMetric">0</strong><span>Lifetime</span></div>
+          <div class="metric"><strong id="favoriteMetric">0</strong><span>Favorites</span></div>
+          <div class="metric"><strong id="draftMetric">0</strong><span>Drafts</span></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h3>Constellation Controls</h3>
+        <div class="control-grid">
+          <div class="control-group">
+            <label for="modeSelect">Creative mode</label>
+            <select id="modeSelect">
+              <option value="flash">Flash Fiction</option>
+              <option value="scene" selected>Scene Study</option>
+              <option value="poem">Poem or Prose Poem</option>
+              <option value="comic">Comic Sequence</option>
+              <option value="game">Game Quest</option>
+              <option value="child">Children's Tale</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label for="durationSelect">Writing window</label>
+            <select id="durationSelect">
+              <option value="180">3 minutes</option>
+              <option value="420" selected>7 minutes</option>
+              <option value="900">15 minutes</option>
+              <option value="1500">25 minutes</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label for="atmosphereSelect">Atmosphere</label>
+            <select id="atmosphereSelect">
+              <option value="all" selected>All Atmospheres</option>
+              <option value="gentle">Gentle</option>
+              <option value="mystery">Mystery</option>
+              <option value="adventure">Adventure</option>
+              <option value="everyday">Everyday Wonder</option>
+              <option value="cosmic">Cosmic</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label for="constraintSelect">Constraint density</label>
+            <select id="constraintSelect">
+              <option value="light">Light</option>
+              <option value="balanced" selected>Balanced</option>
+              <option value="full">Full Challenge</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label for="motionSelect">Motion</label>
+            <select id="motionSelect">
+              <option value="full">Gentle orbit</option>
+              <option value="reduced">Reduced motion</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label for="readingSelect">Writing typeface</label>
+            <select id="readingSelect">
+              <option value="serif" selected>Literary serif</option>
+              <option value="sans">Clean sans serif</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label for="soundSelect">Sound</label>
+            <select id="soundSelect">
+              <option value="off">Sound off</option>
+              <option value="on">Soft orb tones</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label for="voiceSelect">Prompt voice</label>
+            <select id="voiceSelect">
+              <option value="off">Voice off</option>
+              <option value="on">Read new quest</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="button-row">
+          <button class="btn" id="unlockAllBtn" type="button">Unlock All</button>
+          <button class="btn" id="copyCodeBtn" type="button">Copy Seed Code</button>
+          <button class="btn" id="dataBtn" type="button">Import / Export</button>
+          <button class="btn" id="guideBtn" type="button">Guide</button>
+        </div>
+      </section>
+    </aside>
+
+    <section class="right-column">
+      <section class="panel">
+        <div class="seed-header">
+          <div>
+            <h2>Current Constellation</h2>
+            <p class="panel-sub">Every component can be locked or rerolled independently.</p>
+          </div>
+          <div class="seed-code" id="seedCode">QSO-WELCOME</div>
+        </div>
+
+        <div class="seed-grid" id="seedGrid"></div>
+
+        <article class="quest-card">
+          <div class="quest-kicker" id="questKicker">Scene Study · 7-Minute Quest</div>
+          <p class="quest-copy" id="questCopy">Spin the orb to receive a complete story constellation.</p>
+          <div class="quest-constraint" id="constraintCopy">The first preview seed does not increase your counters.</div>
+        </article>
+
+        <div class="button-row">
+          <button class="btn primary" id="saveFavoriteBtn" type="button">Save Favorite</button>
+          <button class="btn cyan" id="openDeskBtn" type="button">Open Writing Desk</button>
+          <button class="btn" id="copyQuestBtn" type="button">Copy Quest</button>
+          <button class="btn" id="newVariantBtn" type="button">New Variant</button>
+        </div>
+      </section>
+
+      <section class="panel" id="writingDesk">
+        <div class="desk-head">
+          <div>
+            <h3>Writing Desk</h3>
+            <p class="panel-sub">Drafts autosave locally and remain attached to their seed code.</p>
+          </div>
+          <div class="timer-box" id="timerDisplay">07:00</div>
+        </div>
+
+        <div class="control-group draft-title">
+          <label for="draftTitle">Draft title</label>
+          <input id="draftTitle" type="text" maxlength="100" placeholder="Untitled constellation">
+        </div>
+        <textarea class="draft-text" id="draftText" spellcheck="true" maxlength="60000" placeholder="Begin the scene here..."></textarea>
+
+        <div class="desk-metrics">
+          <div class="desk-metric"><strong id="wordCount">0</strong>Words</div>
+          <div class="desk-metric"><strong id="charCount">0</strong>Characters</div>
+          <div class="desk-metric"><strong id="saveState">Ready</strong>Local Save</div>
+          <div class="desk-metric"><strong id="draftCode">—</strong>Seed</div>
+        </div>
+
+        <div class="button-row">
+          <button class="btn primary" id="timerBtn" type="button">Start Timer</button>
+          <button class="btn" id="resetTimerBtn" type="button">Reset Timer</button>
+          <button class="btn cyan" id="saveDraftBtn" type="button">Save Draft</button>
+          <button class="btn" id="exportDraftBtn" type="button">Export .txt</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h3>Seed & Draft Archive</h3>
+        <p class="panel-sub">Pinned favorites rise to the top. Search across titles, worlds, characters, themes, twists, and draft text.</p>
+        <div class="archive-tools">
+          <input id="archiveSearch" type="search" maxlength="100" placeholder="Search the local archive">
+          <select id="archiveFilter" aria-label="Filter archive">
+            <option value="all">All saved items</option>
+            <option value="favorites">Favorites only</option>
+            <option value="drafts">Drafts only</option>
+            <option value="pinned">Pinned only</option>
+          </select>
+        </div>
+        <div class="archive-list" id="archiveList"></div>
+      </section>
+    </section>
+  </section>
+</main>
+
+<footer class="wrap footer">Quantum Story Seed Orb™ · After Dark Writing Studio · Local-first creative play · No account or outside service required</footer>
+
+<dialog id="dataDialog">
+  <h2>Import / Export Orb Library</h2>
+  <p class="panel-sub">Copy the complete validated local library, or paste another Quantum Orb library and import it.</p>
+  <textarea id="dataText" aria-label="Quantum Orb library JSON"></textarea>
+  <div class="dialog-actions">
+    <button class="btn" id="copyDataBtn" type="button">Copy</button>
+    <button class="btn primary" id="importDataBtn" type="button">Import</button>
+    <button class="btn" id="closeDataBtn" type="button">Close</button>
+  </div>
+</dialog>
+
+<dialog id="guideDialog">
+  <h2>Quantum Orb Guide</h2>
+  <div class="guide-grid">
+    <article class="guide-card"><strong>Spin</strong><p>Creates one coherent six-part constellation. The welcome preview does not alter today or lifetime counts.</p></article>
+    <article class="guide-card"><strong>Lock</strong><p>Lock any component you want to preserve. Future spins reroll only the unlocked pieces.</p></article>
+    <article class="guide-card"><strong>Reroll</strong><p>Each individual field can be rerolled without changing the rest of the constellation.</p></article>
+    <article class="guide-card"><strong>Seed Code</strong><p>Every spin receives a deterministic code. Entering the same code through import reconstructs the same unlocked choices.</p></article>
+    <article class="guide-card"><strong>Daily Constellation</strong><p>Uses the player’s local calendar day rather than UTC, so the daily seed changes at local midnight.</p></article>
+    <article class="guide-card"><strong>Writing Desk</strong><p>Drafts autosave locally, carry a timer, and remain connected to the seed that inspired them.</p></article>
+    <article class="guide-card"><strong>Archive</strong><p>Save favorites, pin important seeds, restore a constellation, reopen drafts, search, or remove individual items.</p></article>
+    <article class="guide-card"><strong>Privacy</strong><p>No account, analytics, cloud service, external font, or network request is used.</p></article>
+  </div>
+  <div class="dialog-actions"><button class="btn primary" id="closeGuideBtn" type="button">Close Guide</button></div>
+</dialog>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
-(function(){
-  "use strict";
+(()=>{
+"use strict";
 
-  const orb          = document.getElementById("qs-orb");
-  const btnNew       = document.getElementById("qs-new-seed-btn");
-  const btnSave      = document.getElementById("qs-save-seed-btn");
-  const btnClearDay  = document.getElementById("qs-clear-today-btn");
-  const btnClearAll  = document.getElementById("qs-clear-faves-btn");
+const STORAGE_KEY="QUANTUM_STORY_ORB_LIBRARY_V3";
+const PREF_KEY="QUANTUM_STORY_ORB_PREFS_V3";
+const MAX_LIBRARY=100;
+const MAX_IMPORT_CHARS=1000000;
+const AUTOSAVE_DELAY=650;
 
-  const toneEl   = document.getElementById("qs-tone");
-  const worldEl  = document.getElementById("qs-world");
-  const focusEl  = document.getElementById("qs-focus");
-  const twistEl  = document.getElementById("qs-twist");
-  const questEl  = document.getElementById("qs-quest");
-  const logEl    = document.getElementById("qs-log-list");
+const BANKS={
+  tones:[
+    {text:"soft and reflective",tags:["gentle","everyday"]},
+    {text:"playful and mischievous",tags:["gentle","adventure"]},
+    {text:"epic and cinematic",tags:["adventure","cosmic"]},
+    {text:"sacred and still",tags:["gentle","cosmic"]},
+    {text:"quietly hopeful",tags:["gentle","everyday"]},
+    {text:"sharp and analytical",tags:["mystery","cosmic"]},
+    {text:"dreamlike and luminous",tags:["gentle","cosmic"]},
+    {text:"grounded and practical",tags:["everyday"]},
+    {text:"mysterious but tender",tags:["mystery","gentle"]},
+    {text:"joyful and bright",tags:["gentle","adventure"]},
+    {text:"restless and electric",tags:["adventure","cosmic"]},
+    {text:"melancholy with a warm center",tags:["gentle","mystery"]},
+    {text:"wry and observant",tags:["everyday","mystery"]},
+    {text:"quietly defiant",tags:["adventure","everyday"]},
+    {text:"strange and ceremonial",tags:["mystery","cosmic"]}
+  ],
+  worlds:[
+    {text:"a near-future city built around public gardens",tags:["cosmic","adventure"]},
+    {text:"an ancient library beneath the sea",tags:["mystery","cosmic"]},
+    {text:"a quiet suburban kitchen at midnight",tags:["everyday","gentle"]},
+    {text:"a floating market between dimensions",tags:["cosmic","adventure"]},
+    {text:"a small Florida town during a summer rain",tags:["everyday","gentle"]},
+    {text:"a classroom orbiting Earth",tags:["cosmic","adventure"]},
+    {text:"a sanctuary carved inside a mountain",tags:["gentle","mystery"]},
+    {text:"a digital archive that has begun remembering people",tags:["mystery","cosmic"]},
+    {text:"an abandoned amusement park just before sunrise",tags:["mystery","adventure"]},
+    {text:"a starship tended entirely by plants",tags:["cosmic","gentle"]},
+    {text:"a neighborhood laundromat during a power outage",tags:["everyday","mystery"]},
+    {text:"a roadside motel where every room opens into a different year",tags:["mystery","cosmic"]},
+    {text:"a village whose streets rearrange after every bell",tags:["adventure","mystery"]},
+    {text:"a community greenhouse built on an old train platform",tags:["everyday","gentle"]},
+    {text:"a moonlit museum where unfinished paintings whisper",tags:["mystery","cosmic"]}
+  ],
+  characters:[
+    {text:"a retired cartographer who no longer trusts maps",tags:["mystery","adventure"]},
+    {text:"a child who can hear the emotional tone of machines",tags:["gentle","cosmic"]},
+    {text:"a night-shift baker keeping a difficult promise",tags:["everyday","gentle"]},
+    {text:"a skeptical archivist with one impossible memory",tags:["mystery","cosmic"]},
+    {text:"two estranged siblings sharing one final errand",tags:["everyday","gentle"]},
+    {text:"a gardener responsible for the last living seed",tags:["adventure","cosmic"]},
+    {text:"a shy inventor whose smallest device works too well",tags:["adventure","everyday"]},
+    {text:"a local reporter who notices what everyone else ignores",tags:["mystery","everyday"]},
+    {text:"an elderly musician who recognizes a forbidden melody",tags:["gentle","mystery"]},
+    {text:"a courier delivering a letter addressed to no one",tags:["mystery","adventure"]},
+    {text:"a student who discovers tomorrow's homework already completed",tags:["everyday","mystery"]},
+    {text:"a community organizer who refuses to abandon one empty house",tags:["everyday","adventure"]},
+    {text:"a robot trained only through bedtime stories",tags:["gentle","cosmic"]},
+    {text:"a ferry captain who has never seen the opposite shore",tags:["mystery","adventure"]},
+    {text:"a quiet neighbor carrying an unexpectedly brave plan",tags:["everyday","gentle"]}
+  ],
+  focuses:[
+    {text:"a difficult choice that cannot be delayed",tags:["adventure","mystery"]},
+    {text:"a conversation that almost happens",tags:["gentle","everyday"]},
+    {text:"someone finally telling the truth",tags:["mystery","everyday"]},
+    {text:"a promise broken and carefully repaired",tags:["gentle","everyday"]},
+    {text:"learning to rest instead of quit",tags:["gentle"]},
+    {text:"a tiny act of rebellion",tags:["adventure","everyday"]},
+    {text:"a simple ritual that changes everything",tags:["gentle","cosmic"]},
+    {text:"a secret that refuses to remain hidden",tags:["mystery"]},
+    {text:"someone receiving unexpected help",tags:["gentle","everyday"]},
+    {text:"a message that arrives many years late",tags:["mystery","cosmic"]},
+    {text:"the cost of being right for the wrong reason",tags:["mystery","everyday"]},
+    {text:"choosing who gets to remember",tags:["mystery","cosmic"]},
+    {text:"protecting a place no one else values",tags:["adventure","everyday"]},
+    {text:"discovering that forgiveness has practical work to do",tags:["gentle","everyday"]},
+    {text:"the moment a private fear becomes a public decision",tags:["adventure","mystery"]}
+  ],
+  objects:[
+    {text:"a brass key warm from someone else's hand",tags:["mystery","everyday"]},
+    {text:"a folded paper star with writing inside",tags:["gentle","mystery"]},
+    {text:"a seed packet labeled with tomorrow's date",tags:["cosmic","gentle"]},
+    {text:"a cracked pocket watch that loses exactly three minutes",tags:["mystery","cosmic"]},
+    {text:"a blue cup that appears in every family photograph",tags:["everyday","mystery"]},
+    {text:"a lantern that brightens near honest speech",tags:["gentle","cosmic"]},
+    {text:"an unsigned library card made of glass",tags:["mystery","cosmic"]},
+    {text:"a child's raincoat found perfectly dry",tags:["gentle","mystery"]},
+    {text:"a cassette containing a voice from next week",tags:["cosmic","mystery"]},
+    {text:"a small plant that leans toward forgotten names",tags:["gentle","cosmic"]},
+    {text:"a grocery receipt with one impossible item",tags:["everyday","mystery"]},
+    {text:"a compass that points toward unfinished promises",tags:["adventure","mystery"]},
+    {text:"a blank postcard that slowly develops a picture",tags:["gentle","mystery"]},
+    {text:"a rusted bell that only one person can hear",tags:["mystery","adventure"]},
+    {text:"a stone carrying a faint heartbeat",tags:["cosmic","adventure"]}
+  ],
+  twists:[
+    {text:"time quietly loops back three minutes",tags:["cosmic","mystery"]},
+    {text:"the protagonist realizes the story belongs to someone else",tags:["mystery"]},
+    {text:"the smallest detail becomes the only useful evidence",tags:["mystery","everyday"]},
+    {text:"someone trusted has been protecting the truth by lying",tags:["mystery"]},
+    {text:"the ordinary object begins to answer questions",tags:["cosmic","adventure"]},
+    {text:"the scene is being remembered from the future",tags:["cosmic","mystery"]},
+    {text:"the power fails at exactly the useful moment",tags:["everyday","adventure"]},
+    {text:"a child understands what the adults cannot perceive",tags:["gentle","mystery"]},
+    {text:"the setting itself has been trying to communicate",tags:["cosmic","mystery"]},
+    {text:"the expected ending occurs one sentence too early",tags:["mystery"]},
+    {text:"the apparent stranger has been present in every earlier scene",tags:["mystery"]},
+    {text:"the escape route is also the thing that needs rescuing",tags:["adventure"]},
+    {text:"the warning was written by the protagonist",tags:["cosmic","mystery"]},
+    {text:"the object works only when it is given away",tags:["gentle","adventure"]},
+    {text:"the conflict ends, but the ritual must still be completed",tags:["gentle","mystery"]}
+  ]
+};
 
-  const todayEl  = document.getElementById("qs-count-today");
-  const totalEl  = document.getElementById("qs-count-total");
-  const favesEl  = document.getElementById("qs-count-faves");
+const COMPONENTS=[
+  {key:"tone",label:"Tone",bank:"tones"},
+  {key:"world",label:"World",bank:"worlds"},
+  {key:"character",label:"Protagonist",bank:"characters"},
+  {key:"focus",label:"Focus",bank:"focuses"},
+  {key:"object",label:"Object",bank:"objects"},
+  {key:"twist",label:"Twist",bank:"twists"}
+];
 
-  const K = {
-    FAVES: "qs_seed_faves_v1",
-    COUNTS: "qs_seed_counts_v1"
+const MODE_TEMPLATES={
+  flash:{
+    label:"Flash Fiction",
+    quest(seed){
+      return`Write a complete flash story in ${seed.world}. Follow ${seed.character} through ${seed.focus}. Place ${seed.object} at the center of the action, keep the tone ${seed.tone}, and let the final movement reveal that ${seed.twist}.`;
+    },
+    constraints:[
+      "Use no more than three scenes.",
+      "Open with a physical action rather than explanation.",
+      "Let the last image echo the first sentence."
+    ]
+  },
+  scene:{
+    label:"Scene Study",
+    quest(seed){
+      return`Write one concentrated scene set in ${seed.world}. The scene follows ${seed.character} while confronting ${seed.focus}. Make ${seed.object} matter before the dialogue ends. Keep the atmosphere ${seed.tone}; near the close, reveal that ${seed.twist}.`;
+    },
+    constraints:[
+      "Keep the scene in one location.",
+      "Include one line of dialogue that means two things.",
+      "End on an image rather than an explanation."
+    ]
+  },
+  poem:{
+    label:"Poem or Prose Poem",
+    quest(seed){
+      return`Create a poem voiced by or about ${seed.character} in ${seed.world}. Let ${seed.object} become the central image for ${seed.focus}. Hold a ${seed.tone} atmosphere, then turn the final stanza so that ${seed.twist}.`;
+    },
+    constraints:[
+      "Repeat one image three times with a changed meaning.",
+      "Avoid naming the central emotion directly.",
+      "Let one line stand alone."
+    ]
+  },
+  comic:{
+    label:"Comic Sequence",
+    quest(seed){
+      return`Plan a six-panel comic set in ${seed.world}. Center ${seed.character} and ${seed.focus}. Introduce ${seed.object} by panel two, sustain a ${seed.tone} visual rhythm, and use the final two panels to reveal that ${seed.twist}.`;
+    },
+    constraints:[
+      "Panel one must work without dialogue.",
+      "Use one repeated visual symbol.",
+      "Give the final panel fewer words than every earlier panel."
+    ]
+  },
+  game:{
+    label:"Game Quest",
+    quest(seed){
+      return`Design a playable quest in ${seed.world}. The player assists ${seed.character} with ${seed.focus}. ${seed.object} must function as a mechanic rather than decoration. Preserve a ${seed.tone} mood and make the final objective change when ${seed.twist}.`;
+    },
+    constraints:[
+      "Define one player choice with a real consequence.",
+      "Include one nonviolent path forward.",
+      "Make the key object useful in two different ways."
+    ]
+  },
+  child:{
+    label:"Children's Tale",
+    quest(seed){
+      return`Tell an all-ages story in ${seed.world}, where ${seed.character} faces ${seed.focus}. Let ${seed.object} become a helpful clue. Keep the story ${seed.tone}, and resolve the surprise gently when ${seed.twist}.`;
+    },
+    constraints:[
+      "Use a reassuring repeating phrase.",
+      "Let kindness solve at least one practical problem.",
+      "End with a small action the reader could imitate."
+    ]
+  }
+};
+
+const $=selector=>document.querySelector(selector);
+const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
+const safeText=value=>String(value??"");
+const deepClone=value=>JSON.parse(JSON.stringify(value));
+
+let library=defaultLibrary();
+let prefs=loadPrefs();
+let currentSeed=null;
+let locks={tone:false,world:false,character:false,focus:false,object:false,twist:false};
+let timer={
+  running:false,
+  remaining:420,
+  lastTick:0
+};
+let autosaveTimer=0;
+let toastTimer=0;
+let audioContext=null;
+
+function defaultLibrary(){
+  return{
+    version:3,
+    counts:{today:0,total:0,lastLocalDay:localDay()},
+    favorites:[],
+    drafts:[],
+    recentCodes:[],
+    current:null
   };
-
-  const TONES = [
-    "soft + reflective",
-    "playful + mischievous",
-    "epic + cinematic",
-    "sacred + still",
-    "quietly hopeful",
-    "sharp + analytical",
-    "dreamlike",
-    "grounded + practical",
-    "mysterious",
-    "joyful + bright"
-  ];
-  const WORLDS = [
-    "a near-future city",
-    "an ancient library under the sea",
-    "a quiet suburban kitchen at midnight",
-    "a floating market between dimensions",
-    "a small Florida town in the rain",
-    "a classroom orbiting the Earth",
-    "a sanctuary built inside a mountain",
-    "a digital archive that became self-aware",
-    "an abandoned amusement park",
-    "a starship with only plants for crew"
-  ];
-  const FOCUS = [
-    "a difficult choice",
-    "a conversation that almost happens",
-    "someone finally telling the truth",
-    "a promise that was broken and repaired",
-    "learning to rest instead of quit",
-    "a tiny act of rebellion",
-    "a simple ritual that changes everything",
-    "a secret that refuses to stay hidden",
-    "someone receiving unexpected help",
-    "a letter that arrives late"
-  ];
-  const TWISTS = [
-    "time loops back three minutes.",
-    "the main character realizes the story is about someone else.",
-    "the smallest detail becomes the most important.",
-    "someone the reader trusted is quietly lying.",
-    "an object in the room begins to glow.",
-    "the scene is being watched from the future.",
-    "the power goes out at the worst moment.",
-    "a child understands what the adults cannot see.",
-    "the setting itself is trying to communicate.",
-    "the story ends one sentence earlier than expected."
-  ];
-
-  let currentSeed = null;
-  let faves = [];
-  let counts = {
-    today: 0,
-    total: 0,
-    lastDay: currentDate()
-  };
-
-  /* ---------- Helpers ---------- */
-  function currentDate(){
-    return new Date().toISOString().slice(0,10);
-  }
-  function rand(arr){
-    return arr[Math.floor(Math.random() * arr.length)];
-  }
-
-  function loadState(){
-    try{
-      const rawF = localStorage.getItem(K.FAVES);
-      if(rawF) faves = JSON.parse(rawF);
-    }catch(e){ faves = []; }
-
-    try{
-      const rawC = localStorage.getItem(K.COUNTS);
-      if(rawC){
-        counts = JSON.parse(rawC);
-        // reset daily if day changed
-        const today = currentDate();
-        if(counts.lastDay !== today){
-          counts.today = 0;
-          counts.lastDay = today;
-        }
-      }
-    }catch(e){}
-    updateCounters();
-    renderFaves();
-  }
-
-  function saveState(){
-    try{
-      localStorage.setItem(K.FAVES, JSON.stringify(faves));
-    }catch(e){}
-    try{
-      localStorage.setItem(K.COUNTS, JSON.stringify(counts));
-    }catch(e){}
-  }
-
-  function updateCounters(){
-    todayEl.textContent = counts.today || 0;
-    totalEl.textContent = counts.total || 0;
-    favesEl.textContent = faves.length;
-  }
-
-  function createSeed(){
-    const seed = {
-      id: Date.now(),
-      tone: rand(TONES),
-      world: rand(WORLDS),
-      focus: rand(FOCUS),
-      twist: rand(TWISTS),
-      createdAt: new Date().toISOString()
+}
+function localDay(date=new Date()){
+  const year=date.getFullYear();
+  const month=String(date.getMonth()+1).padStart(2,"0");
+  const day=String(date.getDate()).padStart(2,"0");
+  return`${year}-${month}-${day}`;
+}
+function loadPrefs(){
+  try{
+    const raw=JSON.parse(localStorage.getItem(PREF_KEY)||"{}");
+    return{
+      mode:MODE_TEMPLATES[raw.mode]?raw.mode:"scene",
+      duration:[180,420,900,1500].includes(Number(raw.duration))?Number(raw.duration):420,
+      atmosphere:["all","gentle","mystery","adventure","everyday","cosmic"].includes(raw.atmosphere)?raw.atmosphere:"all",
+      constraint:["light","balanced","full"].includes(raw.constraint)?raw.constraint:"balanced",
+      motion:raw.motion==="reduced"?"reduced":"full",
+      reading:raw.reading==="sans"?"sans":"serif",
+      sound:raw.sound==="on"?"on":"off",
+      voice:raw.voice==="on"?"on":"off"
     };
-    currentSeed = seed;
-    applySeed(seed);
-    bumpCounts();
+  }catch{
+    return{mode:"scene",duration:420,atmosphere:"all",constraint:"balanced",motion:"full",reading:"serif",sound:"off",voice:"off"};
   }
-
-  function bumpCounts(){
-    const today = currentDate();
-    if(counts.lastDay !== today){
-      counts.today = 0;
-      counts.lastDay = today;
+}
+function savePrefs(){
+  prefs={
+    mode:$("#modeSelect").value,
+    duration:Number($("#durationSelect").value),
+    atmosphere:$("#atmosphereSelect").value,
+    constraint:$("#constraintSelect").value,
+    motion:$("#motionSelect").value,
+    reading:$("#readingSelect").value,
+    sound:$("#soundSelect").value,
+    voice:$("#voiceSelect").value
+  };
+  try{localStorage.setItem(PREF_KEY,JSON.stringify(prefs));}catch{}
+}
+function normalizeSeed(raw){
+  if(!raw||typeof raw!=="object")return null;
+  const seed={
+    id:safeText(raw.id||uid("seed")).slice(0,80),
+    code:safeText(raw.code||"QSO-UNKNOWN").replace(/[^A-Z0-9-]/gi,"").toUpperCase().slice(0,40),
+    mode:MODE_TEMPLATES[raw.mode]?raw.mode:"scene",
+    duration:[180,420,900,1500].includes(Number(raw.duration))?Number(raw.duration):420,
+    atmosphere:["all","gentle","mystery","adventure","everyday","cosmic"].includes(raw.atmosphere)?raw.atmosphere:"all",
+    constraint:["light","balanced","full"].includes(raw.constraint)?raw.constraint:"balanced",
+    createdAt:Number.isFinite(Date.parse(raw.createdAt))?raw.createdAt:new Date().toISOString(),
+    daily:Boolean(raw.daily),
+    pinned:Boolean(raw.pinned)
+  };
+  for(const component of COMPONENTS){
+    const bank=BANKS[component.bank];
+    const value=safeText(raw[component.key]).slice(0,240);
+    seed[component.key]=bank.some(item=>item.text===value)?value:bank[0].text;
+  }
+  return seed;
+}
+function normalizeDraft(raw){
+  if(!raw||typeof raw!=="object")return null;
+  return{
+    id:safeText(raw.id||uid("draft")).slice(0,80),
+    seedCode:safeText(raw.seedCode||"").replace(/[^A-Z0-9-]/gi,"").toUpperCase().slice(0,40),
+    title:safeText(raw.title||"Untitled constellation").replace(/[\u0000-\u001f\u007f]/g,"").slice(0,100),
+    text:safeText(raw.text||"").replace(/\u0000/g,"").slice(0,60000),
+    updatedAt:Number.isFinite(Date.parse(raw.updatedAt))?raw.updatedAt:new Date().toISOString(),
+    pinned:Boolean(raw.pinned)
+  };
+}
+function normalizeLibrary(raw){
+  const base=defaultLibrary();
+  const source=raw&&typeof raw==="object"?raw:{};
+  const countsSource=source.counts&&typeof source.counts==="object"?source.counts:{};
+  const today=localDay();
+  const lastLocalDay=safeText(countsSource.lastLocalDay||today).slice(0,10);
+  const counts={
+    today:lastLocalDay===today?Math.round(clamp(Number(countsSource.today)||0,0,999999)):0,
+    total:Math.round(clamp(Number(countsSource.total)||0,0,99999999)),
+    lastLocalDay:today
+  };
+  const favorites=Array.isArray(source.favorites)
+    ?source.favorites.slice(0,MAX_LIBRARY).map(normalizeSeed).filter(Boolean)
+    :[];
+  const drafts=Array.isArray(source.drafts)
+    ?source.drafts.slice(0,MAX_LIBRARY).map(normalizeDraft).filter(Boolean)
+    :[];
+  return{
+    version:3,
+    counts,
+    favorites,
+    drafts,
+    recentCodes:Array.isArray(source.recentCodes)
+      ?source.recentCodes.map(value=>safeText(value).slice(0,40)).slice(0,24)
+      :[],
+    current:normalizeSeed(source.current)
+  };
+}
+function loadLibrary(){
+  try{
+    library=normalizeLibrary(JSON.parse(localStorage.getItem(STORAGE_KEY)||"null"));
+  }catch{
+    library=defaultLibrary();
+  }
+}
+function persistLibrary(){
+  try{
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(library));
+    $("#saveState").textContent="Saved";
+    return true;
+  }catch{
+    $("#saveState").textContent="Storage Full";
+    showToast("Local storage is unavailable or full.");
+    return false;
+  }
+}
+function uid(prefix){
+  let randomPart;
+  try{
+    const data=new Uint32Array(1);
+    crypto.getRandomValues(data);
+    randomPart=data[0].toString(16);
+  }catch{
+    randomPart=Math.random().toString(16).slice(2);
+  }
+  return`${prefix}_${Date.now()}_${randomPart.slice(0,8)}`;
+}
+function hashString(text){
+  let hash=2166136261>>>0;
+  for(let index=0;index<text.length;index++){
+    hash^=text.charCodeAt(index);
+    hash=Math.imul(hash,16777619);
+  }
+  return hash>>>0;
+}
+function mulberry32(seed){
+  return function(){
+    let value=seed+=0x6D2B79F5;
+    value=Math.imul(value^value>>>15,value|1);
+    value^=value+Math.imul(value^value>>>7,value|61);
+    return((value^value>>>14)>>>0)/4294967296;
+  };
+}
+function createCode(prefix="QSO"){
+  const day=localDay().replaceAll("-","");
+  let randomPart;
+  try{
+    const data=new Uint32Array(1);
+    crypto.getRandomValues(data);
+    randomPart=data[0].toString(36).toUpperCase();
+  }catch{
+    randomPart=Math.floor(Math.random()*0xffffffff).toString(36).toUpperCase();
+  }
+  return`${prefix}-${day}-${randomPart.slice(0,7).padEnd(7,"0")}`;
+}
+function itemsForAtmosphere(bankName,atmosphere){
+  const bank=BANKS[bankName];
+  if(atmosphere==="all")return bank;
+  const filtered=bank.filter(item=>item.tags.includes(atmosphere));
+  return filtered.length?filtered:bank;
+}
+function chooseFromBank(bankName,rng,atmosphere,avoidText=null){
+  const items=itemsForAtmosphere(bankName,atmosphere);
+  let choice=items[Math.floor(rng()*items.length)];
+  if(items.length>1&&avoidText){
+    let guard=0;
+    while(choice.text===avoidText&&guard<20){
+      choice=items[Math.floor(rng()*items.length)];
+      guard++;
     }
-    counts.today++;
-    counts.total++;
-    updateCounters();
-    saveState();
   }
-
-  function applySeed(seed){
-    toneEl.textContent  = seed.tone;
-    worldEl.textContent = seed.world;
-    focusEl.textContent = seed.focus;
-    twistEl.textContent = seed.twist;
-    questEl.innerHTML =
-      "<strong>3-minute quest:</strong> Write, sketch, or daydream one tiny scene set in "+
-      "<strong>"+seed.world+"</strong>, with a "+seed.tone+
-      " feeling. Focus on <strong>"+seed.focus+
-      "</strong>, and then let this happen at the end: <strong>"+seed.twist+"</strong>";
+  return choice.text;
+}
+function seedFromCode(code,baseSeed=null){
+  const rng=mulberry32(hashString(`${code}|${prefs.mode}|${prefs.atmosphere}`));
+  const seed={
+    id:uid("seed"),
+    code,
+    mode:prefs.mode,
+    duration:prefs.duration,
+    atmosphere:prefs.atmosphere,
+    constraint:prefs.constraint,
+    createdAt:new Date().toISOString(),
+    daily:code.startsWith("QSO-DAILY-"),
+    pinned:false
+  };
+  for(const component of COMPONENTS){
+    seed[component.key]=locks[component.key]&&baseSeed
+      ?baseSeed[component.key]
+      :chooseFromBank(component.bank,rng,prefs.atmosphere,baseSeed?.[component.key]||null);
   }
+  return seed;
+}
+function spinSeed({daily=false,count=true}={}){
+  refreshLocalDay();
+  const code=daily
+    ?`QSO-DAILY-${localDay().replaceAll("-","")}-${prefs.mode.toUpperCase()}`
+    :createCode();
+  currentSeed=seedFromCode(code,currentSeed);
+  library.current=deepClone(currentSeed);
+  library.recentCodes=[code,...library.recentCodes.filter(item=>item!==code)].slice(0,24);
+  if(count){
+    library.counts.today++;
+    library.counts.total++;
+  }
+  persistLibrary();
+  animateOrb();
+  renderAll();
+  loadDraftForCurrentSeed();
+  playOrbTone();
+  speakQuest();
+}
+function createPreview(){
+  const savedCounts=deepClone(library.counts);
+  const code="QSO-WELCOME-"+prefs.mode.toUpperCase();
+  currentSeed=seedFromCode(code,null);
+  library.current=deepClone(currentSeed);
+  library.counts=savedCounts;
+  persistLibrary();
+}
+function refreshLocalDay(){
+  const today=localDay();
+  if(library.counts.lastLocalDay!==today){
+    library.counts.today=0;
+    library.counts.lastLocalDay=today;
+  }
+}
+function rerollComponent(key){
+  if(!currentSeed)return;
+  const component=COMPONENTS.find(item=>item.key===key);
+  if(!component)return;
+  const code=createCode("QSO-VAR");
+  const rng=mulberry32(hashString(`${code}|${key}|${currentSeed.code}`));
+  currentSeed[key]=chooseFromBank(component.bank,rng,prefs.atmosphere,currentSeed[key]);
+  currentSeed.code=code;
+  currentSeed.id=uid("seed");
+  currentSeed.createdAt=new Date().toISOString();
+  library.current=deepClone(currentSeed);
+  persistLibrary();
+  animateOrb();
+  renderAll();
+  loadDraftForCurrentSeed();
+  playTone(560);
+}
+function newVariant(){
+  if(!currentSeed)return spinSeed();
+  const previousLocks={...locks};
+  for(const component of COMPONENTS){
+    locks[component.key]=component.key!=="tone"&&component.key!=="world";
+  }
+  spinSeed();
+  locks=previousLocks;
+  renderSeedGrid();
+}
+function unlockAll(){
+  for(const key of Object.keys(locks))locks[key]=false;
+  renderSeedGrid();
+  showToast("All constellation components unlocked.");
+}
 
-  function renderFaves(){
-    logEl.innerHTML = "";
-    if(!faves.length){
-      logEl.innerHTML = "<div class='qs-log-item'><div class='qs-log-body'>No favorite seeds yet. Save one that makes your heart light up.</div></div>";
-      return;
-    }
-    const recent = faves.slice().sort((a,b)=>b.id - a.id).slice(0,16);
-    recent.forEach((seed, index)=>{
-      const item = document.createElement("div");
-      item.className = "qs-log-item";
+function questText(seed=currentSeed){
+  if(!seed)return"Spin the orb to receive a complete story constellation.";
+  return MODE_TEMPLATES[seed.mode].quest(seed);
+}
+function selectedConstraints(seed=currentSeed){
+  if(!seed)return[];
+  const all=MODE_TEMPLATES[seed.mode].constraints;
+  const count=seed.constraint==="light"?1:seed.constraint==="full"?3:2;
+  const rng=mulberry32(hashString(`${seed.code}|constraints`));
+  const copy=[...all];
+  for(let index=copy.length-1;index>0;index--){
+    const other=Math.floor(rng()*(index+1));
+    [copy[index],copy[other]]=[copy[other],copy[index]];
+  }
+  return copy.slice(0,count);
+}
+function durationLabel(seconds){
+  return seconds<60?`${seconds} seconds`:`${Math.round(seconds/60)} minutes`;
+}
+function formatTimer(seconds){
+  const safe=Math.max(0,Math.round(seconds));
+  const minutes=Math.floor(safe/60);
+  const remaining=safe%60;
+  return`${String(minutes).padStart(2,"0")}:${String(remaining).padStart(2,"0")}`;
+}
 
-      const top = document.createElement("div");
-      top.className = "qs-log-top";
-      const title = document.createElement("div");
-      title.className = "qs-log-title";
-      title.textContent = "Seed #" + (faves.indexOf(seed)+1);
-      const date = document.createElement("div");
-      date.textContent = new Date(seed.createdAt).toLocaleString();
-      top.appendChild(title);
-      top.appendChild(date);
+function renderAll(){
+  renderSeedGrid();
+  renderQuest();
+  renderMetrics();
+  renderArchive();
+  renderOrbPalette();
+  renderTimer();
+  updateDraftMetrics();
+  $("#headerStatus").textContent=timer.running?"Writing":currentSeed?"Attuned":"Waiting";
+}
+function renderSeedGrid(){
+  const grid=$("#seedGrid");
+  grid.replaceChildren();
+  for(const component of COMPONENTS){
+    const card=document.createElement("article");
+    card.className="seed-part";
+    const head=document.createElement("div");
+    head.className="seed-part-head";
+    const label=document.createElement("span");
+    label.textContent=component.label;
+    const actions=document.createElement("div");
+    actions.className="seed-part-actions";
 
-      const tags = document.createElement("div");
-      tags.className = "qs-log-tags";
-      tags.textContent = seed.tone+" · "+seed.world;
-
-      const body = document.createElement("div");
-      body.className = "qs-log-body";
-      body.innerHTML =
-        "<span>Focus:</span> "+seed.focus+"<br/>"+
-        "<span>Twist:</span> "+seed.twist;
-
-      const actions = document.createElement("div");
-      actions.className = "qs-log-actions";
-      const useBtn = document.createElement("button");
-      useBtn.textContent = "Use";
-      useBtn.onclick = ()=> {
-        currentSeed = seed;
-        applySeed(seed);
-        smoothScrollIntoView();
-      };
-      const delBtn = document.createElement("button");
-      delBtn.textContent = "Remove";
-      delBtn.onclick = ()=> {
-        faves = faves.filter(x=>x.id !== seed.id);
-        saveState();
-        updateCounters();
-        renderFaves();
-      };
-      actions.appendChild(useBtn);
-      actions.appendChild(delBtn);
-
-      item.appendChild(top);
-      item.appendChild(tags);
-      item.appendChild(body);
-      item.appendChild(actions);
-      logEl.appendChild(item);
+    const lock=document.createElement("button");
+    lock.type="button";
+    lock.className=`lock-btn${locks[component.key]?" active":""}`;
+    lock.textContent=locks[component.key]?"Locked":"Lock";
+    lock.setAttribute("aria-pressed",String(locks[component.key]));
+    lock.setAttribute("aria-label",`${locks[component.key]?"Unlock":"Lock"} ${component.label}`);
+    lock.addEventListener("click",()=>{
+      locks[component.key]=!locks[component.key];
+      renderSeedGrid();
     });
+
+    const reroll=document.createElement("button");
+    reroll.type="button";
+    reroll.className="reroll-btn";
+    reroll.textContent="↻";
+    reroll.setAttribute("aria-label",`Reroll ${component.label}`);
+    reroll.addEventListener("click",()=>rerollComponent(component.key));
+
+    actions.append(lock,reroll);
+    head.append(label,actions);
+
+    const value=document.createElement("strong");
+    value.textContent=currentSeed?.[component.key]||"—";
+    card.append(head,value);
+    grid.appendChild(card);
+  }
+}
+function renderQuest(){
+  if(!currentSeed)return;
+  $("#seedCode").textContent=currentSeed.code;
+  $("#questKicker").textContent=`${MODE_TEMPLATES[currentSeed.mode].label} · ${durationLabel(currentSeed.duration)} Quest`;
+  $("#questCopy").textContent=questText();
+  const constraints=selectedConstraints();
+  $("#constraintCopy").textContent=`Constraint${constraints.length===1?"":"s"}: ${constraints.join(" · ")}`;
+  $("#draftCode").textContent=currentSeed.code.slice(-8);
+}
+function renderMetrics(){
+  refreshLocalDay();
+  $("#todayMetric").textContent=library.counts.today;
+  $("#totalMetric").textContent=library.counts.total;
+  $("#favoriteMetric").textContent=library.favorites.length;
+  $("#draftMetric").textContent=library.drafts.length;
+}
+function renderOrbPalette(){
+  if(!currentSeed)return;
+  const hash=hashString(currentSeed.code);
+  const hueA=28+(hash%28);
+  const hueB=210+((hash>>>5)%100);
+  $("#orbButton").style.setProperty("--orb-light",`hsl(${hueA} 78% 79%)`);
+  $("#orbButton").style.setProperty("--orb-mid",`hsl(${hueA+8} 72% 59%)`);
+  $("#orbButton").style.setProperty("--orb-violet",`hsl(${hueB} 54% 48%)`);
+}
+function renderTimer(){
+  $("#timerDisplay").textContent=formatTimer(timer.remaining);
+  $("#timerBtn").textContent=timer.running?"Pause Timer":timer.remaining<=0?"Restart Timer":"Start Timer";
+}
+function renderArchive(){
+  const query=$("#archiveSearch").value.trim().toLowerCase();
+  const filter=$("#archiveFilter").value;
+  const items=[];
+
+  library.favorites.forEach(seed=>{
+    const draft=library.drafts.find(item=>item.seedCode===seed.code);
+    items.push({
+      type:"favorite",
+      id:seed.id,
+      code:seed.code,
+      pinned:Boolean(seed.pinned||draft?.pinned),
+      updatedAt:draft?.updatedAt||seed.createdAt,
+      seed,
+      draft
+    });
+  });
+  library.drafts.forEach(draft=>{
+    if(items.some(item=>item.code===draft.seedCode))return;
+    items.push({
+      type:"draft",
+      id:draft.id,
+      code:draft.seedCode,
+      pinned:Boolean(draft.pinned),
+      updatedAt:draft.updatedAt,
+      seed:null,
+      draft
+    });
+  });
+
+  const filtered=items.filter(item=>{
+    if(filter==="favorites"&&item.type!=="favorite")return false;
+    if(filter==="drafts"&&!item.draft)return false;
+    if(filter==="pinned"&&!item.pinned)return false;
+    if(!query)return true;
+    const haystack=[
+      item.code,
+      item.seed?.tone,item.seed?.world,item.seed?.character,item.seed?.focus,
+      item.seed?.object,item.seed?.twist,
+      item.draft?.title,item.draft?.text
+    ].filter(Boolean).join(" ").toLowerCase();
+    return haystack.includes(query);
+  }).sort((a,b)=>Number(b.pinned)-Number(a.pinned)||new Date(b.updatedAt)-new Date(a.updatedAt));
+
+  const container=$("#archiveList");
+  container.replaceChildren();
+  if(!filtered.length){
+    const empty=document.createElement("div");
+    empty.className="empty-state";
+    empty.textContent="No archive items match this view.";
+    container.appendChild(empty);
+    return;
   }
 
-  function smoothScrollIntoView(){
-    try{
-      document.querySelector(".qs-current-card").scrollIntoView({behavior:"smooth", block:"center"});
-    }catch(e){}
+  filtered.forEach(item=>{
+    const article=document.createElement("article");
+    article.className=`archive-item${item.pinned?" pinned":""}`;
+
+    const pin=document.createElement("button");
+    pin.type="button";
+    pin.className="archive-pin";
+    pin.textContent=item.pinned?"★":"☆";
+    pin.setAttribute("aria-label",item.pinned?"Unpin item":"Pin item");
+    pin.addEventListener("click",()=>togglePin(item));
+
+    const copy=document.createElement("div");
+    copy.className="archive-copy";
+    const title=document.createElement("strong");
+    title.textContent=item.draft?.title||item.seed?.world||"Saved constellation";
+    const meta=document.createElement("small");
+    meta.textContent=`${item.code} · ${new Date(item.updatedAt).toLocaleString()}`;
+    const summary=document.createElement("p");
+    summary.textContent=item.seed
+      ?`${item.seed.character}; ${item.seed.focus}.`
+      :`${wordCount(item.draft?.text||"")} draft words.`;
+    copy.append(title,meta,summary);
+
+    const actions=document.createElement("div");
+    actions.className="archive-actions";
+
+    const use=document.createElement("button");
+    use.type="button";
+    use.className="btn";
+    use.textContent="Use";
+    use.addEventListener("click",()=>useArchiveItem(item));
+
+    const duplicate=document.createElement("button");
+    duplicate.type="button";
+    duplicate.className="btn";
+    duplicate.textContent="Copy";
+    duplicate.addEventListener("click",()=>copyArchiveItem(item));
+
+    const remove=document.createElement("button");
+    remove.type="button";
+    remove.className="btn danger";
+    remove.textContent="Remove";
+    remove.addEventListener("click",()=>removeArchiveItem(item));
+
+    actions.append(use,duplicate,remove);
+    article.append(pin,copy,actions);
+    container.appendChild(article);
+  });
+}
+function togglePin(item){
+  const favorite=library.favorites.find(seed=>seed.code===item.code);
+  const draft=library.drafts.find(entry=>entry.seedCode===item.code);
+  const next=!item.pinned;
+  if(favorite)favorite.pinned=next;
+  if(draft)draft.pinned=next;
+  persistLibrary();
+  renderArchive();
+}
+function useArchiveItem(item){
+  if(item.seed){
+    currentSeed=deepClone(item.seed);
+    library.current=deepClone(currentSeed);
+    prefs.mode=currentSeed.mode;
+    prefs.duration=currentSeed.duration;
+    prefs.atmosphere=currentSeed.atmosphere;
+    prefs.constraint=currentSeed.constraint;
+    applyPrefsToUi();
+    persistLibrary();
+    renderAll();
   }
+  loadDraftByCode(item.code);
+  $("#writingDesk").scrollIntoView({behavior:"smooth",block:"center"});
+}
+async function copyArchiveItem(item){
+  const text=item.seed
+    ?`${item.code}\n${questText(item.seed)}\nConstraints: ${selectedConstraints(item.seed).join(" · ")}`
+    :`${item.draft?.title||"Untitled"}\n\n${item.draft?.text||""}`;
+  await copyText(text,"Archive item copied.");
+}
+function removeArchiveItem(item){
+  if(!confirm("Remove this saved item from the local archive?"))return;
+  library.favorites=library.favorites.filter(seed=>seed.code!==item.code);
+  library.drafts=library.drafts.filter(draft=>draft.seedCode!==item.code);
+  persistLibrary();
+  renderAll();
+}
 
-  /* ---------- Events ---------- */
-  function spinOrb(){
-    orb.classList.remove("qs-spin");
-    // force reflow to restart animation
-    void orb.offsetWidth;
-    orb.classList.add("qs-spin");
-    createSeed();
+function saveFavorite(){
+  if(!currentSeed)return;
+  const existing=library.favorites.find(seed=>seed.code===currentSeed.code);
+  if(existing){
+    showToast("This constellation is already in Favorites.");
+    return;
   }
+  library.favorites.unshift({...deepClone(currentSeed),pinned:false});
+  library.favorites=library.favorites.slice(0,MAX_LIBRARY);
+  persistLibrary();
+  renderAll();
+  showToast("Constellation saved to Favorites.");
+}
+function currentDraft(){
+  if(!currentSeed)return null;
+  return library.drafts.find(draft=>draft.seedCode===currentSeed.code)||null;
+}
+function saveDraft({notify=true}={}){
+  if(!currentSeed)return;
+  const title=safeText($("#draftTitle").value).replace(/[\u0000-\u001f\u007f]/g,"").trim().slice(0,100)||"Untitled constellation";
+  const text=safeText($("#draftText").value).replace(/\u0000/g,"").slice(0,60000);
+  let draft=currentDraft();
+  if(!draft){
+    draft={
+      id:uid("draft"),
+      seedCode:currentSeed.code,
+      title,
+      text,
+      updatedAt:new Date().toISOString(),
+      pinned:false
+    };
+    library.drafts.unshift(draft);
+  }else{
+    draft.title=title;
+    draft.text=text;
+    draft.updatedAt=new Date().toISOString();
+  }
+  library.drafts=library.drafts.slice(0,MAX_LIBRARY);
+  persistLibrary();
+  renderMetrics();
+  renderArchive();
+  $("#saveState").textContent="Saved";
+  if(notify)showToast("Draft saved locally.");
+}
+function scheduleAutosave(){
+  clearTimeout(autosaveTimer);
+  $("#saveState").textContent="Editing";
+  autosaveTimer=setTimeout(()=>saveDraft({notify:false}),AUTOSAVE_DELAY);
+}
+function loadDraftForCurrentSeed(){
+  if(!currentSeed)return;
+  const draft=currentDraft();
+  $("#draftTitle").value=draft?.title||"";
+  $("#draftText").value=draft?.text||"";
+  timer.running=false;
+  timer.remaining=currentSeed.duration;
+  updateDraftMetrics();
+  renderTimer();
+}
+function loadDraftByCode(code){
+  const draft=library.drafts.find(item=>item.seedCode===code);
+  $("#draftTitle").value=draft?.title||"";
+  $("#draftText").value=draft?.text||"";
+  timer.running=false;
+  timer.remaining=currentSeed?.code===code?currentSeed.duration:prefs.duration;
+  renderTimer();
+  updateDraftMetrics();
+}
+function wordCount(text){
+  const trimmed=text.trim();
+  return trimmed?trimmed.split(/\s+/).length:0;
+}
+function updateDraftMetrics(){
+  const text=$("#draftText").value;
+  $("#wordCount").textContent=wordCount(text);
+  $("#charCount").textContent=text.length;
+  $("#draftCode").textContent=currentSeed?.code.slice(-8)||"—";
+}
+function exportDraft(){
+  if(!currentSeed)return;
+  saveDraft({notify:false});
+  const title=$("#draftTitle").value.trim()||"Untitled constellation";
+  const content=[
+    title,
+    "=".repeat(Math.min(60,title.length)),
+    "",
+    `Seed Code: ${currentSeed.code}`,
+    `Mode: ${MODE_TEMPLATES[currentSeed.mode].label}`,
+    "",
+    "QUEST",
+    questText(),
+    "",
+    "CONSTRAINTS",
+    ...selectedConstraints().map(item=>`- ${item}`),
+    "",
+    "DRAFT",
+    $("#draftText").value
+  ].join("\n");
+  const blob=new Blob([content],{type:"text/plain;charset=utf-8"});
+  const url=URL.createObjectURL(blob);
+  const anchor=document.createElement("a");
+  anchor.href=url;
+  anchor.download=`${slugify(title)||"quantum-story-draft"}.txt`;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+function slugify(value){
+  return value.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,60);
+}
 
-  orb.addEventListener("click", spinOrb);
-  btnNew.addEventListener("click", spinOrb);
-
-  btnSave.addEventListener("click", function(){
-    if(!currentSeed){
-      questEl.textContent = "Spin the orb first to generate a seed.";
-      return;
-    }
-    if(!faves.some(s=>s.id === currentSeed.id)){
-      faves.push(currentSeed);
-      saveState();
-      updateCounters();
-      renderFaves();
-      questEl.innerHTML += "<br/><br/><strong>Saved.</strong> This seed is now in your favorites log.";
+function toggleTimer(){
+  if(timer.remaining<=0)timer.remaining=currentSeed?.duration||prefs.duration;
+  timer.running=!timer.running;
+  timer.lastTick=performance.now();
+  renderTimer();
+  $("#headerStatus").textContent=timer.running?"Writing":"Attuned";
+  if(timer.running)playTone(460);
+}
+function resetTimer(){
+  timer.running=false;
+  timer.remaining=currentSeed?.duration||prefs.duration;
+  renderTimer();
+}
+function timerFrame(timestamp){
+  if(timer.running){
+    const dt=Math.max(0,(timestamp-timer.lastTick)/1000);
+    timer.lastTick=timestamp;
+    timer.remaining=Math.max(0,timer.remaining-dt);
+    if(timer.remaining<=0){
+      timer.running=false;
+      renderTimer();
+      playTone(760);
+      showToast("Writing window complete. Your draft remains open.");
     }else{
-      questEl.innerHTML += "<br/><br/><strong>Already saved.</strong> This seed is waiting for you in the log.";
+      renderTimer();
     }
-  });
+  }
+  requestAnimationFrame(timerFrame);
+}
 
-  btnClearDay.addEventListener("click", function(){
-    if(!confirm("Reset today's spin counter? Your favorites will stay safe.")) return;
-    counts.today = 0;
-    counts.lastDay = currentDate();
-    saveState();
-    updateCounters();
-  });
+function animateOrb(){
+  const orb=$("#orbButton");
+  orb.classList.remove("spin");
+  void orb.offsetWidth;
+  orb.classList.add("spin");
+}
+function playOrbTone(){
+  playTone(520);
+  setTimeout(()=>playTone(660),70);
+  setTimeout(()=>playTone(790),140);
+}
+function playTone(frequency){
+  if($("#soundSelect").value!=="on")return;
+  try{
+    if(!audioContext)audioContext=new (window.AudioContext||window.webkitAudioContext)();
+    if(audioContext.state==="suspended")audioContext.resume();
+    const oscillator=audioContext.createOscillator();
+    const gain=audioContext.createGain();
+    oscillator.type="sine";
+    oscillator.frequency.value=frequency;
+    gain.gain.setValueAtTime(.025,audioContext.currentTime);
+    gain.gain.exponentialRampToValueAtTime(.001,audioContext.currentTime+.12);
+    oscillator.connect(gain).connect(audioContext.destination);
+    oscillator.start();
+    oscillator.stop(audioContext.currentTime+.13);
+  }catch{}
+}
+function speakQuest(){
+  if($("#voiceSelect").value!=="on")return;
+  try{
+    speechSynthesis.cancel();
+    const utterance=new SpeechSynthesisUtterance(questText());
+    utterance.lang="en-US";
+    utterance.rate=.92;
+    utterance.pitch=1;
+    speechSynthesis.speak(utterance);
+  }catch{}
+}
+async function copyText(text,successMessage){
+  try{
+    await navigator.clipboard.writeText(text);
+    showToast(successMessage);
+  }catch{
+    showToast("Clipboard access is unavailable in this browser.");
+  }
+}
+function showToast(message){
+  clearTimeout(toastTimer);
+  const toast=$("#toast");
+  toast.textContent=message;
+  toast.classList.add("show");
+  toastTimer=setTimeout(()=>toast.classList.remove("show"),2200);
+}
 
-  btnClearAll.addEventListener("click", function(){
-    if(!faves.length) return;
-    if(!confirm("Clear all favorite seeds? This cannot be undone.")) return;
-    faves = [];
-    saveState();
-    updateCounters();
-    renderFaves();
-  });
+function exportLibrary(){
+  $("#dataText").value=JSON.stringify({
+    schema:"quantum-story-orb-library",
+    version:3,
+    exportedAt:new Date().toISOString(),
+    library
+  },null,2);
+  $("#dataDialog").showModal();
+}
+function importLibrary(){
+  const text=$("#dataText").value;
+  if(text.length>MAX_IMPORT_CHARS){
+    showToast("Import rejected: library exceeds one megabyte.");
+    return;
+  }
+  try{
+    const parsed=JSON.parse(text);
+    const source=parsed?.schema==="quantum-story-orb-library"?parsed.library:parsed;
+    library=normalizeLibrary(source);
+    currentSeed=library.current||normalizeSeed(library.favorites[0])||null;
+    if(!currentSeed)createPreview();
+    persistLibrary();
+    applySeedSettings();
+    renderAll();
+    loadDraftForCurrentSeed();
+    $("#dataDialog").close();
+    showToast("Validated Orb library imported.");
+  }catch{
+    showToast("Import rejected: invalid Quantum Orb JSON.");
+  }
+}
+function applySeedSettings(){
+  if(!currentSeed)return;
+  prefs.mode=currentSeed.mode;
+  prefs.duration=currentSeed.duration;
+  prefs.atmosphere=currentSeed.atmosphere;
+  prefs.constraint=currentSeed.constraint;
+  applyPrefsToUi();
+}
+function applyPrefsToUi(){
+  $("#modeSelect").value=prefs.mode;
+  $("#durationSelect").value=String(prefs.duration);
+  $("#atmosphereSelect").value=prefs.atmosphere;
+  $("#constraintSelect").value=prefs.constraint;
+  $("#motionSelect").value=prefs.motion;
+  $("#readingSelect").value=prefs.reading;
+  $("#soundSelect").value=prefs.sound;
+  $("#voiceSelect").value=prefs.voice;
+  document.body.dataset.motion=prefs.motion;
+  document.body.dataset.reading=prefs.reading;
+}
+function syncSettings(){
+  savePrefs();
+  document.body.dataset.motion=$("#motionSelect").value;
+  document.body.dataset.reading=$("#readingSelect").value;
+  if(currentSeed){
+    currentSeed.mode=prefs.mode;
+    currentSeed.duration=prefs.duration;
+    currentSeed.atmosphere=prefs.atmosphere;
+    currentSeed.constraint=prefs.constraint;
+    library.current=deepClone(currentSeed);
+    persistLibrary();
+    renderQuest();
+    resetTimer();
+  }
+}
+function copySeedCode(){
+  if(!currentSeed)return;
+  copyText(currentSeed.code,"Seed code copied.");
+}
+function copyQuest(){
+  if(!currentSeed)return;
+  const text=[
+    `${MODE_TEMPLATES[currentSeed.mode].label} · ${durationLabel(currentSeed.duration)}`,
+    `Seed Code: ${currentSeed.code}`,
+    "",
+    questText(),
+    "",
+    `Constraints: ${selectedConstraints().join(" · ")}`
+  ].join("\n");
+  copyText(text,"Writing quest copied.");
+}
 
-  /* ---------- Init ---------- */
-  loadState();
-  // soft first seed so it's not empty
-  createSeed();
+$("#orbButton").addEventListener("click",()=>spinSeed());
+$("#spinBtn").addEventListener("click",()=>spinSeed());
+$("#dailyBtn").addEventListener("click",()=>spinSeed({daily:true,count:true}));
+$("#saveFavoriteBtn").addEventListener("click",saveFavorite);
+$("#openDeskBtn").addEventListener("click",()=>{
+  $("#writingDesk").scrollIntoView({behavior:"smooth",block:"center"});
+  $("#draftText").focus();
+});
+$("#copyQuestBtn").addEventListener("click",copyQuest);
+$("#newVariantBtn").addEventListener("click",newVariant);
+$("#unlockAllBtn").addEventListener("click",unlockAll);
+$("#copyCodeBtn").addEventListener("click",copySeedCode);
+$("#dataBtn").addEventListener("click",exportLibrary);
+$("#guideBtn").addEventListener("click",()=>$("#guideDialog").showModal());
+$("#closeGuideBtn").addEventListener("click",()=>$("#guideDialog").close());
+
+[
+  "#modeSelect","#durationSelect","#atmosphereSelect","#constraintSelect",
+  "#motionSelect","#readingSelect","#soundSelect","#voiceSelect"
+].forEach(selector=>$(selector).addEventListener("change",syncSettings));
+
+$("#draftTitle").addEventListener("input",scheduleAutosave);
+$("#draftText").addEventListener("input",()=>{
+  updateDraftMetrics();
+  scheduleAutosave();
+});
+$("#timerBtn").addEventListener("click",toggleTimer);
+$("#resetTimerBtn").addEventListener("click",resetTimer);
+$("#saveDraftBtn").addEventListener("click",()=>saveDraft({notify:true}));
+$("#exportDraftBtn").addEventListener("click",exportDraft);
+
+$("#archiveSearch").addEventListener("input",renderArchive);
+$("#archiveFilter").addEventListener("change",renderArchive);
+
+$("#copyDataBtn").addEventListener("click",()=>copyText($("#dataText").value,"Library copied."));
+$("#importDataBtn").addEventListener("click",importLibrary);
+$("#closeDataBtn").addEventListener("click",()=>$("#dataDialog").close());
+
+document.addEventListener("keydown",event=>{
+  if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==="s"){
+    event.preventDefault();
+    saveDraft({notify:true});
+  }
+  if(event.key==="Escape"&&timer.running){
+    timer.running=false;
+    renderTimer();
+  }
+});
+document.addEventListener("visibilitychange",()=>{
+  if(document.hidden&&timer.running){
+    timer.running=false;
+    renderTimer();
+    showToast("Writing timer paused while the tab was hidden.");
+  }
+});
+
+loadLibrary();
+applyPrefsToUi();
+refreshLocalDay();
+if(library.current){
+  currentSeed=normalizeSeed(library.current);
+  applySeedSettings();
+}else{
+  createPreview();
+}
+renderAll();
+loadDraftForCurrentSeed();
+persistLibrary();
+requestAnimationFrame(timerFrame);
 })();
 </script>
 </body>
