@@ -1,381 +1,1594 @@
-<!DOCTYPE html>
+from pathlib import Path
+from bs4 import BeautifulSoup
+from collections import Counter
+import re
+import subprocess
+
+output = Path("/mnt/data/Chromatic_Focus_Arcade_Edition_index.html")
+
+html = r'''<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<title>Chromatic Focus — Cognitive Reflex Game</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Chromatic Focus — a responsive bubble-pop reflex and selective-attention game with progressive stages, pause controls, neon and soft-pastel color schemes, and local best scores.">
+<meta name="theme-color" content="#080b13">
+<meta name="color-scheme" content="dark light">
+<meta name="referrer" content="same-origin">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none';">
+<title>Chromatic Focus — Arcade Edition</title>
 <style>
 :root{
-  --bg:#0e0e11;
-  --panel:#141418;
-  --gold:#d4af37;
-  --soft:#eaeaea;
-  --muted:#9a9a9a;
+  --bg:#080b13;
+  --bg-2:#0b111b;
+  --panel:#121b27;
+  --panel-2:#172332;
+  --screen:#07131d;
+  --ink:#ecece8;
+  --ink-soft:#bcc2c7;
+  --muted:#87919d;
+  --faint:#5d6874;
+  --cyan:#64cedd;
+  --cyan-soft:#a0e8ef;
+  --pink:#cf6da8;
+  --pink-soft:#efa2cc;
+  --violet:#897bd5;
+  --amber:#d6b36c;
+  --mint:#79c8ad;
+  --red:#ca6d78;
+  --line:rgba(160,232,239,.15);
+  --line-strong:rgba(160,232,239,.30);
+  --shadow:0 24px 66px rgba(0,0,0,.36);
+  --shadow-small:0 12px 33px rgba(0,0,0,.26);
+  --radius:7px;
+  --weight-text:333;
+  --weight-emphasis:444;
+  --s3:3px;
+  --s7:7px;
+  --s11:11px;
+  --s14:14px;
+  --s24:24px;
+  --s33:33px;
+  --s55:55px;
+  --s66:66px;
+  --max:1111px;
+  --display:"Eurostile Extended","Microgramma D Extended","Bank Gothic","Arial Narrow","Trebuchet MS",sans-serif;
+  --sans:"Trebuchet MS",Verdana,"Segoe UI",sans-serif;
+  --mono:"Courier New",ui-monospace,SFMono-Regular,Menlo,monospace;
 }
-
+body[data-theme="soft"]{
+  --bg:#f4eef3;
+  --bg-2:#eee7f0;
+  --panel:#fbf7fa;
+  --panel-2:#f1eaf1;
+  --screen:#ebe8f2;
+  --ink:#302d3a;
+  --ink-soft:#555061;
+  --muted:#777184;
+  --faint:#9992a0;
+  --cyan:#76b8c5;
+  --cyan-soft:#a9d8df;
+  --pink:#c782a7;
+  --pink-soft:#e4acc8;
+  --violet:#9688bf;
+  --amber:#c4a264;
+  --mint:#86b7a4;
+  --red:#bb7880;
+  --line:rgba(74,68,88,.15);
+  --line-strong:rgba(74,68,88,.28);
+  --shadow:0 24px 66px rgba(76,60,83,.14);
+  --shadow-small:0 12px 33px rgba(76,60,83,.10);
+}
 *{box-sizing:border-box}
-
+html{scroll-behavior:smooth;font-synthesis:none;text-rendering:geometricPrecision;-webkit-font-smoothing:antialiased}
 body{
-  margin:3px;
+  margin:0;
+  min-width:300px;
+  min-height:100vh;
+  overflow-x:hidden;
+  color:var(--ink);
   background:var(--bg);
-  color:var(--soft);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family:var(--sans);
+  font-size:14px;
+  font-weight:var(--weight-text);
+  line-height:1.65;
+  transition:background .22s ease,color .22s ease;
 }
-
-/* ===== LAYOUT ===== */
-
-header{
-  padding:24px;
-  border-bottom:1px solid #222;
-  background:linear-gradient(180deg,#121217,#0e0e11);
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-3;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 14% -4%,rgba(100,206,221,.08),transparent 31rem),
+    radial-gradient(circle at 87% 7%,rgba(207,109,168,.07),transparent 29rem),
+    linear-gradient(180deg,var(--bg),var(--bg-2) 52%,var(--bg));
 }
-
-h1{
-  margin:0 0 7px;
-  font-weight:666;
-  letter-spacing:0.6px;
-  color:var(--gold);
+body[data-theme="soft"]::before{
+  background:
+    radial-gradient(circle at 12% 0%,rgba(118,184,197,.18),transparent 30rem),
+    radial-gradient(circle at 88% 8%,rgba(199,130,167,.16),transparent 28rem),
+    linear-gradient(180deg,#f8f3f7,#efe8f0 52%,#f5eff4);
 }
+body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-2;
+  pointer-events:none;
+  opacity:.52;
+  background-image:
+    linear-gradient(rgba(137,123,213,.035) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(100,206,221,.03) 1px,transparent 1px);
+  background-size:33px 33px;
+  mask-image:linear-gradient(to bottom,black,transparent 91%);
+}
+a{color:inherit}
+button,select,input{font:inherit}
+button{color:inherit;cursor:pointer}
+strong,b,h1,h2,h3{font-weight:var(--weight-emphasis)}
+::selection{color:#081018;background:var(--cyan-soft)}
+:focus-visible{outline:3px solid var(--cyan-soft);outline-offset:3px}
+[hidden]{display:none!important}
+.wrap{width:min(calc(100% - 22px),var(--max));margin-inline:auto}
+.skip{
+  position:fixed;
+  top:14px;
+  left:14px;
+  z-index:3000;
+  padding:11px 14px;
+  border-radius:var(--radius);
+  color:var(--bg);
+  background:var(--ink);
+  text-decoration:none;
+  transform:translateY(-180%);
+  transition:transform .18s ease;
+}
+.skip:focus{transform:none}
 
-.subtitle{
-  font-size:24px;
+/* Header */
+.site-header{
+  position:sticky;
+  top:0;
+  z-index:1200;
+  border-bottom:1px solid var(--line);
+  background:color-mix(in srgb,var(--bg) 93%,transparent);
+  backdrop-filter:blur(18px);
+  box-shadow:0 11px 33px rgba(0,0,0,.20);
+}
+.header-inner{
+  min-height:66px;
+  display:grid;
+  grid-template-columns:minmax(150px,1fr) auto minmax(150px,1fr);
+  align-items:center;
+  gap:14px;
+  padding:7px 0;
+}
+.arcade-home{
+  justify-self:start;
+  display:inline-flex;
+  align-items:center;
+  gap:11px;
+  min-width:0;
+  text-decoration:none;
+}
+.brand-mark{
+  width:44px;
+  height:44px;
+  flex:0 0 44px;
+  display:grid;
+  place-items:center;
+  border:1px solid var(--cyan);
+  border-radius:var(--radius);
+  color:var(--cyan-soft);
+  background:var(--screen);
+  font-family:var(--display);
+  font-size:14px;
+  letter-spacing:.08em;
+  box-shadow:0 0 22px rgba(100,206,221,.12);
+}
+.brand-copy{display:grid;min-width:0;line-height:1.05}
+.brand-copy strong{
+  font-family:var(--display);
+  font-size:11px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+.brand-copy small{
+  margin-top:7px;
   color:var(--muted);
+  font-family:var(--mono);
+  font-size:11px;
+  white-space:nowrap;
 }
-
-#gameWrap{
-  max-width:1111px;
-  margin:auto;
-  padding:24px;
-}
-
-/* ===== INSTRUCTIONS PANEL ===== */
-
-#instructions{
-  background:var(--panel);
-  border:1px solid #1f1f25;
-  border-radius:14px;
-  padding:18px 20px;
-  margin-bottom:18px;
-}
-
-#instructions h2{
-  margin:0 0 24px;
-  font-size:24px;
-  color:var(--gold);
-}
-
-#instructions p{
-  margin:6px 0;
+.game-id{justify-self:center;text-align:center}
+.game-id strong{
+  display:block;
+  font-family:var(--display);
   font-size:14px;
-  line-height:1.55;
-  color:#dedede;
+  letter-spacing:.18em;
+  text-transform:uppercase;
 }
-
-#instructions ul{
-  margin:10px 0 0 18px;
-  padding:7px;
-  font-size:14px;
+.game-id small{
+  display:block;
+  margin-top:3px;
+  color:var(--pink);
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.10em;
+  text-transform:uppercase;
 }
-
-#instructions li{
-  margin-bottom:7px;
+.header-state{
+  justify-self:end;
+  min-width:120px;
+  text-align:right;
+  color:var(--muted);
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
 }
+.header-state span{color:var(--mint)}
 
-/* ===== CONTROLS ===== */
-
-#controls{
+/* Intro */
+.intro{
+  padding:55px 0 33px;
+  text-align:center;
+}
+.open-line{
+  display:inline-flex;
+  align-items:center;
+  gap:11px;
+  color:var(--mint);
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+}
+.open-dot{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:var(--mint);
+  box-shadow:0 0 14px rgba(121,200,173,.42);
+}
+h1{
+  margin:24px auto 0;
+  font-family:var(--display);
+  font-size:clamp(55px,9vw,92px);
+  line-height:.86;
+  letter-spacing:-.065em;
+  text-transform:uppercase;
+  text-shadow:3px 3px 0 rgba(100,206,221,.20),-3px -3px 0 rgba(207,109,168,.18);
+}
+.subtitle{
+  max-width:760px;
+  margin:24px auto 0;
+  color:var(--ink-soft);
+  font-size:clamp(14px,1.55vw,17px);
+  line-height:1.85;
+}
+.micro-guide{
+  max-width:900px;
+  margin:24px auto 0;
   display:flex;
+  justify-content:center;
+  gap:7px;
   flex-wrap:wrap;
+}
+.micro-guide span{
+  padding:7px 11px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  color:var(--muted);
+  background:color-mix(in srgb,var(--panel) 88%,transparent);
+  font-family:var(--mono);
+  font-size:11px;
+}
+
+/* Control deck */
+.control-shell{
+  padding:14px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:color-mix(in srgb,var(--panel) 88%,transparent);
+  box-shadow:var(--shadow);
+}
+.control-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(150px,1fr));
+  gap:11px;
+}
+.control-group{
+  display:grid;
+  gap:7px;
+  text-align:center;
+}
+.control-group label{
+  color:var(--muted);
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+select,.control-button{
+  width:100%;
+  min-height:48px;
+  padding:7px 11px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  color:var(--ink);
+  background:var(--panel-2);
+}
+select:focus,.control-button:focus{border-color:var(--cyan)}
+.control-button{
+  font-family:var(--mono);
+  font-size:11px;
+  font-weight:var(--weight-emphasis);
+  letter-spacing:.07em;
+  text-transform:uppercase;
+}
+.control-button:hover:not(:disabled){
+  color:var(--cyan-soft);
+  border-color:var(--cyan);
+}
+.control-button:disabled{cursor:not-allowed;opacity:.42}
+.control-button.primary{
+  color:#081018;
+  border-color:var(--cyan);
+  background:linear-gradient(135deg,var(--cyan-soft),var(--cyan));
+  box-shadow:0 0 22px rgba(100,206,221,.12);
+}
+.control-button.pause[aria-pressed="true"]{
+  color:#081018;
+  border-color:var(--amber);
+  background:var(--amber);
+}
+.option-row{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:7px;
+  margin-top:11px;
+}
+.option-row .control-button{min-height:42px}
+.option-row .control-button[aria-pressed="true"]{
+  color:#081018;
+  border-color:var(--pink);
+  background:var(--pink);
+}
+
+/* Target */
+.target-zone{
+  padding:33px 0 24px;
+  text-align:center;
+}
+.target-panel{
+  position:relative;
+  width:min(100%,700px);
+  margin:0 auto;
+  padding:24px;
+  border:1px solid var(--line-strong);
+  border-radius:var(--radius);
+  background:
+    linear-gradient(180deg,color-mix(in srgb,var(--panel) 94%,transparent),color-mix(in srgb,var(--screen) 94%,transparent));
+  box-shadow:var(--shadow-small);
+  overflow:hidden;
+}
+.target-label{
+  margin:0;
+  color:var(--muted);
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+}
+.target-orb{
+  --target:#5d6874;
+  width:clamp(132px,22vw,196px);
+  aspect-ratio:1;
+  margin:24px auto 14px;
+  display:grid;
+  place-items:center;
+  border:7px solid color-mix(in srgb,var(--target) 70%,var(--ink));
+  border-radius:50%;
+  color:#111;
+  background:
+    radial-gradient(circle at 34% 25%,rgba(255,255,255,.58),transparent 22%),
+    var(--target);
+  box-shadow:
+    0 0 0 7px color-mix(in srgb,var(--target) 12%,transparent),
+    0 0 44px color-mix(in srgb,var(--target) 30%,transparent);
+  animation:targetPulse 2.4s ease-in-out infinite;
+  transition:background .22s ease,border-color .22s ease,box-shadow .22s ease;
+}
+.target-orb span{
+  max-width:82%;
+  padding:7px 11px;
+  border-radius:var(--radius);
+  color:#111;
+  background:rgba(255,255,255,.76);
+  font-family:var(--display);
+  font-size:clamp(24px,5vw,33px);
+  font-weight:var(--weight-emphasis);
+  line-height:1;
+  letter-spacing:.02em;
+  text-transform:uppercase;
+}
+.target-meta{
+  display:flex;
+  justify-content:center;
+  gap:14px;
+  flex-wrap:wrap;
+  color:var(--muted);
+  font-family:var(--mono);
+  font-size:11px;
+  text-transform:uppercase;
+}
+.target-progress{
+  width:min(100%,420px);
+  height:7px;
+  margin:14px auto 0;
+  overflow:hidden;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:var(--screen);
+}
+.target-progress span{
+  display:block;
+  width:0%;
+  height:100%;
+  border-radius:var(--radius);
+  background:linear-gradient(90deg,var(--cyan),var(--pink));
+  transition:width .12s linear;
+}
+@keyframes targetPulse{
+  0%,100%{transform:scale(.97);opacity:.84}
+  50%{transform:scale(1.04);opacity:1}
+}
+
+/* Game board */
+.board-shell{
+  position:relative;
+  padding:14px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:var(--panel);
+  box-shadow:var(--shadow);
+}
+.board-topline{
+  display:flex;
+  justify-content:space-between;
   gap:14px;
   align-items:center;
-  margin-bottom:24px;
-}
-
-select, button{
-  background:#16161c;
-  color:var(--soft);
-  border:1px solid #26262e;
-  padding:11px 14px;
-  border-radius:7px;
-  font-size:14px;
-}
-
-button{
-  cursor:pointer;
-  border-color:var(--gold);
-  color:var(--gold);
-}
-
-button:hover{
-  background:#1c1c22;
-}
-
-/* ===== TARGET PANEL ===== */
-
-#targetPanel{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  background:var(--panel);
-  border-radius:7px;
-  padding:14px 24px;
-  margin-bottom:7px;
-  border:2px solid #1f1f25;
-}
-
-#targetLabel{
-  font-size:7px;
+  margin-bottom:11px;
   color:var(--muted);
+  font-family:var(--mono);
+  font-size:11px;
+  text-transform:uppercase;
 }
-
-#targetColor{
-  font-size:7px;
-  font-weight:333;
-  color:var(--gold);
+.stage-progress{
+  flex:1 1 auto;
+  max-width:420px;
+  height:7px;
+  overflow:hidden;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:var(--screen);
 }
-
-/* ===== GAME AREA ===== */
-
+.stage-progress span{
+  display:block;
+  height:100%;
+  width:0%;
+  border-radius:var(--radius);
+  background:linear-gradient(90deg,var(--violet),var(--pink));
+  transition:width .12s linear;
+}
 #gameArea{
   position:relative;
-  height:666px;
-  background:radial-gradient(circle at top,#16161c,#0e0e11 70%);
-  border-radius:24px;
+  width:100%;
+  height:clamp(440px,62svh,666px);
+  min-height:440px;
   overflow:hidden;
-  border:1px solid #1f1f25;
+  border:7px solid #05080d;
+  border-radius:var(--radius);
+  background:
+    radial-gradient(circle at 50% 12%,rgba(100,206,221,.08),transparent 28rem),
+    linear-gradient(180deg,var(--screen),color-mix(in srgb,var(--bg) 94%,black));
+  touch-action:manipulation;
+  user-select:none;
+  isolation:isolate;
 }
+body[data-theme="soft"] #gameArea{
+  border-color:#ddd5df;
+  background:
+    radial-gradient(circle at 50% 10%,rgba(118,184,197,.15),transparent 26rem),
+    linear-gradient(180deg,#f3eef4,#e9e4ef);
+}
+#gameArea::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:-1;
+  pointer-events:none;
+  background:
+    repeating-linear-gradient(to bottom,transparent 0 3px,rgba(255,255,255,.022) 3px 4px),
+    linear-gradient(90deg,transparent 49.8%,rgba(255,255,255,.025) 50%,transparent 50.2%);
+}
+.board-overlay{
+  position:absolute;
+  inset:0;
+  z-index:20;
+  display:grid;
+  place-items:center;
+  padding:24px;
+  background:color-mix(in srgb,var(--screen) 82%,transparent);
+  backdrop-filter:blur(3px);
+  text-align:center;
+}
+.board-overlay[hidden]{display:none}
+.overlay-card{
+  width:min(100%,520px);
+  padding:24px;
+  border:1px solid var(--line-strong);
+  border-radius:var(--radius);
+  background:var(--panel);
+  box-shadow:var(--shadow);
+}
+.overlay-card h2{
+  margin:0;
+  font-family:var(--display);
+  font-size:33px;
+  letter-spacing:-.03em;
+  text-transform:uppercase;
+}
+.overlay-card p{margin:14px 0 0;color:var(--muted)}
+.overlay-stats{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:7px;
+  margin-top:17px;
+}
+.overlay-stats div{
+  padding:11px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:var(--panel-2);
+}
+.overlay-stats strong{
+  display:block;
+  color:var(--cyan-soft);
+  font-family:var(--mono);
+  font-size:24px;
+}
+.overlay-stats span{
+  display:block;
+  color:var(--muted);
+  font-family:var(--mono);
+  font-size:11px;
+  text-transform:uppercase;
+}
+.overlay-actions{
+  display:flex;
+  justify-content:center;
+  gap:7px;
+  flex-wrap:wrap;
+  margin-top:17px;
+}
+.overlay-actions button{min-width:160px}
+.stage-banner{
+  position:absolute;
+  top:14px;
+  left:50%;
+  z-index:12;
+  min-width:220px;
+  padding:11px 14px;
+  border:1px solid var(--pink);
+  border-radius:var(--radius);
+  color:var(--pink-soft);
+  background:rgba(10,15,24,.92);
+  box-shadow:0 0 22px rgba(207,109,168,.13);
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.10em;
+  text-align:center;
+  text-transform:uppercase;
+  transform:translate(-50%,-160%);
+  opacity:0;
+  transition:.2s ease;
+}
+.stage-banner.show{transform:translate(-50%,0);opacity:1}
 
-/* ===== BUBBLES ===== */
-
+/* Bubbles */
 .bubble{
   position:absolute;
-  width:88px;
-  height:77px;
+  left:0;
+  top:0;
+  z-index:4;
+  width:var(--bubble-size);
+  aspect-ratio:1;
+  display:grid;
+  place-items:center;
+  padding:0;
+  border:3px solid color-mix(in srgb,var(--bubble-color) 72%,white);
   border-radius:50%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:3px;
-  font-weight:222px;
-  color:#111;
+  background:
+    radial-gradient(circle at 31% 24%,rgba(255,255,255,.66),transparent 21%),
+    radial-gradient(circle at 68% 74%,rgba(0,0,0,.10),transparent 28%),
+    var(--bubble-color);
+  box-shadow:
+    inset -7px -11px 18px rgba(0,0,0,.13),
+    0 0 18px color-mix(in srgb,var(--bubble-color) 26%,transparent);
   cursor:pointer;
-  animation:rise linear forwards;
+  will-change:transform;
+  touch-action:manipulation;
+  transition:opacity .16s ease,filter .16s ease;
 }
-
+.bubble:hover{filter:brightness(1.08)}
 .bubble span{
-  background:rgba(255,255,255,0.85);
-  padding:2px 6px;
-  border-radius:999px;
-  max-width:90%;
+  max-width:78%;
+  padding:3px 7px;
+  border-radius:var(--radius);
+  color:#111;
+  background:rgba(255,255,255,.78);
+  font-family:var(--display);
+  font-size:clamp(9px,1.7vw,14px);
+  font-weight:var(--weight-emphasis);
+  line-height:1.05;
   text-align:center;
+  text-transform:uppercase;
   pointer-events:none;
+  overflow-wrap:anywhere;
+}
+.bubble.hide-label span{display:none}
+.bubble.pop-correct{filter:brightness(1.25);opacity:0;transform:scale(1.45)!important}
+.bubble.pop-wrong{filter:grayscale(.75);opacity:0;transform:scale(.55)!important}
+.pop-ring{
+  position:absolute;
+  z-index:3;
+  border:3px solid var(--ring);
+  border-radius:50%;
+  pointer-events:none;
+  animation:ringOut .34s ease-out forwards;
+}
+@keyframes ringOut{
+  from{transform:scale(.55);opacity:.9}
+  to{transform:scale(1.55);opacity:0}
 }
 
-/* ===== SCORE ===== */
-
-#scoreBar{
-  display:flex;
-  justify-content:space-between;
-  margin-top:12px;
-  font-size:14px;
+/* Stats */
+.score-grid{
+  display:grid;
+  grid-template-columns:repeat(8,minmax(0,1fr));
+  gap:7px;
+  margin-top:11px;
+}
+.score-item{
+  min-width:0;
+  padding:11px 7px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:var(--panel-2);
+  text-align:center;
+}
+.score-item strong{
+  display:block;
+  color:var(--cyan-soft);
+  font-family:var(--mono);
+  font-size:18px;
+  overflow-wrap:anywhere;
+}
+.score-item span{
+  display:block;
+  margin-top:3px;
+  color:var(--muted);
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+}
+.help-panel{
+  margin:24px auto 55px;
+  padding:17px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:color-mix(in srgb,var(--panel) 82%,transparent);
+  text-align:center;
+}
+.help-panel h2{
+  margin:0;
+  font-family:var(--display);
+  font-size:24px;
+  text-transform:uppercase;
+}
+.help-panel p{
+  max-width:860px;
+  margin:11px auto 0;
   color:var(--muted);
 }
+.help-list{
+  display:flex;
+  justify-content:center;
+  gap:7px;
+  flex-wrap:wrap;
+  margin-top:14px;
+}
+.help-list span{
+  padding:7px 11px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  color:var(--ink-soft);
+  background:var(--panel-2);
+  font-family:var(--mono);
+  font-size:11px;
+}
+footer{
+  padding:24px 0 33px;
+  border-top:1px solid var(--line);
+  color:var(--muted);
+  text-align:center;
+  font-family:var(--mono);
+  font-size:11px;
+}
 
-@keyframes rise{
-  from{transform:translateY(0)}
-  to{transform:translateY(-520px)}
+@media(max-width:900px){
+  .header-inner{grid-template-columns:1fr auto}.game-id{display:none}
+  .score-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+@media(max-width:720px){
+  .control-grid{grid-template-columns:1fr 1fr}
+  .control-group:first-child{grid-column:1/-1}
+  .option-row{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #gameArea{height:58svh;min-height:480px}
+}
+@media(max-width:520px){
+  .wrap{width:min(calc(100% - 14px),var(--max))}
+  .header-inner{grid-template-columns:minmax(0,1fr) auto}
+  .brand-copy small{display:none}
+  .intro{padding-top:33px}
+  h1{font-size:55px}
+  .control-grid{grid-template-columns:1fr}
+  .control-group:first-child{grid-column:auto}
+  .option-row{grid-template-columns:1fr 1fr}
+  .target-panel{padding:17px}
+  #gameArea{height:60svh;min-height:440px;border-width:3px}
+  .score-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .overlay-stats{grid-template-columns:1fr 1fr}
+  .overlay-actions .control-button{width:100%}
+}
+@media(max-width:380px){
+  .brand-copy strong{display:none}
+  .brand-mark{width:40px;height:40px;flex-basis:40px}
+  .header-state{min-width:80px}
+  .option-row{grid-template-columns:1fr}
+  h1{font-size:48px}
+  #gameArea{min-height:420px}
+}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .target-orb{opacity:1;transform:none}
 }
 </style>
 </head>
+<body data-theme="neon">
+<a class="skip" href="#gameArea">Skip to game board</a>
 
-<body>
-
-<header>
-  <h1>Chromatic Focus</h1>
-  <div class="subtitle">
-    A reflex & selective-attention game designed to measure cognitive filtering, reaction time, and decision accuracy.
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="arcade-home" href="./" aria-label="Return to the Arcade landing page">
+      <span class="brand-mark" aria-hidden="true">A</span>
+      <span class="brand-copy"><strong>Arcade</strong><small>Return to game hall</small></span>
+    </a>
+    <div class="game-id"><strong>Chromatic Focus</strong><small>Arcade Edition</small></div>
+    <div class="header-state">Status · <span id="headerStatus">Ready</span></div>
   </div>
 </header>
 
-<div id="gameWrap">
-
-  <!-- ===== INSTRUCTIONS ===== -->
-  <section id="instructions">
-    <h2>How This Game Works</h2>
-    <p>
-      Colored bubbles will rise from the bottom of the screen. Each bubble displays a color name.
-      Your task is to <strong>click ONLY the bubbles that match the current target color</strong>.
-    </p>
-    <p>
-      This game tests <em>selective attention</em>, <em>visual processing speed</em>,
-      and <em>impulse control</em> under increasing cognitive load.
-    </p>
-    <ul>
-      <li>🎯 Click bubbles that match the target color.</li>
-      <li>🚫 Ignore all other colors — clicking them lowers your score.</li>
-      <li>⏱ Faster correct reactions earn more points.</li>
-      <li>🧠 Higher levels introduce faster speeds and broader color sets.</li>
-    </ul>
+<main>
+  <section class="intro">
+    <div class="wrap">
+      <div class="open-line"><span class="open-dot"></span><span>Cognitive reflex cabinet online</span></div>
+      <h1>Chromatic Focus</h1>
+      <p class="subtitle">Pop only the bubbles that match the large pulsing target. Accuracy, reaction time, restraint, and focus all matter as each stage becomes faster and more demanding.</p>
+      <div class="micro-guide">
+        <span>Tap or click matching bubbles</span>
+        <span>Ignore distractors</span>
+        <span>Missed target bubbles count as misses</span>
+        <span>Stages advance automatically</span>
+      </div>
+    </div>
   </section>
 
-  <!-- ===== CONTROLS ===== -->
-  <div id="controls">
-    <select id="levelSelect">
-      <option value="fledgling">Fledgling — Gentle Focus</option>
-      <option value="artisan">Artisan — Divided Attention</option>
-      <option value="mastermind">Mastermind — Cognitive Load</option>
-    </select>
+  <section class="wrap">
+    <div class="control-shell" aria-label="Game settings">
+      <div class="control-grid">
+        <div class="control-group">
+          <label for="levelSelect">Starting level</label>
+          <select id="levelSelect">
+            <option value="fledgling">Fledgling · Gentle Focus</option>
+            <option value="artisan">Artisan · Divided Attention</option>
+            <option value="mastermind">Mastermind · Cognitive Load</option>
+            <option value="extreme">Extreme · Reflex Overdrive</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label for="schemeSelect">Color scheme</label>
+          <select id="schemeSelect">
+            <option value="neonClassic">Neon Classic</option>
+            <option value="neonBlast">Neon Full Spectrum</option>
+            <option value="softPastel">Soft Pastel Lounge</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label for="roundSelect">Stage length</label>
+          <select id="roundSelect">
+            <option value="relaxed">Relaxed · 24 seconds</option>
+            <option value="standard" selected>Standard · 18 seconds</option>
+            <option value="rapid">Rapid · 12 seconds</option>
+          </select>
+        </div>
+      </div>
 
-    <select id="paletteSelect">
-      <option value="classic">Classic Colors</option>
-      <option value="blast">Full Color Blast</option>
-    </select>
+      <div class="option-row">
+        <button class="control-button primary" id="startBtn" type="button">Start New Game</button>
+        <button class="control-button pause" id="pauseBtn" type="button" aria-pressed="false" disabled>Pause</button>
+        <button class="control-button" id="finishBtn" type="button" disabled>Finish Session</button>
+        <button class="control-button" id="soundBtn" type="button" aria-pressed="false">Sound Off</button>
+        <button class="control-button" id="labelsBtn" type="button" aria-pressed="true">Labels On</button>
+        <button class="control-button" id="motionBtn" type="button" aria-pressed="true">Pulse On</button>
+        <button class="control-button" id="clearBestBtn" type="button">Clear Best</button>
+        <button class="control-button" id="instructionsBtn" type="button">How to Play</button>
+      </div>
+    </div>
+  </section>
 
-    <button id="startBtn">Start Game</button>
-  </div>
+  <section class="target-zone">
+    <div class="wrap">
+      <div class="target-panel" aria-live="polite">
+        <p class="target-label">Current Target Color</p>
+        <div class="target-orb" id="targetOrb"><span id="targetColor">Ready</span></div>
+        <div class="target-meta">
+          <span>Changes in <strong id="targetCountdown">—</strong></span>
+          <span>Stage <strong id="targetStage">1</strong></span>
+          <span>Level <strong id="targetLevel">Fledgling</strong></span>
+        </div>
+        <div class="target-progress" aria-hidden="true"><span id="targetProgressBar"></span></div>
+      </div>
+    </div>
+  </section>
 
-  <!-- ===== TARGET ===== -->
-  <div id="targetPanel">
-    <div id="targetLabel">Current Target</div>
-    <div id="targetColor">—</div>
-  </div>
+  <section class="wrap">
+    <div class="board-shell">
+      <div class="board-topline">
+        <span id="stageLabel">Stage 1 · Ready</span>
+        <div class="stage-progress" aria-hidden="true"><span id="stageProgressBar"></span></div>
+        <span id="speedLabel">Speed 1.0×</span>
+      </div>
 
-  <!-- ===== GAME ===== -->
-  <div id="gameArea"></div>
+      <div id="gameArea" aria-label="Chromatic Focus bubble game area">
+        <div class="stage-banner" id="stageBanner">Stage 2</div>
 
-  <div id="scoreBar">
-    <div>Score: <span id="score">0</span></div>
-    <div>Misses: <span id="misses">0</span></div>
-  </div>
+        <div class="board-overlay" id="boardOverlay">
+          <div class="overlay-card">
+            <h2 id="overlayTitle">Ready Player</h2>
+            <p id="overlayText">Choose a level and color scheme, then start the game. The target bubble above shows the color to pop.</p>
+            <div class="overlay-stats" id="overlayStats" hidden></div>
+            <div class="overlay-actions">
+              <button class="control-button primary" id="overlayStartBtn" type="button">Start Game</button>
+              <button class="control-button" id="overlayResumeBtn" type="button" hidden>Resume</button>
+            </div>
+          </div>
+        </div>
+      </div>
 
-</div>
+      <div class="score-grid" aria-label="Live game statistics">
+        <div class="score-item"><strong id="score">0</strong><span>Score</span></div>
+        <div class="score-item"><strong id="bestScore">0</strong><span>Best</span></div>
+        <div class="score-item"><strong id="stage">1</strong><span>Stage</span></div>
+        <div class="score-item"><strong id="timer">00:00</strong><span>Time</span></div>
+        <div class="score-item"><strong id="accuracy">100%</strong><span>Accuracy</span></div>
+        <div class="score-item"><strong id="streak">0</strong><span>Streak</span></div>
+        <div class="score-item"><strong id="misses">0</strong><span>Misses</span></div>
+        <div class="score-item"><strong id="reaction">—</strong><span>Last Reflex</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap help-panel" id="instructions">
+    <h2>How This Cabinet Works</h2>
+    <p>Match the bubble’s actual color to the large target above. Correct bubbles earn points based on reaction speed and streak. Wrong taps reduce the score. Letting a target bubble escape counts as a miss, while safely ignoring distractor bubbles does not.</p>
+    <div class="help-list">
+      <span>Space · Pause or resume</span>
+      <span>R · Restart</span>
+      <span>Esc · Pause</span>
+      <span>Labels can be hidden for a harder challenge</span>
+      <span>The game pauses when the browser tab is hidden</span>
+    </div>
+  </section>
+</main>
+
+<footer>Chromatic Focus™ · Arcade Edition · Local scores only · No account or outside service required</footer>
 
 <script>
-/* ===============================
-   GAME CONFIGURATION
-================================ */
+(()=>{
+"use strict";
 
-const LANES = 6;
-let spawnTimer;
-let score = 0;
-let misses = 0;
-let currentTarget = null;
-let startTime = 0;
+const BEST_KEY="chromatic_focus_best_v3";
+const PREF_KEY="chromatic_focus_preferences_v3";
 
-/* ===== PALETTES ===== */
-
-const palettes = {
-  classic:[
-    {name:"Red",hex:"#ef4444"},
-    {name:"Blue",hex:"#3b82f6"},
-    {name:"Green",hex:"#22c55e"},
-    {name:"Yellow",hex:"#eab308"},
-    {name:"Purple",hex:"#a855f7"},
-    {name:"Orange",hex:"#fb923c"}
-  ],
-  blast:[
-    {name:"Crimson",hex:"#dc2626"},
-    {name:"Rose",hex:"#fb7185"},
-    {name:"Magenta",hex:"#e11d48"},
-    {name:"Azure",hex:"#38bdf8"},
-    {name:"Royal Blue",hex:"#2563eb"},
-    {name:"Indigo",hex:"#6366f1"},
-    {name:"Emerald",hex:"#10b981"},
-    {name:"Mint",hex:"#6ee7b7"},
-    {name:"Lime",hex:"#84cc16"},
-    {name:"Amber",hex:"#f59e0b"},
-    {name:"Gold",hex:"#facc15"},
-    {name:"Tangerine",hex:"#fb923c"},
-    {name:"Violet",hex:"#8b5cf6"},
-    {name:"Plum",hex:"#a855f7"}
-  ]
+const schemes={
+  neonClassic:{
+    theme:"neon",
+    colors:[
+      {name:"Red",hex:"#ef5b63"},
+      {name:"Blue",hex:"#4f91ee"},
+      {name:"Green",hex:"#42c985"},
+      {name:"Yellow",hex:"#e9c84d"},
+      {name:"Purple",hex:"#a779e8"},
+      {name:"Orange",hex:"#ef9450"}
+    ]
+  },
+  neonBlast:{
+    theme:"neon",
+    colors:[
+      {name:"Crimson",hex:"#dc4f5c"},
+      {name:"Rose",hex:"#ee7e9d"},
+      {name:"Magenta",hex:"#d75aa5"},
+      {name:"Azure",hex:"#55bfe8"},
+      {name:"Royal Blue",hex:"#4e78dd"},
+      {name:"Indigo",hex:"#7169dd"},
+      {name:"Emerald",hex:"#33bd8d"},
+      {name:"Mint",hex:"#74d2b7"},
+      {name:"Lime",hex:"#9acb4a"},
+      {name:"Amber",hex:"#e0a741"},
+      {name:"Gold",hex:"#e0c54c"},
+      {name:"Tangerine",hex:"#ed8a48"},
+      {name:"Violet",hex:"#946fe5"},
+      {name:"Plum",hex:"#b268d8"}
+    ]
+  },
+  softPastel:{
+    theme:"soft",
+    colors:[
+      {name:"Rose",hex:"#efa9ba"},
+      {name:"Sky",hex:"#9fc8e6"},
+      {name:"Mint",hex:"#a8d8c4"},
+      {name:"Butter",hex:"#efd891"},
+      {name:"Lilac",hex:"#c7b7e5"},
+      {name:"Peach",hex:"#efb48e"},
+      {name:"Aqua",hex:"#9fdad5"},
+      {name:"Plum",hex:"#c7a5c6"}
+    ]
+  }
 };
 
-/* ===== LEVELS ===== */
-
-const levels = {
-  fledgling:{interval:900,speed:5200},
-  artisan:{interval:650,speed:3600},
-  mastermind:{interval:480,speed:2600}
+const levels={
+  fledgling:{
+    label:"Fledgling",
+    interval:1050,
+    duration:7000,
+    bubble:96,
+    lanes:5,
+    targetEvery:14,
+    targetBias:.38,
+    burstChance:0
+  },
+  artisan:{
+    label:"Artisan",
+    interval:820,
+    duration:5400,
+    bubble:86,
+    lanes:6,
+    targetEvery:11,
+    targetBias:.32,
+    burstChance:.04
+  },
+  mastermind:{
+    label:"Mastermind",
+    interval:620,
+    duration:4100,
+    bubble:76,
+    lanes:7,
+    targetEvery:8,
+    targetBias:.27,
+    burstChance:.10
+  },
+  extreme:{
+    label:"Extreme",
+    interval:430,
+    duration:2900,
+    bubble:68,
+    lanes:8,
+    targetEvery:5.5,
+    targetBias:.22,
+    burstChance:.18
+  }
 };
 
-/* ===============================
-   GAME LOGIC
-================================ */
+const stageDurations={relaxed:24,standard:18,rapid:12};
+const $=selector=>document.querySelector(selector);
 
-const gameArea = document.getElementById("gameArea");
+const state={
+  running:false,
+  paused:false,
+  score:0,
+  correct:0,
+  wrong:0,
+  misses:0,
+  streak:0,
+  bestStreak:0,
+  stage:1,
+  activeTime:0,
+  stageTime:0,
+  targetTime:0,
+  lastFrame:0,
+  spawnClock:0,
+  lastStatsPaint:0,
+  lastReaction:null,
+  currentTarget:null,
+  bubbles:new Map(),
+  bubbleSerial:0,
+  showLabels:true,
+  sound:false,
+  pulse:true,
+  audioContext:null,
+  bestScore:0,
+  autoPaused:false,
+  boardWidth:0,
+  boardHeight:0
+};
 
-function pickTarget(palette){
-  currentTarget = palette[Math.floor(Math.random()*palette.length)];
-  document.getElementById("targetColor").textContent = currentTarget.name;
+function loadPreferences(){
+  try{
+    const saved=JSON.parse(localStorage.getItem(PREF_KEY)||"{}");
+    if(saved.level&&levels[saved.level])$("#levelSelect").value=saved.level;
+    if(saved.scheme&&schemes[saved.scheme])$("#schemeSelect").value=saved.scheme;
+    if(saved.round&&stageDurations[saved.round])$("#roundSelect").value=saved.round;
+    state.sound=Boolean(saved.sound);
+    state.showLabels=saved.showLabels!==false;
+    state.pulse=saved.pulse!==false;
+  }catch{}
 }
-
-function spawnBubble(){
-  const palette = palettes[paletteSelect.value];
-  const rect = gameArea.getBoundingClientRect();
-
-  const el = document.createElement("div");
-  el.className = "bubble";
-
-  const bias = Math.random() < 0.22;
-  const color = bias ? currentTarget : palette[Math.floor(Math.random()*palette.length)];
-
-  el.style.background = color.hex;
-  el.innerHTML = `<span>${color.name}</span>`;
-
-  const laneWidth = rect.width / LANES;
-  const lane = Math.floor(Math.random()*LANES);
-  el.style.left = (lane * laneWidth + (laneWidth-72)/2) + "px";
-  el.style.bottom = (-90 - Math.random()*60) + "px";
-
-  el.style.animationDuration = levels[levelSelect.value].speed+"ms";
-
-  const born = performance.now();
-
-  el.onclick = ()=>{
-    if(color.name === currentTarget.name){
-      const rt = performance.now() - born;
-      score += Math.max(5, Math.floor(3000/rt*10));
-    }else{
-      score -= 5;
-      misses++;
-    }
-    updateScore();
-    el.remove();
+function savePreferences(){
+  try{
+    localStorage.setItem(PREF_KEY,JSON.stringify({
+      level:$("#levelSelect").value,
+      scheme:$("#schemeSelect").value,
+      round:$("#roundSelect").value,
+      sound:state.sound,
+      showLabels:state.showLabels,
+      pulse:state.pulse
+    }));
+  }catch{}
+}
+function loadBest(){
+  try{
+    const data=JSON.parse(localStorage.getItem(BEST_KEY)||"{}");
+    const key=bestKey();
+    state.bestScore=Number.isFinite(data[key])?data[key]:0;
+  }catch{state.bestScore=0;}
+  $("#bestScore").textContent=state.bestScore;
+}
+function saveBest(){
+  if(state.score<=state.bestScore)return;
+  state.bestScore=state.score;
+  $("#bestScore").textContent=state.bestScore;
+  try{
+    const data=JSON.parse(localStorage.getItem(BEST_KEY)||"{}");
+    data[bestKey()]=state.bestScore;
+    localStorage.setItem(BEST_KEY,JSON.stringify(data));
+  }catch{}
+}
+function clearBest(){
+  state.bestScore=0;
+  $("#bestScore").textContent="0";
+  try{
+    const data=JSON.parse(localStorage.getItem(BEST_KEY)||"{}");
+    delete data[bestKey()];
+    localStorage.setItem(BEST_KEY,JSON.stringify(data));
+  }catch{}
+}
+function bestKey(){
+  return `${$("#levelSelect").value}:${$("#schemeSelect").value}`;
+}
+function currentScheme(){return schemes[$("#schemeSelect").value];}
+function currentLevel(){return levels[$("#levelSelect").value];}
+function stageLength(){return stageDurations[$("#roundSelect").value];}
+function formatTime(seconds){
+  const total=Math.max(0,Math.floor(seconds));
+  const minutes=Math.floor(total/60);
+  return `${String(minutes).padStart(2,"0")}:${String(total%60).padStart(2,"0")}`;
+}
+function accuracy(){
+  const attempts=state.correct+state.wrong+state.misses;
+  return attempts?Math.round(state.correct/attempts*100):100;
+}
+function applyScheme(){
+  const scheme=currentScheme();
+  document.body.dataset.theme=scheme.theme;
+  document.querySelector('meta[name="theme-color"]').setAttribute("content",scheme.theme==="soft"?"#f4eef3":"#080b13");
+  savePreferences();
+  loadBest();
+  if(!state.running)pickTarget(true);
+}
+function syncButtons(){
+  $("#soundBtn").setAttribute("aria-pressed",String(state.sound));
+  $("#soundBtn").textContent=state.sound?"Sound On":"Sound Off";
+  $("#labelsBtn").setAttribute("aria-pressed",String(state.showLabels));
+  $("#labelsBtn").textContent=state.showLabels?"Labels On":"Labels Off";
+  $("#motionBtn").setAttribute("aria-pressed",String(state.pulse));
+  $("#motionBtn").textContent=state.pulse?"Pulse On":"Pulse Off";
+  $("#targetOrb").style.animationPlayState=state.pulse?"running":"paused";
+  $("#targetOrb").style.opacity=state.pulse?"":"1";
+  $("#targetOrb").style.transform=state.pulse?"":"none";
+}
+function boardSize(){
+  const rect=$("#gameArea").getBoundingClientRect();
+  state.boardWidth=rect.width;
+  state.boardHeight=rect.height;
+}
+function effectiveDifficulty(){
+  const base=currentLevel();
+  const step=state.stage-1;
+  const scale=1+step*.085;
+  return{
+    interval:Math.max(220,base.interval/scale),
+    duration:Math.max(1800,base.duration*Math.pow(.925,step)),
+    bubble:Math.max(48,base.bubble-step*2),
+    lanes:base.lanes+Math.floor(step/3),
+    targetEvery:Math.max(3.2,base.targetEvery-step*.42),
+    targetBias:Math.max(.16,base.targetBias-step*.012),
+    burstChance:Math.min(.38,base.burstChance+step*.025),
+    speedScale:scale
   };
-
-  el.addEventListener("animationend",()=>{
-    misses++;
-    updateScore();
-    el.remove();
+}
+function pickTarget(clear=true){
+  const colors=currentScheme().colors;
+  let next=colors[Math.floor(Math.random()*colors.length)];
+  if(colors.length>1&&state.currentTarget){
+    while(next.name===state.currentTarget.name){
+      next=colors[Math.floor(Math.random()*colors.length)];
+    }
+  }
+  state.currentTarget=next;
+  state.targetTime=0;
+  $("#targetColor").textContent=next.name;
+  $("#targetOrb").style.setProperty("--target",next.hex);
+  if(clear)clearBubbles(false);
+}
+function clearBubbles(animate=false){
+  state.bubbles.forEach(bubble=>{
+    if(animate)bubble.el.classList.add("pop-wrong");
+    setTimeout(()=>bubble.el.remove(),animate?150:0);
   });
-
-  gameArea.appendChild(el);
+  state.bubbles.clear();
 }
-
-function updateScore(){
-  document.getElementById("score").textContent = score;
-  document.getElementById("misses").textContent = misses;
-}
-
 function startGame(){
-  clearInterval(spawnTimer);
-  gameArea.innerHTML = "";
-  score = 0;
-  misses = 0;
-  updateScore();
-
-  const palette = palettes[paletteSelect.value];
-  pickTarget(palette);
-
-  spawnTimer = setInterval(spawnBubble, levels[levelSelect.value].interval);
+  clearBubbles(false);
+  boardSize();
+  state.running=true;
+  state.paused=false;
+  state.score=0;
+  state.correct=0;
+  state.wrong=0;
+  state.misses=0;
+  state.streak=0;
+  state.bestStreak=0;
+  state.stage=1;
+  state.activeTime=0;
+  state.stageTime=0;
+  state.targetTime=0;
+  state.lastFrame=performance.now();
+  state.spawnClock=0;
+  state.lastReaction=null;
+  state.autoPaused=false;
+  pickTarget(false);
+  $("#boardOverlay").hidden=true;
+  $("#pauseBtn").disabled=false;
+  $("#finishBtn").disabled=false;
+  $("#pauseBtn").setAttribute("aria-pressed","false");
+  $("#pauseBtn").textContent="Pause";
+  $("#headerStatus").textContent="Playing";
+  savePreferences();
+  loadBest();
+  renderStats(true);
+}
+function togglePause(forcePause=false){
+  if(!state.running)return;
+  const shouldPause=forcePause?true:!state.paused;
+  state.paused=shouldPause;
+  if(state.paused){
+    $("#pauseBtn").setAttribute("aria-pressed","true");
+    $("#pauseBtn").textContent="Resume";
+    $("#headerStatus").textContent="Paused";
+    $("#overlayTitle").textContent="Game Paused";
+    $("#overlayText").textContent="Your bubbles, timer, target, and stage progression are frozen.";
+    $("#overlayStats").hidden=true;
+    $("#overlayStartBtn").hidden=true;
+    $("#overlayResumeBtn").hidden=false;
+    $("#boardOverlay").hidden=false;
+  }else{
+    state.lastFrame=performance.now();
+    $("#pauseBtn").setAttribute("aria-pressed","false");
+    $("#pauseBtn").textContent="Pause";
+    $("#headerStatus").textContent="Playing";
+    $("#boardOverlay").hidden=true;
+    $("#overlayResumeBtn").hidden=true;
+    $("#overlayStartBtn").hidden=false;
+  }
+}
+function finishGame(){
+  if(!state.running)return;
+  state.running=false;
+  state.paused=false;
+  clearBubbles(true);
+  saveBest();
+  $("#pauseBtn").disabled=true;
+  $("#finishBtn").disabled=true;
+  $("#pauseBtn").setAttribute("aria-pressed","false");
+  $("#pauseBtn").textContent="Pause";
+  $("#headerStatus").textContent="Complete";
+  $("#overlayTitle").textContent="Session Complete";
+  $("#overlayText").textContent=`You reached stage ${state.stage} on ${currentLevel().label}.`;
+  $("#overlayStats").innerHTML=`
+    <div><strong>${state.score}</strong><span>Score</span></div>
+    <div><strong>${accuracy()}%</strong><span>Accuracy</span></div>
+    <div><strong>${state.bestStreak}</strong><span>Best Streak</span></div>
+    <div><strong>${formatTime(state.activeTime)}</strong><span>Active Time</span></div>`;
+  $("#overlayStats").hidden=false;
+  $("#overlayStartBtn").hidden=false;
+  $("#overlayStartBtn").textContent="Play Again";
+  $("#overlayResumeBtn").hidden=true;
+  $("#boardOverlay").hidden=false;
+  renderStats(true);
+}
+function stageUp(){
+  state.stage+=1;
+  state.stageTime=0;
+  pickTarget(true);
+  $("#stageBanner").textContent=`Stage ${state.stage} · Speed Increasing`;
+  $("#stageBanner").classList.add("show");
+  setTimeout(()=>$("#stageBanner").classList.remove("show"),1300);
+  playTone("stage");
+}
+function chooseBubbleColor(){
+  const colors=currentScheme().colors;
+  if(Math.random()<effectiveDifficulty().targetBias)return state.currentTarget;
+  let color=colors[Math.floor(Math.random()*colors.length)];
+  if(colors.length>1){
+    while(color.name===state.currentTarget.name){
+      color=colors[Math.floor(Math.random()*colors.length)];
+    }
+  }
+  return color;
+}
+function spawnBubble(){
+  if(!state.running||state.paused)return;
+  boardSize();
+  const difficulty=effectiveDifficulty();
+  const size=Math.min(difficulty.bubble,Math.max(48,state.boardWidth/4.1));
+  const maxLanes=Math.max(3,Math.floor(state.boardWidth/(size+7)));
+  const lanes=Math.max(3,Math.min(difficulty.lanes,maxLanes));
+  const laneWidth=state.boardWidth/lanes;
+  const lane=Math.floor(Math.random()*lanes);
+  const color=chooseBubbleColor();
+  const isTarget=color.name===state.currentTarget.name;
+  const el=document.createElement("button");
+  el.type="button";
+  el.className=`bubble${state.showLabels?"":" hide-label"}`;
+  el.style.setProperty("--bubble-size",`${size}px`);
+  el.style.setProperty("--bubble-color",color.hex);
+  el.setAttribute("aria-label",`${color.name} bubble${isTarget?", current target":""}`);
+  el.innerHTML=`<span>${color.name}</span>`;
+  const x=Math.max(0,Math.min(state.boardWidth-size,lane*laneWidth+(laneWidth-size)/2));
+  const y=state.boardHeight+size*.35;
+  const distance=state.boardHeight+size*1.7;
+  const speed=distance/(difficulty.duration/1000);
+  const id=++state.bubbleSerial;
+  const bubble={id,el,color,isTarget,size,x,y,speed,bornAt:state.activeTime,dead:false};
+  state.bubbles.set(id,bubble);
+  el.style.transform=`translate3d(${x}px,${y}px,0)`;
+  el.addEventListener("pointerdown",event=>{
+    event.preventDefault();
+    popBubble(id);
+  },{passive:false});
+  $("#gameArea").appendChild(el);
+}
+function spawnWave(){
+  spawnBubble();
+  const chance=effectiveDifficulty().burstChance;
+  if(Math.random()<chance){
+    setTimeout(()=>{
+      if(state.running&&!state.paused)spawnBubble();
+    },100);
+  }
+}
+function popBubble(id){
+  const bubble=state.bubbles.get(id);
+  if(!bubble||bubble.dead||!state.running||state.paused)return;
+  bubble.dead=true;
+  const reaction=Math.max(.08,state.activeTime-bubble.bornAt);
+  state.lastReaction=reaction;
+  if(bubble.color.name===state.currentTarget.name){
+    state.correct+=1;
+    state.streak+=1;
+    state.bestStreak=Math.max(state.bestStreak,state.streak);
+    const reflex=Math.max(10,Math.round(125-reaction*24));
+    const streakBonus=Math.min(50,state.streak*3);
+    const stageBonus=state.stage*4;
+    state.score+=reflex+streakBonus+stageBonus;
+    bubble.el.classList.add("pop-correct");
+    makeRing(bubble,true);
+    playTone("correct");
+  }else{
+    state.wrong+=1;
+    state.misses+=1;
+    state.streak=0;
+    state.score=Math.max(0,state.score-8);
+    bubble.el.classList.add("pop-wrong");
+    makeRing(bubble,false);
+    playTone("wrong");
+  }
+  state.bubbles.delete(id);
+  setTimeout(()=>bubble.el.remove(),170);
+  saveBest();
+  renderStats(true);
+}
+function makeRing(bubble,correct){
+  const ring=document.createElement("span");
+  ring.className="pop-ring";
+  ring.style.width=`${bubble.size}px`;
+  ring.style.height=`${bubble.size}px`;
+  ring.style.left=`${bubble.x}px`;
+  ring.style.top=`${bubble.y}px`;
+  ring.style.setProperty("--ring",correct?"var(--cyan)":"var(--red)");
+  $("#gameArea").appendChild(ring);
+  setTimeout(()=>ring.remove(),380);
+}
+function missBubble(id){
+  const bubble=state.bubbles.get(id);
+  if(!bubble)return;
+  state.bubbles.delete(id);
+  bubble.el.remove();
+  if(bubble.isTarget){
+    state.misses+=1;
+    state.streak=0;
+    state.score=Math.max(0,state.score-3);
+    playTone("miss");
+  }
+}
+function moveBubbles(dt){
+  state.bubbles.forEach((bubble,id)=>{
+    bubble.y-=bubble.speed*dt;
+    if(bubble.y+bubble.size<0){
+      missBubble(id);
+      return;
+    }
+    bubble.x=Math.max(0,Math.min(state.boardWidth-bubble.size,bubble.x));
+    bubble.el.style.transform=`translate3d(${bubble.x}px,${bubble.y}px,0)`;
+  });
+}
+function renderStats(force=false){
+  const now=performance.now();
+  if(!force&&now-state.lastStatsPaint<100)return;
+  state.lastStatsPaint=now;
+  const difficulty=effectiveDifficulty();
+  const stageRatio=Math.min(1,state.stageTime/stageLength());
+  const targetRatio=Math.min(1,state.targetTime/difficulty.targetEvery);
+  $("#score").textContent=state.score;
+  $("#bestScore").textContent=Math.max(state.bestScore,state.score);
+  $("#stage").textContent=state.stage;
+  $("#timer").textContent=formatTime(state.activeTime);
+  $("#accuracy").textContent=`${accuracy()}%`;
+  $("#streak").textContent=state.streak;
+  $("#misses").textContent=state.misses;
+  $("#reaction").textContent=state.lastReaction===null?"—":`${Math.round(state.lastReaction*1000)}ms`;
+  $("#targetStage").textContent=state.stage;
+  $("#targetLevel").textContent=currentLevel().label;
+  $("#targetCountdown").textContent=state.running?`${Math.max(0,difficulty.targetEvery-state.targetTime).toFixed(1)}s`:"—";
+  $("#targetProgressBar").style.width=`${targetRatio*100}%`;
+  $("#stageProgressBar").style.width=`${stageRatio*100}%`;
+  $("#stageLabel").textContent=`Stage ${state.stage} · ${state.running?(state.paused?"Paused":"Active"):"Ready"}`;
+  $("#speedLabel").textContent=`Speed ${difficulty.speedScale.toFixed(1)}×`;
+}
+function gameLoop(timestamp){
+  const delta=Math.min(.05,Math.max(0,(timestamp-state.lastFrame)/1000||0));
+  state.lastFrame=timestamp;
+  if(state.running&&!state.paused){
+    state.activeTime+=delta;
+    state.stageTime+=delta;
+    state.targetTime+=delta;
+    state.spawnClock+=delta*1000;
+    const difficulty=effectiveDifficulty();
+    while(state.spawnClock>=difficulty.interval){
+      state.spawnClock-=difficulty.interval;
+      spawnWave();
+    }
+    if(state.targetTime>=difficulty.targetEvery)pickTarget(true);
+    if(state.stageTime>=stageLength())stageUp();
+    moveBubbles(delta);
+    renderStats();
+  }
+  requestAnimationFrame(gameLoop);
+}
+function playTone(type){
+  if(!state.sound)return;
+  try{
+    if(!state.audioContext)state.audioContext=new (window.AudioContext||window.webkitAudioContext)();
+    const ctx=state.audioContext;
+    const osc=ctx.createOscillator();
+    const gain=ctx.createGain();
+    const map={
+      correct:[620,.045,"sine"],
+      wrong:[165,.06,"square"],
+      miss:[220,.035,"triangle"],
+      stage:[820,.065,"sine"]
+    };
+    const [frequency,volume,wave]=map[type]||map.correct;
+    osc.type=wave;
+    osc.frequency.setValueAtTime(frequency,ctx.currentTime);
+    gain.gain.setValueAtTime(volume,ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.13);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime+.14);
+  }catch{}
+}
+function showInstructions(){
+  $("#instructions").scrollIntoView({behavior:"smooth",block:"center"});
 }
 
-/* ===== EVENTS ===== */
+loadPreferences();
+applyScheme();
+syncButtons();
+loadBest();
+pickTarget(false);
+renderStats(true);
+requestAnimationFrame(gameLoop);
 
-startBtn.onclick = startGame;
+$("#startBtn").addEventListener("click",startGame);
+$("#overlayStartBtn").addEventListener("click",startGame);
+$("#pauseBtn").addEventListener("click",()=>togglePause());
+$("#overlayResumeBtn").addEventListener("click",()=>togglePause());
+$("#finishBtn").addEventListener("click",finishGame);
+$("#soundBtn").addEventListener("click",()=>{
+  state.sound=!state.sound;
+  syncButtons();
+  savePreferences();
+  if(state.sound)playTone("correct");
+});
+$("#labelsBtn").addEventListener("click",()=>{
+  state.showLabels=!state.showLabels;
+  document.querySelectorAll(".bubble").forEach(el=>el.classList.toggle("hide-label",!state.showLabels));
+  syncButtons();
+  savePreferences();
+});
+$("#motionBtn").addEventListener("click",()=>{
+  state.pulse=!state.pulse;
+  syncButtons();
+  savePreferences();
+});
+$("#clearBestBtn").addEventListener("click",clearBest);
+$("#instructionsBtn").addEventListener("click",showInstructions);
+$("#schemeSelect").addEventListener("change",()=>{
+  applyScheme();
+  savePreferences();
+  if(state.running)startGame();
+});
+$("#levelSelect").addEventListener("change",()=>{
+  savePreferences();
+  loadBest();
+  $("#targetLevel").textContent=currentLevel().label;
+  if(state.running)startGame();
+});
+$("#roundSelect").addEventListener("change",()=>{
+  savePreferences();
+  if(state.running){
+    state.stageTime=0;
+    renderStats(true);
+  }
+});
+
+document.addEventListener("keydown",event=>{
+  if(/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName))return;
+  if(event.code==="Space"){
+    event.preventDefault();
+    togglePause();
+  }
+  if(event.key.toLowerCase()==="r"){
+    event.preventDefault();
+    startGame();
+  }
+  if(event.key==="Escape"&&state.running&&!state.paused){
+    event.preventDefault();
+    togglePause(true);
+  }
+});
+document.addEventListener("visibilitychange",()=>{
+  if(document.hidden&&state.running&&!state.paused){
+    state.autoPaused=true;
+    togglePause(true);
+  }
+});
+window.addEventListener("resize",()=>{
+  boardSize();
+  state.bubbles.forEach(bubble=>{
+    bubble.x=Math.max(0,Math.min(state.boardWidth-bubble.size,bubble.x));
+  });
+});
+})();
 </script>
-
 </body>
-</html>
+</html>'''
+
+output.write_text(html, encoding="utf-8")
+
+# Static validation
+soup = BeautifulSoup(html, "html.parser")
+ids = [tag.get("id") for tag in soup.find_all(id=True)]
+duplicates = [value for value, count in Counter(ids).items() if count > 1]
+
+external_urls = sorted(set(re.findall(r'https?://[^\s"\'<>]+', html)))
+external_assets = []
+for tag in soup.find_all(["link", "script", "img", "iframe"]):
+    value = tag.get("href") or tag.get("src")
+    if value and value.startswith(("http://", "https://", "//")):
+        external_assets.append(value)
+
+buttons_without_type = [
+    str(button)[:100] for button in soup.find_all("button") if not button.get("type")
+]
+
+script_failures = []
+for index, script in enumerate(soup.find_all("script")):
+    code = script.get_text()
+    if not code.strip():
+        continue
+    temp = Path(f"/tmp/chromatic_focus_{index}.js")
+    temp.write_text(code, encoding="utf-8")
+    result = subprocess.run(["node", "--check", str(temp)], capture_output=True, text=True)
+    if result.returncode:
+        script_failures.append(result.stderr)
+
+required = {
+    "extreme_level": 'value="extreme"' in html,
+    "soft_pastel": 'value="softPastel"' in html,
+    "pause_button": 'id="pauseBtn"' in html,
+    "pulsing_target": "@keyframes targetPulse" in html,
+    "round_bubbles": ".bubble{" in html and "aspect-ratio:1" in html and "border-radius:50%" in html,
+    "progressive_stages": "function stageUp()" in html,
+    "responsive_board": "height:clamp(440px,62svh,666px)" in html,
+    "best_score_storage": 'chromatic_focus_best_v3' in html,
+    "auto_pause": 'visibilitychange' in html,
+    "sound_toggle": 'id="soundBtn"' in html,
+    "label_toggle": 'id="labelsBtn"' in html,
+}
+
+if duplicates or external_urls or external_assets or buttons_without_type or script_failures or not all(required.values()):
+    raise RuntimeError({
+        "duplicates": duplicates,
+        "external_urls": external_urls,
+        "external_assets": external_assets,
+        "buttons_without_type": buttons_without_type,
+        "script_failures": script_failures,
+        "required": required,
+    })
+
+weights = sorted(set(re.findall(r'font-weight\s*:\s*([^;}]+)', html)))
+radii = sorted(set(re.findall(r'border-radius\s*:\s*([^;}]+)', html)))
+
+print(f"Created {output.name} — {output.stat().st_size:,} bytes")
+print("JavaScript syntax: valid")
+print("Duplicate IDs: none")
+print("External URLs or dependencies: none")
+print("Buttons without type: none")
+print("Responsive round bubbles: enabled")
+print("Levels: Fledgling, Artisan, Mastermind, Extreme")
+print("Progressive automatic stages: enabled")
+print("Pause/resume and auto-pause: enabled")
+print("Neon Classic, Neon Full Spectrum, Soft Pastel Lounge: enabled")
+print("Sound, labels, pulse, best score, session summary: enabled")
+print(f"Font weights used: {weights}")
+print(f"Border radii used: {radii}")
