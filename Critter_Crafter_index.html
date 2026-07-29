@@ -1,902 +1,2748 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<title>Critter Crafter</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Critter Crafter Creature Laboratory — a local-first creature fusion game with deterministic recipes, icon-rich critter portraits, evolution, habitats, care, daily discoveries, a searchable bestiary, and safe import/export.">
+<meta name="theme-color" content="#160e2c">
+<meta name="color-scheme" content="dark">
+<meta name="referrer" content="same-origin">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data:; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none';">
+<title>Critter Crafter — Creature Laboratory</title>
 <style>
-/* === GLOBAL STYLES === */
-body {
-  margin: 0;
-  padding: 0;
-  background: linear-gradient(135deg, #3a1c71, #d76d77, #ffaf7b);
-  font-family: "Trebuchet MS", system-ui, -apple-system, sans-serif;
-  color: #fff;
-  display: flex;
-  justify-content: center;
-  min-height: 100vh;
+:root{
+  --bg:#120b25;
+  --bg-2:#211044;
+  --panel:#27194a;
+  --panel-2:#36235f;
+  --screen:#140d2a;
+  --paper:#fffaf2;
+  --ink:#fff9ff;
+  --ink-soft:#e9dff2;
+  --muted:#c0b2cf;
+  --faint:#8c7c9e;
+  --violet:#9570dd;
+  --violet-soft:#d7c4f7;
+  --rose:#e681ad;
+  --coral:#f49477;
+  --gold:#efc862;
+  --gold-soft:#ffe7a7;
+  --mint:#77d4ae;
+  --aqua:#67cfd0;
+  --sky:#73b9ea;
+  --red:#dc7282;
+  --line:rgba(255,255,255,.14);
+  --line-strong:rgba(255,255,255,.28);
+  --shadow:0 24px 66px rgba(0,0,0,.35);
+  --shadow-small:0 12px 33px rgba(0,0,0,.24);
+  --radius:7px;
+  --weight-text:333;
+  --weight-emphasis:444;
+  --s3:3px;
+  --s7:7px;
+  --s11:11px;
+  --s14:14px;
+  --s24:24px;
+  --s33:33px;
+  --s55:55px;
+  --s66:66px;
+  --max:1380px;
+  --display:"Eurostile Extended","Microgramma D Extended","Bank Gothic","Arial Narrow","Trebuchet MS",sans-serif;
+  --sans:"Trebuchet MS",Verdana,"Segoe UI",sans-serif;
+  --mono:"Courier New",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html{
+  scroll-behavior:smooth;
+  scroll-padding-top:84px;
+  font-synthesis:none;
+  text-rendering:geometricPrecision;
+  -webkit-font-smoothing:antialiased;
+}
+body{
+  margin:0;
+  min-width:300px;
+  min-height:100vh;
+  overflow-x:hidden;
+  color:var(--ink);
+  background:var(--bg);
+  font-family:var(--sans);
+  font-size:14px;
+  font-weight:var(--weight-text);
+  line-height:1.65;
+}
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-3;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 8% -3%,rgba(103,207,208,.13),transparent 30rem),
+    radial-gradient(circle at 91% 0%,rgba(230,129,173,.12),transparent 31rem),
+    radial-gradient(circle at 50% 109%,rgba(239,200,98,.08),transparent 34rem),
+    linear-gradient(180deg,#120b25,#211044 56%,#0d071c);
+}
+body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-2;
+  pointer-events:none;
+  opacity:.5;
+  background-image:
+    radial-gradient(circle at 10% 16%,rgba(255,255,255,.15) 0 1px,transparent 1.3px),
+    radial-gradient(circle at 74% 11%,rgba(255,255,255,.11) 0 1px,transparent 1.3px),
+    radial-gradient(circle at 88% 71%,rgba(255,255,255,.09) 0 1px,transparent 1.3px),
+    linear-gradient(rgba(149,112,221,.026) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(103,207,208,.026) 1px,transparent 1px);
+  background-size:auto,auto,auto,33px 33px,33px 33px;
+  mask-image:linear-gradient(to bottom,black,transparent 95%);
+}
+body[data-motion="reduced"] *,
+body[data-motion="reduced"] *::before,
+body[data-motion="reduced"] *::after{
+  animation:none!important;
+  transition:none!important;
+}
+a{color:inherit}
+button,input,select,textarea{font:inherit}
+button{color:inherit;cursor:pointer}
+strong,b,h1,h2,h3{font-weight:var(--weight-emphasis)}
+::selection{color:#140c24;background:var(--gold-soft)}
+:focus-visible{outline:3px solid var(--gold-soft);outline-offset:3px}
+[hidden]{display:none!important}
+.wrap{width:min(calc(100% - 22px),var(--max));margin-inline:auto}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+/* Header */
+.site-header{
+  position:sticky;
+  top:0;
+  z-index:1200;
+  border-bottom:1px solid var(--line);
+  background:rgba(18,11,37,.94);
+  backdrop-filter:blur(18px);
+  box-shadow:0 11px 33px rgba(0,0,0,.26);
+}
+.header-inner{
+  min-height:66px;
+  display:grid;
+  grid-template-columns:minmax(190px,1fr) auto minmax(190px,1fr);
+  align-items:center;
+  gap:14px;
+  padding:7px 0;
+}
+.arcade-home{
+  justify-self:start;
+  display:inline-flex;
+  align-items:center;
+  gap:11px;
+  min-width:0;
+  text-decoration:none;
+}
+.brand-mark{
+  width:44px;
+  height:44px;
+  flex:0 0 44px;
+  display:grid;
+  place-items:center;
+  border:1px solid var(--gold);
+  border-radius:50%;
+  color:#241223;
+  background:
+    radial-gradient(circle at 34% 25%,rgba(255,255,255,.72),transparent 20%),
+    linear-gradient(145deg,var(--gold-soft),var(--rose),var(--aqua));
+  font-family:var(--display);
+  font-size:11px;
+  letter-spacing:.04em;
+  box-shadow:0 0 22px rgba(239,200,98,.15);
+}
+.brand-copy{display:grid;min-width:0;line-height:1.05}
+.brand-copy strong{
+  font-family:var(--display);
+  font-size:11px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+.brand-copy small{
+  margin-top:7px;
+  color:var(--muted);
+  font-family:var(--mono);
+  font-size:11px;
+  white-space:nowrap;
+}
+.game-id{justify-self:center;text-align:center}
+.game-id strong{
+  display:block;
+  font-family:var(--display);
+  font-size:14px;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+}
+.game-id small{
+  display:block;
+  margin-top:3px;
+  color:var(--aqua);
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.11em;
+  text-transform:uppercase;
+}
+.header-state{
+  justify-self:end;
+  color:var(--muted);
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.08em;
+  text-align:right;
+  text-transform:uppercase;
+}
+.header-state strong{color:var(--mint)}
+
+/* Intro */
+.intro{
+  padding:33px 0 24px;
+  text-align:center;
+}
+.open-line{
+  display:inline-flex;
+  align-items:center;
+  gap:11px;
+  color:var(--mint);
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+}
+.open-dot{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:var(--mint);
+  box-shadow:0 0 14px rgba(119,212,174,.40);
+}
+.intro h1{
+  margin:18px auto 0;
+  font-family:var(--display);
+  font-size:clamp(48px,7.3vw,82px);
+  line-height:.87;
+  letter-spacing:-.06em;
+  text-transform:uppercase;
+  text-shadow:3px 3px 0 rgba(103,207,208,.15),-3px -3px 0 rgba(230,129,173,.15);
+}
+.intro p{
+  max-width:970px;
+  margin:18px auto 0;
+  color:var(--ink-soft);
+  font-size:clamp(14px,1.45vw,17px);
+  line-height:1.8;
 }
 
-#game-container {
-  width: 95%;
-  max-width: 1200px;
-  margin: 16px 0;
-  background: rgba(0,0,0,0.35);
-  padding: 18px;
-  border-radius: 16px;
-  backdrop-filter: blur(8px);
-  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+/* Cabinet */
+.cabinet{
+  display:grid;
+  grid-template-columns:minmax(310px,.28fr) minmax(560px,.44fr) minmax(310px,.28fr);
+  gap:14px;
+  align-items:start;
+  padding:14px;
+  border:1px solid var(--line-strong);
+  border-radius:var(--radius);
+  background:linear-gradient(180deg,#1c1238,#10091f);
+  box-shadow:var(--shadow);
+}
+.left-column,.center-column,.right-column{display:grid;gap:11px;min-width:0}
+.panel{
+  min-width:0;
+  padding:14px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:linear-gradient(160deg,#2b1c50,#1b1234);
+  box-shadow:var(--shadow-small);
+}
+.panel h2,.panel h3{
+  margin:0;
+  font-family:var(--display);
+  letter-spacing:.02em;
+  text-transform:uppercase;
+}
+.panel h2{font-size:24px}
+.panel h3{font-size:16px}
+.panel-sub{
+  margin:7px 0 0;
+  color:var(--muted);
+  font-size:13px;
 }
 
-header {
-  text-align: center;
-  margin-bottom: 14px;
+/* Metrics */
+.metrics{
+  display:grid;
+  grid-template-columns:repeat(6,minmax(0,1fr));
+  gap:7px;
+}
+.metric{
+  min-width:0;
+  padding:11px 7px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:var(--screen);
+  text-align:center;
+}
+.metric strong{
+  display:block;
+  color:var(--gold-soft);
+  font-family:var(--mono);
+  font-size:18px;
+  overflow-wrap:anywhere;
+}
+.metric:nth-child(2) strong{color:var(--aqua)}
+.metric:nth-child(3) strong{color:var(--rose)}
+.metric:nth-child(4) strong{color:var(--mint)}
+.metric:nth-child(5) strong{color:var(--violet-soft)}
+.metric:nth-child(6) strong{color:var(--sky)}
+.metric span{
+  display:block;
+  margin-top:3px;
+  color:var(--muted);
+  font-family:var(--mono);
+  font-size:10px;
+  text-transform:uppercase;
 }
 
-header h1 {
-  font-size: 40px;
-  margin: 0 0 4px 0;
+/* Buttons / controls */
+.btn{
+  min-height:42px;
+  padding:7px 11px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  color:var(--ink-soft);
+  background:var(--panel-2);
+  font-family:var(--mono);
+  font-size:11px;
+  font-weight:var(--weight-emphasis);
+  letter-spacing:.05em;
+  text-transform:uppercase;
+}
+.btn:hover:not(:disabled){color:var(--gold-soft);border-color:var(--gold);transform:translateY(-1px)}
+.btn:disabled{cursor:not-allowed;opacity:.38}
+.btn.primary{
+  color:#211023;
+  border-color:var(--gold);
+  background:linear-gradient(135deg,var(--gold-soft),var(--gold));
+}
+.btn.aqua{
+  color:#0d2426;
+  border-color:var(--aqua);
+  background:linear-gradient(135deg,#c2f3ee,var(--aqua));
+}
+.btn.violet{
+  color:#160c27;
+  border-color:var(--violet);
+  background:linear-gradient(135deg,var(--violet-soft),var(--violet));
+}
+.btn.rose{
+  color:#2b1020;
+  border-color:var(--rose);
+  background:linear-gradient(135deg,#ffd1e3,var(--rose));
+}
+.btn.danger{color:#fff;border-color:var(--red);background:var(--red)}
+.button-row{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:7px;
+  margin-top:11px;
+}
+.control-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:7px;
+  margin-top:11px;
+}
+.control-group{
+  display:grid;
+  gap:7px;
+  min-width:0;
+}
+.control-group.full{grid-column:1/-1}
+.control-group label{
+  color:var(--muted);
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+}
+select,input[type="text"],textarea{
+  width:100%;
+  min-height:44px;
+  padding:7px 11px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  color:var(--ink);
+  background:var(--screen);
+}
+textarea{min-height:260px;resize:vertical}
+
+/* Ingredient library */
+.category-tabs{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:7px;
+  margin-top:11px;
+}
+.category-btn{
+  min-height:42px;
+  padding:7px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  color:var(--muted);
+  background:var(--screen);
+  font-family:var(--mono);
+  font-size:10px;
+  text-transform:uppercase;
+}
+.category-btn.active{
+  color:#211023;
+  border-color:var(--gold);
+  background:var(--gold);
+}
+.ingredient-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:7px;
+  margin-top:11px;
+}
+.ingredient-card{
+  position:relative;
+  min-height:82px;
+  display:grid;
+  place-items:center;
+  gap:3px;
+  padding:7px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  color:var(--ink-soft);
+  background:var(--screen);
+  text-align:center;
+}
+.ingredient-card:hover{border-color:var(--ingredient-tone,var(--gold))}
+.ingredient-card.active{
+  color:#160c27;
+  border-color:var(--ingredient-tone,var(--gold));
+  background:var(--ingredient-tone,var(--gold));
+}
+.ingredient-card.locked{opacity:.48;cursor:not-allowed}
+.ingredient-card strong{
+  font-family:var(--display);
+  font-size:9px;
+  line-height:1.15;
+  text-transform:uppercase;
+}
+.ingredient-card small{
+  color:inherit;
+  opacity:.76;
+  font-family:var(--mono);
+  font-size:8px;
+}
+.ingredient-icon{font-size:24px;line-height:1}
+.selected-count{
+  margin-top:11px;
+  color:var(--muted);
+  font-family:var(--mono);
+  font-size:10px;
+  text-align:center;
+  text-transform:uppercase;
 }
 
-header p {
-  margin: 0;
-  font-size: 15px;
-  opacity: 0.9;
+/* Fusion laboratory */
+.fusion-head{
+  display:flex;
+  justify-content:space-between;
+  gap:14px;
+  align-items:flex-start;
+}
+.fusion-state{
+  color:var(--muted);
+  font-family:var(--mono);
+  font-size:10px;
+  text-align:right;
+  text-transform:uppercase;
+}
+.fusion-state strong{
+  display:block;
+  color:var(--aqua);
+  font-size:14px;
+}
+.cauldron-stage{
+  position:relative;
+  min-height:290px;
+  display:grid;
+  place-items:center;
+  margin-top:11px;
+  overflow:hidden;
+  border:7px solid #090514;
+  border-radius:var(--radius);
+  background:
+    radial-gradient(circle at 50% 42%,rgba(103,207,208,.17),transparent 18%),
+    radial-gradient(circle at 50% 52%,rgba(149,112,221,.18),transparent 32%),
+    linear-gradient(180deg,#160d2e,#0b0717);
+  box-shadow:inset 0 0 55px rgba(0,0,0,.62),0 22px 55px rgba(0,0,0,.35);
+}
+.cauldron-stage::before{
+  content:"";
+  position:absolute;
+  width:240px;
+  height:240px;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:50%;
+  box-shadow:
+    0 0 0 22px rgba(149,112,221,.025),
+    0 0 0 44px rgba(103,207,208,.018);
+  animation:orbitalTurn 18s linear infinite;
+}
+@keyframes orbitalTurn{to{transform:rotate(360deg)}}
+.cauldron{
+  position:relative;
+  z-index:2;
+  width:180px;
+  height:126px;
+  margin-top:44px;
+  border:3px solid var(--violet-soft);
+  border-top-color:var(--aqua);
+  border-radius:42% 42% 46% 46%;
+  background:
+    radial-gradient(circle at 50% 12%,rgba(255,255,255,.18),transparent 28%),
+    linear-gradient(180deg,#4b3375,#24153f);
+  box-shadow:0 22px 45px rgba(0,0,0,.48),inset 0 -20px 32px rgba(0,0,0,.28);
+}
+.cauldron::before{
+  content:"";
+  position:absolute;
+  left:-10px;
+  right:-10px;
+  top:-12px;
+  height:26px;
+  border:3px solid var(--gold);
+  border-radius:50%;
+  background:linear-gradient(90deg,var(--rose),var(--gold),var(--aqua),var(--violet));
+  box-shadow:0 0 24px rgba(239,200,98,.20);
+}
+.cauldron-bubbles{
+  position:absolute;
+  left:50%;
+  top:-74px;
+  width:150px;
+  height:82px;
+  transform:translateX(-50%);
+}
+.bubble{
+  position:absolute;
+  display:grid;
+  place-items:center;
+  width:42px;
+  height:42px;
+  border:1px solid rgba(255,255,255,.55);
+  border-radius:50%;
+  background:rgba(255,255,255,.13);
+  font-size:21px;
+  box-shadow:0 0 18px rgba(103,207,208,.18);
+  animation:bubbleFloat 3.2s ease-in-out infinite;
+}
+.bubble:nth-child(1){left:4px;top:30px}
+.bubble:nth-child(2){left:39px;top:4px;animation-delay:-.7s}
+.bubble:nth-child(3){left:77px;top:20px;animation-delay:-1.3s}
+.bubble:nth-child(4){left:108px;top:1px;animation-delay:-2s}
+@keyframes bubbleFloat{50%{transform:translateY(-8px) rotate(5deg)}}
+.recipe-slots{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+}
+.recipe-slot{
+  position:absolute;
+  min-width:94px;
+  min-height:58px;
+  display:grid;
+  place-items:center;
+  padding:7px;
+  border:1px dashed var(--line-strong);
+  border-radius:var(--radius);
+  color:var(--muted);
+  background:rgba(10,5,20,.54);
+  text-align:center;
+  font-family:var(--mono);
+  font-size:9px;
+  text-transform:uppercase;
+}
+.recipe-slot strong{display:block;color:var(--ink);font-size:11px}
+.recipe-slot:nth-child(1){left:12px;top:18px}
+.recipe-slot:nth-child(2){right:12px;top:18px}
+.recipe-slot:nth-child(3){left:12px;bottom:18px}
+.recipe-slot:nth-child(4){right:12px;bottom:18px}
+.harmony-panel{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:11px;
+  align-items:center;
+  margin-top:11px;
+}
+.harmony-copy strong{
+  display:block;
+  color:var(--gold-soft);
+  font-family:var(--display);
+  text-transform:uppercase;
+}
+.harmony-copy p{margin:3px 0 0;color:var(--muted);font-size:12px}
+.harmony-score{
+  color:var(--aqua);
+  font-family:var(--mono);
+  font-size:24px;
+}
+.harmony-track{
+  grid-column:1/-1;
+  height:7px;
+  overflow:hidden;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:#080411;
+}
+.harmony-fill{
+  height:100%;
+  width:0;
+  border-radius:var(--radius);
+  background:linear-gradient(90deg,var(--red),var(--rose),var(--gold),var(--mint),var(--aqua));
+  transition:width .18s ease;
+}
+.status{
+  min-height:50px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin-top:11px;
+  padding:11px 14px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  color:var(--ink-soft);
+  background:var(--screen);
+  text-align:center;
 }
 
-/* Meta bar (streak / discoveries) */
-#meta-bar {
-  margin-top: 10px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  justify-content: center;
-  font-size: 14px;
+/* Creature result */
+.creature-stage{
+  position:relative;
+  min-height:330px;
+  display:grid;
+  place-items:center;
+  margin-top:11px;
+  overflow:hidden;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:
+    radial-gradient(circle at 50% 29%,rgba(255,255,255,.16),transparent 18%),
+    radial-gradient(circle at 50% 50%,var(--portrait-aura,rgba(103,207,208,.20)),transparent 42%),
+    linear-gradient(180deg,#1b153a,#0f0a21);
 }
-.meta-pill {
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: rgba(0,0,0,0.4);
-  border: 1px solid rgba(255,255,255,0.25);
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+.creature-stage::before{
+  content:"";
+  position:absolute;
+  left:50%;
+  bottom:30px;
+  width:230px;
+  height:58px;
+  transform:translateX(-50%);
+  border-radius:50%;
+  background:radial-gradient(ellipse,rgba(0,0,0,.50),transparent 70%);
 }
-
-/* === LAYOUT === */
-#main-layout {
-  display: flex;
-  gap: 18px;
-  flex-wrap: wrap;
+.creature-portrait{
+  position:relative;
+  z-index:2;
+  width:230px;
+  height:230px;
+  display:grid;
+  place-items:center;
 }
-
-/* === PANEL STYLES === */
-section {
-  background: rgba(255,255,255,0.08);
-  padding: 12px;
-  border-radius: 14px;
-  flex: 1;
-  min-width: 280px;
-  max-height: 72vh;
-  overflow-y: auto;
-  box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+.portrait-ring{
+  position:absolute;
+  inset:17px;
+  border:2px solid var(--portrait-tone,var(--aqua));
+  border-radius:50%;
+  box-shadow:0 0 34px var(--portrait-aura,rgba(103,207,208,.24));
+  animation:portraitBreathe 4s ease-in-out infinite;
 }
-
-section h2 {
-  margin: 0 0 8px 0;
-  text-align: center;
-  font-size: 22px;
-  letter-spacing: 1px;
+@keyframes portraitBreathe{50%{transform:scale(1.035);opacity:.84}}
+.portrait-body{
+  position:relative;
+  z-index:2;
+  display:grid;
+  place-items:center;
+  width:154px;
+  height:154px;
+  border:2px solid rgba(255,255,255,.30);
+  border-radius:50%;
+  background:
+    radial-gradient(circle at 35% 25%,rgba(255,255,255,.60),transparent 17%),
+    linear-gradient(145deg,var(--portrait-soft,#dff8f2),var(--portrait-tone,#67cfd0));
+  box-shadow:0 22px 44px rgba(0,0,0,.28);
 }
-
-/* === INGREDIENT LIST === */
-#ingredient-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
-  gap: 8px;
+.portrait-main{
+  font-size:76px;
+  line-height:1;
+  filter:drop-shadow(0 7px 4px rgba(0,0,0,.22));
 }
-
-.ingredient {
-  padding: 7px 6px;
-  border-radius: 10px;
-  background: rgba(255,255,255,0.16);
-  text-align: center;
-  cursor: pointer;
-  transition: 0.16s;
-  font-size: 16px;
-  line-height: 1.3;
+.portrait-accessory{
+  position:absolute;
+  right:24px;
+  top:28px;
+  z-index:4;
+  display:grid;
+  place-items:center;
+  width:50px;
+  height:50px;
+  border:1px solid rgba(255,255,255,.38);
+  border-radius:50%;
+  background:rgba(15,8,30,.74);
+  font-size:25px;
 }
-.ingredient span {
-  display: block;
+.portrait-element{
+  position:absolute;
+  left:20px;
+  bottom:28px;
+  z-index:4;
+  display:grid;
+  place-items:center;
+  width:54px;
+  height:54px;
+  border:1px solid rgba(255,255,255,.38);
+  border-radius:50%;
+  background:rgba(15,8,30,.74);
+  font-size:28px;
 }
-.ingredient-name {
-  font-size: 12px;
-  opacity: 0.9;
+.portrait-spark{
+  position:absolute;
+  right:30px;
+  bottom:20px;
+  z-index:4;
+  font-size:34px;
+  animation:sparkFloat 2.8s ease-in-out infinite;
 }
-
-.ingredient:hover {
-  background: rgba(255,255,255,0.26);
-  transform: translateY(-1px);
+@keyframes sparkFloat{50%{transform:translateY(-7px) rotate(8deg)}}
+.result-name{
+  margin:11px 0 0;
+  color:var(--gold-soft);
+  font-family:var(--display);
+  font-size:24px;
+  text-align:center;
+  text-transform:uppercase;
 }
-
-.ingredient.selected {
-  border: 2px solid gold;
-  background: rgba(255,215,0,0.24);
+.result-sub{
+  margin:3px 0 0;
+  color:var(--muted);
+  text-align:center;
 }
-
-/* === FUSION PANEL === */
-#selected-ingredients {
-  min-height: 70px;
-  padding: 8px;
-  border: 2px dashed rgba(255,255,255,0.55);
-  margin-bottom: 8px;
-  border-radius: 12px;
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-  justify-content: center;
+.result-description{
+  margin:11px 0 0;
+  padding:11px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  color:var(--ink-soft);
+  background:var(--screen);
 }
-
-.sel-item {
-  background: rgba(0,0,0,0.35);
-  padding: 4px 8px;
-  border-radius: 999px;
-  font-size: 14px;
+.result-tags{
+  display:flex;
+  justify-content:center;
+  gap:7px;
+  flex-wrap:wrap;
+  margin-top:11px;
 }
-
-/* Buttons */
-#craft-btn, #clear-btn {
-  width: 100%;
-  padding: 10px;
-  margin-top: 4px;
-  border: none;
-  border-radius: 12px;
-  font-size: 16px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: 0.2s;
+.tag{
+  padding:3px 7px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  color:var(--muted);
+  background:var(--screen);
+  font-family:var(--mono);
+  font-size:9px;
+  text-transform:uppercase;
 }
-
-#craft-btn {
-  background: gold;
-  color: #000;
+.tag.rarity-common{color:var(--ink-soft)}
+.tag.rarity-uncommon{color:var(--mint)}
+.tag.rarity-rare{color:var(--sky)}
+.tag.rarity-mythic{color:var(--gold-soft)}
+.stat-bars{
+  display:grid;
+  gap:7px;
+  margin-top:11px;
 }
-#craft-btn:hover {
-  background: #ffe680;
-  transform: scale(1.03);
+.stat-row{
+  display:grid;
+  grid-template-columns:82px minmax(0,1fr) 28px;
+  gap:7px;
+  align-items:center;
 }
-
-#clear-btn {
-  background: rgba(255,255,255,0.25);
-  color: #fff;
+.stat-row span{
+  color:var(--muted);
+  font-family:var(--mono);
+  font-size:9px;
+  text-transform:uppercase;
 }
-#clear-btn:hover {
-  background: rgba(255,255,255,0.38);
-  transform: scale(1.03);
+.stat-track{
+  height:7px;
+  overflow:hidden;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:#080411;
 }
-
-/* Mode buttons under cauldron */
-#settings-bar {
-  margin-top: 8px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  justify-content: center;
+.stat-fill{
+  height:100%;
+  border-radius:var(--radius);
+  background:linear-gradient(90deg,var(--violet),var(--rose),var(--gold));
 }
-
-.mode-btn {
-  border: 1px solid rgba(255,255,255,0.4);
-  background: rgba(0,0,0,0.35);
-  color: #fff;
-  border-radius: 999px;
-  padding: 4px 10px;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  cursor: pointer;
-}
-.mode-btn.on {
-  background: rgba(255,215,0,0.25);
-  border-color: gold;
-}
-
-/* === RESULTS AREA === */
-#result {
-  margin-top: 10px;
-  background: rgba(255,255,255,0.16);
-  padding: 8px;
-  border-radius: 12px;
-  min-height: 60px;
-  font-size: 15px;
-  text-align: center;
-  font-weight: 500;
-}
-#result b {
-  font-size: 18px;
-}
-
-/* === BESTIARY === */
-#bestiary-list .creature-card {
-  background: rgba(0,0,0,0.35);
-  padding: 10px;
-  border-radius: 10px;
-  margin-bottom: 8px;
-  transition: 0.18s;
-  border: 1px solid rgba(255,255,255,0.18);
-}
-#bestiary-list .creature-card:hover {
-  transform: translateY(-1px);
-  background: rgba(0,0,0,0.5);
+.stat-value{
+  color:var(--ink);
+  font-family:var(--mono);
+  font-size:10px;
+  text-align:right;
 }
 
-.creature-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 6px;
-  margin-bottom: 4px;
+/* Daily discovery */
+.daily-card{
+  margin-top:11px;
+  padding:14px;
+  border:1px solid var(--line-strong);
+  border-radius:var(--radius);
+  background:
+    radial-gradient(circle at 0 0,rgba(239,200,98,.09),transparent 40%),
+    var(--screen);
+}
+.daily-card.complete{border-color:var(--gold)}
+.daily-kicker{
+  color:var(--gold-soft);
+  font-family:var(--mono);
+  font-size:10px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.daily-card strong{
+  display:block;
+  margin-top:7px;
+  font-size:15px;
+}
+.daily-card p{margin:7px 0 0;color:var(--muted)}
+.daily-progress{
+  height:7px;
+  margin-top:11px;
+  overflow:hidden;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:#080411;
+}
+.daily-progress span{
+  display:block;
+  height:100%;
+  border-radius:var(--radius);
+  background:linear-gradient(90deg,var(--violet),var(--rose),var(--gold),var(--mint));
 }
 
-.creature-name {
-  font-size: 18px;
-  font-weight: 700;
+/* Bestiary */
+.bestiary-controls{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 130px;
+  gap:7px;
+  margin-top:11px;
 }
-.creature-meta {
-  font-size: 11px;
-  opacity: 0.85;
-  text-align: right;
+.bestiary-list{
+  max-height:760px;
+  overflow:auto;
+  display:grid;
+  gap:7px;
+  margin-top:11px;
+  padding-right:3px;
+}
+.empty-state{
+  padding:24px;
+  border:1px dashed var(--line-strong);
+  border-radius:var(--radius);
+  color:var(--muted);
+  background:var(--screen);
+  text-align:center;
+}
+.critter-card{
+  display:grid;
+  grid-template-columns:64px minmax(0,1fr);
+  gap:11px;
+  padding:9px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:var(--screen);
+}
+.critter-card.active{border-color:var(--gold)}
+.critter-avatar{
+  position:relative;
+  width:64px;
+  height:64px;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(255,255,255,.28);
+  border-radius:50%;
+  background:linear-gradient(145deg,var(--avatar-soft,#dff8f2),var(--avatar-tone,#67cfd0));
+  font-size:34px;
+}
+.critter-avatar span{
+  position:absolute;
+  right:-2px;
+  bottom:-2px;
+  display:grid;
+  place-items:center;
+  width:24px;
+  height:24px;
+  border:1px solid var(--line);
+  border-radius:50%;
+  background:var(--panel);
+  font-size:13px;
+}
+.critter-main{min-width:0}
+.critter-head{
+  display:flex;
+  justify-content:space-between;
+  gap:7px;
+  align-items:flex-start;
+}
+.critter-name{
+  min-width:0;
+  border:0;
+  color:var(--ink);
+  background:transparent;
+  font-family:var(--display);
+  font-size:12px;
+  text-align:left;
+  text-transform:uppercase;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.critter-level{
+  flex:0 0 auto;
+  color:var(--aqua);
+  font-family:var(--mono);
+  font-size:9px;
+}
+.critter-meta{
+  margin-top:3px;
+  color:var(--muted);
+  font-family:var(--mono);
+  font-size:9px;
+}
+.critter-actions{
+  display:flex;
+  gap:5px;
+  flex-wrap:wrap;
+  margin-top:7px;
+}
+.critter-actions .btn{
+  min-height:31px;
+  padding:3px 7px;
+  font-size:8px;
 }
 
-.creature-desc {
-  font-size: 13px;
-  opacity: 0.92;
-  margin: 4px 0 6px 0;
+/* Care lab */
+.care-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:7px;
+  margin-top:11px;
 }
+.care-card{
+  min-height:70px;
+  display:grid;
+  place-items:center;
+  gap:3px;
+  padding:7px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  color:var(--ink-soft);
+  background:var(--screen);
+  text-align:center;
+}
+.care-card:hover:not(:disabled){border-color:var(--mint)}
+.care-card span{font-size:23px}
+.care-card strong{
+  font-family:var(--display);
+  font-size:9px;
+  text-transform:uppercase;
+}
+.care-card small{color:var(--muted);font-family:var(--mono);font-size:8px}
+.care-card:disabled{opacity:.38;cursor:not-allowed}
+.habitat-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:7px;
+  margin-top:11px;
+}
+.habitat-btn{
+  min-height:58px;
+  padding:7px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  color:var(--muted);
+  background:var(--screen);
+  text-align:center;
+}
+.habitat-btn.active{
+  color:#1d1525;
+  border-color:var(--mint);
+  background:var(--mint);
+}
+.habitat-btn strong{
+  display:block;
+  font-family:var(--display);
+  font-size:9px;
+  text-transform:uppercase;
+}
+.habitat-btn small{display:block;font-size:16px}
 
-.creature-stats {
-  font-size: 12px;
-  opacity: 0.9;
+/* Dialog */
+dialog{
+  width:min(720px,calc(100% - 28px));
+  max-height:88vh;
+  overflow:auto;
+  padding:24px;
+  border:1px solid var(--line-strong);
+  border-radius:var(--radius);
+  color:var(--ink);
+  background:var(--panel);
+  box-shadow:var(--shadow);
 }
+dialog::backdrop{background:rgba(9,5,17,.80);backdrop-filter:blur(5px)}
+dialog h2{margin:0;font-family:var(--display);font-size:24px;text-transform:uppercase}
+.dialog-actions{display:flex;justify-content:flex-end;gap:7px;flex-wrap:wrap;margin-top:11px}
+.guide-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:11px;
+  margin-top:14px;
+}
+.guide-card{
+  padding:11px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:var(--screen);
+}
+.guide-card strong{
+  display:block;
+  color:var(--gold-soft);
+  font-family:var(--display);
+  text-transform:uppercase;
+}
+.guide-card p{margin:7px 0 0;color:var(--muted);font-size:12px}
 
-.creature-ingredients {
-  font-size: 11px;
-  opacity: 0.8;
-  margin-top: 3px;
+.footer{
+  padding:24px 0 33px;
+  color:var(--muted);
+  text-align:center;
+  font-family:var(--mono);
+  font-size:11px;
 }
+.toast{
+  position:fixed;
+  right:14px;
+  bottom:14px;
+  z-index:3000;
+  max-width:min(420px,calc(100% - 28px));
+  padding:11px 14px;
+  border:1px solid var(--gold);
+  border-radius:var(--radius);
+  color:var(--ink);
+  background:var(--panel);
+  box-shadow:var(--shadow);
+  font-family:var(--mono);
+  font-size:11px;
+  transform:translateY(160%);
+  opacity:0;
+  transition:.18s ease;
+}
+.toast.show{transform:none;opacity:1}
 
-/* Creature actions */
-.creature-actions {
-  margin-top: 6px;
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
+@media(max-width:1180px){
+  .header-inner{grid-template-columns:1fr auto}.game-id{display:none}
+  .cabinet{grid-template-columns:minmax(310px,.38fr) minmax(590px,.62fr)}
+  .right-column{grid-column:1/-1;grid-template-columns:1fr 1fr}
+  .right-column .bestiary-panel{grid-column:1/-1}
 }
-.creature-actions button {
-  border-radius: 999px;
-  border: 1px solid rgba(255,255,255,0.3);
-  background: rgba(255,255,255,0.12);
-  color: #fff;
-  font-size: 11px;
-  padding: 3px 8px;
-  cursor: pointer;
+@media(max-width:900px){
+  .cabinet{grid-template-columns:1fr}
+  .left-column,.right-column{grid-template-columns:1fr 1fr}
+  .left-column .ingredient-panel,.right-column .bestiary-panel{grid-column:1/-1}
 }
-.creature-actions button:hover {
-  background: rgba(255,255,255,0.24);
+@media(max-width:700px){
+  body{font-size:15px}
+  .left-column,.right-column{grid-template-columns:1fr}
+  .left-column .ingredient-panel,.right-column .bestiary-panel{grid-column:auto}
+  .metrics{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .button-row{grid-template-columns:1fr 1fr}
+  .ingredient-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
 }
-
-/* Small helper text */
-.hint {
-  font-size: 12px;
-  opacity: 0.8;
-  text-align: center;
-  margin-top: 6px;
+@media(max-width:560px){
+  .wrap{width:min(calc(100% - 14px),var(--max))}
+  .header-inner{grid-template-columns:minmax(0,1fr) auto}
+  .brand-copy small{display:none}
+  .intro{padding-top:24px}
+  .intro h1{font-size:46px}
+  .cabinet,.panel{padding:11px}
+  .metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .ingredient-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .category-tabs{grid-template-columns:1fr 1fr}
+  .control-grid{grid-template-columns:1fr}
+  .control-group.full{grid-column:auto}
+  .fusion-head{display:grid;text-align:center}
+  .fusion-state{text-align:center}
+  .cauldron-stage{min-height:330px}
+  .recipe-slot{min-width:82px}
+  .care-grid,.habitat-grid{grid-template-columns:1fr 1fr}
+  .bestiary-controls{grid-template-columns:1fr}
+  .guide-grid{grid-template-columns:1fr}
 }
-
-/* Scrollbars (subtle) */
-section::-webkit-scrollbar {
-  width: 6px;
+@media(max-width:390px){
+  .brand-copy strong{display:none}
+  .brand-mark{width:40px;height:40px;flex-basis:40px}
+  .header-state{max-width:130px;font-size:10px}
+  .ingredient-grid{grid-template-columns:1fr 1fr}
 }
-section::-webkit-scrollbar-track {
-  background: transparent;
-}
-section::-webkit-scrollbar-thumb {
-  background: rgba(0,0,0,0.3);
-  border-radius: 999px;
-}
-
-/* Responsive tweak */
-@media (max-width: 720px) {
-  header h1 { font-size: 32px; }
-  section { max-height: none; }
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation:none!important;transition:none!important}
 }
 </style>
 </head>
-
-<body>
-
-<div id="game-container">
-
-  <header>
-    <h1>🧪 Critter Crafter</h1>
-    <p>Combine magical ingredients to discover, train, and evolve your own weird little creatures.</p>
-
-    <div id="meta-bar">
-      <div class="meta-pill">
-        📖 <span id="meta-discoveries">Discoveries: 0</span>
-      </div>
-      <div class="meta-pill">
-        🔥 <span id="meta-streak">Streak: 0 days</span>
-      </div>
-    </div>
-  </header>
-
-  <div id="main-layout">
-
-    <!-- Inventory Panel -->
-    <section id="inventory">
-      <h2>🧺 Ingredients</h2>
-      <div id="ingredient-list"></div>
-      <div class="hint">Tap ingredients to add or remove them from the fusion cauldron.</div>
-    </section>
-
-    <!-- Fusion Panel -->
-    <section id="fusion">
-      <h2>⚗️ Fusion Cauldron</h2>
-
-      <div id="selected-ingredients"></div>
-
-      <button id="craft-btn">Craft Creature</button>
-      <button id="clear-btn">Clear</button>
-
-      <div id="settings-bar">
-        <button class="mode-btn on" data-key="chaosMode">Chaos Mode</button>
-        <button class="mode-btn on" data-key="rareSpawns">Rare Spawns</button>
-        <button class="mode-btn" data-key="debugMode">Debug</button>
-      </div>
-
-      <div id="result">Select at least 2 ingredients and craft a new critter.</div>
-    </section>
-
-    <!-- Bestiary Panel -->
-    <section id="bestiary">
-      <h2>📘 Bestiary</h2>
-      <div id="bestiary-list"></div>
-      <div class="hint">Each unique ingredient combo becomes its own critter. Re-craft the same combo to level it up.</div>
-    </section>
-
+<body data-motion="full">
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="arcade-home" href="index.html" aria-label="Return to the Arcade landing page">
+      <span class="brand-mark" aria-hidden="true">CC</span>
+      <span class="brand-copy"><strong>Arcade</strong><small>Return to game hall</small></span>
+    </a>
+    <div class="game-id"><strong>Critter Crafter</strong><small>Creature Laboratory</small></div>
+    <div class="header-state">Lab Status · <strong id="headerStatus">Ready</strong></div>
   </div>
-</div>
+</header>
+
+<main>
+  <section class="intro">
+    <div class="wrap">
+      <div class="open-line"><span class="open-dot"></span><span>Icon-rich fusion laboratory online</span></div>
+      <h1>Critter Crafter</h1>
+      <p>Combine two to four magical ingredients, discover deterministic creature species, raise their bond and experience, evolve new forms, assign habitats, complete daily research, and preserve every strange little friend in a searchable local bestiary.</p>
+    </div>
+  </section>
+
+  <section class="wrap cabinet" aria-label="Critter Crafter creature laboratory">
+    <aside class="left-column">
+      <section class="panel ingredient-panel">
+        <h3>Ingredient Library</h3>
+        <p class="panel-sub">Choose two to four ingredients. Every unique sorted recipe creates one stable species on every device.</p>
+        <div class="category-tabs" id="categoryTabs"></div>
+        <div class="ingredient-grid" id="ingredientGrid"></div>
+        <div class="selected-count" id="selectedCount">0 of 4 ingredients selected</div>
+      </section>
+
+      <section class="panel">
+        <h3>Laboratory Settings</h3>
+        <div class="control-grid">
+          <div class="control-group full">
+            <label for="temperamentSelect">Temperament lens</label>
+            <select id="temperamentSelect">
+              <option value="cozy">Cozy</option>
+              <option value="curious">Curious</option>
+              <option value="wild">Wild</option>
+              <option value="mystic">Mystic</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label for="motionSelect">Motion</label>
+            <select id="motionSelect">
+              <option value="full">Gentle motion</option>
+              <option value="reduced">Reduced motion</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label for="soundSelect">Sound</label>
+            <select id="soundSelect">
+              <option value="off">Sound off</option>
+              <option value="on">Soft lab tones</option>
+            </select>
+          </div>
+        </div>
+        <div class="button-row" style="grid-template-columns:1fr 1fr">
+          <button class="btn" id="guideBtn" type="button">Laboratory Guide</button>
+          <button class="btn" id="surpriseBtn" type="button">Surprise Recipe</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h3>Daily Research</h3>
+        <div class="daily-card" id="dailyCard">
+          <div class="daily-kicker" id="dailyKicker">Today's Discovery</div>
+          <strong id="dailyTitle">Preparing research...</strong>
+          <p id="dailyDescription"></p>
+          <div class="daily-progress"><span id="dailyFill"></span></div>
+        </div>
+      </section>
+    </aside>
+
+    <section class="center-column">
+      <section class="panel">
+        <div class="metrics">
+          <div class="metric"><strong id="discoveryMetric">0</strong><span>Species</span></div>
+          <div class="metric"><strong id="sparkMetric">30</strong><span>Spark Dust</span></div>
+          <div class="metric"><strong id="streakMetric">0</strong><span>Day Streak</span></div>
+          <div class="metric"><strong id="evolvedMetric">0</strong><span>Evolved</span></div>
+          <div class="metric"><strong id="favoriteMetric">0</strong><span>Favorites</span></div>
+          <div class="metric"><strong id="recipeMetric">0</strong><span>Recipes</span></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="fusion-head">
+          <div>
+            <h2>Fusion Cauldron</h2>
+            <p class="panel-sub">Harmony rewards complementary ingredients. Paradox combinations create stranger, wilder creatures rather than impossible recipes.</p>
+          </div>
+          <div class="fusion-state"><strong id="fusionLabel">Waiting</strong><span id="recipeCodeLabel">Recipe —</span></div>
+        </div>
+
+        <div class="cauldron-stage">
+          <div class="recipe-slots" id="recipeSlots"></div>
+          <div class="cauldron" aria-hidden="true">
+            <div class="cauldron-bubbles" id="cauldronBubbles"></div>
+          </div>
+        </div>
+
+        <div class="harmony-panel">
+          <div class="harmony-copy">
+            <strong id="harmonyTitle">No Recipe Yet</strong>
+            <p id="harmonyText">Choose two to four ingredients to begin.</p>
+          </div>
+          <div class="harmony-score" id="harmonyScore">0</div>
+          <div class="harmony-track"><div class="harmony-fill" id="harmonyFill"></div></div>
+        </div>
+
+        <div class="status" id="statusText" aria-live="polite">Select ingredients from the library, then craft a new critter.</div>
+
+        <div class="button-row">
+          <button class="btn primary" id="craftBtn" type="button">Craft Critter · C</button>
+          <button class="btn aqua" id="previewBtn" type="button">Preview Recipe</button>
+          <button class="btn" id="clearBtn" type="button">Clear · X</button>
+          <button class="btn" id="copyRecipeBtn" type="button">Copy Recipe</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h3>Current Critter</h3>
+        <div class="creature-stage" id="creatureStage">
+          <div class="creature-portrait" aria-hidden="true">
+            <div class="portrait-ring"></div>
+            <div class="portrait-body"><span class="portrait-main" id="portraitMain">🐾</span></div>
+            <div class="portrait-accessory" id="portraitAccessory">✨</div>
+            <div class="portrait-element" id="portraitElement">🧪</div>
+            <div class="portrait-spark" id="portraitSpark">💫</div>
+          </div>
+        </div>
+        <h3 class="result-name" id="resultName">No Critter Yet</h3>
+        <p class="result-sub" id="resultSub">Your next laboratory companion will appear here.</p>
+        <div class="result-description" id="resultDescription">Every critter has a stable species name, portrait, habitat preference, temperament, power, quirk, rarity, and discovery code.</div>
+        <div class="result-tags" id="resultTags"></div>
+        <div class="stat-bars" id="statBars"></div>
+
+        <div class="button-row">
+          <button class="btn rose" id="favoriteCurrentBtn" type="button" disabled>Favorite</button>
+          <button class="btn" id="renameBtn" type="button" disabled>Rename</button>
+          <button class="btn" id="exportCardBtn" type="button" disabled>Export Card</button>
+          <button class="btn danger" id="releaseBtn" type="button" disabled>Release</button>
+        </div>
+      </section>
+    </section>
+
+    <aside class="right-column">
+      <section class="panel bestiary-panel">
+        <h3>Living Bestiary</h3>
+        <div class="bestiary-controls">
+          <input id="searchInput" type="text" maxlength="80" placeholder="Search species, ingredients, powers...">
+          <select id="filterSelect" aria-label="Filter bestiary">
+            <option value="all">All Critters</option>
+            <option value="favorites">Favorites</option>
+            <option value="common">Common</option>
+            <option value="uncommon">Uncommon</option>
+            <option value="rare">Rare</option>
+            <option value="mythic">Mythic</option>
+            <option value="evolved">Evolved</option>
+          </select>
+        </div>
+        <div class="bestiary-list" id="bestiaryList"></div>
+      </section>
+
+      <section class="panel">
+        <h3>Care & Evolution</h3>
+        <p class="panel-sub">Care uses Spark Dust. Evolution is based on earned experience and never on random stat inflation.</p>
+        <div class="care-grid">
+          <button class="care-card" id="trainBtn" type="button" disabled><span>🏋️</span><strong>Train</strong><small>8 Dust · +15 XP</small></button>
+          <button class="care-card" id="snackBtn" type="button" disabled><span>🍓</span><strong>Snack</strong><small>3 Dust · +2 Bond</small></button>
+          <button class="care-card" id="playBtn" type="button" disabled><span>🎈</span><strong>Play</strong><small>3 Dust · +2 Joy</small></button>
+        </div>
+
+        <div class="habitat-grid" id="habitatGrid"></div>
+      </section>
+
+      <section class="panel">
+        <h3>Laboratory Memory</h3>
+        <div class="button-row">
+          <button class="btn" id="exportDataBtn" type="button">Export Lab</button>
+          <button class="btn" id="importDataBtn" type="button">Import Lab</button>
+          <button class="btn" id="legacyBtn" type="button">Check V2 Save</button>
+          <button class="btn danger" id="resetBtn" type="button">Reset</button>
+        </div>
+      </section>
+    </aside>
+  </section>
+</main>
+
+<footer class="wrap footer">Critter Crafter™ · Creature Laboratory · Local-first · Icon vocabulary adapted from the companion Storybird Grove resource · No accounts, analytics, or outside services</footer>
+
+<dialog id="guideDialog">
+  <h2>Critter Crafter Guide</h2>
+  <div class="guide-grid">
+    <article class="guide-card"><strong>Two to Four Ingredients</strong><p>Recipes stay readable and strategic. Choosing a fifth ingredient asks you to remove one first.</p></article>
+    <article class="guide-card"><strong>Stable Species</strong><p>The sorted ingredient recipe and temperament lens create a deterministic species. The same recipe always returns the same identity.</p></article>
+    <article class="guide-card"><strong>Harmony</strong><p>Complementary pairs increase Harmony. Opposing pairs create Paradox, raising weirdness and unusual powers rather than blocking the craft.</p></article>
+    <article class="guide-card"><strong>Discovery Rewards</strong><p>A new species grants 12 Spark Dust. Re-crafting a known species grants 3 Dust and 6 XP only once per local calendar day.</p></article>
+    <article class="guide-card"><strong>Care</strong><p>Train grants experience. Snacks raise Bond. Play raises Joy. All care changes are deliberate and saved locally.</p></article>
+    <article class="guide-card"><strong>Evolution</strong><p>Experience determines level and form: Hatchling, Companion, Guardian, and Elder. Portraits and names visibly evolve.</p></article>
+    <article class="guide-card"><strong>Habitats</strong><p>Assign any discovered critter to Meadow, Tidal Pool, Ember Den, Sky Nest, Moon Cave, or Crystal Glen.</p></article>
+    <article class="guide-card"><strong>Daily Research</strong><p>One deterministic local-date challenge rewards 10 Spark Dust and cannot be repeatedly claimed.</p></article>
+    <article class="guide-card"><strong>Keyboard</strong><p>C crafts, X clears, F favorites the current critter, and Ctrl/Cmd+K focuses Bestiary search.</p></article>
+    <article class="guide-card"><strong>Safe Local Data</strong><p>Imports are bounded, normalized, and validated. The former V2 bestiary can be migrated when present.</p></article>
+  </div>
+  <div class="dialog-actions"><button class="btn primary" id="closeGuideBtn" type="button">Close Guide</button></div>
+</dialog>
+
+<dialog id="dataDialog">
+  <h2>Import / Export Creature Laboratory</h2>
+  <p class="panel-sub">Copy the complete validated local laboratory save, or paste another Critter Crafter save and import it.</p>
+  <textarea id="dataText" aria-label="Critter Crafter JSON"></textarea>
+  <div class="dialog-actions">
+    <button class="btn" id="copyDataBtn" type="button">Copy</button>
+    <button class="btn primary" id="doImportBtn" type="button">Import</button>
+    <button class="btn" id="closeDataBtn" type="button">Close</button>
+  </div>
+</dialog>
+
+<input id="importFileInput" type="file" accept=".json,application/json" hidden>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
-/* ============================================================
-   CRITTER CRAFTER — V2 GAME ENGINE
-   ============================================================ */
+(()=>{
+"use strict";
 
-/* === Ingredient Database === */
-const INGREDIENTS = [
-  { id: "fire",      label: "Fire",      emoji: "🔥" },
-  { id: "water",     label: "Water",     emoji: "💧" },
-  { id: "leaf",      label: "Leaf",      emoji: "🌱" },
-  { id: "wind",      label: "Wind",      emoji: "🌪" },
-  { id: "stone",     label: "Stone",     emoji: "🪨" },
-  { id: "lightning", label: "Lightning", emoji: "⚡" },
-  { id: "ice",       label: "Ice",       emoji: "❄️" },
-  { id: "shadow",    label: "Shadow",    emoji: "🌑" },
-  { id: "sun",       label: "Sunlight",  emoji: "☀️" },
-  { id: "prism",     label: "Prism Dust",emoji: "🌈" },
-  { id: "slime",     label: "Slime",     emoji: "🧪" },
-  { id: "feather",   label: "Feather",   emoji: "🪽" }
+const SAVE_KEY="CRITTER_CRAFTER_LAB_V4";
+const PREF_KEY="CRITTER_CRAFTER_LAB_PREFS_V4";
+const LEGACY_KEY="CRITTER_CRAFTER_V2_STATE";
+const MAX_CRITTERS=300;
+const MAX_IMPORT_CHARS=1000000;
+const MAX_SELECTED=4;
+const XP_THRESHOLDS=[0,20,50,90,140,210,300];
+
+const INGREDIENTS=[
+  {id:"fire",label:"Fire",icon:"🔥",category:"essence",tone:"#f49477",tags:["warm","bold"]},
+  {id:"water",label:"Water",icon:"💧",category:"essence",tone:"#67cfd0",tags:["calm","fluid"]},
+  {id:"leaf",label:"Leaf",icon:"🌱",category:"essence",tone:"#77d4ae",tags:["growing","kind"]},
+  {id:"wind",label:"Wind",icon:"🌪️",category:"essence",tone:"#73b9ea",tags:["swift","airy"]},
+  {id:"stone",label:"Stone",icon:"🪨",category:"essence",tone:"#a99bb5",tags:["steady","strong"]},
+  {id:"lightning",label:"Lightning",icon:"⚡",category:"essence",tone:"#efc862",tags:["electric","quick"]},
+  {id:"ice",label:"Ice",icon:"❄️",category:"essence",tone:"#bde8f4",tags:["cool","crystal"]},
+  {id:"shadow",label:"Shadow",icon:"🌑",category:"essence",tone:"#8875b0",tags:["quiet","mysterious"]},
+  {id:"sun",label:"Sunlight",icon:"☀️",category:"essence",tone:"#ffe07e",tags:["bright","cheerful"]},
+  {id:"prism",label:"Prism Dust",icon:"🌈",category:"essence",tone:"#e681ad",tags:["colorful","radiant"]},
+
+  {id:"feather",label:"Feather",icon:"🪽",category:"form",tone:"#d7c4f7",tags:["flying","gentle"]},
+  {id:"fur",label:"Soft Fur",icon:"🐾",category:"form",tone:"#d7a77a",tags:["cozy","warm"]},
+  {id:"shell",label:"Moon Shell",icon:"🐚",category:"form",tone:"#f0c9c1",tags:["armored","tidal"]},
+  {id:"scale",label:"Dragon Scale",icon:"🐉",category:"form",tone:"#77d4ae",tags:["mythic","scaled"]},
+  {id:"fin",label:"Silver Fin",icon:"🐠",category:"form",tone:"#73b9ea",tags:["swimming","sleek"]},
+  {id:"wing",label:"Butterfly Wing",icon:"🦋",category:"form",tone:"#e681ad",tags:["fluttering","graceful"]},
+  {id:"paw",label:"Velvet Paw",icon:"🐾",category:"form",tone:"#b6987d",tags:["nimble","friendly"]},
+  {id:"horn",label:"Crystal Horn",icon:"🦄",category:"form",tone:"#d7c4f7",tags:["magical","proud"]},
+
+  {id:"slime",label:"Slime",icon:"🧪",category:"spark",tone:"#77d4ae",tags:["gooey","strange"]},
+  {id:"moon",label:"Moonbeam",icon:"🌙",category:"spark",tone:"#9a8be3",tags:["night","dreamy"]},
+  {id:"star",label:"Stardrop",icon:"⭐",category:"spark",tone:"#efc862",tags:["sparkling","hopeful"]},
+  {id:"music",label:"Birdsong",icon:"🎵",category:"spark",tone:"#73b9ea",tags:["musical","social"]},
+  {id:"mushroom",label:"Glow Mushroom",icon:"🍄",category:"spark",tone:"#e681ad",tags:["forest","glowing"]},
+  {id:"honey",label:"Honey Drop",icon:"🍯",category:"spark",tone:"#efc862",tags:["sweet","helpful"]},
+  {id:"acorn",label:"Dream Acorn",icon:"🌰",category:"spark",tone:"#bc8b64",tags:["woodland","patient"]},
+  {id:"pearl",label:"River Pearl",icon:"🫧",category:"spark",tone:"#bde8f4",tags:["shimmering","rare"]}
 ];
 
-/* === DOM References === */
-const ingredientList   = document.getElementById("ingredient-list");
-const selectedBox      = document.getElementById("selected-ingredients");
-const craftBtn         = document.getElementById("craft-btn");
-const clearBtn         = document.getElementById("clear-btn");
-const resultBox        = document.getElementById("result");
-const bestiaryList     = document.getElementById("bestiary-list");
-const metaDiscoveries  = document.getElementById("meta-discoveries");
-const metaStreak       = document.getElementById("meta-streak");
+const CATEGORIES=[
+  {id:"all",label:"All"},
+  {id:"essence",label:"Essences"},
+  {id:"form",label:"Forms"},
+  {id:"spark",label:"Sparks"}
+];
 
-/* === Selected Ingredients Memory (ids) === */
-let selected = [];
+const HABITATS=[
+  {id:"meadow",label:"Meadow",icon:"🌼",tags:["leaf","sun","fur","paw","honey","acorn"]},
+  {id:"tidal",label:"Tidal Pool",icon:"🌊",tags:["water","ice","shell","fin","pearl"]},
+  {id:"ember",label:"Ember Den",icon:"🔥",tags:["fire","stone","scale","lightning"]},
+  {id:"sky",label:"Sky Nest",icon:"🪺",tags:["wind","feather","wing","music","star"]},
+  {id:"moon",label:"Moon Cave",icon:"🌙",tags:["shadow","moon","mushroom","slime"]},
+  {id:"crystal",label:"Crystal Glen",icon:"💎",tags:["prism","horn","pearl","ice","star"]}
+];
 
-/* === Persistent State === */
-const STORAGE_KEY = "CRITTER_CRAFTER_V2_STATE";
+const HARMONY_PAIRS=[
+  ["fire","wind"],["fire","stone"],["water","ice"],["water","fin"],["leaf","sun"],
+  ["leaf","honey"],["leaf","acorn"],["wind","feather"],["wind","wing"],["stone","lightning"],
+  ["shadow","moon"],["prism","star"],["prism","pearl"],["music","feather"],["music","wing"],
+  ["shell","pearl"],["scale","fire"],["horn","prism"],["mushroom","moon"],["fur","paw"]
+];
 
-const DEFAULT_STATE = {
-  bestiary: [],             // array of creatures
-  streak: 0,
-  lastCraftDate: null,      // "YYYY-MM-DD"
-  settings: {
-    chaosMode: true,
-    rareSpawns: true,
-    debugMode: false
-  }
+const PARADOX_PAIRS=[
+  ["fire","water"],["sun","shadow"],["stone","wind"],["ice","fire"],["slime","prism"]
+];
+
+const BODY_ICONS=["🦊","🦉","🐉","🐇","🐢","🦋","🕊️","🦌","🐻","🐺","🦝","🐿️","🦔","🦦","🐸","🐧","🐬","🐝","🐞","🐌","🦎","🦕","🦄","🐑","🐨","🦜","🦚","🦭"];
+const ACCESSORY_ICONS=["🌸","🍃","🪶","🪄","🎀","🔔","🧭","🗝️","🍄","🌙","☀️","⭐","💎","🌈","🎵","🫧"];
+const SPARK_ICONS=["✨","💫","🌟","🦋","🍀","🌼","🔥","❄️","⚡","🌊","🌙","🌈"];
+
+const PREFIXES=[
+  "Glim","Moss","Lumi","Puff","Whim","Pebble","Moon","Sun","Prism","Aero","Pyro","Hydro",
+  "Thistle","Honey","Echo","Velvet","Nova","Tide","Ember","Bloom","Frost","Star","Cloud","Acorn"
+];
+const SUFFIXES=[
+  "ling","whisk","tail","moth","sprite","puff","hopper","fin","wing","snout","bloom","whisper",
+  "spark","shell","paw","song","drift","glow","kin","beak","horn","wisp","tumble","nibble"
+];
+const POWERS=[
+  "warms cold tea to exactly the right temperature",
+  "coaxes sleepy flowers to open",
+  "summons a breeze that smells like rain",
+  "builds tiny bridges from moonlight",
+  "hears secrets hidden inside pebbles",
+  "turns ordinary puddles into star maps",
+  "guides lost fireflies safely home",
+  "creates floating bubbles that carry songs",
+  "makes moss glow along safe forest paths",
+  "mends small cracks with crystal thread",
+  "calls friendly clouds to shade tired travelers",
+  "can fold a rainbow into a pocket-sized ribbon",
+  "grows tiny snack berries whenever a friend is hungry",
+  "paints gentle auroras across dark rooms",
+  "finds misplaced buttons, keys, and marbles",
+  "can hum a tune that calms noisy storms"
+];
+const QUIRKS=[
+  "collects shiny pebbles and names every one",
+  "sneezes a harmless puff of glitter",
+  "always walks in a tiny victory circle before resting",
+  "insists that mushrooms are excellent listeners",
+  "falls asleep whenever someone says the word broccoli",
+  "greets every butterfly as an old friend",
+  "hides snacks in places it immediately forgets",
+  "answers difficult questions with one thoughtful chirp",
+  "rearranges leaves into surprisingly good portraits",
+  "wears acorn caps as formal hats",
+  "thinks puddles are miniature oceans",
+  "cannot resist dancing when bells ring",
+  "whispers encouraging advice to seedlings",
+  "makes dramatic entrances even when nobody is watching"
+];
+const TEMPERAMENTS={
+  cozy:{label:"Cozy",words:["gentle","patient","snuggly","kind"]},
+  curious:{label:"Curious",words:["clever","observant","inventive","wonder-filled"]},
+  wild:{label:"Wild",words:["bold","lively","adventurous","mischievous"]},
+  mystic:{label:"Mystic",words:["dreamy","ancient","luminous","mysterious"]}
 };
 
-let state = loadState();
+const DAILY_CHALLENGES=[
+  {
+    id:"three",
+    title:"Three-Part Fusion",
+    description:"Craft a recipe containing exactly three ingredients.",
+    target:1,
+    progress(state){return state.daily.actions.threePart;}
+  },
+  {
+    id:"harmony",
+    title:"Harmonious Discovery",
+    description:"Craft a recipe with Harmony of at least 75.",
+    target:1,
+    progress(state){return state.daily.actions.highHarmony;}
+  },
+  {
+    id:"paradox",
+    title:"Friendly Paradox",
+    description:"Craft a recipe containing at least one paradox pair.",
+    target:1,
+    progress(state){return state.daily.actions.paradox;}
+  },
+  {
+    id:"care",
+    title:"Caring Hands",
+    description:"Complete three care actions with discovered critters.",
+    target:3,
+    progress(state){return state.daily.actions.care;}
+  },
+  {
+    id:"new",
+    title:"New Little Friend",
+    description:"Discover one species not already in your bestiary.",
+    target:1,
+    progress(state){return state.daily.actions.newSpecies;}
+  },
+  {
+    id:"evolve",
+    title:"Growing Companion",
+    description:"Help one critter reach a new evolutionary form.",
+    target:1,
+    progress(state){return state.daily.actions.evolved;}
+  }
+];
 
-/* ============================================================
-   STATE LOAD / SAVE
-   ============================================================ */
-function loadState() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return structuredClone(DEFAULT_STATE);
-    const parsed = JSON.parse(raw);
-    // merge with defaults to avoid undefined
-    return {
-      ...structuredClone(DEFAULT_STATE),
-      ...parsed,
-      settings: { ...DEFAULT_STATE.settings, ...(parsed.settings || {}) }
+const $=selector=>document.querySelector(selector);
+const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
+const safeNumber=(value,fallback=0)=>Number.isFinite(Number(value))?Number(value):fallback;
+const safeText=value=>String(value??"");
+const deepClone=value=>JSON.parse(JSON.stringify(value));
+
+let state=loadState();
+let prefs=loadPrefs();
+let selected=[];
+let category="all";
+let currentCritterId=state.currentCritterId||null;
+let audioContext=null;
+let toastTimer=0;
+
+function localDay(date=new Date()){
+  return`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}-${String(date.getDate()).padStart(2,"0")}`;
+}
+function hashString(text){
+  let hash=2166136261>>>0;
+  for(let index=0;index<text.length;index++){
+    hash^=text.charCodeAt(index);
+    hash=Math.imul(hash,16777619);
+  }
+  return hash>>>0;
+}
+function mulberry32(seed){
+  return function(){
+    let value=seed+=0x6D2B79F5;
+    value=Math.imul(value^value>>>15,value|1);
+    value^=value+Math.imul(value^value>>>7,value|61);
+    return((value^value>>>14)>>>0)/4294967296;
+  };
+}
+function uid(prefix="id"){
+  let part;
+  try{
+    const data=new Uint32Array(1);
+    crypto.getRandomValues(data);
+    part=data[0].toString(16);
+  }catch{
+    part=Math.random().toString(16).slice(2);
+  }
+  return`${prefix}_${Date.now()}_${part.slice(0,8)}`;
+}
+function defaultState(){
+  return{
+    version:4,
+    critters:[],
+    sparkDust:30,
+    streak:0,
+    lastCraftDate:null,
+    recipesDiscovered:[],
+    recipeLastReward:{},
+    currentCritterId:null,
+    daily:newDaily(),
+    migratedLegacy:false,
+    status:"Select ingredients from the library, then craft a new critter."
+  };
+}
+function defaultPrefs(){
+  return{
+    temperament:"cozy",
+    motion:"full",
+    sound:"off"
+  };
+}
+function newDaily(){
+  const index=hashString(`critter-daily|${localDay()}`)%DAILY_CHALLENGES.length;
+  return{
+    date:localDay(),
+    challengeId:DAILY_CHALLENGES[index].id,
+    completed:false,
+    actions:{
+      threePart:0,
+      highHarmony:0,
+      paradox:0,
+      care:0,
+      newSpecies:0,
+      evolved:0
+    }
+  };
+}
+function loadPrefs(){
+  try{
+    const raw=JSON.parse(localStorage.getItem(PREF_KEY)||"{}");
+    return{
+      temperament:TEMPERAMENTS[raw.temperament]?raw.temperament:"cozy",
+      motion:raw.motion==="reduced"?"reduced":"full",
+      sound:raw.sound==="on"?"on":"off"
     };
-  } catch (e) {
-    return structuredClone(DEFAULT_STATE);
+  }catch{
+    return defaultPrefs();
+  }
+}
+function savePrefs(){
+  try{localStorage.setItem(PREF_KEY,JSON.stringify(prefs));}catch{}
+}
+function normalizeCritter(raw){
+  if(!raw||typeof raw!=="object")return null;
+  const ingredients=Array.isArray(raw.ingredients)
+    ?[...new Set(raw.ingredients.map(value=>safeText(value)).filter(id=>INGREDIENTS.some(item=>item.id===id)))].slice(0,MAX_SELECTED).sort()
+    :[];
+  if(ingredients.length<2)return null;
+  const temperament=TEMPERAMENTS[raw.temperament]?raw.temperament:"cozy";
+  const blueprint=buildBlueprint(ingredients,temperament);
+  const xp=Math.round(clamp(safeNumber(raw.xp,0),0,999999));
+  const level=levelFromXp(xp);
+  return{
+    id:safeText(raw.id||uid("critter")).slice(0,80),
+    recipeKey:recipeKey(ingredients,temperament),
+    ingredients,
+    temperament,
+    species:blueprint.species,
+    nickname:safeText(raw.nickname||blueprint.species).replace(/[\u0000-\u001f\u007f]/g,"").slice(0,50)||blueprint.species,
+    rarity:["common","uncommon","rare","mythic"].includes(raw.rarity)?raw.rarity:blueprint.rarity,
+    description:blueprint.description,
+    power:blueprint.power,
+    quirk:blueprint.quirk,
+    preferredHabitat:blueprint.preferredHabitat,
+    habitat:HABITATS.some(habitat=>habitat.id===raw.habitat)?raw.habitat:blueprint.preferredHabitat,
+    portrait:blueprint.portrait,
+    baseStats:blueprint.stats,
+    xp,
+    level,
+    bond:Math.round(clamp(safeNumber(raw.bond,0),0,100)),
+    joy:Math.round(clamp(safeNumber(raw.joy,50),0,100)),
+    training:Math.round(clamp(safeNumber(raw.training,0),0,9999)),
+    favorite:Boolean(raw.favorite),
+    discoveries:Math.round(clamp(safeNumber(raw.discoveries,1),1,99999)),
+    createdAt:Number.isFinite(Date.parse(raw.createdAt))?raw.createdAt:new Date().toISOString(),
+    lastCraftedAt:Number.isFinite(Date.parse(raw.lastCraftedAt))?raw.lastCraftedAt:new Date().toISOString()
+  };
+}
+function normalizeState(raw){
+  const source=raw&&typeof raw==="object"?raw:{};
+  const dailySource=source.daily&&typeof source.daily==="object"?source.daily:newDaily();
+  const daily=dailySource.date===localDay()?{
+    date:localDay(),
+    challengeId:DAILY_CHALLENGES.some(challenge=>challenge.id===dailySource.challengeId)?dailySource.challengeId:newDaily().challengeId,
+    completed:Boolean(dailySource.completed),
+    actions:{
+      threePart:Math.round(clamp(safeNumber(dailySource.actions?.threePart,0),0,999)),
+      highHarmony:Math.round(clamp(safeNumber(dailySource.actions?.highHarmony,0),0,999)),
+      paradox:Math.round(clamp(safeNumber(dailySource.actions?.paradox,0),0,999)),
+      care:Math.round(clamp(safeNumber(dailySource.actions?.care,0),0,999)),
+      newSpecies:Math.round(clamp(safeNumber(dailySource.actions?.newSpecies,0),0,999)),
+      evolved:Math.round(clamp(safeNumber(dailySource.actions?.evolved,0),0,999))
+    }
+  }:newDaily();
+
+  const critters=Array.isArray(source.critters)
+    ?source.critters.slice(0,MAX_CRITTERS).map(normalizeCritter).filter(Boolean)
+    :[];
+
+  const current=critters.some(critter=>critter.id===source.currentCritterId)?source.currentCritterId:(critters[0]?.id||null);
+
+  return{
+    version:4,
+    critters,
+    sparkDust:Math.round(clamp(safeNumber(source.sparkDust,30),0,999999)),
+    streak:Math.round(clamp(safeNumber(source.streak,0),0,99999)),
+    lastCraftDate:/^\d{4}-\d{2}-\d{2}$/.test(source.lastCraftDate||"")?source.lastCraftDate:null,
+    recipesDiscovered:Array.isArray(source.recipesDiscovered)
+      ?[...new Set(source.recipesDiscovered.map(value=>safeText(value).slice(0,180)))].slice(0,MAX_CRITTERS)
+      :critters.map(critter=>critter.recipeKey),
+    recipeLastReward:source.recipeLastReward&&typeof source.recipeLastReward==="object"
+      ?Object.fromEntries(Object.entries(source.recipeLastReward).slice(0,MAX_CRITTERS).map(([key,value])=>[
+        safeText(key).slice(0,180),
+        /^\d{4}-\d{2}-\d{2}$/.test(value)?value:localDay()
+      ]))
+      :{},
+    currentCritterId:current,
+    daily,
+    migratedLegacy:Boolean(source.migratedLegacy),
+    status:safeText(source.status||defaultState().status).slice(0,260)
+  };
+}
+function loadState(){
+  try{
+    return normalizeState(JSON.parse(localStorage.getItem(SAVE_KEY)||"null"));
+  }catch{
+    return defaultState();
+  }
+}
+function persist(){
+  state.currentCritterId=currentCritterId;
+  try{
+    localStorage.setItem(SAVE_KEY,JSON.stringify(state));
+    return true;
+  }catch{
+    showToast("Local storage is unavailable or full.");
+    return false;
+  }
+}
+function ensureDaily(){
+  if(state.daily.date===localDay())return;
+  state.daily=newDaily();
+  persist();
+}
+function currentCritter(){
+  return state.critters.find(critter=>critter.id===currentCritterId)||null;
+}
+
+function ingredient(id){
+  return INGREDIENTS.find(item=>item.id===id)||null;
+}
+function recipeKey(ids,temperament){
+  return`${[...ids].sort().join("+")}::${temperament}`;
+}
+function pairs(ids){
+  const list=[];
+  for(let a=0;a<ids.length;a++){
+    for(let b=a+1;b<ids.length;b++)list.push([ids[a],ids[b]]);
+  }
+  return list;
+}
+function hasPair(pairList,a,b){
+  return pairList.some(pair=>(pair[0]===a&&pair[1]===b)||(pair[0]===b&&pair[1]===a));
+}
+function recipeHarmony(ids){
+  if(ids.length<2)return{score:0,harmonyPairs:0,paradoxPairs:0,label:"No Recipe"};
+  let score=42+ids.length*6;
+  let harmonyPairs=0;
+  let paradoxPairs=0;
+  const categories=new Set(ids.map(id=>ingredient(id)?.category).filter(Boolean));
+  score+=categories.size*5;
+  for(const [a,b] of pairs(ids)){
+    if(hasPair(HARMONY_PAIRS,a,b)){
+      score+=10;
+      harmonyPairs++;
+    }
+    if(hasPair(PARADOX_PAIRS,a,b)){
+      score-=4;
+      paradoxPairs++;
+    }
+  }
+  score=clamp(Math.round(score),12,100);
+  let label="Curious Mixture";
+  if(score>=88)label="Perfect Resonance";
+  else if(score>=74)label="Bright Harmony";
+  else if(score>=58)label="Stable Fusion";
+  if(paradoxPairs>=2)label="Wild Paradox";
+  else if(paradoxPairs===1&&score<70)label="Friendly Paradox";
+  return{score,harmonyPairs,paradoxPairs,label};
+}
+function rarityFor(hash,harmony){
+  const roll=hash%100;
+  const boost=Math.floor(harmony.score/18);
+  const adjusted=roll+boost;
+  if(adjusted>=96)return"mythic";
+  if(adjusted>=82)return"rare";
+  if(adjusted>=55)return"uncommon";
+  return"common";
+}
+function preferredHabitat(ids){
+  let best=HABITATS[0];
+  let bestScore=-1;
+  for(const habitat of HABITATS){
+    const score=ids.filter(id=>habitat.tags.includes(id)).length;
+    if(score>bestScore){
+      best=habitat;
+      bestScore=score;
+    }
+  }
+  return best.id;
+}
+function levelFromXp(xp){
+  let level=1;
+  for(let index=1;index<XP_THRESHOLDS.length;index++){
+    if(xp>=XP_THRESHOLDS[index])level=index+1;
+  }
+  if(xp>=XP_THRESHOLDS[XP_THRESHOLDS.length-1])level=XP_THRESHOLDS.length;
+  return level;
+}
+function formForLevel(level){
+  if(level>=6)return"Elder";
+  if(level>=4)return"Guardian";
+  if(level>=2)return"Companion";
+  return"Hatchling";
+}
+function evolutionPrefix(level){
+  if(level>=6)return"Grand ";
+  if(level>=4)return"Bright ";
+  if(level>=2)return"Young ";
+  return"";
+}
+function buildBlueprint(ids,temperament){
+  const sorted=[...ids].sort();
+  const key=recipeKey(sorted,temperament);
+  const hash=hashString(key);
+  const rng=mulberry32(hash);
+  const harmony=recipeHarmony(sorted);
+  const rarity=rarityFor(hash,harmony);
+  const prefix=PREFIXES[Math.floor(rng()*PREFIXES.length)];
+  const suffix=SUFFIXES[Math.floor(rng()*SUFFIXES.length)];
+  const species=`${prefix}${suffix}`;
+  const items=sorted.map(ingredient).filter(Boolean);
+  const tags=items.flatMap(item=>item.tags);
+  const temperWords=TEMPERAMENTS[temperament].words;
+  const temperWord=temperWords[Math.floor(rng()*temperWords.length)];
+  const power=POWERS[Math.floor(rng()*POWERS.length)];
+  const quirk=QUIRKS[Math.floor(rng()*QUIRKS.length)];
+  const main=BODY_ICONS[Math.floor(rng()*BODY_ICONS.length)];
+  const accessory=ACCESSORY_ICONS[Math.floor(rng()*ACCESSORY_ICONS.length)];
+  const spark=SPARK_ICONS[Math.floor(rng()*SPARK_ICONS.length)];
+  const element=items[0]?.icon||"✨";
+  const tone=items[0]?.tone||"#67cfd0";
+  const soft=items[1]?.tone||"#d7c4f7";
+  const preferred=preferredHabitat(sorted);
+
+  let charm=28+(hash%33)+harmony.harmonyPairs*5;
+  let wonder=30+((hash>>>4)%35)+sorted.length*3;
+  let courage=25+((hash>>>8)%36)+(sorted.includes("fire")||sorted.includes("lightning")?8:0);
+  let calm=25+((hash>>>12)%35)+(sorted.includes("water")||sorted.includes("leaf")?8:0);
+  let weirdness=24+((hash>>>16)%40)+harmony.paradoxPairs*12+(sorted.includes("slime")?8:0);
+
+  const stats={
+    charm:clamp(charm,10,99),
+    wonder:clamp(wonder,10,99),
+    courage:clamp(courage,10,99),
+    calm:clamp(calm,10,99),
+    weirdness:clamp(weirdness,10,99)
+  };
+
+  const ingredientNames=items.map(item=>item.label).join(", ");
+  const description=`Born from ${ingredientNames}, this ${temperWord} little creature ${power}. It ${quirk}.`;
+
+  return{
+    key,
+    hash,
+    species,
+    rarity,
+    description,
+    power,
+    quirk,
+    preferredHabitat:preferred,
+    harmony,
+    stats,
+    portrait:{main,accessory,spark,element,tone,soft},
+    tags:[...new Set([...tags,temperament,rarity])]
+  };
+}
+function recipeCode(ids=selected,temperament=prefs.temperament){
+  if(ids.length<2)return"—";
+  const payload=recipeKey(ids,temperament);
+  const check=(hashString(payload)%46656).toString(36).toUpperCase().padStart(3,"0");
+  return`CC-${hashString(payload).toString(36).toUpperCase()}-${check}`;
+}
+
+function updateStreak(){
+  const today=localDay();
+  if(!state.lastCraftDate){
+    state.streak=1;
+  }else if(state.lastCraftDate!==today){
+    const previous=new Date(`${state.lastCraftDate}T12:00:00`);
+    const current=new Date(`${today}T12:00:00`);
+    const diff=Math.round((current-previous)/86400000);
+    state.streak=diff===1?state.streak+1:1;
+  }
+  state.lastCraftDate=today;
+}
+function craftCritter(){
+  if(selected.length<2)return setStatus("Choose at least two ingredients before crafting.");
+  const blueprint=buildBlueprint(selected,prefs.temperament);
+  const key=blueprint.key;
+  let critter=state.critters.find(item=>item.recipeKey===key);
+  const isNew=!critter;
+  const today=localDay();
+  let reward=0;
+  let evolved=false;
+
+  if(isNew){
+    critter=normalizeCritter({
+      id:uid("critter"),
+      ingredients:selected,
+      temperament:prefs.temperament,
+      nickname:blueprint.species,
+      rarity:blueprint.rarity,
+      xp:0,
+      bond:0,
+      joy:50,
+      training:0,
+      favorite:false,
+      discoveries:1,
+      createdAt:new Date().toISOString(),
+      lastCraftedAt:new Date().toISOString()
+    });
+    state.critters.unshift(critter);
+    state.recipesDiscovered.unshift(key);
+    state.recipesDiscovered=[...new Set(state.recipesDiscovered)].slice(0,MAX_CRITTERS);
+    reward=12;
+    state.daily.actions.newSpecies++;
+  }else{
+    const oldLevel=critter.level;
+    critter.discoveries++;
+    critter.lastCraftedAt=new Date().toISOString();
+    if(state.recipeLastReward[key]!==today){
+      critter.xp+=6;
+      critter.level=levelFromXp(critter.xp);
+      reward=3;
+      state.recipeLastReward[key]=today;
+      evolved=formForLevel(critter.level)!==formForLevel(oldLevel);
+      if(evolved)state.daily.actions.evolved++;
+    }
+  }
+
+  state.sparkDust+=reward;
+  updateStreak();
+
+  const harmony=blueprint.harmony;
+  if(selected.length===3)state.daily.actions.threePart=1;
+  if(harmony.score>=75)state.daily.actions.highHarmony=1;
+  if(harmony.paradoxPairs>0)state.daily.actions.paradox=1;
+
+  currentCritterId=critter.id;
+  state.status=isNew
+    ?`New species discovered: ${blueprint.species}. +${reward} Spark Dust.`
+    :reward
+      ?`${critter.nickname} remembered this recipe and gained 6 XP. +${reward} Spark Dust.`
+      :`${critter.nickname} was already crafted today. The recipe remains stable, but no repeat reward was granted.`;
+
+  updateDaily();
+  persist();
+  renderAll();
+  playTone(isNew?660:520,true);
+  showToast(state.status);
+}
+function previewRecipe(){
+  if(selected.length<2)return setStatus("Choose at least two ingredients for a preview.");
+  const blueprint=buildBlueprint(selected,prefs.temperament);
+  setStatus(`${blueprint.species} preview · ${blueprint.rarity} · ${blueprint.harmony.label} · preferred habitat: ${habitatLabel(blueprint.preferredHabitat)}.`);
+  renderPreviewBlueprint(blueprint);
+}
+function renderPreviewBlueprint(blueprint){
+  $("#portraitMain").textContent=blueprint.portrait.main;
+  $("#portraitAccessory").textContent=blueprint.portrait.accessory;
+  $("#portraitElement").textContent=blueprint.portrait.element;
+  $("#portraitSpark").textContent=blueprint.portrait.spark;
+  $("#creatureStage").style.setProperty("--portrait-tone",blueprint.portrait.tone);
+  $("#creatureStage").style.setProperty("--portrait-soft",blueprint.portrait.soft);
+  $("#creatureStage").style.setProperty("--portrait-aura",`${blueprint.portrait.tone}42`);
+  $("#resultName").textContent=`Preview · ${blueprint.species}`;
+  $("#resultSub").textContent=`${blueprint.rarity} ${TEMPERAMENTS[prefs.temperament].label.toLowerCase()} species`;
+  $("#resultDescription").textContent=blueprint.description;
+  renderTags(blueprint.tags);
+  renderStatBars(blueprint.stats);
+}
+function surpriseRecipe(){
+  const rng=mulberry32(hashString(`${Date.now()}|${state.critters.length}|${prefs.temperament}`));
+  const count=2+Math.floor(rng()*3);
+  const pool=[...INGREDIENTS];
+  selected=[];
+  while(selected.length<count&&pool.length){
+    const index=Math.floor(rng()*pool.length);
+    selected.push(pool.splice(index,1)[0].id);
+  }
+  state.status="A surprise recipe is ready in the cauldron.";
+  renderAll();
+}
+
+function currentStats(critter){
+  const bonus=Math.min(20,critter.training*2);
+  return{
+    charm:clamp(critter.baseStats.charm+Math.floor(critter.bond/12),0,99),
+    wonder:clamp(critter.baseStats.wonder+Math.floor(critter.level*1.5),0,99),
+    courage:clamp(critter.baseStats.courage+bonus,0,99),
+    calm:clamp(critter.baseStats.calm+Math.floor(critter.joy/18),0,99),
+    weirdness:clamp(critter.baseStats.weirdness+Math.floor(critter.level/2),0,99)
+  };
+}
+function nextLevelXp(critter){
+  return XP_THRESHOLDS[Math.min(critter.level,XP_THRESHOLDS.length-1)]||XP_THRESHOLDS[XP_THRESHOLDS.length-1];
+}
+function performCare(type){
+  const critter=currentCritter();
+  if(!critter)return;
+  const costs={train:8,snack:3,play:3};
+  const cost=costs[type];
+  if(state.sparkDust<cost)return showToast(`Not enough Spark Dust. ${cost} required.`);
+  const oldForm=formForLevel(critter.level);
+  state.sparkDust-=cost;
+  if(type==="train"){
+    critter.xp+=15;
+    critter.training++;
+  }
+  if(type==="snack")critter.bond=clamp(critter.bond+2,0,100);
+  if(type==="play")critter.joy=clamp(critter.joy+2,0,100);
+  critter.level=levelFromXp(critter.xp);
+  state.daily.actions.care++;
+  const newForm=formForLevel(critter.level);
+  if(newForm!==oldForm){
+    state.daily.actions.evolved++;
+    showToast(`${critter.nickname} evolved into the ${newForm} form.`);
+    playSolvedChord();
+  }else{
+    playTone(type==="train"?610:type==="snack"?480:720,true);
+  }
+  state.status=type==="train"
+    ?`${critter.nickname} trained and gained 15 XP.`
+    :type==="snack"
+      ?`${critter.nickname} enjoyed a snack and gained 2 Bond.`
+      :`${critter.nickname} played and gained 2 Joy.`;
+  updateDaily();
+  persist();
+  renderAll();
+}
+function assignHabitat(id){
+  const critter=currentCritter();
+  if(!critter||!HABITATS.some(habitat=>habitat.id===id))return;
+  critter.habitat=id;
+  state.status=`${critter.nickname} now lives in ${habitatLabel(id)}.`;
+  persist();
+  renderAll();
+}
+function habitatLabel(id){
+  return HABITATS.find(habitat=>habitat.id===id)?.label||"Unknown Habitat";
+}
+function favoriteCurrent(){
+  const critter=currentCritter();
+  if(!critter)return;
+  critter.favorite=!critter.favorite;
+  state.status=critter.favorite?`${critter.nickname} was added to favorites.`:`${critter.nickname} was removed from favorites.`;
+  persist();
+  renderAll();
+}
+function renameCurrent(){
+  const critter=currentCritter();
+  if(!critter)return;
+  const next=prompt("Give this critter a nickname:",critter.nickname);
+  if(next===null)return;
+  const safe=safeText(next).replace(/[\u0000-\u001f\u007f]/g,"").trim().slice(0,50);
+  if(!safe)return showToast("Nickname cannot be empty.");
+  critter.nickname=safe;
+  state.status=`Nickname saved: ${safe}.`;
+  persist();
+  renderAll();
+}
+function releaseCurrent(){
+  const critter=currentCritter();
+  if(!critter)return;
+  if(!confirm(`Release ${critter.nickname} from the bestiary? The recipe can rediscover this species later.`))return;
+  state.critters=state.critters.filter(item=>item.id!==critter.id);
+  currentCritterId=state.critters[0]?.id||null;
+  state.status=`${critter.nickname} wandered into another magical habitat.`;
+  persist();
+  renderAll();
+}
+
+function currentChallenge(){
+  return DAILY_CHALLENGES.find(challenge=>challenge.id===state.daily.challengeId)||DAILY_CHALLENGES[0];
+}
+function challengeProgress(){
+  const challenge=currentChallenge();
+  return clamp(challenge.progress(state),0,challenge.target);
+}
+function updateDaily(){
+  ensureDaily();
+  const challenge=currentChallenge();
+  const progress=challengeProgress();
+  if(!state.daily.completed&&progress>=challenge.target){
+    state.daily.completed=true;
+    state.sparkDust+=10;
+    state.status=`Daily research complete: ${challenge.title}. +10 Spark Dust.`;
+    showToast(state.status);
   }
 }
 
-function saveState() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+function renderAll(){
+  ensureDaily();
+  renderCategories();
+  renderIngredients();
+  renderRecipeSlots();
+  renderFusion();
+  renderCurrent();
+  renderMetrics();
+  renderDaily();
+  renderBestiary();
+  renderHabitats();
+  renderControls();
+  document.body.dataset.motion=prefs.motion;
 }
-
-/* ============================================================
-   RENDER INGREDIENTS
-   ============================================================ */
-function renderIngredients() {
-  ingredientList.innerHTML = "";
-  INGREDIENTS.forEach(ing => {
-    const div = document.createElement("div");
-    div.className = "ingredient";
-    if (selected.includes(ing.id)) div.classList.add("selected");
-
-    const emSpan = document.createElement("span");
-    emSpan.textContent = ing.emoji;
-    const nameSpan = document.createElement("span");
-    nameSpan.textContent = ing.label;
-    nameSpan.className = "ingredient-name";
-
-    div.appendChild(emSpan);
-    div.appendChild(nameSpan);
-
-    div.addEventListener("click", () => toggleIngredient(ing.id));
-
-    ingredientList.appendChild(div);
+function renderCategories(){
+  const container=$("#categoryTabs");
+  container.replaceChildren();
+  CATEGORIES.forEach(item=>{
+    const button=document.createElement("button");
+    button.type="button";
+    button.className=`category-btn${category===item.id?" active":""}`;
+    button.textContent=item.label;
+    button.setAttribute("aria-pressed",String(category===item.id));
+    button.addEventListener("click",()=>{
+      category=item.id;
+      renderCategories();
+      renderIngredients();
+    });
+    container.appendChild(button);
   });
 }
-
-/* === Select / Unselect Ingredient === */
-function toggleIngredient(id) {
-  if (selected.includes(id)) {
-    selected = selected.filter(x => x !== id);
-  } else {
+function renderIngredients(){
+  const container=$("#ingredientGrid");
+  container.replaceChildren();
+  const list=category==="all"?INGREDIENTS:INGREDIENTS.filter(item=>item.category===category);
+  list.forEach(item=>{
+    const button=document.createElement("button");
+    button.type="button";
+    button.className=`ingredient-card${selected.includes(item.id)?" active":""}`;
+    button.style.setProperty("--ingredient-tone",item.tone);
+    button.setAttribute("aria-pressed",String(selected.includes(item.id)));
+    const icon=document.createElement("span");
+    icon.className="ingredient-icon";
+    icon.textContent=item.icon;
+    const label=document.createElement("strong");
+    label.textContent=item.label;
+    const type=document.createElement("small");
+    type.textContent=item.category;
+    button.append(icon,label,type);
+    button.addEventListener("click",()=>toggleIngredient(item.id));
+    container.appendChild(button);
+  });
+  $("#selectedCount").textContent=`${selected.length} of ${MAX_SELECTED} ingredients selected`;
+}
+function toggleIngredient(id){
+  if(selected.includes(id)){
+    selected=selected.filter(value=>value!==id);
+  }else{
+    if(selected.length>=MAX_SELECTED)return showToast("The cauldron holds at most four ingredients.");
     selected.push(id);
   }
-  renderIngredients();
-  renderSelectedBox();
+  state.status=selected.length
+    ?`${selected.length} ingredient${selected.length===1?"":"s"} selected.`
+    :"The cauldron is empty.";
+  renderAll();
 }
+function renderRecipeSlots(){
+  const slots=$("#recipeSlots");
+  slots.replaceChildren();
+  const bubbles=$("#cauldronBubbles");
+  bubbles.replaceChildren();
+  for(let index=0;index<MAX_SELECTED;index++){
+    const slot=document.createElement("div");
+    slot.className="recipe-slot";
+    const item=ingredient(selected[index]);
+    const title=document.createElement("strong");
+    title.textContent=item?`${item.icon} ${item.label}`:`Slot ${index+1}`;
+    const detail=document.createElement("span");
+    detail.textContent=item?item.category:"empty";
+    slot.append(title,detail);
+    slots.appendChild(slot);
 
-/* === Render Selected Ingredients Chips === */
-function renderSelectedBox() {
-  selectedBox.innerHTML = "";
-  if (!selected.length) {
-    const span = document.createElement("div");
-    span.className = "hint";
-    span.textContent = "No ingredients selected yet.";
-    selectedBox.appendChild(span);
+    const bubble=document.createElement("div");
+    bubble.className="bubble";
+    bubble.textContent=item?.icon||"·";
+    bubbles.appendChild(bubble);
+  }
+}
+function renderFusion(){
+  const harmony=recipeHarmony(selected);
+  $("#harmonyScore").textContent=harmony.score;
+  $("#harmonyFill").style.width=`${harmony.score}%`;
+  $("#harmonyTitle").textContent=harmony.label;
+  $("#harmonyText").textContent=selected.length<2
+    ?"Choose two to four ingredients to begin."
+    :`${harmony.harmonyPairs} harmony pair${harmony.harmonyPairs===1?"":"s"} · ${harmony.paradoxPairs} paradox pair${harmony.paradoxPairs===1?"":"s"} · ${new Set(selected.map(id=>ingredient(id).category)).size} ingredient categories.`;
+  $("#fusionLabel").textContent=selected.length<2?"Waiting":harmony.label;
+  $("#recipeCodeLabel").textContent=`Recipe ${recipeCode()}`;
+}
+function renderCurrent(){
+  const critter=currentCritter();
+  if(!critter){
+    $("#portraitMain").textContent="🐾";
+    $("#portraitAccessory").textContent="✨";
+    $("#portraitElement").textContent="🧪";
+    $("#portraitSpark").textContent="💫";
+    $("#creatureStage").style.setProperty("--portrait-tone","#67cfd0");
+    $("#creatureStage").style.setProperty("--portrait-soft","#d7c4f7");
+    $("#creatureStage").style.setProperty("--portrait-aura","rgba(103,207,208,.22)");
+    $("#resultName").textContent="No Critter Yet";
+    $("#resultSub").textContent="Your next laboratory companion will appear here.";
+    $("#resultDescription").textContent="Every critter has a stable species name, portrait, habitat preference, temperament, power, quirk, rarity, and discovery code.";
+    $("#resultTags").replaceChildren();
+    $("#statBars").replaceChildren();
     return;
   }
-  selected.forEach(id => {
-    const ing = INGREDIENTS.find(i => i.id === id);
-    const chip = document.createElement("div");
-    chip.className = "sel-item";
-    chip.textContent = `${ing.emoji} ${ing.label}`;
-    selectedBox.appendChild(chip);
+
+  const form=formForLevel(critter.level);
+  const displayName=`${evolutionPrefix(critter.level)}${critter.nickname}`;
+  $("#portraitMain").textContent=critter.portrait.main;
+  $("#portraitAccessory").textContent=critter.portrait.accessory;
+  $("#portraitElement").textContent=critter.portrait.element;
+  $("#portraitSpark").textContent=critter.portrait.spark;
+  $("#creatureStage").style.setProperty("--portrait-tone",critter.portrait.tone);
+  $("#creatureStage").style.setProperty("--portrait-soft",critter.portrait.soft);
+  $("#creatureStage").style.setProperty("--portrait-aura",`${critter.portrait.tone}42`);
+  $("#resultName").textContent=displayName;
+  $("#resultSub").textContent=`${form} · Level ${critter.level} · ${critter.rarity} · ${habitatLabel(critter.habitat)}`;
+  $("#resultDescription").textContent=critter.description;
+  const tags=[
+    critter.rarity,
+    TEMPERAMENTS[critter.temperament].label,
+    form,
+    `Bond ${critter.bond}`,
+    `Joy ${critter.joy}`,
+    `${critter.xp} XP`
+  ];
+  renderTags(tags);
+  renderStatBars(currentStats(critter));
+}
+function renderTags(tags){
+  const container=$("#resultTags");
+  container.replaceChildren();
+  tags.forEach((text,index)=>{
+    const tag=document.createElement("span");
+    tag.className=`tag${index===0?` rarity-${safeText(text).toLowerCase()}`:""}`;
+    tag.textContent=text;
+    container.appendChild(tag);
   });
 }
-
-/* ============================================================
-   NAME / DESC / STATS GENERATION
-   (Deterministic from ingredient combo)
-   ============================================================ */
-
-const NAME_PREFIXES = [
-  "Glo", "Mythi", "Aero", "Pyro", "Cryo", "Thorni", "Electro",
-  "Umbra", "Solari", "Prismo", "Echo", "Slimo", "Feathri", "Nocti",
-  "Hydro", "Terri"
-];
-
-const NAME_SUFFIXES = [
-  "beast", "ling", "wyrm", "spirit", "kin", "spawn", "morph",
-  "hound", "familiar", "fiend", "crester", "whisper", "puff"
-];
-
-const TRAITS_BASE = [
-  "glows softly at night",
-  "smells faintly of cinnamon",
-  "can hover a few inches above ground",
-  "makes chirping burps",
-  "leaves sparkles everywhere",
-  "communicates exclusively through whistling",
-  "can only walk sideways",
-  "never sleeps on Tuesdays",
-  "is rumored to understand algebra",
-  "collects shiny pebbles for no apparent reason"
-];
-
-const TRAITS_CHAOS_EXTRA = [
-  "insists every sock is a mortal enemy",
-  "sings off-key lullabies at 3 a.m.",
-  "speaks fluent elevator music",
-  "laughs whenever someone says the word 'broccoli'",
-  "rearranges furniture one inch every night"
-];
-
-const POWERS_BASE = [
-  "controls tiny whirlwinds",
-  "can melt snow instantly",
-  "teleports but only 3 inches at a time",
-  "summons friendly ghosts",
-  "shoots glitter beams",
-  "can mimic any sound including doorbells",
-  "breathes mint-scented fog",
-  "creates tiny earthquakes no one notices",
-  "warms cold tea to the perfect temperature"
-];
-
-const POWERS_CHAOS_EXTRA = [
-  "summons confetti at the worst possible moment",
-  "causes dramatic slow-motion whenever it enters a room",
-  "can invert the colors of nearby paintings",
-  "turns boring meetings into mild chaos",
-  "makes phones 'forget' they were on silent"
-];
-
-/* Simple deterministic hash */
-function hashString(str) {
-  let h = 0;
-  for (let i = 0; i < str.length; i++) {
-    h = (h * 31 + str.charCodeAt(i)) | 0;
+function renderStatBars(stats){
+  const container=$("#statBars");
+  container.replaceChildren();
+  for(const [key,value] of Object.entries(stats)){
+    const row=document.createElement("div");
+    row.className="stat-row";
+    const label=document.createElement("span");
+    label.textContent=key;
+    const track=document.createElement("div");
+    track.className="stat-track";
+    const fill=document.createElement("div");
+    fill.className="stat-fill";
+    fill.style.width=`${value}%`;
+    track.appendChild(fill);
+    const number=document.createElement("div");
+    number.className="stat-value";
+    number.textContent=value;
+    row.append(label,track,number);
+    container.appendChild(row);
   }
-  return Math.abs(h);
 }
-
-function buildBaseCreature(ingredientIds, comboKey) {
-  let h = hashString(comboKey || ingredientIds.join("|"));
-  const pick = (arr) => {
-    const idx = h % arr.length;
-    h = (h * 9301 + 49297) & 0x7fffffff;
-    return arr[idx];
-  };
-
-  const traitPool = state.settings.chaosMode
-    ? TRAITS_BASE.concat(TRAITS_CHAOS_EXTRA)
-    : TRAITS_BASE;
-
-  const powerPool = state.settings.chaosMode
-    ? POWERS_BASE.concat(POWERS_CHAOS_EXTRA)
-    : POWERS_BASE;
-
-  const prefix = pick(NAME_PREFIXES);
-  const suffix = pick(NAME_SUFFIXES);
-
-  const name = prefix + suffix;
-
-  const trait = pick(traitPool);
-  const power = pick(powerPool);
-
-  const ingredientsText = ingredientIds
-    .map(id => {
-      const ing = INGREDIENTS.find(i => i.id === id);
-      return ing ? `${ing.emoji} ${ing.label}` : id;
+function renderMetrics(){
+  $("#discoveryMetric").textContent=state.critters.length;
+  $("#sparkMetric").textContent=state.sparkDust;
+  $("#streakMetric").textContent=state.streak;
+  $("#evolvedMetric").textContent=state.critters.filter(critter=>formForLevel(critter.level)!=="Hatchling").length;
+  $("#favoriteMetric").textContent=state.critters.filter(critter=>critter.favorite).length;
+  $("#recipeMetric").textContent=state.recipesDiscovered.length;
+}
+function renderDaily(){
+  const challenge=currentChallenge();
+  const progress=challengeProgress();
+  const percent=Math.round(progress/challenge.target*100);
+  $("#dailyCard").classList.toggle("complete",state.daily.completed);
+  $("#dailyKicker").textContent=state.daily.completed?"Daily Research Complete":"Today's Research Challenge";
+  $("#dailyTitle").textContent=challenge.title;
+  $("#dailyDescription").textContent=`${challenge.description} Progress: ${progress} / ${challenge.target}.`;
+  $("#dailyFill").style.width=`${clamp(percent,0,100)}%`;
+}
+function renderBestiary(){
+  const container=$("#bestiaryList");
+  container.replaceChildren();
+  const query=$("#searchInput").value.trim().toLowerCase();
+  const filter=$("#filterSelect").value;
+  const list=state.critters
+    .filter(critter=>{
+      if(filter==="favorites"&&!critter.favorite)return false;
+      if(["common","uncommon","rare","mythic"].includes(filter)&&critter.rarity!==filter)return false;
+      if(filter==="evolved"&&formForLevel(critter.level)==="Hatchling")return false;
+      if(!query)return true;
+      const haystack=[
+        critter.nickname,critter.species,critter.description,critter.power,critter.quirk,
+        critter.rarity,critter.temperament,habitatLabel(critter.habitat),
+        ...critter.ingredients.map(id=>ingredient(id)?.label||id)
+      ].join(" ").toLowerCase();
+      return haystack.includes(query);
     })
-    .join(", ");
+    .sort((a,b)=>Number(b.favorite)-Number(a.favorite)||b.level-a.level||a.nickname.localeCompare(b.nickname));
 
-  const desc = `Forged from ${ingredientsText}, this creature ${trait} and ${power}.`;
+  if(!list.length){
+    const empty=document.createElement("div");
+    empty.className="empty-state";
+    empty.textContent=state.critters.length
+      ?"No critters match this search or filter."
+      :"No critters discovered yet. Begin with a two-to-four ingredient recipe.";
+    container.appendChild(empty);
+    return;
+  }
 
-  // Base stats derived from ingredients + hash
-  let weird = 3 + (h % 5);
-  let charm = 3 + ((h >> 3) % 5);
-  let chaos = 3 + ((h >> 6) % 5);
+  list.forEach(critter=>{
+    const card=document.createElement("article");
+    card.className=`critter-card${critter.id===currentCritterId?" active":""}`;
+    const avatar=document.createElement("div");
+    avatar.className="critter-avatar";
+    avatar.style.setProperty("--avatar-tone",critter.portrait.tone);
+    avatar.style.setProperty("--avatar-soft",critter.portrait.soft);
+    avatar.textContent=critter.portrait.main;
+    const badge=document.createElement("span");
+    badge.textContent=critter.favorite?"💛":critter.portrait.element;
+    avatar.appendChild(badge);
 
-  ingredientIds.forEach(id => {
-    if (id === "fire" || id === "lightning") chaos += 1;
-    if (id === "shadow") weird += 1;
-    if (id === "sun" || id === "feather") charm += 1;
-    if (id === "slime") weird += 1;
+    const main=document.createElement("div");
+    main.className="critter-main";
+    const head=document.createElement("div");
+    head.className="critter-head";
+    const name=document.createElement("button");
+    name.type="button";
+    name.className="critter-name";
+    name.textContent=`${evolutionPrefix(critter.level)}${critter.nickname}`;
+    name.addEventListener("click",()=>{
+      currentCritterId=critter.id;
+      persist();
+      renderAll();
+    });
+    const level=document.createElement("div");
+    level.className="critter-level";
+    level.textContent=`Lv ${critter.level}`;
+    head.append(name,level);
+
+    const meta=document.createElement("div");
+    meta.className="critter-meta";
+    meta.textContent=`${critter.rarity} · ${formForLevel(critter.level)} · ${habitatLabel(critter.habitat)}`;
+
+    const actions=document.createElement("div");
+    actions.className="critter-actions";
+    const view=document.createElement("button");
+    view.type="button";
+    view.className="btn";
+    view.textContent="View";
+    view.addEventListener("click",()=>{
+      currentCritterId=critter.id;
+      persist();
+      renderAll();
+      window.scrollTo({top:0,behavior:prefs.motion==="reduced"?"auto":"smooth"});
+    });
+    const favorite=document.createElement("button");
+    favorite.type="button";
+    favorite.className="btn";
+    favorite.textContent=critter.favorite?"Unfavorite":"Favorite";
+    favorite.addEventListener("click",()=>{
+      critter.favorite=!critter.favorite;
+      persist();
+      renderAll();
+    });
+    actions.append(view,favorite);
+    main.append(head,meta,actions);
+    card.append(avatar,main);
+    container.appendChild(card);
   });
+}
+function renderHabitats(){
+  const container=$("#habitatGrid");
+  container.replaceChildren();
+  const critter=currentCritter();
+  HABITATS.forEach(habitat=>{
+    const button=document.createElement("button");
+    button.type="button";
+    button.className=`habitat-btn${critter?.habitat===habitat.id?" active":""}`;
+    button.disabled=!critter;
+    const icon=document.createElement("small");
+    icon.textContent=habitat.icon;
+    const label=document.createElement("strong");
+    label.textContent=habitat.label;
+    button.append(icon,label);
+    button.addEventListener("click",()=>assignHabitat(habitat.id));
+    container.appendChild(button);
+  });
+}
+function renderControls(){
+  const critter=currentCritter();
+  $("#statusText").textContent=state.status;
+  $("#headerStatus").textContent=critter?"Companion Active":"Ready";
+  $("#craftBtn").disabled=selected.length<2;
+  $("#previewBtn").disabled=selected.length<2;
+  $("#clearBtn").disabled=!selected.length;
+  $("#copyRecipeBtn").disabled=selected.length<2;
+  $("#favoriteCurrentBtn").disabled=!critter;
+  $("#favoriteCurrentBtn").textContent=critter?.favorite?"Unfavorite":"Favorite";
+  $("#renameBtn").disabled=!critter;
+  $("#exportCardBtn").disabled=!critter;
+  $("#releaseBtn").disabled=!critter;
+  $("#trainBtn").disabled=!critter||state.sparkDust<8;
+  $("#snackBtn").disabled=!critter||state.sparkDust<3||critter.bond>=100;
+  $("#playBtn").disabled=!critter||state.sparkDust<3||critter.joy>=100;
+  $("#temperamentSelect").value=prefs.temperament;
+  $("#motionSelect").value=prefs.motion;
+  $("#soundSelect").value=prefs.sound;
+}
+function setStatus(message){
+  state.status=message;
+  persist();
+  $("#statusText").textContent=message;
+}
+function clearSelection(){
+  selected=[];
+  state.status="The fusion cauldron was cleared.";
+  renderAll();
+}
+async function copyRecipe(){
+  if(selected.length<2)return;
+  const names=selected.map(id=>ingredient(id).label).join(" + ");
+  const text=`Critter Crafter recipe: ${names} · ${TEMPERAMENTS[prefs.temperament].label} lens · ${recipeCode()}`;
+  copyText(text,"Recipe copied.");
+}
 
-  return {
-    name,
-    desc,
-    level: 1,
-    stats: {
-      weirdness: weird,
-      charm: charm,
-      chaos: chaos
-    },
-    rarity: "common"
+function exportCritterCard(){
+  const critter=currentCritter();
+  if(!critter)return;
+  const canvas=document.createElement("canvas");
+  canvas.width=1000;
+  canvas.height=700;
+  const ctx=canvas.getContext("2d");
+  const gradient=ctx.createLinearGradient(0,0,1000,700);
+  gradient.addColorStop(0,"#211044");
+  gradient.addColorStop(1,"#120b25");
+  ctx.fillStyle=gradient;
+  ctx.fillRect(0,0,1000,700);
+
+  ctx.fillStyle="rgba(255,255,255,.07)";
+  roundedRect(ctx,42,42,916,616,24,true,false);
+
+  ctx.fillStyle=critter.portrait.soft;
+  ctx.beginPath();
+  ctx.arc(250,320,150,0,Math.PI*2);
+  ctx.fill();
+  ctx.strokeStyle=critter.portrait.tone;
+  ctx.lineWidth=8;
+  ctx.stroke();
+
+  ctx.font="148px serif";
+  ctx.textAlign="center";
+  ctx.textBaseline="middle";
+  ctx.fillStyle="#ffffff";
+  ctx.fillText(critter.portrait.main,250,320);
+
+  ctx.font="54px serif";
+  ctx.fillText(critter.portrait.accessory,350,202);
+  ctx.fillText(critter.portrait.element,145,440);
+  ctx.fillText(critter.portrait.spark,364,430);
+
+  ctx.textAlign="left";
+  ctx.fillStyle="#ffe7a7";
+  ctx.font='444 44px "Trebuchet MS", sans-serif';
+  ctx.fillText(`${evolutionPrefix(critter.level)}${critter.nickname}`,455,150);
+
+  ctx.fillStyle="#d7c4f7";
+  ctx.font='444 22px "Courier New", monospace';
+  ctx.fillText(`${critter.rarity.toUpperCase()} · ${formForLevel(critter.level).toUpperCase()} · LEVEL ${critter.level}`,455,192);
+
+  ctx.fillStyle="#fff9ff";
+  ctx.font='333 22px "Trebuchet MS", sans-serif';
+  wrapText(ctx,critter.description,455,250,435,32);
+
+  ctx.fillStyle="#67cfd0";
+  ctx.font='444 20px "Courier New", monospace';
+  ctx.fillText(`HABITAT  ${habitatLabel(critter.habitat).toUpperCase()}`,455,500);
+  ctx.fillText(`BOND     ${critter.bond}`,455,536);
+  ctx.fillText(`JOY      ${critter.joy}`,455,572);
+  ctx.fillText(`XP       ${critter.xp}`,455,608);
+
+  ctx.fillStyle="#c0b2cf";
+  ctx.font='333 16px "Courier New", monospace';
+  ctx.fillText(`Recipe ${recipeCode(critter.ingredients,critter.temperament)} · Local-first Critter Crafter`,70,635);
+
+  canvas.toBlob(blob=>{
+    if(!blob)return showToast("Critter card export is unavailable.");
+    const url=URL.createObjectURL(blob);
+    const anchor=document.createElement("a");
+    anchor.href=url;
+    anchor.download=`${safeFilename(critter.nickname)}-critter-card.png`;
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+  },"image/png");
+}
+function roundedRect(context,x,y,width,height,radius,fill,stroke){
+  const r=Math.min(radius,width/2,height/2);
+  context.beginPath();
+  context.moveTo(x+r,y);
+  context.arcTo(x+width,y,x+width,y+height,r);
+  context.arcTo(x+width,y+height,x,y+height,r);
+  context.arcTo(x,y+height,x,y,r);
+  context.arcTo(x,y,x+width,y,r);
+  if(fill)context.fill();
+  if(stroke)context.stroke();
+}
+function wrapText(context,text,x,y,maxWidth,lineHeight){
+  const words=safeText(text).split(/\s+/);
+  let line="";
+  let currentY=y;
+  for(const word of words){
+    const test=`${line}${word} `;
+    if(context.measureText(test).width>maxWidth&&line){
+      context.fillText(line.trim(),x,currentY);
+      line=`${word} `;
+      currentY+=lineHeight;
+    }else{
+      line=test;
+    }
+  }
+  if(line)context.fillText(line.trim(),x,currentY);
+}
+function safeFilename(name){
+  return safeText(name||"critter").replace(/[\\/:*?"<>|]+/g,"").trim().replace(/\s+/g,"_").slice(0,60)||"critter";
+}
+
+function exportData(){
+  const payload={
+    schema:"critter-crafter-laboratory",
+    version:4,
+    exportedAt:new Date().toISOString(),
+    state
   };
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+  const url=URL.createObjectURL(blob);
+  const anchor=document.createElement("a");
+  anchor.href=url;
+  anchor.download="critter-crafter-laboratory.json";
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
-
-function deriveEmoji(ingredientIds) {
-  if (ingredientIds.includes("shadow")) return "🌘";
-  if (ingredientIds.includes("fire") && ingredientIds.includes("leaf")) return "🐉";
-  if (ingredientIds.includes("water") && ingredientIds.includes("ice")) return "🐧";
-  if (ingredientIds.includes("lightning")) return "⚡️";
-  if (ingredientIds.includes("slime")) return "🦠";
-  if (ingredientIds.includes("feather")) return "🕊️";
-  if (ingredientIds.includes("stone")) return "🦎";
-  return "🐾";
+function openDataDialog(){
+  $("#dataText").value=JSON.stringify({
+    schema:"critter-crafter-laboratory",
+    version:4,
+    state
+  },null,2);
+  $("#dataDialog").showModal();
 }
+function importDataText(text){
+  if(!text||text.length>MAX_IMPORT_CHARS)return showToast("Import is empty or exceeds one megabyte.");
+  try{
+    const parsed=JSON.parse(text);
+    const source=parsed?.schema==="critter-crafter-laboratory"?parsed.state:parsed;
+    state=normalizeState(source);
+    currentCritterId=state.currentCritterId;
+    selected=[];
+    persist();
+    renderAll();
+    $("#dataDialog").close();
+    showToast("Validated Critter Crafter laboratory imported.");
+  }catch{
+    showToast("Import rejected: invalid Critter Crafter data.");
+  }
+}
+async function copyData(){
+  copyText($("#dataText").value,"Laboratory data copied.");
+}
+async function copyText(text,message){
+  try{
+    await navigator.clipboard.writeText(text);
+    showToast(message);
+  }catch{
+    $("#dataText").value=text;
+    $("#dataDialog").showModal();
+    showToast("Clipboard unavailable. Copy the text from the dialog.");
+  }
+}
+function checkLegacy(){
+  if(state.migratedLegacy)return showToast("The V2 save was already checked or migrated.");
+  let legacy;
+  try{
+    legacy=JSON.parse(localStorage.getItem(LEGACY_KEY)||"null");
+  }catch{
+    legacy=null;
+  }
+  if(!legacy?.bestiary?.length){
+    state.migratedLegacy=true;
+    persist();
+    return showToast("No Critter Crafter V2 bestiary was found on this device.");
+  }
+  if(!confirm(`Import ${legacy.bestiary.length} compatible V2 critter recipes into this laboratory?`))return;
 
-/* ============================================================
-   STREAK + PROGRESSION
-   ============================================================ */
-function updateStreakOnCraft() {
-  const today = new Date();
-  const todayStr = today.toISOString().slice(0,10); // YYYY-MM-DD
-
-  if (!state.lastCraftDate) {
-    state.streak = 1;
-  } else if (state.lastCraftDate === todayStr) {
-    // same day, streak unchanged
-  } else {
-    const last = new Date(state.lastCraftDate);
-    const diffDays = Math.floor((today - last) / 86400000);
-    if (diffDays === 1) {
-      state.streak += 1;
-    } else {
-      state.streak = 1;
+  let imported=0;
+  for(const old of legacy.bestiary.slice(0,MAX_CRITTERS)){
+    const ingredients=Array.isArray(old.ingredients)
+      ?old.ingredients.filter(id=>INGREDIENTS.some(item=>item.id===id)).slice(0,MAX_SELECTED)
+      :[];
+    if(ingredients.length<2)continue;
+    const temperament="wild";
+    const key=recipeKey(ingredients,temperament);
+    if(state.critters.some(critter=>critter.recipeKey===key))continue;
+    const oldLevel=Math.round(clamp(safeNumber(old.level,1),1,XP_THRESHOLDS.length));
+    const xp=XP_THRESHOLDS[Math.max(0,oldLevel-1)]||0;
+    const critter=normalizeCritter({
+      id:uid("legacy"),
+      ingredients,
+      temperament,
+      nickname:safeText(old.name||"Legacy Critter").slice(0,50),
+      xp,
+      bond:Math.min(100,oldLevel*5),
+      joy:60,
+      favorite:false,
+      discoveries:1,
+      createdAt:old.createdAt||new Date().toISOString()
+    });
+    if(critter){
+      state.critters.push(critter);
+      state.recipesDiscovered.push(key);
+      imported++;
     }
   }
-
-  state.lastCraftDate = todayStr;
+  state.migratedLegacy=true;
+  currentCritterId=currentCritterId||state.critters[0]?.id||null;
+  persist();
+  renderAll();
+  showToast(`${imported} V2 critter recipe${imported===1?"":"s"} migrated.`);
+}
+function resetAll(){
+  if(!confirm("Reset every critter, recipe, reward, habitat, evolution, and laboratory setting stored on this device?"))return;
+  state=defaultState();
+  currentCritterId=null;
+  selected=[];
+  persist();
+  renderAll();
+  showToast("Critter Crafter laboratory reset.");
 }
 
-function levelUpCreature(creature) {
-  creature.level = (creature.level || 1) + 1;
-
-  const chaosFactor = state.settings.chaosMode ? 2 : 1;
-  creature.stats.weirdness += 1 + Math.floor(Math.random() * (1 + chaosFactor));
-  creature.stats.charm     += 1 + Math.floor(Math.random() * 2);
-  creature.stats.chaos     += 1 + Math.floor(Math.random() * (1 + chaosFactor));
-
-  // Soft cap so numbers don’t explode
-  ["weirdness","charm","chaos"].forEach(k => {
-    if (creature.stats[k] > 99) creature.stats[k] = 99;
-  });
+function playTone(frequency,positive=true){
+  if(prefs.sound!=="on")return;
+  try{
+    if(!audioContext)audioContext=new (window.AudioContext||window.webkitAudioContext)();
+    if(audioContext.state==="suspended")audioContext.resume();
+    const oscillator=audioContext.createOscillator();
+    const gain=audioContext.createGain();
+    oscillator.type=positive?"sine":"triangle";
+    oscillator.frequency.value=frequency;
+    gain.gain.setValueAtTime(.025,audioContext.currentTime);
+    gain.gain.exponentialRampToValueAtTime(.001,audioContext.currentTime+.13);
+    oscillator.connect(gain).connect(audioContext.destination);
+    oscillator.start();
+    oscillator.stop(audioContext.currentTime+.14);
+  }catch{}
+}
+function playSolvedChord(){
+  playTone(520,true);
+  setTimeout(()=>playTone(660,true),80);
+  setTimeout(()=>playTone(790,true),160);
+}
+function showToast(message){
+  clearTimeout(toastTimer);
+  const toast=$("#toast");
+  toast.textContent=message;
+  toast.classList.add("show");
+  toastTimer=setTimeout(()=>toast.classList.remove("show"),2300);
 }
 
-/* ============================================================
-   CRAFTING
-   ============================================================ */
-function craftCreature() {
-  if (selected.length < 2) {
-    resultBox.textContent = "Select at least 2 ingredients to craft a creature.";
+document.addEventListener("keydown",event=>{
+  if(/INPUT|SELECT|TEXTAREA/.test(document.activeElement?.tagName||""))return;
+  if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==="k"){
+    event.preventDefault();
+    $("#searchInput").focus();
     return;
   }
-
-  // Normalized combo key
-  const normalized = selected.slice().sort();
-  const comboKey = normalized.join("|");
-
-  let creature = state.bestiary.find(c => c.comboKey === comboKey);
-  let newDiscovery = false;
-
-  if (!creature) {
-    // New creature
-    const base = buildBaseCreature(normalized, comboKey);
-    const emoji = deriveEmoji(normalized);
-    const createdAt = new Date().toISOString();
-
-    // Rare spawn?
-    if (state.settings.rareSpawns && Math.random() < 0.06) {
-      base.rarity = "rare";
-      base.stats.weirdness += 2;
-      base.stats.chaos += 2;
-      base.desc += " It carries a rare aura that other critters instinctively respect.";
-    }
-
-    creature = {
-      id: "cc_" + Date.now() + "_" + Math.floor(Math.random()*9999),
-      comboKey,
-      ingredients: normalized,
-      emoji,
-      name: base.name,
-      desc: base.desc,
-      level: base.level,
-      stats: base.stats,
-      rarity: base.rarity,
-      createdAt
-    };
-
-    state.bestiary.push(creature);
-    newDiscovery = true;
-  } else {
-    // Existing creature: level up
-    levelUpCreature(creature);
+  if(event.code==="KeyC"){
+    event.preventDefault();
+    craftCritter();
   }
-
-  updateStreakOnCraft();
-  saveState();
-  renderBestiary();
-  renderMeta();
-
-  const rarityLabel = creature.rarity === "rare" ? " (Rare!)" : "";
-
-  if (newDiscovery) {
-    resultBox.innerHTML =
-      `✨ New discovery!<br><b>${creature.emoji} ${creature.name}${rarityLabel}</b><br>${creature.desc}`;
-  } else {
-    resultBox.innerHTML =
-      `⬆️ ${creature.emoji} <b>${creature.name}</b> grew to <b>Level ${creature.level}</b>!<br>` +
-      `Weirdness: ${creature.stats.weirdness} · Charm: ${creature.stats.charm} · Chaos: ${creature.stats.chaos}`;
+  if(event.code==="KeyX"){
+    event.preventDefault();
+    clearSelection();
   }
-
-  if (state.settings.debugMode) {
-    resultBox.innerHTML += `<div style="margin-top:4px;font-size:11px;opacity:0.7">comboKey: ${comboKey}</div>`;
+  if(event.code==="KeyF"){
+    event.preventDefault();
+    favoriteCurrent();
   }
+});
 
-  clearSelections();
-}
+$("#craftBtn").addEventListener("click",craftCritter);
+$("#previewBtn").addEventListener("click",previewRecipe);
+$("#clearBtn").addEventListener("click",clearSelection);
+$("#copyRecipeBtn").addEventListener("click",copyRecipe);
+$("#surpriseBtn").addEventListener("click",surpriseRecipe);
 
-/* ============================================================
-   BESTIARY
-   ============================================================ */
-function renderBestiary() {
-  bestiaryList.innerHTML = "";
-  if (!state.bestiary.length) {
-    const msg = document.createElement("div");
-    msg.className = "hint";
-    msg.textContent = "No critters discovered yet. Start crafting!";
-    bestiaryList.appendChild(msg);
-    return;
+$("#temperamentSelect").addEventListener("change",event=>{
+  prefs.temperament=event.target.value;
+  savePrefs();
+  renderFusion();
+});
+$("#motionSelect").addEventListener("change",event=>{
+  prefs.motion=event.target.value;
+  document.body.dataset.motion=prefs.motion;
+  savePrefs();
+});
+$("#soundSelect").addEventListener("change",event=>{
+  prefs.sound=event.target.value;
+  savePrefs();
+  if(prefs.sound==="on")playTone(520,true);
+});
+
+$("#favoriteCurrentBtn").addEventListener("click",favoriteCurrent);
+$("#renameBtn").addEventListener("click",renameCurrent);
+$("#exportCardBtn").addEventListener("click",exportCritterCard);
+$("#releaseBtn").addEventListener("click",releaseCurrent);
+
+$("#trainBtn").addEventListener("click",()=>performCare("train"));
+$("#snackBtn").addEventListener("click",()=>performCare("snack"));
+$("#playBtn").addEventListener("click",()=>performCare("play"));
+
+$("#searchInput").addEventListener("input",renderBestiary);
+$("#filterSelect").addEventListener("change",renderBestiary);
+
+$("#guideBtn").addEventListener("click",()=>$("#guideDialog").showModal());
+$("#closeGuideBtn").addEventListener("click",()=>$("#guideDialog").close());
+
+$("#exportDataBtn").addEventListener("click",exportData);
+$("#importDataBtn").addEventListener("click",()=>$("#importFileInput").click());
+$("#importFileInput").addEventListener("change",async event=>{
+  const file=event.target.files?.[0];
+  event.target.value="";
+  if(!file)return;
+  if(file.size>MAX_IMPORT_CHARS)return showToast("Import rejected: file exceeds one megabyte.");
+  try{
+    importDataText(await file.text());
+  }catch{
+    showToast("Import failed.");
   }
+});
+$("#legacyBtn").addEventListener("click",checkLegacy);
+$("#resetBtn").addEventListener("click",resetAll);
 
-  state.bestiary
-    .slice()
-    .sort((a,b) => a.name.localeCompare(b.name))
-    .forEach(creature => {
-      const card = document.createElement("div");
-      card.className = "creature-card";
+$("#copyDataBtn").addEventListener("click",copyData);
+$("#doImportBtn").addEventListener("click",()=>importDataText($("#dataText").value));
+$("#closeDataBtn").addEventListener("click",()=>$("#dataDialog").close());
 
-      const header = document.createElement("div");
-      header.className = "creature-header";
-
-      const nameDiv = document.createElement("div");
-      nameDiv.className = "creature-name";
-      const rarityIcon = creature.rarity === "rare" ? "★ " : "";
-      nameDiv.textContent = `${creature.emoji} ${rarityIcon}${creature.name}`;
-
-      const meta = document.createElement("div");
-      meta.className = "creature-meta";
-      meta.textContent = `Lv. ${creature.level} · ${creature.rarity}`;
-
-      header.appendChild(nameDiv);
-      header.appendChild(meta);
-
-      const body = document.createElement("div");
-      body.className = "creature-desc";
-      body.textContent = creature.desc;
-
-      const stats = document.createElement("div");
-      stats.className = "creature-stats";
-      stats.textContent =
-        `Weirdness: ${creature.stats.weirdness} · ` +
-        `Charm: ${creature.stats.charm} · ` +
-        `Chaos: ${creature.stats.chaos}`;
-
-      const ing = document.createElement("div");
-      ing.className = "creature-ingredients";
-      ing.textContent =
-        "Made from: " +
-        creature.ingredients
-          .map(id => {
-            const ref = INGREDIENTS.find(i => i.id === id);
-            return ref ? `${ref.emoji} ${ref.label}` : id;
-          })
-          .join(", ");
-
-      const actions = document.createElement("div");
-      actions.className = "creature-actions";
-
-      const trainBtn = document.createElement("button");
-      trainBtn.textContent = "Train";
-      trainBtn.addEventListener("click", () => {
-        levelUpCreature(creature);
-        saveState();
-        renderBestiary();
-        renderMeta();
-        resultBox.innerHTML =
-          `🏋️ You trained ${creature.emoji} <b>${creature.name}</b> to <b>Level ${creature.level}</b>.`;
-      });
-
-      const forgetBtn = document.createElement("button");
-      forgetBtn.textContent = "Forget";
-      forgetBtn.addEventListener("click", () => {
-        const ok = confirm(`Forget ${creature.name}? This removes it from your bestiary.`);
-        if (!ok) return;
-        state.bestiary = state.bestiary.filter(c => c.id !== creature.id);
-        saveState();
-        renderBestiary();
-        renderMeta();
-        resultBox.textContent = `${creature.name} has wandered off into another realm.`;
-      });
-
-      actions.appendChild(trainBtn);
-      actions.appendChild(forgetBtn);
-
-      card.appendChild(header);
-      card.appendChild(body);
-      card.appendChild(stats);
-      card.appendChild(ing);
-      card.appendChild(actions);
-
-      bestiaryList.appendChild(card);
-    });
+function boot(){
+  ensureDaily();
+  currentCritterId=state.currentCritterId||state.critters[0]?.id||null;
+  $("#temperamentSelect").value=prefs.temperament;
+  $("#motionSelect").value=prefs.motion;
+  $("#soundSelect").value=prefs.sound;
+  document.body.dataset.motion=prefs.motion;
+  persist();
+  renderAll();
 }
 
-/* ============================================================
-   META + MODES
-   ============================================================ */
-function renderMeta() {
-  metaDiscoveries.textContent = `Discoveries: ${state.bestiary.length}`;
-  metaStreak.textContent = `Streak: ${state.streak} day${state.streak === 1 ? "" : "s"}`;
-}
-
-function initModeButtons() {
-  document.querySelectorAll(".mode-btn").forEach(btn => {
-    const key = btn.getAttribute("data-key");
-    if (!state.settings[key]) {
-      btn.classList.remove("on");
-    }
-    updateModeButtonLabel(btn, key);
-
-    btn.addEventListener("click", () => {
-      state.settings[key] = !state.settings[key];
-      if (state.settings[key]) btn.classList.add("on");
-      else btn.classList.remove("on");
-      updateModeButtonLabel(btn, key);
-      saveState();
-    });
-  });
-}
-
-function updateModeButtonLabel(btn, key) {
-  const on = state.settings[key];
-  if (key === "chaosMode") {
-    btn.textContent = `Chaos: ${on ? "On" : "Off"}`;
-  } else if (key === "rareSpawns") {
-    btn.textContent = `Rares: ${on ? "On" : "Off"}`;
-  } else if (key === "debugMode") {
-    btn.textContent = `Debug: ${on ? "On" : "Off"}`;
-  }
-}
-
-/* ============================================================
-   CLEARING / RESET OF SELECTION
-   ============================================================ */
-function clearSelections() {
-  selected = [];
-  renderIngredients();
-  renderSelectedBox();
-}
-
-/* ============================================================
-   EVENT WIRES + INIT
-   ============================================================ */
-craftBtn.addEventListener("click", craftCreature);
-clearBtn.addEventListener("click", clearSelections);
-
-/* Initial render */
-renderIngredients();
-renderSelectedBox();
-renderBestiary();
-renderMeta();
-initModeButtons();
+boot();
+})();
 </script>
-
 </body>
 </html>
