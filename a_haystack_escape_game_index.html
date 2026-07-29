@@ -1,0 +1,2648 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Haystack Escape — a local-first progressive farm labyrinth with sixty deterministic mazes, six worlds, grain collectibles, keys, burrows, wind gusts, moving crows, daily mazes, fair stars, records, power-ups, and safe import/export.">
+<meta name="theme-color" content="#0d1720">
+<meta name="color-scheme" content="dark light">
+<meta name="referrer" content="same-origin">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data:; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none';">
+<title>Haystack Escape — Twilight Farm Labyrinth</title>
+<style>
+:root{
+  --bg:#071016;
+  --bg-2:#0d1720;
+  --panel:#13232c;
+  --panel-2:#1a303a;
+  --screen:#071116;
+  --ink:#fff9ee;
+  --ink-soft:#e9e1d2;
+  --muted:#b7ad9d;
+  --faint:#7d756c;
+  --hay:#d5ad55;
+  --hay-soft:#f4d98c;
+  --amber:#d98949;
+  --mint:#74c69d;
+  --aqua:#6bc4c9;
+  --sky:#7eb8dd;
+  --violet:#9180c8;
+  --rose:#cf7f96;
+  --red:#d46f72;
+  --line:rgba(244,217,140,.14);
+  --line-strong:rgba(244,217,140,.30);
+  --shadow:0 24px 66px rgba(0,0,0,.38);
+  --shadow-small:0 12px 33px rgba(0,0,0,.25);
+  --radius:7px;
+  --weight-text:333;
+  --weight-emphasis:444;
+  --s3:3px;
+  --s7:7px;
+  --s11:11px;
+  --s14:14px;
+  --s24:24px;
+  --s33:33px;
+  --s55:55px;
+  --s66:66px;
+  --max:1400px;
+  --display:"Eurostile Extended","Microgramma D Extended","Bank Gothic","Arial Narrow","Trebuchet MS",sans-serif;
+  --sans:"Trebuchet MS",Verdana,"Segoe UI",sans-serif;
+  --mono:"Courier New",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+body[data-theme="day"]{
+  --bg:#f4ecdc;
+  --bg-2:#e8dcc6;
+  --panel:#fffaf0;
+  --panel-2:#f4e8d1;
+  --screen:#fffdf8;
+  --ink:#2d291f;
+  --ink-soft:#484235;
+  --muted:#746b5d;
+  --faint:#988e7d;
+  --line:rgba(95,72,32,.14);
+  --line-strong:rgba(95,72,32,.28);
+  --shadow:0 24px 66px rgba(67,49,24,.15);
+  --shadow-small:0 12px 33px rgba(67,49,24,.10);
+}
+*{box-sizing:border-box}
+html{
+  scroll-behavior:smooth;
+  scroll-padding-top:84px;
+  font-synthesis:none;
+  text-rendering:geometricPrecision;
+  -webkit-font-smoothing:antialiased;
+}
+body{
+  margin:0;
+  min-width:300px;
+  min-height:100vh;
+  overflow-x:hidden;
+  color:var(--ink);
+  background:var(--bg);
+  font-family:var(--sans);
+  font-size:14px;
+  font-weight:var(--weight-text);
+  line-height:1.65;
+}
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-3;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 8% -4%,rgba(107,196,201,.11),transparent 31rem),
+    radial-gradient(circle at 92% 0%,rgba(213,173,85,.12),transparent 33rem),
+    radial-gradient(circle at 50% 108%,rgba(145,128,200,.07),transparent 35rem),
+    linear-gradient(180deg,var(--bg),var(--bg-2) 56%,var(--bg));
+}
+body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-2;
+  pointer-events:none;
+  opacity:.52;
+  background-image:
+    radial-gradient(circle at 12% 17%,rgba(255,255,255,.12) 0 1px,transparent 1.3px),
+    radial-gradient(circle at 72% 11%,rgba(255,255,255,.09) 0 1px,transparent 1.3px),
+    radial-gradient(circle at 90% 68%,rgba(255,255,255,.08) 0 1px,transparent 1.3px),
+    linear-gradient(rgba(213,173,85,.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(107,196,201,.025) 1px,transparent 1px);
+  background-size:auto,auto,auto,33px 33px,33px 33px;
+  mask-image:linear-gradient(to bottom,black,transparent 95%);
+}
+body[data-theme="day"]::after{opacity:.22}
+body[data-motion="reduced"] *,
+body[data-motion="reduced"] *::before,
+body[data-motion="reduced"] *::after{
+  animation:none!important;
+  transition:none!important;
+}
+a{color:inherit}
+button,input,select,textarea{font:inherit}
+button{color:inherit;cursor:pointer}
+strong,b,h1,h2,h3{font-weight:var(--weight-emphasis)}
+::selection{color:#171006;background:var(--hay-soft)}
+:focus-visible{outline:3px solid var(--hay-soft);outline-offset:3px}
+[hidden]{display:none!important}
+.wrap{width:min(calc(100% - 22px),var(--max));margin-inline:auto}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+/* Header */
+.site-header{
+  position:sticky;
+  top:0;
+  z-index:1200;
+  border-bottom:1px solid var(--line);
+  background:color-mix(in srgb,var(--bg) 94%,transparent);
+  backdrop-filter:blur(18px);
+  box-shadow:0 11px 33px rgba(0,0,0,.24);
+}
+.header-inner{
+  min-height:66px;
+  display:grid;
+  grid-template-columns:minmax(190px,1fr) auto minmax(190px,1fr);
+  align-items:center;
+  gap:14px;
+  padding:7px 0;
+}
+.arcade-home{
+  justify-self:start;
+  display:inline-flex;
+  align-items:center;
+  gap:11px;
+  min-width:0;
+  text-decoration:none;
+}
+.brand-mark{
+  width:44px;
+  height:44px;
+  flex:0 0 44px;
+  display:grid;
+  place-items:center;
+  border:1px solid var(--hay);
+  border-radius:50%;
+  color:#271706;
+  background:
+    radial-gradient(circle at 34% 25%,rgba(255,255,255,.68),transparent 20%),
+    linear-gradient(145deg,var(--hay-soft),var(--hay),var(--amber));
+  font-family:var(--display);
+  font-size:11px;
+  letter-spacing:.04em;
+  box-shadow:0 0 22px rgba(213,173,85,.15);
+}
+.brand-copy{display:grid;min-width:0;line-height:1.05}
+.brand-copy strong{
+  font-family:var(--display);
+  font-size:11px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+.brand-copy small{
+  margin-top:7px;
+  color:var(--muted);
+  font-family:var(--mono);
+  font-size:11px;
+  white-space:nowrap;
+}
+.game-id{justify-self:center;text-align:center}
+.game-id strong{
+  display:block;
+  font-family:var(--display);
+  font-size:14px;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+}
+.game-id small{
+  display:block;
+  margin-top:3px;
+  color:var(--aqua);
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.11em;
+  text-transform:uppercase;
+}
+.header-state{
+  justify-self:end;
+  color:var(--muted);
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.08em;
+  text-align:right;
+  text-transform:uppercase;
+}
+.header-state strong{color:var(--mint)}
+
+/* Intro */
+.intro{
+  padding:33px 0 24px;
+  text-align:center;
+}
+.open-line{
+  display:inline-flex;
+  align-items:center;
+  gap:11px;
+  color:var(--mint);
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+}
+.open-dot{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:var(--mint);
+  box-shadow:0 0 14px rgba(116,198,157,.40);
+}
+.intro h1{
+  margin:18px auto 0;
+  font-family:var(--display);
+  font-size:clamp(48px,7.1vw,82px);
+  line-height:.87;
+  letter-spacing:-.06em;
+  text-transform:uppercase;
+  text-shadow:3px 3px 0 rgba(213,173,85,.16),-3px -3px 0 rgba(107,196,201,.13);
+}
+.intro p{
+  max-width:980px;
+  margin:18px auto 0;
+  color:var(--ink-soft);
+  font-size:clamp(14px,1.45vw,17px);
+  line-height:1.8;
+}
+
+/* Cabinet */
+.cabinet{
+  display:grid;
+  grid-template-columns:minmax(300px,.25fr) minmax(620px,.50fr) minmax(300px,.25fr);
+  gap:14px;
+  align-items:start;
+  padding:14px;
+  border:1px solid var(--line-strong);
+  border-radius:var(--radius);
+  background:linear-gradient(180deg,color-mix(in srgb,var(--panel) 74%,#000),color-mix(in srgb,var(--bg) 88%,#000));
+  box-shadow:var(--shadow);
+}
+.left-column,.center-column,.right-column{display:grid;gap:11px;min-width:0}
+.panel{
+  min-width:0;
+  padding:14px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:linear-gradient(160deg,var(--panel),color-mix(in srgb,var(--panel) 70%,var(--bg)));
+  box-shadow:var(--shadow-small);
+}
+.panel h2,.panel h3{
+  margin:0;
+  font-family:var(--display);
+  letter-spacing:.02em;
+  text-transform:uppercase;
+}
+.panel h2{font-size:24px}
+.panel h3{font-size:16px}
+.panel-sub{
+  margin:7px 0 0;
+  color:var(--muted);
+  font-size:13px;
+}
+
+/* Metrics */
+.metrics{
+  display:grid;
+  grid-template-columns:repeat(6,minmax(0,1fr));
+  gap:7px;
+}
+.metric{
+  min-width:0;
+  padding:11px 7px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:var(--screen);
+  text-align:center;
+}
+.metric strong{
+  display:block;
+  color:var(--hay-soft);
+  font-family:var(--mono);
+  font-size:18px;
+  overflow-wrap:anywhere;
+}
+.metric:nth-child(2) strong{color:var(--aqua)}
+.metric:nth-child(3) strong{color:var(--mint)}
+.metric:nth-child(4) strong{color:var(--sky)}
+.metric:nth-child(5) strong{color:var(--violet)}
+.metric:nth-child(6) strong{color:var(--rose)}
+.metric span{
+  display:block;
+  margin-top:3px;
+  color:var(--muted);
+  font-family:var(--mono);
+  font-size:10px;
+  text-transform:uppercase;
+}
+
+/* Buttons and controls */
+.btn{
+  min-height:42px;
+  padding:7px 11px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  color:var(--ink-soft);
+  background:var(--panel-2);
+  font-family:var(--mono);
+  font-size:11px;
+  font-weight:var(--weight-emphasis);
+  letter-spacing:.05em;
+  text-transform:uppercase;
+}
+.btn:hover:not(:disabled){color:var(--hay-soft);border-color:var(--hay);transform:translateY(-1px)}
+.btn:disabled{cursor:not-allowed;opacity:.38}
+.btn.primary{
+  color:#211304;
+  border-color:var(--hay);
+  background:linear-gradient(135deg,var(--hay-soft),var(--hay));
+}
+.btn.aqua{
+  color:#0d2426;
+  border-color:var(--aqua);
+  background:linear-gradient(135deg,#c2f3ee,var(--aqua));
+}
+.btn.violet{
+  color:#130d22;
+  border-color:var(--violet);
+  background:linear-gradient(135deg,#d9cff4,var(--violet));
+}
+.btn.danger{color:#fff;border-color:var(--red);background:var(--red)}
+.button-row{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:7px;
+  margin-top:11px;
+}
+.control-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:7px;
+  margin-top:11px;
+}
+.control-group{
+  display:grid;
+  gap:7px;
+  min-width:0;
+}
+.control-group.full{grid-column:1/-1}
+.control-group label{
+  color:var(--muted);
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+}
+select,input[type="text"],textarea{
+  width:100%;
+  min-height:44px;
+  padding:7px 11px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  color:var(--ink);
+  background:var(--screen);
+}
+textarea{min-height:260px;resize:vertical}
+
+/* World map */
+.world-tabs{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:7px;
+  margin-top:11px;
+}
+.world-btn{
+  min-height:60px;
+  padding:7px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  color:var(--muted);
+  background:var(--screen);
+  text-align:center;
+}
+.world-btn.active{
+  color:#211304;
+  border-color:var(--world-tone,var(--hay));
+  background:var(--world-tone,var(--hay));
+}
+.world-btn strong{
+  display:block;
+  font-family:var(--display);
+  font-size:9px;
+  text-transform:uppercase;
+}
+.world-btn small{display:block;margin-top:3px;font-size:17px}
+.level-grid{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:7px;
+  margin-top:11px;
+}
+.level-btn{
+  position:relative;
+  min-height:60px;
+  display:grid;
+  place-items:center;
+  gap:3px;
+  padding:7px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  color:var(--ink-soft);
+  background:var(--screen);
+  font-family:var(--mono);
+  text-align:center;
+}
+.level-btn:hover:not(:disabled){border-color:var(--hay)}
+.level-btn.current{border-color:var(--aqua)}
+.level-btn.complete{border-color:var(--mint)}
+.level-btn:disabled{opacity:.36;cursor:not-allowed}
+.level-btn strong{font-size:14px}
+.level-btn small{color:var(--muted);font-size:8px}
+.level-stars{color:var(--hay-soft)!important;letter-spacing:.08em}
+.world-summary{
+  margin-top:11px;
+  padding:11px;
+  border:1px solid var(--line);
+  border-left:3px solid var(--world-tone,var(--hay));
+  border-radius:var(--radius);
+  background:var(--screen);
+}
+.world-summary strong{
+  display:block;
+  color:var(--hay-soft);
+  font-family:var(--display);
+  text-transform:uppercase;
+}
+.world-summary p{margin:7px 0 0;color:var(--muted);font-size:12px}
+
+/* Maze game */
+.maze-head{
+  display:flex;
+  justify-content:space-between;
+  gap:14px;
+  align-items:flex-start;
+}
+.maze-state{
+  color:var(--muted);
+  font-family:var(--mono);
+  font-size:10px;
+  text-align:right;
+  text-transform:uppercase;
+}
+.maze-state strong{
+  display:block;
+  color:var(--aqua);
+  font-size:14px;
+}
+.maze-shell{
+  position:relative;
+  width:100%;
+  aspect-ratio:1/1;
+  min-height:520px;
+  margin-top:11px;
+  overflow:hidden;
+  border:7px solid #030709;
+  border-radius:var(--radius);
+  background:#081016;
+  box-shadow:inset 0 0 55px rgba(0,0,0,.62),0 22px 55px rgba(0,0,0,.35);
+  touch-action:none;
+  user-select:none;
+}
+#mazeCanvas{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  display:block;
+  touch-action:none;
+}
+.maze-shell::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:repeating-linear-gradient(to bottom,transparent 0 3px,rgba(255,255,255,.012) 3px 4px);
+}
+.canvas-overlay{
+  position:absolute;
+  inset:0;
+  z-index:20;
+  display:grid;
+  place-items:center;
+  padding:24px;
+  background:rgba(3,7,9,.80);
+  backdrop-filter:blur(5px);
+  text-align:center;
+}
+.canvas-overlay[hidden]{display:none}
+.overlay-card{
+  width:min(100%,590px);
+  padding:24px;
+  border:1px solid var(--line-strong);
+  border-radius:var(--radius);
+  background:var(--panel);
+  box-shadow:var(--shadow);
+}
+.overlay-card h3{
+  margin:0;
+  font-family:var(--display);
+  font-size:33px;
+  letter-spacing:-.03em;
+  text-transform:uppercase;
+}
+.overlay-card p{margin:11px 0 0;color:var(--muted)}
+.overlay-metrics{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:7px;
+  margin-top:17px;
+}
+.overlay-metrics div{
+  padding:11px 7px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:var(--screen);
+}
+.overlay-metrics strong{
+  display:block;
+  color:var(--hay-soft);
+  font-family:var(--mono);
+  font-size:22px;
+}
+.overlay-metrics span{
+  display:block;
+  color:var(--muted);
+  font-family:var(--mono);
+  font-size:10px;
+  text-transform:uppercase;
+}
+.overlay-actions{
+  display:flex;
+  justify-content:center;
+  gap:7px;
+  flex-wrap:wrap;
+  margin-top:17px;
+}
+.status{
+  min-height:50px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin-top:11px;
+  padding:11px 14px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  color:var(--ink-soft);
+  background:var(--screen);
+  text-align:center;
+}
+.objective-row{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:7px;
+  margin-top:11px;
+}
+.objective{
+  padding:7px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  color:var(--muted);
+  background:var(--screen);
+  font-family:var(--mono);
+  font-size:9px;
+  text-align:center;
+  text-transform:uppercase;
+}
+.objective.done{color:#163526;border-color:var(--mint);background:var(--mint)}
+.objective strong{display:block;font-size:12px}
+
+/* Direction pad */
+.move-controls{
+  display:grid;
+  grid-template-columns:minmax(180px,240px) minmax(0,1fr);
+  gap:11px;
+  align-items:center;
+  margin-top:11px;
+}
+.dpad{
+  width:174px;
+  display:grid;
+  grid-template-columns:repeat(3,54px);
+  grid-template-rows:repeat(3,54px);
+  gap:6px;
+  justify-content:center;
+  margin-inline:auto;
+}
+.dpad .btn{
+  min-height:54px;
+  padding:3px;
+  font-size:20px;
+}
+.dpad-up{grid-column:2;grid-row:1}
+.dpad-left{grid-column:1;grid-row:2}
+.dpad-center{
+  grid-column:2;
+  grid-row:2;
+  display:grid;
+  place-items:center;
+  border:1px solid var(--line);
+  border-radius:50%;
+  color:var(--hay-soft);
+  background:var(--screen);
+  font-size:22px;
+}
+.dpad-right{grid-column:3;grid-row:2}
+.dpad-down{grid-column:2;grid-row:3}
+.move-help{
+  padding:11px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  color:var(--muted);
+  background:var(--screen);
+}
+.move-help strong{
+  display:block;
+  color:var(--aqua);
+  font-family:var(--display);
+  text-transform:uppercase;
+}
+.move-help p{margin:7px 0 0;font-size:12px}
+
+/* Powerups and shop */
+.power-grid,.shop-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:7px;
+  margin-top:11px;
+}
+.power-card,.shop-card{
+  min-height:76px;
+  display:grid;
+  grid-template-columns:34px minmax(0,1fr);
+  gap:7px;
+  align-items:center;
+  padding:7px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  color:var(--ink-soft);
+  background:var(--screen);
+  text-align:left;
+}
+.power-card:hover:not(:disabled),.shop-card:hover:not(:disabled){border-color:var(--hay)}
+.power-card:disabled,.shop-card:disabled{opacity:.38;cursor:not-allowed}
+.power-icon,.shop-icon{font-size:22px;text-align:center}
+.power-copy strong,.shop-copy strong{
+  display:block;
+  font-family:var(--display);
+  font-size:9px;
+  text-transform:uppercase;
+}
+.power-copy small,.shop-copy small{
+  display:block;
+  color:var(--muted);
+  font-family:var(--mono);
+  font-size:8px;
+}
+.power-count,.shop-cost{
+  grid-column:1/-1;
+  color:var(--hay-soft);
+  font-family:var(--mono);
+  font-size:9px;
+  text-align:right;
+}
+.stats-list{
+  display:grid;
+  gap:7px;
+  margin-top:11px;
+}
+.stat-line{
+  display:flex;
+  justify-content:space-between;
+  gap:11px;
+  padding:7px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  color:var(--muted);
+  background:var(--screen);
+  font-family:var(--mono);
+  font-size:10px;
+}
+.stat-line strong{color:var(--ink)}
+
+/* Guide / dialogs */
+.legend-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:7px;
+  margin-top:11px;
+}
+.legend-item{
+  min-height:58px;
+  display:grid;
+  grid-template-columns:30px minmax(0,1fr);
+  gap:7px;
+  align-items:center;
+  padding:7px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  color:var(--muted);
+  background:var(--screen);
+  font-size:10px;
+}
+.legend-item span{font-size:20px;text-align:center}
+.legend-item strong{display:block;color:var(--ink);font-family:var(--display);font-size:9px;text-transform:uppercase}
+dialog{
+  width:min(740px,calc(100% - 28px));
+  max-height:88vh;
+  overflow:auto;
+  padding:24px;
+  border:1px solid var(--line-strong);
+  border-radius:var(--radius);
+  color:var(--ink);
+  background:var(--panel);
+  box-shadow:var(--shadow);
+}
+dialog::backdrop{background:rgba(3,7,9,.80);backdrop-filter:blur(5px)}
+dialog h2{margin:0;font-family:var(--display);font-size:24px;text-transform:uppercase}
+.dialog-actions{display:flex;justify-content:flex-end;gap:7px;flex-wrap:wrap;margin-top:11px}
+.guide-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:11px;
+  margin-top:14px;
+}
+.guide-card{
+  padding:11px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:var(--screen);
+}
+.guide-card strong{
+  display:block;
+  color:var(--hay-soft);
+  font-family:var(--display);
+  text-transform:uppercase;
+}
+.guide-card p{margin:7px 0 0;color:var(--muted);font-size:12px}
+
+.footer{
+  padding:24px 0 33px;
+  color:var(--muted);
+  text-align:center;
+  font-family:var(--mono);
+  font-size:11px;
+}
+.toast{
+  position:fixed;
+  right:14px;
+  bottom:14px;
+  z-index:3000;
+  max-width:min(420px,calc(100% - 28px));
+  padding:11px 14px;
+  border:1px solid var(--hay);
+  border-radius:var(--radius);
+  color:var(--ink);
+  background:var(--panel);
+  box-shadow:var(--shadow);
+  font-family:var(--mono);
+  font-size:11px;
+  transform:translateY(160%);
+  opacity:0;
+  transition:.18s ease;
+}
+.toast.show{transform:none;opacity:1}
+
+@media(max-width:1200px){
+  .header-inner{grid-template-columns:1fr auto}.game-id{display:none}
+  .cabinet{grid-template-columns:minmax(300px,.34fr) minmax(620px,.66fr)}
+  .right-column{grid-column:1/-1;grid-template-columns:1fr 1fr}
+  .right-column .guide-panel{grid-column:1/-1}
+}
+@media(max-width:940px){
+  .cabinet{grid-template-columns:1fr}
+  .left-column,.right-column{grid-template-columns:1fr 1fr}
+  .left-column .world-panel,.right-column .guide-panel{grid-column:1/-1}
+  .maze-shell{min-height:560px}
+}
+@media(max-width:720px){
+  body{font-size:15px}
+  .left-column,.right-column{grid-template-columns:1fr}
+  .left-column .world-panel,.right-column .guide-panel{grid-column:auto}
+  .metrics{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .button-row{grid-template-columns:1fr 1fr}
+  .maze-shell{min-height:520px}
+}
+@media(max-width:560px){
+  .wrap{width:min(calc(100% - 14px),var(--max))}
+  .header-inner{grid-template-columns:minmax(0,1fr) auto}
+  .brand-copy small{display:none}
+  .intro{padding-top:24px}
+  .intro h1{font-size:45px}
+  .cabinet,.panel{padding:11px}
+  .metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .world-tabs{grid-template-columns:1fr 1fr}
+  .level-grid{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .maze-head{display:grid;text-align:center}
+  .maze-state{text-align:center}
+  .maze-shell{min-height:430px}
+  .objective-row{grid-template-columns:1fr}
+  .move-controls{grid-template-columns:1fr}
+  .control-grid{grid-template-columns:1fr}
+  .control-group.full{grid-column:auto}
+  .overlay-metrics{grid-template-columns:1fr 1fr}
+  .legend-grid{grid-template-columns:1fr 1fr}
+  .guide-grid{grid-template-columns:1fr}
+}
+@media(max-width:390px){
+  .brand-copy strong{display:none}
+  .brand-mark{width:40px;height:40px;flex-basis:40px}
+  .header-state{max-width:130px;font-size:10px}
+  .level-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .legend-grid{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body data-theme="twilight" data-motion="full">
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="arcade-home" href="index.html" aria-label="Return to the Arcade landing page">
+      <span class="brand-mark" aria-hidden="true">HE</span>
+      <span class="brand-copy"><strong>Arcade</strong><small>Return to game hall</small></span>
+    </a>
+    <div class="game-id"><strong>Haystack Escape</strong><small>Twilight Farm Labyrinth</small></div>
+    <div class="header-state">Farm Status · <strong id="headerStatus">Ready</strong></div>
+  </div>
+</header>
+
+<main>
+  <section class="intro">
+    <div class="wrap">
+      <div class="open-line"><span class="open-dot"></span><span>Sixty deterministic farm labyrinths online</span></div>
+      <h1>Haystack Escape</h1>
+      <p>Guide a tiny farm friend through living hay-bale mazes, collect golden grain, find lantern keys, slip through burrows, ride wind gusts, outwit wandering crows, and earn three stars across six progressively stranger worlds.</p>
+    </div>
+  </section>
+
+  <section class="wrap cabinet" aria-label="Haystack Escape progressive maze game">
+    <aside class="left-column">
+      <section class="panel world-panel">
+        <h3>Farm Worlds</h3>
+        <p class="panel-sub">Ten deterministic levels live in each world. Reopening a level always restores the same maze layout.</p>
+        <div class="world-tabs" id="worldTabs"></div>
+        <div class="level-grid" id="levelGrid"></div>
+        <div class="world-summary" id="worldSummary"></div>
+        <div class="button-row" style="grid-template-columns:1fr 1fr">
+          <button class="btn violet" id="dailyBtn" type="button">Daily Maze</button>
+          <button class="btn" id="guideBtn" type="button">Farm Guide</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h3>Traveler Settings</h3>
+        <div class="control-grid">
+          <div class="control-group full">
+            <label for="travelerSelect">Traveler</label>
+            <select id="travelerSelect">
+              <option value="mouse">Pip the Field Mouse 🐭</option>
+              <option value="hedgehog">Hazel the Hedgehog 🦔</option>
+              <option value="rabbit">Juniper the Rabbit 🐇</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label for="themeSelect">Farm light</label>
+            <select id="themeSelect">
+              <option value="twilight">Twilight</option>
+              <option value="day">Daybreak</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label for="motionSelect">Motion</label>
+            <select id="motionSelect">
+              <option value="full">Gentle motion</option>
+              <option value="reduced">Reduced motion</option>
+            </select>
+          </div>
+          <div class="control-group full">
+            <label for="soundSelect">Sound</label>
+            <select id="soundSelect">
+              <option value="off">Sound off</option>
+              <option value="on">Soft farm tones</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h3>Farm Record</h3>
+        <div class="stats-list">
+          <div class="stat-line"><span>Completed Levels</span><strong id="completedStat">0 / 60</strong></div>
+          <div class="stat-line"><span>Total Stars</span><strong id="starsStat">0 / 180</strong></div>
+          <div class="stat-line"><span>Best Streak</span><strong id="streakStat">0 days</strong></div>
+          <div class="stat-line"><span>Current World</span><strong id="worldStat">Golden Field</strong></div>
+        </div>
+      </section>
+    </aside>
+
+    <section class="center-column">
+      <section class="panel">
+        <div class="metrics">
+          <div class="metric"><strong id="timeMetric">00:00.0</strong><span>Time</span></div>
+          <div class="metric"><strong id="moveMetric">0</strong><span>Moves</span></div>
+          <div class="metric"><strong id="grainMetric">0 / 0</strong><span>Grain</span></div>
+          <div class="metric"><strong id="keyMetric">—</strong><span>Key</span></div>
+          <div class="metric"><strong id="starMetric">0</strong><span>Stars</span></div>
+          <div class="metric"><strong id="coinMetric">0</strong><span>Coins</span></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="maze-head">
+          <div>
+            <h2 id="mazeTitle">Choose a Farm Maze</h2>
+            <p class="panel-sub" id="mazeSubtitle">Select an unlocked level or today's Daily Maze.</p>
+          </div>
+          <div class="maze-state"><strong id="mazeWorldLabel">Farm Map</strong><span id="mazeSeedLabel">Seed —</span></div>
+        </div>
+
+        <div class="maze-shell">
+          <canvas id="mazeCanvas" width="900" height="900" tabindex="0" aria-label="Haystack Escape maze field"></canvas>
+          <div class="canvas-overlay" id="canvasOverlay">
+            <div class="overlay-card">
+              <h3 id="overlayTitle">Farm Map Ready</h3>
+              <p id="overlayText">Choose an unlocked maze from the world map.</p>
+              <div class="overlay-metrics" id="overlayMetrics" hidden></div>
+              <div class="overlay-actions">
+                <button class="btn primary" id="overlayStartBtn" type="button" hidden>Enter Maze</button>
+                <button class="btn aqua" id="overlayResumeBtn" type="button" hidden>Resume</button>
+                <button class="btn primary" id="overlayNextBtn" type="button" hidden>Next Maze</button>
+                <button class="btn" id="overlayReplayBtn" type="button" hidden>Replay</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="objective-row">
+          <div class="objective" id="finishObjective"><strong>☆ Escape</strong><span>Reach the lantern gate</span></div>
+          <div class="objective" id="grainObjective"><strong>☆ Grain</strong><span>Collect every golden bundle</span></div>
+          <div class="objective" id="movesObjective"><strong>☆ Footwork</strong><span id="movesObjectiveText">Meet the move target</span></div>
+        </div>
+
+        <div class="status" id="statusText" aria-live="polite">Choose an unlocked level to begin.</div>
+
+        <div class="button-row">
+          <button class="btn primary" id="restartBtn" type="button" disabled>Restart · R</button>
+          <button class="btn" id="pauseBtn" type="button" disabled>Pause · P</button>
+          <button class="btn" id="saveBtn" type="button">Save</button>
+          <button class="btn" id="focusMazeBtn" type="button">Focus Maze</button>
+        </div>
+
+        <div class="move-controls">
+          <div class="dpad" aria-label="Directional controls">
+            <button class="btn dpad-up" id="moveUpBtn" type="button" aria-label="Move up">↑</button>
+            <button class="btn dpad-left" id="moveLeftBtn" type="button" aria-label="Move left">←</button>
+            <div class="dpad-center" aria-hidden="true" id="travelerIcon">🐭</div>
+            <button class="btn dpad-right" id="moveRightBtn" type="button" aria-label="Move right">→</button>
+            <button class="btn dpad-down" id="moveDownBtn" type="button" aria-label="Move down">↓</button>
+          </div>
+          <div class="move-help">
+            <strong>Move Naturally</strong>
+            <p>Use arrows, WASD, the direction pad, or swipe across the maze. The timer begins only when you enter and pauses automatically when the browser tab is hidden.</p>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <aside class="right-column">
+      <section class="panel">
+        <h3>Trail Tools</h3>
+        <p class="panel-sub">Tools are stored locally. They never alter level records invisibly.</p>
+        <div class="power-grid">
+          <button class="power-card" id="trailBtn" type="button">
+            <span class="power-icon">🗺️</span><span class="power-copy"><strong>Trail Map</strong><small>Show a useful route for 8 seconds</small></span><span class="power-count" id="trailCount">Owned · 0</span>
+          </button>
+          <button class="power-card" id="lanternBtn" type="button">
+            <span class="power-icon">🏮</span><span class="power-copy"><strong>Farm Lantern</strong><small>Clear deep fog for 12 seconds</small></span><span class="power-count" id="lanternCount">Owned · 0</span>
+          </button>
+          <button class="power-card" id="rewindBtn" type="button">
+            <span class="power-icon">↩️</span><span class="power-copy"><strong>Rewind Steps</strong><small>Reverse up to five moves</small></span><span class="power-count" id="rewindCount">Owned · 0</span>
+          </button>
+          <button class="power-card" id="skipBtn" type="button">
+            <span class="power-icon">🪜</span><span class="power-copy"><strong>Farm Ladder</strong><small>Unlock the next maze without stars</small></span><span class="power-count" id="skipCount">Owned · 0</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h3>Coin Shed</h3>
+        <p class="panel-sub">First clears and improved star ratings fund the shed. Replaying unchanged results cannot farm coins.</p>
+        <div class="shop-grid">
+          <button class="shop-card" data-buy="trail" type="button"><span class="shop-icon">🗺️</span><span class="shop-copy"><strong>Trail Map</strong><small>One route reveal</small></span><span class="shop-cost">12 coins</span></button>
+          <button class="shop-card" data-buy="lantern" type="button"><span class="shop-icon">🏮</span><span class="shop-copy"><strong>Farm Lantern</strong><small>One fog clearing</small></span><span class="shop-cost">10 coins</span></button>
+          <button class="shop-card" data-buy="rewind" type="button"><span class="shop-icon">↩️</span><span class="shop-copy"><strong>Rewind</strong><small>Undo five moves</small></span><span class="shop-cost">8 coins</span></button>
+          <button class="shop-card" data-buy="skip" type="button"><span class="shop-icon">🪜</span><span class="shop-copy"><strong>Farm Ladder</strong><small>One assisted unlock</small></span><span class="shop-cost">45 coins</span></button>
+        </div>
+      </section>
+
+      <section class="panel guide-panel">
+        <h3>Farm Legend</h3>
+        <div class="legend-grid">
+          <div class="legend-item"><span>🌾</span><div><strong>Golden Grain</strong>Collect all for one star.</div></div>
+          <div class="legend-item"><span>🗝️</span><div><strong>Lantern Key</strong>Required before the exit opens.</div></div>
+          <div class="legend-item"><span>🕳️</span><div><strong>Burrow Pair</strong>Teleports between two safe cells.</div></div>
+          <div class="legend-item"><span>🍃</span><div><strong>Wind Gust</strong>Pushes one extra open cell.</div></div>
+          <div class="legend-item"><span>🐦</span><div><strong>Wandering Crow</strong>Moves each turn; contact adds five seconds.</div></div>
+          <div class="legend-item"><span>🏮</span><div><strong>Lantern Gate</strong>Reach it to escape.</div></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h3>Farm Memory</h3>
+        <div class="button-row">
+          <button class="btn" id="exportBtn" type="button">Export</button>
+          <button class="btn" id="importBtn" type="button">Import</button>
+          <button class="btn" id="legacyBtn" type="button">Check V1</button>
+          <button class="btn danger" id="resetBtn" type="button">Reset</button>
+        </div>
+      </section>
+    </aside>
+  </section>
+</main>
+
+<footer class="wrap footer">Haystack Escape™ · Twilight Farm Labyrinth · Sixty deterministic levels · Local-first · No accounts, analytics, external images, libraries, or network service required</footer>
+
+<dialog id="guideDialog">
+  <h2>Haystack Escape Guide</h2>
+  <div class="guide-grid">
+    <article class="guide-card"><strong>Stable Level Mazes</strong><p>Each campaign level has a fixed seed. Best times and move records are now measured against the same maze every time.</p></article>
+    <article class="guide-card"><strong>Three Stars</strong><p>One star is awarded for escaping, one for collecting every grain bundle, and one for meeting the exact calculated footwork target.</p></article>
+    <article class="guide-card"><strong>Keys</strong><p>Lantern Barn and later worlds may lock the exit. Find the visible key before entering the lantern gate.</p></article>
+    <article class="guide-card"><strong>Burrows</strong><p>Paired burrows appear from Moonlit Orchard onward. Entering one carries the traveler to its partner without adding an extra move.</p></article>
+    <article class="guide-card"><strong>Wind</strong><p>Scarecrow Hollow introduces gust tiles. A gust pushes in the direction of travel when the next cell is open.</p></article>
+    <article class="guide-card"><strong>Crows</strong><p>Wandering crows move after each successful player step. Contact never blocks the maze; it adds a five-second detour penalty.</p></article>
+    <article class="guide-card"><strong>Deep Fog</strong><p>Starfall Farm hides distant cells. The traveler can still move normally, and a Farm Lantern reveals the whole field temporarily.</p></article>
+    <article class="guide-card"><strong>Fair Coins</strong><p>First clears pay a base reward. Raising a level’s best star rating grants only the difference, preventing repetitive coin farming.</p></article>
+    <article class="guide-card"><strong>Controls</strong><p>Use arrows, WASD, swipes, or the direction pad. R restarts, P pauses, and Escape pauses an active maze.</p></article>
+    <article class="guide-card"><strong>Local Safety</strong><p>Progress imports are size-limited and normalized. An original V1 save can be migrated without deleting its old storage entry.</p></article>
+  </div>
+  <div class="dialog-actions"><button class="btn primary" id="closeGuideBtn" type="button">Close Guide</button></div>
+</dialog>
+
+<dialog id="dataDialog">
+  <h2>Import / Export Haystack Escape</h2>
+  <p class="panel-sub">Copy the complete validated local farm save, or paste another Haystack Escape save and import it.</p>
+  <textarea id="dataText" aria-label="Haystack Escape JSON"></textarea>
+  <div class="dialog-actions">
+    <button class="btn" id="copyDataBtn" type="button">Copy</button>
+    <button class="btn primary" id="doImportBtn" type="button">Import</button>
+    <button class="btn" id="closeDataBtn" type="button">Close</button>
+  </div>
+</dialog>
+
+<input id="importFileInput" type="file" accept=".json,application/json" hidden>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(()=>{
+"use strict";
+
+const LEVEL_COUNT=60;
+const SAVE_KEY="HAYSTACK_ESCAPE_LABYRINTH_V4";
+const PREF_KEY="HAYSTACK_ESCAPE_PREFS_V4";
+const LEGACY_KEY="haystack_escape_progress_v1";
+const MAX_IMPORT_CHARS=1000000;
+const WORLD_SIZE=10;
+const DIRS=[
+  {dx:-1,dy:0,wall:0,opposite:1,key:"left"},
+  {dx:1,dy:0,wall:1,opposite:0,key:"right"},
+  {dx:0,dy:-1,wall:2,opposite:3,key:"up"},
+  {dx:0,dy:1,wall:3,opposite:2,key:"down"}
+];
+const SHOP_COSTS={trail:12,lantern:10,rewind:8,skip:45};
+const TRAVELERS={
+  mouse:{label:"Pip the Field Mouse",icon:"🐭"},
+  hedgehog:{label:"Hazel the Hedgehog",icon:"🦔"},
+  rabbit:{label:"Juniper the Rabbit",icon:"🐇"}
+};
+const WORLDS=[
+  {
+    id:"golden",
+    name:"Golden Field",
+    icon:"🌾",
+    tone:"#d5ad55",
+    floor:"#17251d",
+    wall:"#d5ad55",
+    path:"#f4d98c",
+    description:"Open twilight fields introduce grain collecting and clean hay-bale passages.",
+    mechanics:"Grain · Footwork targets"
+  },
+  {
+    id:"lantern",
+    name:"Lantern Barn",
+    icon:"🏮",
+    tone:"#d98949",
+    floor:"#291b16",
+    wall:"#d98949",
+    path:"#f4c686",
+    description:"Barn corridors add lantern keys and longer routes through warm timber shadows.",
+    mechanics:"Keys · Larger mazes"
+  },
+  {
+    id:"orchard",
+    name:"Moonlit Orchard",
+    icon:"🌙",
+    tone:"#9180c8",
+    floor:"#14172d",
+    wall:"#9180c8",
+    path:"#cfc6ed",
+    description:"Paired burrows bend distance beneath silver fruit trees.",
+    mechanics:"Burrow portals · Keys"
+  },
+  {
+    id:"hollow",
+    name:"Scarecrow Hollow",
+    icon:"🍃",
+    tone:"#74c69d",
+    floor:"#10251f",
+    wall:"#74c69d",
+    path:"#b9e7cf",
+    description:"Wind channels push travelers one extra open cell through braided corridors.",
+    mechanics:"Wind gusts · Looped paths"
+  },
+  {
+    id:"frost",
+    name:"Frosted Acre",
+    icon:"❄️",
+    tone:"#7eb8dd",
+    floor:"#0e202b",
+    wall:"#7eb8dd",
+    path:"#c5e2f4",
+    description:"Wandering crows patrol cool fields, creating harmless but costly detours.",
+    mechanics:"Moving crows · All prior tools"
+  },
+  {
+    id:"starfall",
+    name:"Starfall Farm",
+    icon:"✨",
+    tone:"#cf7f96",
+    floor:"#211229",
+    wall:"#cf7f96",
+    path:"#f0bfd0",
+    description:"Deep fog, crows, burrows, wind, and lantern keys combine in the final ten mazes.",
+    mechanics:"Deep fog · Full labyrinth system"
+  }
+];
+
+const $=selector=>document.querySelector(selector);
+const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
+const safeNumber=(value,fallback=0)=>Number.isFinite(Number(value))?Number(value):fallback;
+const safeText=value=>String(value??"");
+const deepClone=value=>JSON.parse(JSON.stringify(value));
+const posKey=position=>`${position.x},${position.y}`;
+const samePos=(a,b)=>a&&b&&a.x===b.x&&a.y===b.y;
+
+const mazeCanvas=$("#mazeCanvas");
+const mazeCtx=mazeCanvas.getContext("2d");
+
+let state=loadState();
+let prefs=loadPrefs();
+let selectedWorld=Math.ceil((state.currentLevel||1)/WORLD_SIZE);
+let session=null;
+let segmentStarted=0;
+let pointerStart=null;
+let audioContext=null;
+let toastTimer=0;
+let lastPersist=0;
+let dpr=1;
+
+function defaultState(){
+  return{
+    version:4,
+    currentLevel:1,
+    maxUnlocked:1,
+    records:{},
+    coins:0,
+    powerups:{trail:1,lantern:1,rewind:1,skip:0},
+    streak:0,
+    lastCompletionDate:null,
+    dailyClaims:[],
+    activeSession:null,
+    migratedLegacy:false,
+    status:"Choose an unlocked level to begin."
+  };
+}
+function defaultPrefs(){
+  return{
+    traveler:"mouse",
+    theme:"twilight",
+    motion:"full",
+    sound:"off"
+  };
+}
+function localDay(date=new Date()){
+  return`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}-${String(date.getDate()).padStart(2,"0")}`;
+}
+function hashString(text){
+  let hash=2166136261>>>0;
+  for(let index=0;index<text.length;index++){
+    hash^=text.charCodeAt(index);
+    hash=Math.imul(hash,16777619);
+  }
+  return hash>>>0;
+}
+function mulberry32(seed){
+  return function(){
+    let value=seed+=0x6D2B79F5;
+    value=Math.imul(value^value>>>15,value|1);
+    value^=value+Math.imul(value^value>>>7,value|61);
+    return((value^value>>>14)>>>0)/4294967296;
+  };
+}
+function shuffle(array,rng){
+  const copy=[...array];
+  for(let index=copy.length-1;index>0;index--){
+    const other=Math.floor(rng()*(index+1));
+    [copy[index],copy[other]]=[copy[other],copy[index]];
+  }
+  return copy;
+}
+function loadPrefs(){
+  try{
+    const raw=JSON.parse(localStorage.getItem(PREF_KEY)||"{}");
+    return{
+      traveler:TRAVELERS[raw.traveler]?raw.traveler:"mouse",
+      theme:raw.theme==="day"?"day":"twilight",
+      motion:raw.motion==="reduced"?"reduced":"full",
+      sound:raw.sound==="on"?"on":"off"
+    };
+  }catch{
+    return defaultPrefs();
+  }
+}
+function savePrefs(){
+  try{localStorage.setItem(PREF_KEY,JSON.stringify(prefs));}catch{}
+}
+function normalizeRecord(raw){
+  if(!raw||typeof raw!=="object")return null;
+  return{
+    stars:Math.round(clamp(safeNumber(raw.stars,0),0,3)),
+    bestTime:clamp(safeNumber(raw.bestTime,0),0,86400)||null,
+    bestMoves:Math.round(clamp(safeNumber(raw.bestMoves,0),0,999999))||null,
+    completedAt:Number.isFinite(Date.parse(raw.completedAt))?raw.completedAt:null,
+    skipped:Boolean(raw.skipped)
+  };
+}
+function normalizeState(raw){
+  const source=raw&&typeof raw==="object"?raw:{};
+  const records={};
+  if(source.records&&typeof source.records==="object"){
+    for(const [key,value] of Object.entries(source.records).slice(0,LEVEL_COUNT)){
+      const level=Math.round(safeNumber(key,0));
+      const record=normalizeRecord(value);
+      if(level>=1&&level<=LEVEL_COUNT&&record)records[level]=record;
+    }
+  }
+  return{
+    version:4,
+    currentLevel:Math.round(clamp(safeNumber(source.currentLevel,1),1,LEVEL_COUNT)),
+    maxUnlocked:Math.round(clamp(safeNumber(source.maxUnlocked,1),1,LEVEL_COUNT)),
+    records,
+    coins:Math.round(clamp(safeNumber(source.coins,0),0,999999)),
+    powerups:{
+      trail:Math.round(clamp(safeNumber(source.powerups?.trail,1),0,9999)),
+      lantern:Math.round(clamp(safeNumber(source.powerups?.lantern,1),0,9999)),
+      rewind:Math.round(clamp(safeNumber(source.powerups?.rewind,1),0,9999)),
+      skip:Math.round(clamp(safeNumber(source.powerups?.skip,0),0,9999))
+    },
+    streak:Math.round(clamp(safeNumber(source.streak,0),0,99999)),
+    lastCompletionDate:/^\d{4}-\d{2}-\d{2}$/.test(source.lastCompletionDate||"")?source.lastCompletionDate:null,
+    dailyClaims:Array.isArray(source.dailyClaims)
+      ?[...new Set(source.dailyClaims.filter(value=>/^\d{4}-\d{2}-\d{2}$/.test(value)))].slice(-180)
+      :[],
+    activeSession:normalizeSessionSnapshot(source.activeSession),
+    migratedLegacy:Boolean(source.migratedLegacy),
+    status:safeText(source.status||defaultState().status).slice(0,260)
+  };
+}
+function loadState(){
+  try{
+    return normalizeState(JSON.parse(localStorage.getItem(SAVE_KEY)||"null"));
+  }catch{
+    return defaultState();
+  }
+}
+function persist(){
+  state.activeSession=session?sessionSnapshot():null;
+  try{
+    localStorage.setItem(SAVE_KEY,JSON.stringify(state));
+    return true;
+  }catch{
+    showToast("Local storage is unavailable or full.");
+    return false;
+  }
+}
+function worldForLevel(level){
+  return Math.ceil(level/WORLD_SIZE);
+}
+function worldData(level){
+  return WORLDS[worldForLevel(level)-1]||WORLDS[0];
+}
+function levelConfig(level,{mode="campaign",date=null}={}){
+  const world=mode==="daily"
+    ?1+(hashString(`daily-world|${date}`)%WORLDS.length)
+    :worldForLevel(level);
+  const within=mode==="daily"
+    ?1+(hashString(`daily-within|${date}`)%10)
+    :((level-1)%10)+1;
+  const cols=[6,7,8,9,10,11][world-1];
+  const rows=cols;
+  const seed=mode==="daily"
+    ?hashString(`HAYSTACK-DAILY|${date}|${world}|${within}`)
+    :hashString(`HAYSTACK-CAMPAIGN|${level}|V4`);
+  const grainCount=1+((within+world)%3);
+  const hasKey=world>=2;
+  const hasPortals=world>=3&&(within%2===0||world>=6);
+  const gustCount=world>=4?Math.min(4,1+Math.floor(within/3)):0;
+  const crowCount=world>=5?Math.min(3,1+Math.floor((within-1)/4)):0;
+  const fog=world>=6;
+  const loopCount=Math.max(0,world-2)+Math.floor(within/4);
+  return{
+    mode,date,level,world,within,cols,rows,seed,grainCount,hasKey,hasPortals,
+    gustCount,crowCount,fog,loopCount
+  };
+}
+function normalizeSessionSnapshot(raw){
+  if(!raw||typeof raw!=="object")return null;
+  const mode=raw.mode==="daily"?"daily":"campaign";
+  const date=mode==="daily"&&/^\d{4}-\d{2}-\d{2}$/.test(raw.date||"")?raw.date:null;
+  if(mode==="daily"&&date!==localDay())return null;
+  const level=Math.round(clamp(safeNumber(raw.level,1),1,LEVEL_COUNT));
+  return{
+    mode,
+    date,
+    level,
+    player:normalizePosition(raw.player),
+    collected:Array.isArray(raw.collected)?[...new Set(raw.collected.map(value=>safeText(value).slice(0,20)))].slice(0,10):[],
+    keyCollected:Boolean(raw.keyCollected),
+    crows:Array.isArray(raw.crows)?raw.crows.slice(0,4).map(normalizePosition).filter(Boolean):[],
+    moves:Math.round(clamp(safeNumber(raw.moves,0),0,999999)),
+    elapsed:clamp(safeNumber(raw.elapsed,0),0,86400),
+    active:Boolean(raw.active),
+    paused:true,
+    completed:Boolean(raw.completed),
+    visited:Array.isArray(raw.visited)?raw.visited.slice(-500).map(normalizePosition).filter(Boolean):[],
+    history:Array.isArray(raw.history)?raw.history.slice(-80).map(normalizeHistory).filter(Boolean):[],
+    step:Math.round(clamp(safeNumber(raw.step,0),0,999999)),
+    status:safeText(raw.status||"Restored maze paused.").slice(0,260)
+  };
+}
+function normalizePosition(raw){
+  if(!raw||typeof raw!=="object")return null;
+  return{x:Math.round(safeNumber(raw.x,0)),y:Math.round(safeNumber(raw.y,0))};
+}
+function normalizeHistory(raw){
+  if(!raw||typeof raw!=="object")return null;
+  return{
+    player:normalizePosition(raw.player),
+    crows:Array.isArray(raw.crows)?raw.crows.slice(0,4).map(normalizePosition).filter(Boolean):[],
+    collected:Array.isArray(raw.collected)?raw.collected.map(value=>safeText(value).slice(0,20)).slice(0,10):[],
+    keyCollected:Boolean(raw.keyCollected),
+    moves:Math.round(clamp(safeNumber(raw.moves,0),0,999999)),
+    step:Math.round(clamp(safeNumber(raw.step,0),0,999999)),
+    visited:Array.isArray(raw.visited)?raw.visited.slice(-500).map(normalizePosition).filter(Boolean):[]
+  };
+}
+
+function createMaze(config){
+  const {cols,rows,seed}=config;
+  const rng=mulberry32(seed);
+  const cells=Array.from({length:cols*rows},()=>({walls:[1,1,1,1],visited:false}));
+  const index=(x,y)=>x+y*cols;
+  const stack=[{x:0,y:0}];
+  cells[index(0,0)].visited=true;
+
+  while(stack.length){
+    const current=stack[stack.length-1];
+    const choices=[];
+    for(const dir of DIRS){
+      const nx=current.x+dir.dx;
+      const ny=current.y+dir.dy;
+      if(nx<0||ny<0||nx>=cols||ny>=rows)continue;
+      if(cells[index(nx,ny)].visited)continue;
+      choices.push({...dir,nx,ny});
+    }
+    if(!choices.length){
+      stack.pop();
+      continue;
+    }
+    const choice=choices[Math.floor(rng()*choices.length)];
+    cells[index(current.x,current.y)].walls[choice.wall]=0;
+    cells[index(choice.nx,choice.ny)].walls[choice.opposite]=0;
+    cells[index(choice.nx,choice.ny)].visited=true;
+    stack.push({x:choice.nx,y:choice.ny});
+  }
+
+  for(const cell of cells)delete cell.visited;
+
+  let loopsAdded=0;
+  let attempts=0;
+  while(loopsAdded<config.loopCount&&attempts<200){
+    attempts++;
+    const x=Math.floor(rng()*cols);
+    const y=Math.floor(rng()*rows);
+    const candidate=DIRS[Math.floor(rng()*DIRS.length)];
+    const nx=x+candidate.dx;
+    const ny=y+candidate.dy;
+    if(nx<0||ny<0||nx>=cols||ny>=rows)continue;
+    const cell=cells[index(x,y)];
+    if(cell.walls[candidate.wall]===0)continue;
+    cell.walls[candidate.wall]=0;
+    cells[index(nx,ny)].walls[candidate.opposite]=0;
+    loopsAdded++;
+  }
+
+  const start={x:0,y:0};
+  const goal={x:cols-1,y:rows-1};
+  const all=[];
+  for(let y=0;y<rows;y++){
+    for(let x=0;x<cols;x++){
+      if((x===0&&y===0)||(x===goal.x&&y===goal.y))continue;
+      all.push({x,y});
+    }
+  }
+  const shuffled=shuffle(all,rng);
+  let cursor=0;
+  const grain=[];
+  for(let count=0;count<config.grainCount;count++)grain.push({...shuffled[cursor++],id:`g${count}`});
+  const key=config.hasKey?{...shuffled[cursor++]}:null;
+  const portals=config.hasPortals?[{...shuffled[cursor++]},{...shuffled[cursor++]}]:[];
+  const gusts=[];
+  for(let count=0;count<config.gustCount;count++)gusts.push({...shuffled[cursor++]});
+  const crows=[];
+  for(let count=0;count<config.crowCount;count++)crows.push({...shuffled[cursor++]});
+
+  const maze={cols,rows,cells,index,start,goal,grain,key,portals,gusts,crows,seed};
+  maze.targetMoves=calculateTargetMoves(maze);
+  return maze;
+}
+function neighbors(maze,position){
+  const cell=maze.cells[maze.index(position.x,position.y)];
+  const result=[];
+  for(const dir of DIRS){
+    const nx=position.x+dir.dx;
+    const ny=position.y+dir.dy;
+    if(nx<0||ny<0||nx>=maze.cols||ny>=maze.rows)continue;
+    if(cell.walls[dir.wall])continue;
+    result.push({x:nx,y:ny,dir});
+  }
+  return result;
+}
+function shortestPath(maze,start,goal){
+  const queue=[start];
+  const parent=new Map();
+  const visited=new Set([posKey(start)]);
+  let found=false;
+  for(let head=0;head<queue.length;head++){
+    const current=queue[head];
+    if(samePos(current,goal)){
+      found=true;
+      break;
+    }
+    for(const next of neighbors(maze,current)){
+      const key=posKey(next);
+      if(visited.has(key))continue;
+      visited.add(key);
+      parent.set(key,posKey(current));
+      queue.push({x:next.x,y:next.y});
+    }
+  }
+  if(!found)return[];
+  const path=[];
+  let cursor=posKey(goal);
+  const startKey=posKey(start);
+  while(cursor!==startKey){
+    const [x,y]=cursor.split(",").map(Number);
+    path.push({x,y});
+    cursor=parent.get(cursor);
+    if(!cursor)return[];
+  }
+  path.push({...start});
+  path.reverse();
+  return path;
+}
+function shortestDistance(maze,a,b){
+  const path=shortestPath(maze,a,b);
+  return path.length?path.length-1:Infinity;
+}
+function calculateTargetMoves(maze){
+  const stops=[...maze.grain.map(item=>({x:item.x,y:item.y}))];
+  if(maze.key)stops.push({...maze.key});
+  if(!stops.length)return shortestDistance(maze,maze.start,maze.goal)+2;
+
+  const count=stops.length;
+  const startDistances=stops.map(stop=>shortestDistance(maze,maze.start,stop));
+  const between=Array.from({length:count},(_,a)=>
+    Array.from({length:count},(_,b)=>shortestDistance(maze,stops[a],stops[b]))
+  );
+  const goalDistances=stops.map(stop=>shortestDistance(maze,stop,maze.goal));
+  const size=1<<count;
+  const dp=Array.from({length:size},()=>Array(count).fill(Infinity));
+  for(let index=0;index<count;index++)dp[1<<index][index]=startDistances[index];
+  for(let mask=1;mask<size;mask++){
+    for(let last=0;last<count;last++){
+      const value=dp[mask][last];
+      if(!Number.isFinite(value))continue;
+      for(let next=0;next<count;next++){
+        if(mask&(1<<next))continue;
+        const nextMask=mask|(1<<next);
+        dp[nextMask][next]=Math.min(dp[nextMask][next],value+between[last][next]);
+      }
+    }
+  }
+  const full=size-1;
+  let best=Infinity;
+  for(let last=0;last<count;last++)best=Math.min(best,dp[full][last]+goalDistances[last]);
+  const allowance=Math.max(2,Math.floor((maze.cols+maze.rows)/5));
+  return Math.round(best+allowance);
+}
+
+function makeSession(config){
+  const maze=createMaze(config);
+  return{
+    mode:config.mode,
+    date:config.date,
+    level:config.level,
+    config,
+    maze,
+    player:{...maze.start},
+    collected:[],
+    keyCollected:false,
+    crows:maze.crows.map(position=>({...position})),
+    moves:0,
+    elapsed:0,
+    active:false,
+    paused:false,
+    completed:false,
+    visited:[{...maze.start}],
+    history:[],
+    step:0,
+    revealUntil:0,
+    lanternUntil:0,
+    portalCooldown:0,
+    status:"Enter the maze when ready. The timer begins only after you start."
+  };
+}
+function restoreSession(snapshot){
+  if(!snapshot)return null;
+  const config=levelConfig(snapshot.level,{mode:snapshot.mode,date:snapshot.date});
+  const restored=makeSession(config);
+  const validPosition=position=>position&&position.x>=0&&position.y>=0&&position.x<restored.maze.cols&&position.y<restored.maze.rows;
+  restored.player=validPosition(snapshot.player)?snapshot.player:{...restored.maze.start};
+  restored.collected=snapshot.collected.filter(id=>restored.maze.grain.some(item=>item.id===id));
+  restored.keyCollected=snapshot.keyCollected;
+  restored.crows=snapshot.crows.filter(validPosition).slice(0,restored.maze.crows.length);
+  while(restored.crows.length<restored.maze.crows.length){
+    restored.crows.push({...restored.maze.crows[restored.crows.length]});
+  }
+  restored.moves=snapshot.moves;
+  restored.elapsed=snapshot.elapsed;
+  restored.active=snapshot.active&&!snapshot.completed;
+  restored.paused=true;
+  restored.completed=snapshot.completed;
+  restored.visited=snapshot.visited.filter(validPosition);
+  restored.history=snapshot.history;
+  restored.step=snapshot.step;
+  restored.status=snapshot.status||"Restored maze paused.";
+  return restored;
+}
+function sessionSnapshot(){
+  if(!session)return null;
+  commitElapsed();
+  return{
+    mode:session.mode,
+    date:session.date,
+    level:session.level,
+    player:session.player,
+    collected:session.collected,
+    keyCollected:session.keyCollected,
+    crows:session.crows,
+    moves:session.moves,
+    elapsed:session.elapsed,
+    active:session.active,
+    paused:true,
+    completed:session.completed,
+    visited:session.visited.slice(-500),
+    history:session.history.slice(-80),
+    step:session.step,
+    status:session.status
+  };
+}
+function openCampaignLevel(level){
+  if(level<1||level>state.maxUnlocked)return showToast("That farm maze is still locked.");
+  selectedWorld=worldForLevel(level);
+  state.currentLevel=level;
+  session=makeSession(levelConfig(level));
+  segmentStarted=0;
+  state.status=session.status;
+  persist();
+  renderAll();
+  showReadyOverlay();
+}
+function openDailyMaze(){
+  const date=localDay();
+  const pseudoLevel=1+(hashString(`daily-level|${date}`)%LEVEL_COUNT);
+  session=makeSession(levelConfig(pseudoLevel,{mode:"daily",date}));
+  segmentStarted=0;
+  state.status=`Daily Maze for ${date} is ready.`;
+  persist();
+  renderAll();
+  showReadyOverlay();
+}
+function restartSession(){
+  if(!session)return;
+  const config=session.config;
+  session=makeSession(config);
+  segmentStarted=0;
+  state.status="Maze restarted. Enter when ready.";
+  persist();
+  renderAll();
+  showReadyOverlay();
+}
+function startSession(){
+  if(!session||session.completed)return;
+  session.active=true;
+  session.paused=false;
+  segmentStarted=performance.now();
+  session.status="Maze entered. Collect grain, find any required key, and reach the lantern gate.";
+  $("#canvasOverlay").hidden=true;
+  persist();
+  renderAll();
+  mazeCanvas.focus();
+  playTone(520,true);
+}
+function commitElapsed(){
+  if(!session||!session.active||session.paused||session.completed||!segmentStarted)return;
+  const now=performance.now();
+  session.elapsed+=Math.max(0,(now-segmentStarted)/1000);
+  segmentStarted=now;
+}
+function currentElapsed(){
+  if(!session)return 0;
+  if(session.active&&!session.paused&&!session.completed&&segmentStarted){
+    return session.elapsed+Math.max(0,(performance.now()-segmentStarted)/1000);
+  }
+  return session.elapsed;
+}
+function togglePause(forcePause=false){
+  if(!session||!session.active||session.completed)return;
+  if(forcePause||!session.paused){
+    commitElapsed();
+    session.paused=true;
+    segmentStarted=0;
+    showPauseOverlay();
+  }else{
+    session.paused=false;
+    segmentStarted=performance.now();
+    $("#canvasOverlay").hidden=true;
+    mazeCanvas.focus();
+  }
+  persist();
+  renderControls();
+}
+function showReadyOverlay(){
+  $("#overlayTitle").textContent=session.mode==="daily"?"Daily Maze Ready":`Level ${session.level} Ready`;
+  $("#overlayText").textContent=`${worldData(session.config.world*10).name} · ${session.maze.cols} × ${session.maze.rows} · target ${session.maze.targetMoves} moves.`;
+  $("#overlayMetrics").hidden=true;
+  $("#overlayStartBtn").hidden=false;
+  $("#overlayResumeBtn").hidden=true;
+  $("#overlayNextBtn").hidden=true;
+  $("#overlayReplayBtn").hidden=true;
+  $("#canvasOverlay").hidden=false;
+}
+function showPauseOverlay(){
+  $("#overlayTitle").textContent="Maze Paused";
+  $("#overlayText").textContent="The timer, crows, and traveler are frozen.";
+  $("#overlayMetrics").hidden=true;
+  $("#overlayStartBtn").hidden=true;
+  $("#overlayResumeBtn").hidden=false;
+  $("#overlayNextBtn").hidden=true;
+  $("#overlayReplayBtn").hidden=true;
+  $("#canvasOverlay").hidden=false;
+}
+function showRestoredOverlay(){
+  $("#overlayTitle").textContent="Maze Restored";
+  $("#overlayText").textContent="Your position, time, grain, key, crows, and move history were restored. Resume when ready.";
+  $("#overlayMetrics").hidden=true;
+  $("#overlayStartBtn").hidden=true;
+  $("#overlayResumeBtn").hidden=false;
+  $("#overlayNextBtn").hidden=true;
+  $("#overlayReplayBtn").hidden=true;
+  $("#canvasOverlay").hidden=false;
+}
+
+function canMove(position,dx,dy){
+  if(!session)return false;
+  const maze=session.maze;
+  const nx=position.x+dx;
+  const ny=position.y+dy;
+  if(nx<0||ny<0||nx>=maze.cols||ny>=maze.rows)return false;
+  const dir=DIRS.find(item=>item.dx===dx&&item.dy===dy);
+  return Boolean(dir&&!maze.cells[maze.index(position.x,position.y)].walls[dir.wall]);
+}
+function pushHistory(){
+  session.history.push({
+    player:{...session.player},
+    crows:session.crows.map(position=>({...position})),
+    collected:[...session.collected],
+    keyCollected:session.keyCollected,
+    moves:session.moves,
+    step:session.step,
+    visited:session.visited.slice(-500).map(position=>({...position}))
+  });
+  if(session.history.length>80)session.history.shift();
+}
+function movePlayer(dx,dy){
+  if(!session||!session.active||session.paused||session.completed)return;
+  if(!canMove(session.player,dx,dy)){
+    session.status="A hay bale blocks that direction.";
+    playTone(220,false);
+    renderStatus();
+    return;
+  }
+
+  pushHistory();
+  session.player.x+=dx;
+  session.player.y+=dy;
+  session.moves++;
+  session.step++;
+  collectAtPlayer();
+
+  if(session.portalCooldown>0){
+    session.portalCooldown--;
+  }else{
+    applyPortal();
+  }
+  applyGust(dx,dy);
+  collectAtPlayer();
+  moveCrows();
+  resolveCrowContact();
+  session.visited.push({...session.player});
+  if(session.visited.length>500)session.visited.shift();
+
+  if(checkGoal())return;
+  persist();
+  renderAll();
+  playTone(690,true);
+}
+function collectAtPlayer(){
+  for(const grain of session.maze.grain){
+    if(samePos(session.player,grain)&&!session.collected.includes(grain.id)){
+      session.collected.push(grain.id);
+      state.coins+=1;
+      session.status=`Golden grain collected · ${session.collected.length} of ${session.maze.grain.length}.`;
+      playTone(820,true);
+    }
+  }
+  if(session.maze.key&&samePos(session.player,session.maze.key)&&!session.keyCollected){
+    session.keyCollected=true;
+    session.status="Lantern key found. The exit gate can now open.";
+    playSolvedChord();
+  }
+}
+function applyPortal(){
+  const [a,b]=session.maze.portals;
+  if(!a||!b)return;
+  if(samePos(session.player,a)){
+    session.player={...b};
+    session.portalCooldown=1;
+    session.status="The burrow carried the traveler across the orchard.";
+    playTone(600,true);
+  }else if(samePos(session.player,b)){
+    session.player={...a};
+    session.portalCooldown=1;
+    session.status="The burrow carried the traveler across the orchard.";
+    playTone(600,true);
+  }
+}
+function applyGust(dx,dy){
+  if(!session.maze.gusts.some(gust=>samePos(gust,session.player)))return;
+  if(canMove(session.player,dx,dy)){
+    session.player.x+=dx;
+    session.player.y+=dy;
+    session.status="A farm gust pushed the traveler one extra open cell.";
+    playTone(760,true);
+  }else{
+    session.status="A farm gust rustled the hay but could not push through the wall.";
+  }
+}
+function moveCrows(){
+  session.crows=session.crows.map((crow,index)=>{
+    const choices=neighbors(session.maze,crow).filter(next=>
+      !samePos(next,session.maze.goal)&&
+      !samePos(next,session.maze.start)
+    );
+    if(!choices.length)return crow;
+    const seed=hashString(`${session.maze.seed}|crow|${index}|step|${session.step}`);
+    return choices[seed%choices.length];
+  });
+}
+function resolveCrowContact(){
+  session.crows=session.crows.map((crow,index)=>{
+    if(!samePos(crow,session.player))return crow;
+    commitElapsed();
+    session.elapsed+=5;
+    segmentStarted=performance.now();
+    session.status="A wandering crow caused a five-second detour, then hopped away.";
+    const choices=neighbors(session.maze,crow).filter(next=>!samePos(next,session.player));
+    return choices.length?choices[(session.step+index)%choices.length]:crow;
+  });
+}
+function checkGoal(){
+  if(!samePos(session.player,session.maze.goal))return false;
+  if(session.maze.key&&!session.keyCollected){
+    session.status="The lantern gate is locked. Find the visible key first.";
+    persist();
+    renderAll();
+    playTone(180,false);
+    return false;
+  }
+  completeLevel();
+  return true;
+}
+function completionStars(){
+  if(!session?.completed)return 0;
+  let stars=1;
+  if(session.collected.length===session.maze.grain.length)stars++;
+  if(session.moves<=session.maze.targetMoves)stars++;
+  return stars;
+}
+function updateStreak(){
+  const today=localDay();
+  if(!state.lastCompletionDate){
+    state.streak=1;
+  }else if(state.lastCompletionDate!==today){
+    const previous=new Date(`${state.lastCompletionDate}T12:00:00`);
+    const current=new Date(`${today}T12:00:00`);
+    const diff=Math.round((current-previous)/86400000);
+    state.streak=diff===1?state.streak+1:1;
+  }
+  state.lastCompletionDate=today;
+}
+function completeLevel(){
+  commitElapsed();
+  session.active=false;
+  session.paused=false;
+  session.completed=true;
+  segmentStarted=0;
+  const stars=completionStars();
+  const elapsed=session.elapsed;
+  let reward=0;
+
+  if(session.mode==="daily"){
+    if(!state.dailyClaims.includes(session.date)){
+      reward=20+stars*3;
+      state.coins+=reward;
+      state.dailyClaims.push(session.date);
+      state.dailyClaims=state.dailyClaims.slice(-180);
+    }
+  }else{
+    const level=session.level;
+    const previous=state.records[level]||{stars:0,bestTime:null,bestMoves:null,skipped:false};
+    const firstClear=!previous.completedAt;
+    const starGain=Math.max(0,stars-previous.stars);
+    if(firstClear){
+      reward=8+session.config.world*3+stars*3;
+    }else if(starGain>0){
+      reward=starGain*3;
+    }
+    state.coins+=reward;
+    state.records[level]={
+      stars:Math.max(previous.stars,stars),
+      bestTime:!previous.bestTime||elapsed<previous.bestTime?elapsed:previous.bestTime,
+      bestMoves:!previous.bestMoves||session.moves<previous.bestMoves?session.moves:previous.bestMoves,
+      completedAt:previous.completedAt||new Date().toISOString(),
+      skipped:false
+    };
+    if(level===state.maxUnlocked&&state.maxUnlocked<LEVEL_COUNT)state.maxUnlocked++;
+    state.currentLevel=Math.min(LEVEL_COUNT,level+1);
+    selectedWorld=worldForLevel(state.currentLevel);
+  }
+
+  updateStreak();
+  state.status=`Maze escaped with ${stars} star${stars===1?"":"s"}${reward?` and ${reward} coins`:""}.`;
+  persist();
+  renderAll();
+  showCompletionOverlay(stars,reward);
+  playSolvedChord();
+}
+function showCompletionOverlay(stars,reward){
+  $("#overlayTitle").textContent=session.mode==="daily"?"Daily Maze Escaped":"Haystack Escaped";
+  $("#overlayText").textContent=reward
+    ?`A fair reward of ${reward} coins was added.`
+    :"This result was already rewarded; records still update when improved.";
+  $("#overlayMetrics").innerHTML=`
+    <div><strong>${"★".repeat(stars)}${"☆".repeat(3-stars)}</strong><span>Stars</span></div>
+    <div><strong>${formatTime(session.elapsed)}</strong><span>Time</span></div>
+    <div><strong>${session.moves}</strong><span>Moves</span></div>
+    <div><strong>${reward}</strong><span>Coins</span></div>`;
+  $("#overlayMetrics").hidden=false;
+  $("#overlayStartBtn").hidden=true;
+  $("#overlayResumeBtn").hidden=true;
+  $("#overlayNextBtn").hidden=session.mode==="daily"||session.level>=LEVEL_COUNT;
+  $("#overlayReplayBtn").hidden=false;
+  $("#canvasOverlay").hidden=false;
+}
+function nextMaze(){
+  if(!session||session.mode==="daily")return;
+  const next=Math.min(LEVEL_COUNT,session.level+1);
+  if(next===session.level)return showToast("The final campaign maze is complete.");
+  openCampaignLevel(next);
+}
+
+function revealPath(){
+  if(!session||!session.active||session.paused||session.completed)return;
+  if(state.powerups.trail<=0)return showToast("No Trail Maps are owned.");
+  const points=[];
+  let cursor={...session.player};
+  if(session.maze.key&&!session.keyCollected){
+    const first=shortestPath(session.maze,cursor,session.maze.key);
+    const second=shortestPath(session.maze,session.maze.key,session.maze.goal);
+    points.push(...first,...second.slice(1));
+  }else{
+    points.push(...shortestPath(session.maze,cursor,session.maze.goal));
+  }
+  if(points.length<2)return showToast("A useful route is already complete.");
+  state.powerups.trail--;
+  session.revealUntil=performance.now()+8000;
+  session.revealPath=points;
+  session.status="Trail Map opened for eight seconds.";
+  persist();
+  renderAll();
+}
+function useLantern(){
+  if(!session||!session.active||session.paused||session.completed)return;
+  if(!session.config.fog)return showToast("This world has no deep fog. Save the lantern for Starfall Farm.");
+  if(state.powerups.lantern<=0)return showToast("No Farm Lanterns are owned.");
+  state.powerups.lantern--;
+  session.lanternUntil=performance.now()+12000;
+  session.status="The Farm Lantern cleared deep fog for twelve seconds.";
+  persist();
+  renderAll();
+}
+function rewindMoves(){
+  if(!session||!session.active||session.paused||session.completed)return;
+  if(state.powerups.rewind<=0)return showToast("No Rewind tools are owned.");
+  if(!session.history.length)return showToast("No move history is available.");
+  state.powerups.rewind--;
+  let restored=null;
+  for(let count=0;count<5&&session.history.length;count++)restored=session.history.pop();
+  if(restored){
+    session.player={...restored.player};
+    session.crows=restored.crows.map(position=>({...position}));
+    session.collected=[...restored.collected];
+    session.keyCollected=restored.keyCollected;
+    session.moves=restored.moves;
+    session.step=restored.step;
+    session.visited=restored.visited.map(position=>({...position}));
+    session.status="The traveler rewound up to five moves.";
+  }
+  persist();
+  renderAll();
+  playTone(440,true);
+}
+function useSkip(){
+  if(!session||session.mode!=="campaign"||session.completed)return;
+  if(state.powerups.skip<=0)return showToast("No Farm Ladders are owned.");
+  if(session.level>=LEVEL_COUNT)return showToast("There is no later campaign maze.");
+  if(!confirm(`Use one Farm Ladder to unlock Level ${session.level+1} without stars or completion credit?`))return;
+  state.powerups.skip--;
+  state.maxUnlocked=Math.max(state.maxUnlocked,session.level+1);
+  const previous=state.records[session.level]||{stars:0,bestTime:null,bestMoves:null,completedAt:null};
+  state.records[session.level]={...previous,skipped:true};
+  state.currentLevel=session.level+1;
+  selectedWorld=worldForLevel(state.currentLevel);
+  state.status=`Farm Ladder used. Level ${session.level+1} is unlocked without completion stars.`;
+  persist();
+  openCampaignLevel(session.level+1);
+}
+function buyPowerup(type){
+  if(!Object.hasOwn(SHOP_COSTS,type))return;
+  const cost=SHOP_COSTS[type];
+  if(state.coins<cost)return showToast(`${cost} coins are required.`);
+  state.coins-=cost;
+  state.powerups[type]++;
+  state.status=`Purchased one ${type==="trail"?"Trail Map":type==="lantern"?"Farm Lantern":type==="rewind"?"Rewind":"Farm Ladder"}.`;
+  persist();
+  renderAll();
+  playTone(580,true);
+}
+
+function setupCanvas(){
+  dpr=Math.min(2,Math.max(1,window.devicePixelRatio||1));
+  mazeCanvas.width=Math.round(900*dpr);
+  mazeCanvas.height=Math.round(900*dpr);
+  mazeCtx.setTransform(dpr,0,0,dpr,0,0);
+}
+function drawMaze(){
+  mazeCtx.clearRect(0,0,900,900);
+  if(!session){
+    drawEmptyFarm();
+    return;
+  }
+  const maze=session.maze;
+  const world=WORLDS[session.config.world-1];
+  const cellW=900/maze.cols;
+  const cellH=900/maze.rows;
+  const lineWidth=clamp(Math.min(cellW,cellH)*.12,5,13);
+  const now=performance.now();
+  const fogActive=session.config.fog&&now>session.lanternUntil;
+
+  mazeCtx.fillStyle=world.floor;
+  mazeCtx.fillRect(0,0,900,900);
+
+  drawFieldTexture(world);
+
+  if(session.revealUntil>now&&Array.isArray(session.revealPath)){
+    mazeCtx.fillStyle="rgba(244,217,140,.22)";
+    for(const point of session.revealPath){
+      mazeCtx.beginPath();
+      mazeCtx.arc(point.x*cellW+cellW/2,point.y*cellH+cellH/2,Math.min(cellW,cellH)*.16,0,Math.PI*2);
+      mazeCtx.fill();
+    }
+  }
+
+  for(const position of session.visited.slice(-150)){
+    mazeCtx.fillStyle="rgba(255,255,255,.06)";
+    mazeCtx.beginPath();
+    mazeCtx.arc(position.x*cellW+cellW/2,position.y*cellH+cellH/2,Math.min(cellW,cellH)*.08,0,Math.PI*2);
+    mazeCtx.fill();
+  }
+
+  drawCellIcon(maze.start,"🏚️",cellW,cellH,.42);
+  drawCellIcon(maze.goal,session.maze.key&&!session.keyCollected?"🔒":"🏮",cellW,cellH,.46);
+
+  for(const grain of maze.grain){
+    if(!session.collected.includes(grain.id))drawCellIcon(grain,"🌾",cellW,cellH,.42);
+  }
+  if(maze.key&&!session.keyCollected)drawCellIcon(maze.key,"🗝️",cellW,cellH,.42);
+  maze.portals.forEach(position=>drawCellIcon(position,"🕳️",cellW,cellH,.38));
+  maze.gusts.forEach(position=>drawCellIcon(position,"🍃",cellW,cellH,.36));
+  session.crows.forEach(position=>drawCellIcon(position,"🐦",cellW,cellH,.40));
+
+  mazeCtx.strokeStyle=world.wall;
+  mazeCtx.lineWidth=lineWidth;
+  mazeCtx.lineCap="round";
+  mazeCtx.lineJoin="round";
+  mazeCtx.shadowColor=world.wall;
+  mazeCtx.shadowBlur=3;
+
+  for(let y=0;y<maze.rows;y++){
+    for(let x=0;x<maze.cols;x++){
+      const cell=maze.cells[maze.index(x,y)];
+      const x0=x*cellW;
+      const y0=y*cellH;
+      const x1=(x+1)*cellW;
+      const y1=(y+1)*cellH;
+      if(cell.walls[0])drawWall(x0,y0,x0,y1);
+      if(cell.walls[1])drawWall(x1,y0,x1,y1);
+      if(cell.walls[2])drawWall(x0,y0,x1,y0);
+      if(cell.walls[3])drawWall(x0,y1,x1,y1);
+    }
+  }
+  mazeCtx.shadowBlur=0;
+
+  const traveler=TRAVELERS[prefs.traveler];
+  drawCellIcon(session.player,traveler.icon,cellW,cellH,.53,true);
+
+  if(fogActive)drawFog(cellW,cellH);
+}
+function drawWall(x1,y1,x2,y2){
+  mazeCtx.beginPath();
+  mazeCtx.moveTo(x1,y1);
+  mazeCtx.lineTo(x2,y2);
+  mazeCtx.stroke();
+}
+function drawCellIcon(position,icon,cellW,cellH,scale,glow=false){
+  const size=Math.max(13,Math.min(cellW,cellH)*scale);
+  mazeCtx.save();
+  if(glow){
+    mazeCtx.shadowColor="#f4d98c";
+    mazeCtx.shadowBlur=18;
+  }
+  mazeCtx.font=`${size}px "Apple Color Emoji","Segoe UI Emoji",serif`;
+  mazeCtx.textAlign="center";
+  mazeCtx.textBaseline="middle";
+  mazeCtx.fillText(icon,position.x*cellW+cellW/2,position.y*cellH+cellH/2+1);
+  mazeCtx.restore();
+}
+function drawFieldTexture(world){
+  mazeCtx.save();
+  mazeCtx.globalAlpha=.14;
+  mazeCtx.strokeStyle=world.path;
+  mazeCtx.lineWidth=1;
+  for(let y=18;y<900;y+=36){
+    mazeCtx.beginPath();
+    mazeCtx.moveTo(0,y);
+    for(let x=0;x<=900;x+=30){
+      mazeCtx.lineTo(x,y+Math.sin((x+y)*.02)*4);
+    }
+    mazeCtx.stroke();
+  }
+  mazeCtx.restore();
+}
+function drawFog(cellW,cellH){
+  const px=session.player.x*cellW+cellW/2;
+  const py=session.player.y*cellH+cellH/2;
+  const radius=Math.min(cellW,cellH)*3.25;
+  const gradient=mazeCtx.createRadialGradient(px,py,radius*.35,px,py,radius);
+  gradient.addColorStop(0,"rgba(3,6,12,0)");
+  gradient.addColorStop(.55,"rgba(3,6,12,.12)");
+  gradient.addColorStop(1,"rgba(3,6,12,.92)");
+  mazeCtx.fillStyle=gradient;
+  mazeCtx.fillRect(0,0,900,900);
+}
+function drawEmptyFarm(){
+  const gradient=mazeCtx.createLinearGradient(0,0,900,900);
+  gradient.addColorStop(0,"#17251d");
+  gradient.addColorStop(1,"#0a1415");
+  mazeCtx.fillStyle=gradient;
+  mazeCtx.fillRect(0,0,900,900);
+  mazeCtx.fillStyle="rgba(244,217,140,.15)";
+  for(let row=0;row<11;row++){
+    for(let col=0;col<11;col++){
+      mazeCtx.fillRect(col*82+12,row*82+12,58,8);
+    }
+  }
+  mazeCtx.fillStyle="#f4d98c";
+  mazeCtx.font='444 34px "Trebuchet MS", sans-serif';
+  mazeCtx.textAlign="center";
+  mazeCtx.fillText("CHOOSE A FARM MAZE",450,430);
+  mazeCtx.fillStyle="#b7ad9d";
+  mazeCtx.font='333 18px "Courier New", monospace';
+  mazeCtx.fillText("Sixty deterministic levels await",450,470);
+}
+function canvasPoint(event){
+  const rect=mazeCanvas.getBoundingClientRect();
+  return{
+    x:(event.clientX-rect.left)*(900/Math.max(1,rect.width)),
+    y:(event.clientY-rect.top)*(900/Math.max(1,rect.height))
+  };
+}
+mazeCanvas.addEventListener("pointerdown",event=>{
+  pointerStart=canvasPoint(event);
+  mazeCanvas.setPointerCapture?.(event.pointerId);
+});
+mazeCanvas.addEventListener("pointerup",event=>{
+  if(!pointerStart)return;
+  const end=canvasPoint(event);
+  const dx=end.x-pointerStart.x;
+  const dy=end.y-pointerStart.y;
+  pointerStart=null;
+  if(Math.max(Math.abs(dx),Math.abs(dy))<18)return;
+  if(Math.abs(dx)>Math.abs(dy))movePlayer(dx>0?1:-1,0);
+  else movePlayer(0,dy>0?1:-1);
+});
+mazeCanvas.addEventListener("pointercancel",()=>{pointerStart=null});
+mazeCanvas.addEventListener("contextmenu",event=>event.preventDefault());
+
+function renderAll(){
+  renderWorldTabs();
+  renderLevels();
+  renderWorldSummary();
+  renderMetrics();
+  renderSessionInfo();
+  renderObjectives();
+  renderPowerups();
+  renderStats();
+  renderControls();
+  drawMaze();
+  document.body.dataset.theme=prefs.theme;
+  document.body.dataset.motion=prefs.motion;
+}
+function renderWorldTabs(){
+  const container=$("#worldTabs");
+  container.replaceChildren();
+  WORLDS.forEach((world,index)=>{
+    const number=index+1;
+    const button=document.createElement("button");
+    button.type="button";
+    button.className=`world-btn${selectedWorld===number?" active":""}`;
+    button.style.setProperty("--world-tone",world.tone);
+    button.setAttribute("aria-pressed",String(selectedWorld===number));
+    const icon=document.createElement("small");
+    icon.textContent=world.icon;
+    const label=document.createElement("strong");
+    label.textContent=world.name;
+    button.append(icon,label);
+    button.addEventListener("click",()=>{
+      selectedWorld=number;
+      renderWorldTabs();
+      renderLevels();
+      renderWorldSummary();
+    });
+    container.appendChild(button);
+  });
+}
+function renderLevels(){
+  const container=$("#levelGrid");
+  container.replaceChildren();
+  const start=(selectedWorld-1)*WORLD_SIZE+1;
+  for(let level=start;level<start+WORLD_SIZE;level++){
+    const record=state.records[level];
+    const unlocked=level<=state.maxUnlocked;
+    const button=document.createElement("button");
+    button.type="button";
+    button.className="level-btn";
+    if(level===state.currentLevel)button.classList.add("current");
+    if(record?.completedAt)button.classList.add("complete");
+    button.disabled=!unlocked;
+    const number=document.createElement("strong");
+    number.textContent=level;
+    const meta=document.createElement("small");
+    meta.textContent=!unlocked?"Locked":record?.completedAt?"Completed":record?.skipped?"Assisted":"Ready";
+    const stars=document.createElement("small");
+    stars.className="level-stars";
+    stars.textContent=record?.stars?`${"★".repeat(record.stars)}${"☆".repeat(3-record.stars)}`:"☆☆☆";
+    button.append(number,meta,stars);
+    button.addEventListener("click",()=>openCampaignLevel(level));
+    container.appendChild(button);
+  }
+}
+function renderWorldSummary(){
+  const world=WORLDS[selectedWorld-1];
+  const container=$("#worldSummary");
+  container.style.setProperty("--world-tone",world.tone);
+  container.replaceChildren();
+  const title=document.createElement("strong");
+  title.textContent=`${world.icon} ${world.name}`;
+  const text=document.createElement("p");
+  text.textContent=`${world.description} ${world.mechanics}.`;
+  container.append(title,text);
+}
+function renderMetrics(){
+  $("#timeMetric").textContent=formatTime(currentElapsed());
+  $("#moveMetric").textContent=session?.moves||0;
+  $("#grainMetric").textContent=session?`${session.collected.length} / ${session.maze.grain.length}`:"0 / 0";
+  $("#keyMetric").textContent=session?.maze.key?(session.keyCollected?"Found":"Missing"):"None";
+  $("#starMetric").textContent=session?.completed?completionStars():0;
+  $("#coinMetric").textContent=state.coins;
+}
+function renderSessionInfo(){
+  if(!session){
+    $("#mazeTitle").textContent="Choose a Farm Maze";
+    $("#mazeSubtitle").textContent="Select an unlocked level or today's Daily Maze.";
+    $("#mazeWorldLabel").textContent="Farm Map";
+    $("#mazeSeedLabel").textContent="Seed —";
+    return;
+  }
+  const world=WORLDS[session.config.world-1];
+  $("#mazeTitle").textContent=session.mode==="daily"?`Daily Maze · ${session.date}`:`Level ${session.level} · ${world.name}`;
+  $("#mazeSubtitle").textContent=`${session.maze.cols} × ${session.maze.rows} · ${world.mechanics} · target ${session.maze.targetMoves} moves.`;
+  $("#mazeWorldLabel").textContent=world.name;
+  $("#mazeSeedLabel").textContent=`Seed ${session.maze.seed}`;
+}
+function renderObjectives(){
+  const finish=Boolean(session?.completed);
+  const grain=Boolean(session&&session.collected.length===session.maze.grain.length);
+  const moves=Boolean(session&&session.completed&&session.moves<=session.maze.targetMoves);
+  $("#finishObjective").classList.toggle("done",finish);
+  $("#grainObjective").classList.toggle("done",grain);
+  $("#movesObjective").classList.toggle("done",moves);
+  $("#finishObjective strong").textContent=`${finish?"★":"☆"} Escape`;
+  $("#grainObjective strong").textContent=`${grain?"★":"☆"} Grain`;
+  $("#movesObjective strong").textContent=`${moves?"★":"☆"} Footwork`;
+  $("#movesObjectiveText").textContent=session?`Finish in ${session.maze.targetMoves} moves or fewer`:"Meet the move target";
+}
+function renderPowerups(){
+  $("#trailCount").textContent=`Owned · ${state.powerups.trail}`;
+  $("#lanternCount").textContent=`Owned · ${state.powerups.lantern}`;
+  $("#rewindCount").textContent=`Owned · ${state.powerups.rewind}`;
+  $("#skipCount").textContent=`Owned · ${state.powerups.skip}`;
+  document.querySelectorAll(".shop-card").forEach(button=>{
+    const type=button.dataset.buy;
+    button.disabled=state.coins<SHOP_COSTS[type];
+  });
+}
+function renderStats(){
+  const records=Object.values(state.records);
+  const completed=records.filter(record=>record.completedAt).length;
+  const stars=records.reduce((sum,record)=>sum+(record.stars||0),0);
+  $("#completedStat").textContent=`${completed} / ${LEVEL_COUNT}`;
+  $("#starsStat").textContent=`${stars} / ${LEVEL_COUNT*3}`;
+  $("#streakStat").textContent=`${state.streak} day${state.streak===1?"":"s"}`;
+  $("#worldStat").textContent=WORLDS[selectedWorld-1].name;
+}
+function renderControls(){
+  const active=Boolean(session&&session.active&&!session.paused&&!session.completed);
+  $("#statusText").textContent=session?.status||state.status;
+  $("#headerStatus").textContent=session?.completed?"Escaped":session?.paused?"Paused":active?"Exploring":"Ready";
+  $("#restartBtn").disabled=!session;
+  $("#pauseBtn").disabled=!session?.active||session.completed;
+  $("#pauseBtn").textContent=session?.paused?"Resume · P":"Pause · P";
+  $("#trailBtn").disabled=!active||state.powerups.trail<=0;
+  $("#lanternBtn").disabled=!active||state.powerups.lantern<=0||!session?.config.fog;
+  $("#rewindBtn").disabled=!active||state.powerups.rewind<=0||!session?.history.length;
+  $("#skipBtn").disabled=!session||session.mode!=="campaign"||session.completed||state.powerups.skip<=0||session.level>=LEVEL_COUNT;
+  for(const id of ["moveUpBtn","moveDownBtn","moveLeftBtn","moveRightBtn"])$(`#${id}`).disabled=!active;
+  $("#travelerIcon").textContent=TRAVELERS[prefs.traveler].icon;
+  $("#travelerSelect").value=prefs.traveler;
+  $("#themeSelect").value=prefs.theme;
+  $("#motionSelect").value=prefs.motion;
+  $("#soundSelect").value=prefs.sound;
+  mazeCanvas.setAttribute("aria-label",session
+    ?`${session.mode==="daily"?"Daily maze":`Level ${session.level}`}. Traveler at column ${session.player.x+1}, row ${session.player.y+1}. ${session.collected.length} of ${session.maze.grain.length} grain collected. ${session.maze.key?session.keyCollected?"Key found.":"Key missing.":"No key required."}`
+    :"Haystack Escape farm map. Choose a level to begin.");
+}
+function renderStatus(){
+  $("#statusText").textContent=session?.status||state.status;
+}
+
+function formatTime(seconds){
+  const safe=Math.max(0,seconds||0);
+  const minutes=Math.floor(safe/60);
+  const whole=Math.floor(safe%60);
+  const tenths=Math.floor((safe-Math.floor(safe))*10);
+  return`${String(minutes).padStart(2,"0")}:${String(whole).padStart(2,"0")}.${tenths}`;
+}
+function playTone(frequency,positive=true){
+  if(prefs.sound!=="on")return;
+  try{
+    if(!audioContext)audioContext=new (window.AudioContext||window.webkitAudioContext)();
+    if(audioContext.state==="suspended")audioContext.resume();
+    const oscillator=audioContext.createOscillator();
+    const gain=audioContext.createGain();
+    oscillator.type=positive?"sine":"triangle";
+    oscillator.frequency.value=frequency;
+    gain.gain.setValueAtTime(.025,audioContext.currentTime);
+    gain.gain.exponentialRampToValueAtTime(.001,audioContext.currentTime+.13);
+    oscillator.connect(gain).connect(audioContext.destination);
+    oscillator.start();
+    oscillator.stop(audioContext.currentTime+.14);
+  }catch{}
+}
+function playSolvedChord(){
+  playTone(520,true);
+  setTimeout(()=>playTone(660,true),80);
+  setTimeout(()=>playTone(790,true),160);
+}
+function showToast(message){
+  clearTimeout(toastTimer);
+  const toast=$("#toast");
+  toast.textContent=message;
+  toast.classList.add("show");
+  toastTimer=setTimeout(()=>toast.classList.remove("show"),2300);
+}
+
+function exportData(){
+  commitElapsed();
+  const payload={
+    schema:"haystack-escape-labyrinth",
+    version:4,
+    exportedAt:new Date().toISOString(),
+    state:{...state,activeSession:session?sessionSnapshot():null}
+  };
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+  const url=URL.createObjectURL(blob);
+  const anchor=document.createElement("a");
+  anchor.href=url;
+  anchor.download="haystack-escape-labyrinth.json";
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+function openDataDialog(){
+  commitElapsed();
+  $("#dataText").value=JSON.stringify({
+    schema:"haystack-escape-labyrinth",
+    version:4,
+    state:{...state,activeSession:session?sessionSnapshot():null}
+  },null,2);
+  $("#dataDialog").showModal();
+}
+function importDataText(text){
+  if(!text||text.length>MAX_IMPORT_CHARS)return showToast("Import is empty or exceeds one megabyte.");
+  try{
+    const parsed=JSON.parse(text);
+    const source=parsed?.schema==="haystack-escape-labyrinth"?parsed.state:parsed;
+    state=normalizeState(source);
+    session=restoreSession(state.activeSession);
+    state.activeSession=null;
+    segmentStarted=0;
+    selectedWorld=worldForLevel(state.currentLevel);
+    persist();
+    renderAll();
+    $("#dataDialog").close();
+    if(session?.active)showRestoredOverlay();
+    else if(session?.completed)showCompletionOverlay(completionStars(),0);
+    else if(session)showReadyOverlay();
+    else showMapOverlay();
+    showToast("Validated Haystack Escape save imported.");
+  }catch{
+    showToast("Import rejected: invalid Haystack Escape data.");
+  }
+}
+async function copyData(){
+  try{
+    await navigator.clipboard.writeText($("#dataText").value);
+    showToast("Haystack Escape data copied.");
+  }catch{
+    showToast("Clipboard unavailable. Select and copy the text manually.");
+  }
+}
+function checkLegacy(){
+  if(state.migratedLegacy)return showToast("The original V1 save was already checked or migrated.");
+  let legacy;
+  try{
+    legacy=JSON.parse(localStorage.getItem(LEGACY_KEY)||"null");
+  }catch{
+    legacy=null;
+  }
+  if(!legacy){
+    state.migratedLegacy=true;
+    persist();
+    return showToast("No original Haystack Escape V1 save was found on this device.");
+  }
+  if(!confirm("Migrate compatible V1 levels, coins, power-ups, and best times into this version?"))return;
+  state.maxUnlocked=Math.max(state.maxUnlocked,Math.round(clamp(safeNumber(legacy.maxUnlocked,1),1,LEVEL_COUNT)));
+  state.currentLevel=Math.round(clamp(safeNumber(legacy.level,1),1,LEVEL_COUNT));
+  state.coins+=Math.round(clamp(safeNumber(legacy.coins,0),0,999999));
+  state.powerups.trail+=Math.round(clamp(safeNumber(legacy.powerups?.reveal,0),0,9999));
+  state.powerups.skip+=Math.round(clamp(safeNumber(legacy.powerups?.skip,0),0,9999));
+  const completed=Array.isArray(legacy.completedLevels)?legacy.completedLevels:[];
+  for(const rawLevel of completed){
+    const level=Math.round(safeNumber(rawLevel,0));
+    if(level<1||level>LEVEL_COUNT)continue;
+    const previous=state.records[level]||{};
+    const best=clamp(safeNumber(legacy.bestTimes?.[level],0),0,86400)||null;
+    state.records[level]={
+      stars:Math.max(previous.stars||0,1),
+      bestTime:previous.bestTime&&best?Math.min(previous.bestTime,best):(previous.bestTime||best),
+      bestMoves:previous.bestMoves||null,
+      completedAt:previous.completedAt||new Date().toISOString(),
+      skipped:false
+    };
+  }
+  state.migratedLegacy=true;
+  selectedWorld=worldForLevel(state.currentLevel);
+  persist();
+  renderAll();
+  showToast("Original V1 progress migrated without deleting the old save.");
+}
+function resetAll(){
+  if(!confirm("Reset all campaign records, coins, tools, daily claims, settings-independent progress, and the current maze on this device?"))return;
+  state=defaultState();
+  session=null;
+  segmentStarted=0;
+  selectedWorld=1;
+  persist();
+  renderAll();
+  showMapOverlay();
+  showToast("Haystack Escape progress reset.");
+}
+function showMapOverlay(){
+  $("#overlayTitle").textContent="Farm Map Ready";
+  $("#overlayText").textContent="Choose an unlocked maze from the world map.";
+  $("#overlayMetrics").hidden=true;
+  $("#overlayStartBtn").hidden=true;
+  $("#overlayResumeBtn").hidden=true;
+  $("#overlayNextBtn").hidden=true;
+  $("#overlayReplayBtn").hidden=true;
+  $("#canvasOverlay").hidden=false;
+}
+
+document.addEventListener("keydown",event=>{
+  if(/INPUT|SELECT|TEXTAREA/.test(document.activeElement?.tagName||""))return;
+  const key=event.key.toLowerCase();
+  if(["arrowup","arrowdown","arrowleft","arrowright","w","a","s","d"].includes(key))event.preventDefault();
+  if(key==="arrowup"||key==="w")movePlayer(0,-1);
+  if(key==="arrowdown"||key==="s")movePlayer(0,1);
+  if(key==="arrowleft"||key==="a")movePlayer(-1,0);
+  if(key==="arrowright"||key==="d")movePlayer(1,0);
+  if(key==="r"){
+    event.preventDefault();
+    restartSession();
+  }
+  if(key==="p"&&session?.active){
+    event.preventDefault();
+    togglePause();
+  }
+  if(key==="escape"&&session?.active&&!session.paused){
+    event.preventDefault();
+    togglePause(true);
+  }
+});
+document.addEventListener("visibilitychange",()=>{
+  if(document.hidden&&session?.active&&!session.paused&&!session.completed)togglePause(true);
+});
+window.addEventListener("resize",setupCanvas);
+window.addEventListener("beforeunload",()=>{
+  commitElapsed();
+  persist();
+});
+
+$("#dailyBtn").addEventListener("click",openDailyMaze);
+$("#guideBtn").addEventListener("click",()=>$("#guideDialog").showModal());
+$("#closeGuideBtn").addEventListener("click",()=>$("#guideDialog").close());
+
+$("#travelerSelect").addEventListener("change",event=>{
+  prefs.traveler=event.target.value;
+  savePrefs();
+  renderAll();
+});
+$("#themeSelect").addEventListener("change",event=>{
+  prefs.theme=event.target.value;
+  savePrefs();
+  renderAll();
+});
+$("#motionSelect").addEventListener("change",event=>{
+  prefs.motion=event.target.value;
+  savePrefs();
+  renderAll();
+});
+$("#soundSelect").addEventListener("change",event=>{
+  prefs.sound=event.target.value;
+  savePrefs();
+  if(prefs.sound==="on")playTone(520,true);
+});
+
+$("#restartBtn").addEventListener("click",restartSession);
+$("#pauseBtn").addEventListener("click",()=>togglePause());
+$("#saveBtn").addEventListener("click",()=>{
+  commitElapsed();
+  persist();
+  showToast("Progress saved locally on this device.");
+});
+$("#focusMazeBtn").addEventListener("click",()=>mazeCanvas.focus());
+
+$("#moveUpBtn").addEventListener("click",()=>movePlayer(0,-1));
+$("#moveDownBtn").addEventListener("click",()=>movePlayer(0,1));
+$("#moveLeftBtn").addEventListener("click",()=>movePlayer(-1,0));
+$("#moveRightBtn").addEventListener("click",()=>movePlayer(1,0));
+
+$("#trailBtn").addEventListener("click",revealPath);
+$("#lanternBtn").addEventListener("click",useLantern);
+$("#rewindBtn").addEventListener("click",rewindMoves);
+$("#skipBtn").addEventListener("click",useSkip);
+document.querySelectorAll(".shop-card").forEach(button=>button.addEventListener("click",()=>buyPowerup(button.dataset.buy)));
+
+$("#overlayStartBtn").addEventListener("click",startSession);
+$("#overlayResumeBtn").addEventListener("click",()=>togglePause());
+$("#overlayNextBtn").addEventListener("click",nextMaze);
+$("#overlayReplayBtn").addEventListener("click",restartSession);
+
+$("#exportBtn").addEventListener("click",exportData);
+$("#importBtn").addEventListener("click",()=>$("#importFileInput").click());
+$("#importFileInput").addEventListener("change",async event=>{
+  const file=event.target.files?.[0];
+  event.target.value="";
+  if(!file)return;
+  if(file.size>MAX_IMPORT_CHARS)return showToast("Import rejected: file exceeds one megabyte.");
+  try{
+    importDataText(await file.text());
+  }catch{
+    showToast("Import failed.");
+  }
+});
+$("#legacyBtn").addEventListener("click",checkLegacy);
+$("#resetBtn").addEventListener("click",resetAll);
+
+$("#copyDataBtn").addEventListener("click",copyData);
+$("#doImportBtn").addEventListener("click",()=>importDataText($("#dataText").value));
+$("#closeDataBtn").addEventListener("click",()=>$("#dataDialog").close());
+
+function frame(timestamp){
+  renderMetrics();
+  if(session&&(session.revealUntil>timestamp||session.lanternUntil>timestamp))drawMaze();
+  if(timestamp-lastPersist>2500){
+    lastPersist=timestamp;
+    if(session?.active&&!session.paused&&!session.completed){
+      commitElapsed();
+      persist();
+    }
+  }
+  requestAnimationFrame(frame);
+}
+function boot(){
+  setupCanvas();
+  document.body.dataset.theme=prefs.theme;
+  document.body.dataset.motion=prefs.motion;
+  $("#travelerSelect").value=prefs.traveler;
+  $("#themeSelect").value=prefs.theme;
+  $("#motionSelect").value=prefs.motion;
+  $("#soundSelect").value=prefs.sound;
+
+  session=restoreSession(state.activeSession);
+  state.activeSession=null;
+  selectedWorld=worldForLevel(state.currentLevel);
+  persist();
+  renderAll();
+
+  if(session?.active){
+    showRestoredOverlay();
+  }else if(session?.completed){
+    showCompletionOverlay(completionStars(),0);
+  }else if(session){
+    showReadyOverlay();
+  }else{
+    showMapOverlay();
+  }
+  requestAnimationFrame(frame);
+}
+
+boot();
+})();
+</script>
+</body>
+</html>
