@@ -1,0 +1,2971 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Lumin Gate — a local-first aurora logic game with guaranteed-solvable rune gates, visible rotation states, touch-friendly weaving, adaptive difficulty, fair hint tools, challenge codes, local records, and safe import/export.">
+<meta name="theme-color" content="#070a18">
+<meta name="color-scheme" content="dark">
+<meta name="referrer" content="same-origin">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data:; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none';">
+<title>Lumin Gate — Aurora Logic Conservatory</title>
+<style>
+:root{
+  --bg:#060814;
+  --bg-2:#0a1022;
+  --panel:#111b31;
+  --panel-2:#182744;
+  --screen:#07101f;
+  --ink:#f4f7fb;
+  --ink-soft:#d7e0ec;
+  --muted:#a8b8ca;
+  --faint:#73839a;
+  --cyan:#70d3e5;
+  --cyan-soft:#b9eff4;
+  --violet:#9584df;
+  --violet-soft:#cabff2;
+  --rose:#ce79ae;
+  --gold:#dfbb70;
+  --gold-soft:#f2dba0;
+  --mint:#79cbb2;
+  --red:#d0717d;
+  --line:rgba(185,239,244,.15);
+  --line-strong:rgba(185,239,244,.30);
+  --shadow:0 24px 66px rgba(0,0,0,.36);
+  --shadow-small:0 12px 33px rgba(0,0,0,.26);
+  --radius:7px;
+  --weight-text:333;
+  --weight-emphasis:444;
+  --s3:3px;
+  --s7:7px;
+  --s11:11px;
+  --s14:14px;
+  --s24:24px;
+  --s33:33px;
+  --s55:55px;
+  --s66:66px;
+  --max:1360px;
+  --display:"Eurostile Extended","Microgramma D Extended","Bank Gothic","Arial Narrow","Trebuchet MS",sans-serif;
+  --sans:"Trebuchet MS",Verdana,"Segoe UI",sans-serif;
+  --mono:"Courier New",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:84px;font-synthesis:none;text-rendering:geometricPrecision;-webkit-font-smoothing:antialiased}
+body{
+  margin:0;
+  min-width:300px;
+  min-height:100vh;
+  overflow-x:hidden;
+  color:var(--ink);
+  background:var(--bg);
+  font-family:var(--sans);
+  font-size:14px;
+  font-weight:var(--weight-text);
+  line-height:1.65;
+}
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-3;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 12% -5%,rgba(112,211,229,.10),transparent 32rem),
+    radial-gradient(circle at 88% 0%,rgba(149,132,223,.10),transparent 31rem),
+    radial-gradient(circle at 50% 105%,rgba(206,121,174,.05),transparent 34rem),
+    linear-gradient(180deg,#060814,#0a1022 54%,#040711);
+}
+body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-2;
+  pointer-events:none;
+  opacity:.52;
+  background-image:
+    radial-gradient(circle at 12% 17%,rgba(255,255,255,.12) 0 1px,transparent 1.3px),
+    radial-gradient(circle at 72% 12%,rgba(255,255,255,.09) 0 1px,transparent 1.3px),
+    radial-gradient(circle at 88% 66%,rgba(255,255,255,.08) 0 1px,transparent 1.3px),
+    linear-gradient(rgba(149,132,223,.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(112,211,229,.025) 1px,transparent 1px);
+  background-size:auto,auto,auto,33px 33px,33px 33px;
+  mask-image:linear-gradient(to bottom,black,transparent 95%);
+}
+body[data-motion="reduced"] *,
+body[data-motion="reduced"] *::before,
+body[data-motion="reduced"] *::after{
+  animation:none!important;
+  transition:none!important;
+}
+a{color:inherit}
+button,input,select,textarea{font:inherit}
+button{color:inherit;cursor:pointer}
+strong,b,h1,h2,h3{font-weight:var(--weight-emphasis)}
+::selection{color:#061019;background:var(--cyan-soft)}
+:focus-visible{outline:3px solid var(--cyan-soft);outline-offset:3px}
+[hidden]{display:none!important}
+.wrap{width:min(calc(100% - 22px),var(--max));margin-inline:auto}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+/* Header */
+.site-header{
+  position:sticky;
+  top:0;
+  z-index:1200;
+  border-bottom:1px solid var(--line);
+  background:rgba(6,8,20,.94);
+  backdrop-filter:blur(18px);
+  box-shadow:0 11px 33px rgba(0,0,0,.26);
+}
+.header-inner{
+  min-height:66px;
+  display:grid;
+  grid-template-columns:minmax(190px,1fr) auto minmax(190px,1fr);
+  align-items:center;
+  gap:14px;
+  padding:7px 0;
+}
+.arcade-home{
+  justify-self:start;
+  display:inline-flex;
+  align-items:center;
+  gap:11px;
+  min-width:0;
+  text-decoration:none;
+}
+.brand-mark{
+  width:44px;
+  height:44px;
+  flex:0 0 44px;
+  display:grid;
+  place-items:center;
+  border:1px solid var(--cyan);
+  border-radius:50%;
+  color:#061019;
+  background:
+    radial-gradient(circle at 34% 25%,rgba(255,255,255,.72),transparent 20%),
+    linear-gradient(145deg,var(--cyan-soft),var(--cyan));
+  font-family:var(--display);
+  font-size:11px;
+  letter-spacing:.04em;
+  box-shadow:0 0 22px rgba(112,211,229,.15);
+}
+.brand-copy{display:grid;min-width:0;line-height:1.05}
+.brand-copy strong{
+  font-family:var(--display);
+  font-size:11px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+.brand-copy small{
+  margin-top:7px;
+  color:var(--muted);
+  font-family:var(--mono);
+  font-size:11px;
+  white-space:nowrap;
+}
+.game-id{justify-self:center;text-align:center}
+.game-id strong{
+  display:block;
+  font-family:var(--display);
+  font-size:14px;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+}
+.game-id small{
+  display:block;
+  margin-top:3px;
+  color:var(--violet-soft);
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.11em;
+  text-transform:uppercase;
+}
+.header-state{
+  justify-self:end;
+  color:var(--muted);
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.08em;
+  text-align:right;
+  text-transform:uppercase;
+}
+.header-state strong{color:var(--mint)}
+
+/* Intro */
+.intro{
+  padding:33px 0 24px;
+  text-align:center;
+}
+.open-line{
+  display:inline-flex;
+  align-items:center;
+  gap:11px;
+  color:var(--mint);
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+}
+.open-dot{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:var(--mint);
+  box-shadow:0 0 14px rgba(121,203,178,.40);
+}
+.intro h1{
+  margin:18px auto 0;
+  font-family:var(--display);
+  font-size:clamp(50px,7.8vw,84px);
+  line-height:.86;
+  letter-spacing:-.065em;
+  text-transform:uppercase;
+  text-shadow:3px 3px 0 rgba(112,211,229,.16),-3px -3px 0 rgba(149,132,223,.16);
+}
+.intro p{
+  max-width:950px;
+  margin:18px auto 0;
+  color:var(--ink-soft);
+  font-size:clamp(14px,1.45vw,17px);
+  line-height:1.8;
+}
+
+/* Cabinet */
+.cabinet{
+  display:grid;
+  grid-template-columns:minmax(240px,.24fr) minmax(650px,.52fr) minmax(260px,.24fr);
+  gap:14px;
+  align-items:start;
+  padding:14px;
+  border:1px solid var(--line-strong);
+  border-radius:var(--radius);
+  background:linear-gradient(180deg,#0c1426,#070b16);
+  box-shadow:var(--shadow);
+}
+.left-column,.center-column,.right-column{display:grid;gap:11px;min-width:0}
+.panel{
+  min-width:0;
+  padding:14px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:linear-gradient(160deg,#17233b,#0d1628);
+  box-shadow:var(--shadow-small);
+}
+.panel h2,.panel h3{
+  margin:0;
+  font-family:var(--display);
+  letter-spacing:.02em;
+  text-transform:uppercase;
+}
+.panel h2{font-size:24px}
+.panel h3{font-size:16px}
+.panel-sub{
+  margin:7px 0 0;
+  color:var(--muted);
+  font-size:13px;
+}
+
+/* Metrics */
+.metrics{
+  display:grid;
+  grid-template-columns:repeat(6,minmax(0,1fr));
+  gap:7px;
+}
+.metric{
+  min-width:0;
+  padding:11px 7px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:var(--screen);
+  text-align:center;
+}
+.metric strong{
+  display:block;
+  color:var(--cyan-soft);
+  font-family:var(--mono);
+  font-size:18px;
+  overflow-wrap:anywhere;
+}
+.metric:nth-child(2) strong{color:var(--mint)}
+.metric:nth-child(3) strong{color:var(--gold-soft)}
+.metric:nth-child(4) strong{color:var(--violet-soft)}
+.metric:nth-child(5) strong{color:var(--rose)}
+.metric:nth-child(6) strong{color:var(--ink)}
+.metric span{
+  display:block;
+  margin-top:3px;
+  color:var(--muted);
+  font-family:var(--mono);
+  font-size:10px;
+  text-transform:uppercase;
+}
+
+/* Game chamber */
+.gate-head{
+  display:flex;
+  justify-content:space-between;
+  gap:14px;
+  align-items:flex-start;
+  margin-bottom:11px;
+}
+.gate-head h2{font-size:24px}
+.gate-state{
+  color:var(--muted);
+  font-family:var(--mono);
+  font-size:11px;
+  text-align:right;
+  text-transform:uppercase;
+}
+.gate-state strong{display:block;color:var(--cyan-soft);font-size:14px}
+.aurora-shell{
+  position:relative;
+  height:132px;
+  overflow:hidden;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:var(--screen);
+}
+#auroraCanvas{
+  width:100%;
+  height:100%;
+  display:block;
+}
+.canvas-shell{
+  position:relative;
+  width:100%;
+  aspect-ratio:48/31;
+  min-height:500px;
+  margin-top:7px;
+  overflow:hidden;
+  border:7px solid #03050b;
+  border-radius:var(--radius);
+  background:#050a14;
+  box-shadow:inset 0 0 44px rgba(0,0,0,.65),0 22px 55px rgba(0,0,0,.36);
+  touch-action:none;
+  user-select:none;
+}
+#gateCanvas{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  display:block;
+  touch-action:none;
+}
+.canvas-shell::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:repeating-linear-gradient(to bottom,transparent 0 3px,rgba(255,255,255,.014) 3px 4px);
+}
+.canvas-overlay{
+  position:absolute;
+  inset:0;
+  z-index:20;
+  display:grid;
+  place-items:center;
+  padding:24px;
+  background:rgba(3,5,11,.79);
+  backdrop-filter:blur(5px);
+  text-align:center;
+}
+.canvas-overlay[hidden]{display:none}
+.overlay-card{
+  width:min(100%,580px);
+  padding:24px;
+  border:1px solid var(--line-strong);
+  border-radius:var(--radius);
+  background:var(--panel);
+  box-shadow:var(--shadow);
+}
+.overlay-card h3{
+  margin:0;
+  font-family:var(--display);
+  font-size:33px;
+  letter-spacing:-.03em;
+  text-transform:uppercase;
+}
+.overlay-card p{margin:11px 0 0;color:var(--muted)}
+.overlay-metrics{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:7px;
+  margin-top:17px;
+}
+.overlay-metrics div{
+  padding:11px 7px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:var(--screen);
+}
+.overlay-metrics strong{
+  display:block;
+  color:var(--cyan-soft);
+  font-family:var(--mono);
+  font-size:22px;
+}
+.overlay-metrics span{
+  display:block;
+  color:var(--muted);
+  font-family:var(--mono);
+  font-size:10px;
+  text-transform:uppercase;
+}
+.overlay-actions{
+  display:flex;
+  justify-content:center;
+  gap:7px;
+  flex-wrap:wrap;
+  margin-top:17px;
+}
+.status{
+  min-height:50px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin-top:11px;
+  padding:11px 14px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  color:var(--ink-soft);
+  background:var(--screen);
+  text-align:center;
+}
+.resonance-track{
+  height:7px;
+  margin-top:11px;
+  overflow:hidden;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:#03050a;
+}
+.resonance-fill{
+  height:100%;
+  width:0;
+  border-radius:var(--radius);
+  background:linear-gradient(90deg,var(--red),var(--violet),var(--cyan),var(--mint));
+  transition:width .18s ease;
+}
+
+/* Buttons / controls */
+.btn{
+  min-height:42px;
+  padding:7px 11px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  color:var(--ink-soft);
+  background:var(--panel-2);
+  font-family:var(--mono);
+  font-size:11px;
+  font-weight:var(--weight-emphasis);
+  letter-spacing:.05em;
+  text-transform:uppercase;
+}
+.btn:hover:not(:disabled){color:var(--cyan-soft);border-color:var(--cyan);transform:translateY(-1px)}
+.btn:disabled{cursor:not-allowed;opacity:.38}
+.btn.primary{
+  color:#061019;
+  border-color:var(--cyan);
+  background:linear-gradient(135deg,var(--cyan-soft),var(--cyan));
+}
+.btn.violet{
+  color:#100b19;
+  border-color:var(--violet);
+  background:linear-gradient(135deg,var(--violet-soft),var(--violet));
+}
+.btn.gold{
+  color:#1a1205;
+  border-color:var(--gold);
+  background:linear-gradient(135deg,var(--gold-soft),var(--gold));
+}
+.btn.danger{color:#fff;border-color:var(--red);background:var(--red)}
+.button-row{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:7px;
+  margin-top:11px;
+}
+.control-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:7px;
+  margin-top:11px;
+}
+.control-group{
+  display:grid;
+  gap:7px;
+  min-width:0;
+}
+.control-group.full{grid-column:1/-1}
+.control-group label{
+  color:var(--muted);
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+}
+select,input[type="text"],textarea{
+  width:100%;
+  min-height:44px;
+  padding:7px 11px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  color:var(--ink);
+  background:var(--screen);
+}
+textarea{min-height:260px;resize:vertical}
+
+/* Interaction tools */
+.mode-tools{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:7px;
+  margin-top:11px;
+}
+.mode-card{
+  min-height:66px;
+  display:grid;
+  grid-template-columns:36px minmax(0,1fr);
+  gap:9px;
+  align-items:center;
+  padding:7px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  color:var(--ink-soft);
+  background:var(--screen);
+  text-align:left;
+}
+.mode-card:hover{border-color:var(--tool-tone,var(--cyan))}
+.mode-card.active{
+  color:#061019;
+  border-color:var(--tool-tone,var(--cyan));
+  background:var(--tool-tone,var(--cyan));
+}
+.mode-icon{
+  width:36px;
+  height:36px;
+  display:grid;
+  place-items:center;
+  border:1px solid currentColor;
+  border-radius:var(--radius);
+  font-family:var(--display);
+  font-size:10px;
+}
+.mode-copy strong{
+  display:block;
+  font-family:var(--display);
+  font-size:10px;
+  text-transform:uppercase;
+}
+.mode-copy small{
+  display:block;
+  margin-top:3px;
+  color:inherit;
+  opacity:.78;
+  font-family:var(--mono);
+  font-size:9px;
+}
+.rotate-controls{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:7px;
+  margin-top:11px;
+}
+.selection-card{
+  margin-top:11px;
+  padding:11px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:var(--screen);
+}
+.selection-card strong{
+  display:block;
+  color:var(--cyan-soft);
+  font-family:var(--display);
+  text-transform:uppercase;
+}
+.selection-card p{margin:7px 0 0;color:var(--muted);font-size:12px}
+
+/* Tool economy */
+.hint-tools{
+  display:grid;
+  gap:7px;
+  margin-top:11px;
+}
+.hint-card{
+  width:100%;
+  min-height:62px;
+  display:grid;
+  grid-template-columns:36px minmax(0,1fr) auto;
+  gap:9px;
+  align-items:center;
+  padding:7px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  color:var(--ink-soft);
+  background:var(--screen);
+  text-align:left;
+}
+.hint-card:hover{border-color:var(--gold)}
+.hint-card span:first-child{font-size:20px;text-align:center}
+.hint-card strong{
+  display:block;
+  font-family:var(--display);
+  font-size:10px;
+  text-transform:uppercase;
+}
+.hint-card small{
+  display:block;
+  color:var(--muted);
+  font-size:9px;
+}
+.hint-cost{
+  color:var(--gold-soft);
+  font-family:var(--mono);
+  font-size:10px;
+}
+
+/* Accessible matrix */
+.matrix-list{
+  max-height:320px;
+  overflow:auto;
+  display:grid;
+  gap:7px;
+  margin-top:11px;
+  padding-right:3px;
+}
+.matrix-row{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:7px;
+  align-items:center;
+  padding:7px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:var(--screen);
+}
+.matrix-row.selected{border-color:var(--cyan)}
+.matrix-main{
+  min-width:0;
+  border:0;
+  color:var(--ink-soft);
+  background:transparent;
+  text-align:left;
+}
+.matrix-main strong{
+  display:block;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.matrix-main small{
+  display:block;
+  color:var(--muted);
+  font-family:var(--mono);
+  font-size:9px;
+}
+.matrix-actions{
+  display:flex;
+  gap:5px;
+}
+.matrix-actions .btn{
+  min-width:31px;
+  min-height:31px;
+  padding:3px 6px;
+  font-size:9px;
+}
+.rune-state{
+  color:var(--muted);
+}
+.rune-state.ok{color:var(--mint)}
+.rune-state.bad{color:var(--red)}
+
+/* Challenge / tutorial */
+.challenge-box,.tutorial-box{
+  margin-top:11px;
+  padding:11px;
+  border:1px solid var(--line);
+  border-left:3px solid var(--violet);
+  border-radius:var(--radius);
+  background:rgba(149,132,223,.06);
+}
+.challenge-box strong,.tutorial-box strong{
+  display:block;
+  color:var(--violet-soft);
+  font-family:var(--display);
+  text-transform:uppercase;
+}
+.challenge-box p,.tutorial-box p{margin:7px 0 0;color:var(--muted);font-size:12px}
+.tutorial-list{
+  display:grid;
+  gap:5px;
+  margin-top:9px;
+}
+.tutorial-step{
+  display:flex;
+  gap:7px;
+  align-items:center;
+  color:var(--muted);
+  font-family:var(--mono);
+  font-size:10px;
+}
+.tutorial-step.done{color:var(--mint)}
+.tutorial-dot{
+  width:11px;
+  height:11px;
+  border:1px solid currentColor;
+  border-radius:50%;
+}
+.tutorial-step.done .tutorial-dot{background:currentColor}
+
+/* Records */
+.record-list{
+  max-height:260px;
+  overflow:auto;
+  display:grid;
+  gap:7px;
+  margin-top:11px;
+  padding-right:3px;
+}
+.empty-state{
+  padding:24px;
+  border:1px dashed var(--line-strong);
+  border-radius:var(--radius);
+  color:var(--muted);
+  background:var(--screen);
+  text-align:center;
+}
+.record{
+  display:grid;
+  grid-template-columns:28px minmax(0,1fr) auto;
+  gap:7px;
+  align-items:center;
+  padding:7px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:var(--screen);
+}
+.record-rank{
+  color:var(--gold-soft);
+  font-family:var(--mono);
+  font-size:10px;
+  text-align:center;
+}
+.record-copy{min-width:0}
+.record-copy strong{
+  display:block;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.record-copy small{
+  display:block;
+  color:var(--muted);
+  font-family:var(--mono);
+  font-size:9px;
+}
+.record-score{
+  color:var(--cyan-soft);
+  font-family:var(--mono);
+  font-size:12px;
+}
+
+/* Dialog */
+dialog{
+  width:min(720px,calc(100% - 28px));
+  max-height:88vh;
+  overflow:auto;
+  padding:24px;
+  border:1px solid var(--line-strong);
+  border-radius:var(--radius);
+  color:var(--ink);
+  background:var(--panel);
+  box-shadow:var(--shadow);
+}
+dialog::backdrop{background:rgba(3,5,10,.80);backdrop-filter:blur(5px)}
+dialog h2{margin:0;font-family:var(--display);font-size:24px;text-transform:uppercase}
+.dialog-actions{display:flex;justify-content:flex-end;gap:7px;flex-wrap:wrap;margin-top:11px}
+.guide-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:11px;
+  margin-top:14px;
+}
+.guide-card{
+  padding:11px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:var(--screen);
+}
+.guide-card strong{
+  display:block;
+  color:var(--cyan-soft);
+  font-family:var(--display);
+  text-transform:uppercase;
+}
+.guide-card p{margin:7px 0 0;color:var(--muted);font-size:12px}
+
+.footer{
+  padding:24px 0 33px;
+  color:var(--muted);
+  text-align:center;
+  font-family:var(--mono);
+  font-size:11px;
+}
+.toast{
+  position:fixed;
+  right:14px;
+  bottom:14px;
+  z-index:3000;
+  max-width:min(420px,calc(100% - 28px));
+  padding:11px 14px;
+  border:1px solid var(--cyan);
+  border-radius:var(--radius);
+  color:var(--ink);
+  background:var(--panel);
+  box-shadow:var(--shadow);
+  font-family:var(--mono);
+  font-size:11px;
+  transform:translateY(160%);
+  opacity:0;
+  transition:.18s ease;
+}
+.toast.show{transform:none;opacity:1}
+
+@media(max-width:1180px){
+  .header-inner{grid-template-columns:1fr auto}.game-id{display:none}
+  .cabinet{grid-template-columns:minmax(250px,.35fr) minmax(620px,.65fr)}
+  .right-column{grid-column:1/-1;grid-template-columns:1fr 1fr}
+  .right-column .records-panel{grid-column:1/-1}
+}
+@media(max-width:900px){
+  .cabinet{grid-template-columns:1fr}
+  .left-column,.right-column{grid-template-columns:1fr 1fr}
+  .left-column .setup-panel,.right-column .records-panel{grid-column:1/-1}
+  .canvas-shell{min-height:480px}
+}
+@media(max-width:700px){
+  body{font-size:15px}
+  .left-column,.right-column{grid-template-columns:1fr}
+  .left-column .setup-panel,.right-column .records-panel{grid-column:auto}
+  .metrics{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .button-row{grid-template-columns:1fr 1fr}
+  .canvas-shell{min-height:460px;aspect-ratio:4/3}
+}
+@media(max-width:560px){
+  .wrap{width:min(calc(100% - 14px),var(--max))}
+  .header-inner{grid-template-columns:minmax(0,1fr) auto}
+  .brand-copy small{display:none}
+  .intro{padding-top:24px}
+  .intro h1{font-size:48px}
+  .cabinet,.panel{padding:11px}
+  .metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .gate-head{display:grid;text-align:center}
+  .gate-state{text-align:center}
+  .canvas-shell{min-height:430px;aspect-ratio:1/1}
+  .control-grid{grid-template-columns:1fr}
+  .control-group.full{grid-column:auto}
+  .overlay-metrics{grid-template-columns:1fr 1fr}
+  .guide-grid{grid-template-columns:1fr}
+}
+@media(max-width:390px){
+  .brand-copy strong{display:none}
+  .brand-mark{width:40px;height:40px;flex-basis:40px}
+  .header-state{max-width:125px;font-size:10px}
+  .mode-tools{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body data-motion="full">
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="arcade-home" href="index.html" aria-label="Return to the Arcade landing page">
+      <span class="brand-mark" aria-hidden="true">LG</span>
+      <span class="brand-copy"><strong>Arcade</strong><small>Return to game hall</small></span>
+    </a>
+    <div class="game-id"><strong>Lumin Gate</strong><small>Aurora Logic Conservatory</small></div>
+    <div class="header-state">Gate Status · <strong id="headerStatus">Attuned</strong></div>
+  </div>
+</header>
+
+<main>
+  <section class="intro">
+    <div class="wrap">
+      <div class="open-line"><span class="open-dot"></span><span>Guaranteed-solvable aurora matrix online</span></div>
+      <h1>Lumin Gate</h1>
+      <p>Rotate sigils until their visible rune matches the gate, then weave an exact number of clean light threads into every receiver. Each generated gate is constructed from a complete hidden solution before any noise is added.</p>
+    </div>
+  </section>
+
+  <section class="wrap cabinet" aria-label="Lumin Gate aurora logic game">
+    <aside class="left-column">
+      <section class="panel setup-panel">
+        <h3>Gate Setup</h3>
+        <div class="control-grid">
+          <div class="control-group full">
+            <label for="levelSelect">Gate depth</label>
+            <select id="levelSelect">
+              <option value="adaptive">Adaptive</option>
+              <option value="initiate">Initiate</option>
+              <option value="weaver" selected>Weaver</option>
+              <option value="keeper">Keeper</option>
+              <option value="oracle">Oracle</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label for="motionSelect">Motion</label>
+            <select id="motionSelect">
+              <option value="full">Living aurora</option>
+              <option value="reduced">Reduced motion</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label for="voiceSelect">Guide voice</label>
+            <select id="voiceSelect">
+              <option value="off">Voice off</option>
+              <option value="on">Voice on</option>
+            </select>
+          </div>
+          <div class="control-group full">
+            <label for="soundSelect">Sound</label>
+            <select id="soundSelect">
+              <option value="off">Sound off</option>
+              <option value="on">Soft gate tones</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="button-row">
+          <button class="btn primary" id="newGateBtn" type="button">New Gate</button>
+          <button class="btn violet" id="dailyGateBtn" type="button">Daily Gate</button>
+          <button class="btn" id="tutorialBtn" type="button">Guided Gate</button>
+          <button class="btn" id="guideBtn" type="button">Guide</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h3>Interaction Mode</h3>
+        <p class="panel-sub">No modifier keys are required. The same controls work with mouse, touch, trackpad, and keyboard.</p>
+        <div class="mode-tools" id="modeTools"></div>
+
+        <div class="selection-card">
+          <strong id="selectionTitle">No Sigil Selected</strong>
+          <p id="selectionText">Choose a sigil in the field or Gate Matrix.</p>
+        </div>
+
+        <div class="rotate-controls">
+          <button class="btn" id="rotateLeftBtn" type="button">Rotate Left · Q</button>
+          <button class="btn" id="rotateRightBtn" type="button">Rotate Right · E</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h3>Light Tools</h3>
+        <p class="panel-sub">Light is charged only when a tool can provide a real benefit.</p>
+        <div class="hint-tools">
+          <button class="hint-card" id="revealBtn" type="button">
+            <span>🔍</span><span><strong>Reveal Misalignment</strong><small>Explain and highlight one unresolved rune.</small></span><span class="hint-cost">8 Light</span>
+          </button>
+          <button class="hint-card" id="autoThreadBtn" type="button">
+            <span>🧵</span><span><strong>Auto-Thread</strong><small>Add one guaranteed useful matching thread.</small></span><span class="hint-cost">14 Light</span>
+          </button>
+          <button class="hint-card" id="stabilizeBtn" type="button">
+            <span>✦</span><span><strong>Stabilize Sigil</strong><small>Rotate one useful sigil to its required rune.</small></span><span class="hint-cost">18 Light</span>
+          </button>
+          <button class="hint-card" id="removeNoiseBtn" type="button">
+            <span>🌫</span><span><strong>Remove Noise</strong><small>Remove one wrong or unnecessary thread.</small></span><span class="hint-cost">11 Light</span>
+          </button>
+        </div>
+      </section>
+    </aside>
+
+    <section class="center-column">
+      <section class="panel">
+        <div class="metrics">
+          <div class="metric"><strong id="timeMetric">00:00.0</strong><span>Time</span></div>
+          <div class="metric"><strong id="resonanceMetric">0%</strong><span>Resonance</span></div>
+          <div class="metric"><strong id="moveMetric">0</strong><span>Moves</span></div>
+          <div class="metric"><strong id="lightMetric">60</strong><span>Light</span></div>
+          <div class="metric"><strong id="xpMetric">0</strong><span>XP</span></div>
+          <div class="metric"><strong id="streakMetric">0</strong><span>Streak</span></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="gate-head">
+          <div>
+            <h2 id="gateTitle">Gate of First Lumen</h2>
+            <p class="panel-sub" id="gateHint">Each receiver needs an exact number of matching threads.</p>
+          </div>
+          <div class="gate-state"><strong id="levelLabel">Weaver</strong><span id="seedLabel">Seed —</span></div>
+        </div>
+
+        <div class="aurora-shell"><canvas id="auroraCanvas" width="960" height="132" aria-hidden="true"></canvas></div>
+
+        <div class="canvas-shell">
+          <canvas id="gateCanvas" width="960" height="620" tabindex="0" aria-label="Interactive Lumin Gate puzzle"></canvas>
+          <div class="canvas-overlay" id="canvasOverlay">
+            <div class="overlay-card">
+              <h3 id="overlayTitle">Gate Attuned</h3>
+              <p id="overlayText">Begin when ready. The timer starts only after you enter the gate.</p>
+              <div class="overlay-metrics" id="overlayMetrics" hidden></div>
+              <div class="overlay-actions">
+                <button class="btn primary" id="overlayBeginBtn" type="button">Enter Gate</button>
+                <button class="btn" id="overlayResumeBtn" type="button" hidden>Resume</button>
+                <button class="btn gold" id="overlayNextBtn" type="button" hidden>Next Gate</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="status" id="statusText" aria-live="polite">Select a sigil, rotate its visible rune, and weave threads into matching receivers.</div>
+        <div class="resonance-track" aria-label="Gate resonance"><div class="resonance-fill" id="resonanceFill"></div></div>
+
+        <div class="button-row">
+          <button class="btn primary" id="checkBtn" type="button">Check Gate · C</button>
+          <button class="btn" id="pauseBtn" type="button">Pause · P</button>
+          <button class="btn" id="undoBtn" type="button">Undo</button>
+          <button class="btn" id="redoBtn" type="button">Redo</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h3>Challenge Gate Code</h3>
+        <p class="panel-sub">A gate code reconstructs the same seed and depth. Solving a newly redeemed friend code grants a one-time 15-Light challenge bonus.</p>
+        <div class="control-grid">
+          <div class="control-group full">
+            <label for="gateCodeInput">Enter challenge code</label>
+            <input id="gateCodeInput" type="text" maxlength="48" placeholder="LG-SEED-LEVEL-CHECK">
+          </div>
+        </div>
+        <div class="button-row" style="grid-template-columns:repeat(3,minmax(0,1fr))">
+          <button class="btn violet" id="redeemCodeBtn" type="button">Load Code</button>
+          <button class="btn" id="copyCodeBtn" type="button">Copy Current Code</button>
+          <button class="btn" id="copyScoreBtn" type="button">Copy Score Text</button>
+        </div>
+        <div class="challenge-box">
+          <strong id="challengeCodeLabel">Current Code</strong>
+          <p id="currentCodeText">—</p>
+        </div>
+      </section>
+    </section>
+
+    <aside class="right-column">
+      <section class="panel">
+        <h3>Gate Matrix</h3>
+        <p class="panel-sub">A complete keyboard-accessible mirror of the canvas controls.</p>
+        <div class="matrix-list" id="matrixList"></div>
+      </section>
+
+      <section class="panel">
+        <h3>Guided Gate</h3>
+        <div class="tutorial-box">
+          <strong id="tutorialTitle">Optional Tutorial</strong>
+          <p id="tutorialText">Load the Guided Gate for a calm four-step introduction. Its reward can be earned only once.</p>
+          <div class="tutorial-list">
+            <div class="tutorial-step" id="tutorialSelect"><span class="tutorial-dot"></span>Select a sigil</div>
+            <div class="tutorial-step" id="tutorialRotate"><span class="tutorial-dot"></span>Rotate a visible rune</div>
+            <div class="tutorial-step" id="tutorialThread"><span class="tutorial-dot"></span>Weave a thread</div>
+            <div class="tutorial-step" id="tutorialCheck"><span class="tutorial-dot"></span>Check and solve</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel records-panel">
+        <h3>Local Gate Records</h3>
+        <div class="control-grid">
+          <div class="control-group full">
+            <label for="playerName">Record name</label>
+            <input id="playerName" type="text" maxlength="40" placeholder="Aurora Keeper">
+          </div>
+        </div>
+        <div class="button-row" style="grid-template-columns:1fr 1fr">
+          <button class="btn" id="saveNameBtn" type="button">Save Name</button>
+          <button class="btn danger" id="clearRecordsBtn" type="button">Clear Records</button>
+        </div>
+        <div class="record-list" id="recordList"></div>
+      </section>
+
+      <section class="panel">
+        <h3>Gate Memory</h3>
+        <div class="button-row">
+          <button class="btn" id="exportImageBtn" type="button">Export PNG</button>
+          <button class="btn" id="exportDataBtn" type="button">Export Data</button>
+          <button class="btn" id="importDataBtn" type="button">Import Data</button>
+          <button class="btn danger" id="resetProgressBtn" type="button">Reset</button>
+        </div>
+      </section>
+    </aside>
+  </section>
+</main>
+
+<footer class="wrap footer">Lumin Gate™ · Aurora Logic Conservatory · Local-first · No accounts, analytics, external libraries, or network service required</footer>
+
+<dialog id="guideDialog">
+  <h2>Lumin Gate Guide</h2>
+  <div class="guide-grid">
+    <article class="guide-card"><strong>Visible Rune Logic</strong><p>Rotating a sigil changes the rune shown at its center. The displayed rune—not an invisible hidden value—is what travels through every connected thread.</p></article>
+    <article class="guide-card"><strong>Exact Thread Count</strong><p>Each receiver shows how many threads it needs. It is satisfied only when the count is exact and every incoming rune matches.</p></article>
+    <article class="guide-card"><strong>Select · 1</strong><p>Tap a sigil to select it. The Gate Matrix provides the same selection controls for keyboard and screen-reader use.</p></article>
+    <article class="guide-card"><strong>Rotate · 2</strong><p>Tap a sigil to rotate clockwise, or use Q and E for the selected sigil. Rotation snaps to one clear rune state.</p></article>
+    <article class="guide-card"><strong>Weave · 3</strong><p>Select a sigil, then tap a receiver to add or remove that exact connection. Modifier keys are not required.</p></article>
+    <article class="guide-card"><strong>Move · 4</strong><p>Drag sigils to organize the field. Moving does not change the puzzle solution.</p></article>
+    <article class="guide-card"><strong>Pause</strong><p>P or Escape pauses the timer and aurora interaction. The game also pauses automatically when its browser tab is hidden.</p></article>
+    <article class="guide-card"><strong>Undo / Redo</strong><p>Ctrl/Cmd+Z and Ctrl/Cmd+Y reverse rotation, weaving, movement, and tool actions.</p></article>
+    <article class="guide-card"><strong>Guaranteed Gates</strong><p>Every gate is built from a complete source-to-rune solution before its starting rotations and noise threads are applied.</p></article>
+    <article class="guide-card"><strong>Challenge Codes</strong><p>Codes contain a seed, depth, and checksum. Invalid or altered codes are rejected before a gate is loaded.</p></article>
+  </div>
+  <div class="dialog-actions"><button class="btn primary" id="closeGuideBtn" type="button">Close Guide</button></div>
+</dialog>
+
+<dialog id="dataDialog">
+  <h2>Import / Export Lumin Gate</h2>
+  <p class="panel-sub">Copy the complete validated local save, or paste another Lumin Gate save and import it.</p>
+  <textarea id="dataText" aria-label="Lumin Gate JSON"></textarea>
+  <div class="dialog-actions">
+    <button class="btn" id="copyDataBtn" type="button">Copy</button>
+    <button class="btn primary" id="doImportBtn" type="button">Import</button>
+    <button class="btn" id="closeDataBtn" type="button">Close</button>
+  </div>
+</dialog>
+
+<input id="importFileInput" type="file" accept=".json,application/json" hidden>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(()=>{
+"use strict";
+
+const W=960;
+const H=620;
+const SYMBOLS=["△","✦","✺","◇","○","✶","⌖","✹"];
+const COLORS=["#70d3e5","#8bb8f0","#9584df","#dfbb70","#ce79ae","#79cbb2"];
+const STORE_KEY="LUMIN_GATE_CONSERVATORY_V4";
+const PREF_KEY="LUMIN_GATE_PREFS_V4";
+const MAX_RECORDS=60;
+const MAX_REDEEMED=40;
+const MAX_IMPORT_CHARS=1000000;
+
+const LEVELS={
+  initiate:{label:"Initiate",sigils:3,runes:2,doubleRunes:0,noise:1,par:75,baseScore:900,light:10,xp:35},
+  weaver:{label:"Weaver",sigils:4,runes:3,doubleRunes:1,noise:2,par:105,baseScore:1500,light:13,xp:55},
+  keeper:{label:"Keeper",sigils:6,runes:4,doubleRunes:2,noise:4,par:145,baseScore:2300,light:17,xp:80},
+  oracle:{label:"Oracle",sigils:8,runes:5,doubleRunes:3,noise:6,par:190,baseScore:3400,light:22,xp:115}
+};
+
+const MODES=[
+  {id:"select",label:"Select",icon:"SEL",key:"1",tone:"#70d3e5",description:"Choose a sigil"},
+  {id:"rotate",label:"Rotate",icon:"ROT",key:"2",tone:"#9584df",description:"Tap to turn one step"},
+  {id:"weave",label:"Weave",icon:"THR",key:"3",tone:"#dfbb70",description:"Sigil, then receiver"},
+  {id:"move",label:"Move",icon:"MOV",key:"4",tone:"#79cbb2",description:"Drag field positions"}
+];
+
+const GATE_NAMES=[
+  "Gate of Quiet Lumen","Gate of Aurora Threads","Gate of Listening Stars",
+  "Gate of Veiled Echoes","Gate of Northern Glass","Gate of the Soft Meridian",
+  "Gate of Returning Light","Gate of the Seventh Current","Gate of Luminous Accord"
+];
+
+const $=selector=>document.querySelector(selector);
+const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
+const safeNumber=(value,fallback=0)=>Number.isFinite(Number(value))?Number(value):fallback;
+const safeText=value=>String(value??"");
+const deepClone=value=>JSON.parse(JSON.stringify(value));
+
+const gateCanvas=$("#gateCanvas");
+const gateCtx=gateCanvas.getContext("2d");
+const auroraCanvas=$("#auroraCanvas");
+const auroraCtx=auroraCanvas.getContext("2d");
+
+let dpr=1;
+let lastFrame=performance.now();
+let lastPersist=0;
+let audioContext=null;
+let toastTimer=0;
+let undoStack=[];
+let redoStack=[];
+let pointerState=null;
+let highlight={sigilId:null,runeId:null,until:0};
+
+let prefs=loadPrefs();
+let library=loadLibrary();
+let gate=null;
+let session=defaultSession();
+let selectedSigilId=null;
+let interactionMode="select";
+
+function defaultProgress(){
+  return{
+    light:60,
+    xp:0,
+    streak:0,
+    bestByLevel:{},
+    records:[],
+    recent:[],
+    tutorialRewarded:false,
+    redeemedCodes:[],
+    lore:[],
+    playerName:"Aurora Keeper"
+  };
+}
+function defaultSession(){
+  return{
+    active:false,
+    paused:false,
+    solved:false,
+    elapsed:0,
+    moves:0,
+    hints:0,
+    checks:0,
+    challengeCode:null,
+    challengeBonus:false,
+    daily:false,
+    tutorial:false,
+    tutorialSteps:{select:false,rotate:false,thread:false,check:false},
+    lastScore:null,
+    status:"Select a sigil, rotate its visible rune, and weave threads into matching receivers."
+  };
+}
+function defaultLibrary(){
+  return{
+    version:4,
+    progress:defaultProgress(),
+    gate:null,
+    session:defaultSession()
+  };
+}
+function loadPrefs(){
+  try{
+    const raw=JSON.parse(localStorage.getItem(PREF_KEY)||"{}");
+    return{
+      level:["adaptive","initiate","weaver","keeper","oracle"].includes(raw.level)?raw.level:"weaver",
+      motion:raw.motion==="reduced"?"reduced":"full",
+      voice:raw.voice==="on"?"on":"off",
+      sound:raw.sound==="on"?"on":"off"
+    };
+  }catch{
+    return{level:"weaver",motion:"full",voice:"off",sound:"off"};
+  }
+}
+function savePrefs(){
+  prefs={
+    level:$("#levelSelect").value,
+    motion:$("#motionSelect").value,
+    voice:$("#voiceSelect").value,
+    sound:$("#soundSelect").value
+  };
+  try{localStorage.setItem(PREF_KEY,JSON.stringify(prefs));}catch{}
+}
+function normalizeProgress(raw){
+  const source=raw&&typeof raw==="object"?raw:{};
+  const bestByLevel={};
+  for(const id of Object.keys(LEVELS)){
+    const value=safeNumber(source.bestByLevel?.[id],0);
+    if(value>0)bestByLevel[id]=clamp(value,0,86400);
+  }
+  const records=Array.isArray(source.records)
+    ?source.records.slice(0,MAX_RECORDS).map(normalizeRecord).filter(Boolean)
+    :[];
+  return{
+    light:Math.round(clamp(safeNumber(source.light,60),0,999999)),
+    xp:Math.round(clamp(safeNumber(source.xp,0),0,99999999)),
+    streak:Math.round(clamp(safeNumber(source.streak,0),0,99999)),
+    bestByLevel,
+    records,
+    recent:Array.isArray(source.recent)
+      ?source.recent.slice(-12).map(entry=>({
+        level:LEVELS[entry?.level]?entry.level:"weaver",
+        elapsed:clamp(safeNumber(entry?.elapsed,120),1,86400),
+        hints:Math.round(clamp(safeNumber(entry?.hints,0),0,99)),
+        checks:Math.round(clamp(safeNumber(entry?.checks,0),0,99))
+      }))
+      :[],
+    tutorialRewarded:Boolean(source.tutorialRewarded),
+    redeemedCodes:Array.isArray(source.redeemedCodes)
+      ?source.redeemedCodes.map(value=>safeText(value).slice(0,48)).slice(0,MAX_REDEEMED)
+      :[],
+    lore:Array.isArray(source.lore)
+      ?source.lore.map(value=>safeText(value).slice(0,80)).slice(0,100)
+      :[],
+    playerName:safeText(source.playerName||"Aurora Keeper").replace(/[\u0000-\u001f\u007f]/g,"").slice(0,40)||"Aurora Keeper"
+  };
+}
+function normalizeRecord(raw){
+  if(!raw||typeof raw!=="object")return null;
+  const level=LEVELS[raw.level]?raw.level:"weaver";
+  return{
+    id:safeText(raw.id||uid("record")).slice(0,80),
+    name:safeText(raw.name||"Aurora Keeper").replace(/[\u0000-\u001f\u007f]/g,"").slice(0,40)||"Aurora Keeper",
+    score:Math.round(clamp(safeNumber(raw.score,0),0,9999999)),
+    elapsed:clamp(safeNumber(raw.elapsed,0),0,86400),
+    level,
+    moves:Math.round(clamp(safeNumber(raw.moves,0),0,99999)),
+    hints:Math.round(clamp(safeNumber(raw.hints,0),0,999)),
+    seed:Math.round(clamp(safeNumber(raw.seed,0),0,2147483647)),
+    date:Number.isFinite(Date.parse(raw.date))?raw.date:new Date().toISOString()
+  };
+}
+function normalizeSession(raw){
+  const source=raw&&typeof raw==="object"?raw:{};
+  return{
+    active:Boolean(source.active),
+    paused:Boolean(source.paused),
+    solved:Boolean(source.solved),
+    elapsed:clamp(safeNumber(source.elapsed,0),0,86400),
+    moves:Math.round(clamp(safeNumber(source.moves,0),0,99999)),
+    hints:Math.round(clamp(safeNumber(source.hints,0),0,999)),
+    checks:Math.round(clamp(safeNumber(source.checks,0),0,999)),
+    challengeCode:source.challengeCode?safeText(source.challengeCode).slice(0,48):null,
+    challengeBonus:Boolean(source.challengeBonus),
+    daily:Boolean(source.daily),
+    tutorial:Boolean(source.tutorial),
+    tutorialSteps:{
+      select:Boolean(source.tutorialSteps?.select),
+      rotate:Boolean(source.tutorialSteps?.rotate),
+      thread:Boolean(source.tutorialSteps?.thread),
+      check:Boolean(source.tutorialSteps?.check)
+    },
+    lastScore:source.lastScore&&typeof source.lastScore==="object"?{
+      score:Math.round(clamp(safeNumber(source.lastScore.score,0),0,9999999)),
+      light:Math.round(clamp(safeNumber(source.lastScore.light,0),0,99999)),
+      xp:Math.round(clamp(safeNumber(source.lastScore.xp,0),0,99999))
+    }:null,
+    status:safeText(source.status||defaultSession().status).slice(0,260)
+  };
+}
+function normalizeGate(raw){
+  if(!raw||typeof raw!=="object")return null;
+  const level=LEVELS[raw.level]?raw.level:"weaver";
+  const config=LEVELS[level];
+  const runes=Array.isArray(raw.runes)
+    ?raw.runes.slice(0,8).map((rune,index)=>({
+      id:safeText(rune?.id||`rune_${index}`).slice(0,80),
+      x:clamp(safeNumber(rune?.x,120+index*140),60,W-60),
+      y:clamp(safeNumber(rune?.y,H-92),380,H-54),
+      targetIndex:Math.round(clamp(safeNumber(rune?.targetIndex,0),0,SYMBOLS.length-1)),
+      need:Math.round(clamp(safeNumber(rune?.need,1),1,3))
+    }))
+    :[];
+  const runeIds=new Set(runes.map(rune=>rune.id));
+  const sigils=Array.isArray(raw.sigils)
+    ?raw.sigils.slice(0,12).map((sigil,index)=>({
+      id:safeText(sigil?.id||`sigil_${index}`).slice(0,80),
+      x:clamp(safeNumber(sigil?.x,120+index*100),54,W-54),
+      y:clamp(safeNumber(sigil?.y,130+(index%2)*150),58,H-190),
+      radius:clamp(safeNumber(sigil?.radius,42),30,58),
+      sides:Math.round(clamp(safeNumber(sigil?.sides,5),3,8)),
+      color:COLORS.includes(sigil?.color)?sigil.color:COLORS[index%COLORS.length],
+      baseIndex:Math.round(clamp(safeNumber(sigil?.baseIndex,0),0,SYMBOLS.length-1)),
+      orientation:normalizeOrientation(sigil?.orientation),
+      solutionOrientation:normalizeOrientation(sigil?.solutionOrientation),
+      solutionRuneId:runeIds.has(sigil?.solutionRuneId)?sigil.solutionRuneId:(runes[index%Math.max(1,runes.length)]?.id||null)
+    }))
+    :[];
+  const sigilIds=new Set(sigils.map(sigil=>sigil.id));
+  const threads=[];
+  if(Array.isArray(raw.threads)){
+    for(const thread of raw.threads.slice(0,80)){
+      const from=safeText(thread?.from).slice(0,80);
+      const to=safeText(thread?.to).slice(0,80);
+      if(!sigilIds.has(from)||!runeIds.has(to))continue;
+      if(threads.some(item=>item.from===from&&item.to===to))continue;
+      threads.push({id:safeText(thread?.id||uid("thread")).slice(0,80),from,to});
+    }
+  }
+  if(!runes.length||!sigils.length)return null;
+  return{
+    version:4,
+    seed:Math.round(clamp(safeNumber(raw.seed,1),0,2147483647)),
+    level,
+    title:safeText(raw.title||GATE_NAMES[0]).slice(0,100),
+    hint:safeText(raw.hint||"Each receiver needs an exact number of matching threads.").slice(0,180),
+    sigils,
+    runes,
+    threads,
+    stars:Array.isArray(raw.stars)
+      ?raw.stars.slice(0,100).map(star=>({
+        x:clamp(safeNumber(star?.x,0),0,W),
+        y:clamp(safeNumber(star?.y,0),0,H),
+        size:clamp(safeNumber(star?.size,1),.4,2.5),
+        alpha:clamp(safeNumber(star?.alpha,.3),.1,.9)
+      }))
+      :[],
+    createdAt:Number.isFinite(Date.parse(raw.createdAt))?raw.createdAt:new Date().toISOString()
+  };
+}
+function loadLibrary(){
+  try{
+    const raw=JSON.parse(localStorage.getItem(STORE_KEY)||"null");
+    if(!raw||typeof raw!=="object")return defaultLibrary();
+    return{
+      version:4,
+      progress:normalizeProgress(raw.progress),
+      gate:normalizeGate(raw.gate),
+      session:normalizeSession(raw.session)
+    };
+  }catch{
+    return defaultLibrary();
+  }
+}
+function persistAll(){
+  library={
+    version:4,
+    progress:library.progress,
+    gate:gate?deepClone(gate):null,
+    session:deepClone(session)
+  };
+  try{
+    localStorage.setItem(STORE_KEY,JSON.stringify(library));
+    return true;
+  }catch{
+    showToast("Local storage is unavailable or full.");
+    return false;
+  }
+}
+function uid(prefix="id"){
+  let part;
+  try{
+    const data=new Uint32Array(1);
+    crypto.getRandomValues(data);
+    part=data[0].toString(16);
+  }catch{
+    part=Math.random().toString(16).slice(2);
+  }
+  return`${prefix}_${Date.now()}_${part.slice(0,8)}`;
+}
+function normalizeOrientation(value){
+  const whole=Math.round(safeNumber(value,0));
+  return((whole%SYMBOLS.length)+SYMBOLS.length)%SYMBOLS.length;
+}
+function hashString(text){
+  let hash=2166136261>>>0;
+  for(let index=0;index<text.length;index++){
+    hash^=text.charCodeAt(index);
+    hash=Math.imul(hash,16777619);
+  }
+  return hash>>>0;
+}
+function mulberry32(seed){
+  return function(){
+    let value=seed+=0x6D2B79F5;
+    value=Math.imul(value^value>>>15,value|1);
+    value^=value+Math.imul(value^value>>>7,value|61);
+    return((value^value>>>14)>>>0)/4294967296;
+  };
+}
+function shuffle(array,rng){
+  const copy=[...array];
+  for(let index=copy.length-1;index>0;index--){
+    const other=Math.floor(rng()*(index+1));
+    [copy[index],copy[other]]=[copy[other],copy[index]];
+  }
+  return copy;
+}
+function localDay(date=new Date()){
+  return`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}-${String(date.getDate()).padStart(2,"0")}`;
+}
+
+function resolvedLevel(){
+  return prefs.level==="adaptive"?adaptiveLevel():prefs.level;
+}
+function adaptiveLevel(){
+  const recent=library.progress.recent.slice(-6);
+  if(recent.length<2)return"weaver";
+  const avgTime=recent.reduce((sum,item)=>sum+item.elapsed,0)/recent.length;
+  const avgHints=recent.reduce((sum,item)=>sum+item.hints,0)/recent.length;
+  const avgChecks=recent.reduce((sum,item)=>sum+item.checks,0)/recent.length;
+  if(avgTime<75&&avgHints<.5&&avgChecks<1.8)return"oracle";
+  if(avgTime<115&&avgHints<1&&avgChecks<2.5)return"keeper";
+  if(avgTime<175&&avgHints<2)return"weaver";
+  return"initiate";
+}
+function createStars(rng){
+  return Array.from({length:76},()=>({
+    x:rng()*W,
+    y:rng()*H,
+    size:.45+rng()*1.6,
+    alpha:.18+rng()*.56
+  }));
+}
+function generateGate(seed,levelId,{tutorial=false,daily=false,challengeCode=null}={}){
+  const level=LEVELS[levelId]?levelId:"weaver";
+  const config=LEVELS[level];
+  const rng=mulberry32((seed>>>0)||1);
+  const runes=[];
+  const targetPool=shuffle([...Array(SYMBOLS.length).keys()],rng);
+  const doubleIndexes=new Set(shuffle([...Array(config.runes).keys()],rng).slice(0,config.doubleRunes));
+
+  for(let index=0;index<config.runes;index++){
+    const spacing=W/(config.runes+1);
+    runes.push({
+      id:`rune_${index}_${seed}`,
+      x:spacing*(index+1),
+      y:H-82+(rng()-.5)*12,
+      targetIndex:targetPool[index%targetPool.length],
+      need:doubleIndexes.has(index)?2:1
+    });
+  }
+
+  const assignments=[];
+  runes.forEach(rune=>{
+    for(let count=0;count<rune.need;count++)assignments.push(rune);
+  });
+  while(assignments.length<config.sigils){
+    assignments.push(runes[Math.floor(rng()*runes.length)]);
+  }
+
+  const shuffledAssignments=shuffle(assignments,rng);
+  const sigils=[];
+  for(let index=0;index<config.sigils;index++){
+    const assigned=shuffledAssignments[index];
+    const row=index%2;
+    const column=Math.floor(index/2);
+    const columns=Math.ceil(config.sigils/2);
+    const x=(column+1)*(W/(columns+1))+(row?24:-24)+(rng()-.5)*26;
+    const y=row===0?145:315;
+    const baseIndex=Math.floor(rng()*SYMBOLS.length);
+    const solutionOrientation=normalizeOrientation(assigned.targetIndex-baseIndex);
+    let orientation=Math.floor(rng()*SYMBOLS.length);
+    if(orientation===solutionOrientation)orientation=normalizeOrientation(orientation+1+Math.floor(rng()*(SYMBOLS.length-1)));
+    sigils.push({
+      id:`sigil_${index}_${seed}`,
+      x:clamp(x,62,W-62),
+      y:clamp(y+(rng()-.5)*30,72,H-205),
+      radius:36+rng()*10,
+      sides:3+Math.floor(rng()*5),
+      color:COLORS[index%COLORS.length],
+      baseIndex,
+      orientation,
+      solutionOrientation,
+      solutionRuneId:assigned.id
+    });
+  }
+
+  const threads=[];
+  const initialCorrectCount=tutorial?0:Math.max(0,Math.floor(config.runes*.28));
+  const solutionPairs=shuffle(sigils.map(sigil=>({sigil,rune:runes.find(rune=>rune.id===sigil.solutionRuneId)})),rng);
+  for(const pair of solutionPairs.slice(0,initialCorrectCount)){
+    if(pair.rune&&effectiveIndex(pair.sigil)===pair.rune.targetIndex){
+      threads.push({id:uid("thread"),from:pair.sigil.id,to:pair.rune.id});
+    }
+  }
+
+  let noiseAttempts=0;
+  while(threads.length<config.noise+initialCorrectCount&&noiseAttempts<100){
+    noiseAttempts++;
+    const sigil=sigils[Math.floor(rng()*sigils.length)];
+    const rune=runes[Math.floor(rng()*runes.length)];
+    if(threads.some(thread=>thread.from===sigil.id&&thread.to===rune.id))continue;
+    if(effectiveIndex(sigil)===rune.targetIndex&&incomingFor(rune.id,threads).length<rune.need)continue;
+    threads.push({id:uid("thread"),from:sigil.id,to:rune.id});
+  }
+
+  const generated={
+    version:4,
+    seed,
+    level,
+    title:tutorial?"Gate of First Lumen":`${GATE_NAMES[Math.floor(rng()*GATE_NAMES.length)]} · ${String(seed).slice(-3)}`,
+    hint:tutorial
+      ?"Select one sigil, rotate its visible rune, weave an exact connection, then check the gate."
+      :"Every receiver requires an exact thread count, and every incoming visible rune must match.",
+    sigils,
+    runes,
+    threads,
+    stars:createStars(rng),
+    createdAt:new Date().toISOString()
+  };
+
+  gate=generated;
+  session=defaultSession();
+  session.tutorial=tutorial;
+  session.daily=daily;
+  session.challengeCode=challengeCode;
+  session.challengeBonus=Boolean(challengeCode&&!library.progress.redeemedCodes.includes(challengeCode));
+  selectedSigilId=null;
+  interactionMode="select";
+  undoStack=[];
+  redoStack=[];
+  highlight={sigilId:null,runeId:null,until:0};
+  persistAll();
+  renderAll();
+  showReadyOverlay();
+}
+function incomingFor(runeId,threads=gate?.threads||[]){
+  return threads.filter(thread=>thread.to===runeId);
+}
+function effectiveIndex(sigil){
+  return normalizeOrientation(sigil.baseIndex+sigil.orientation);
+}
+function effectiveSymbol(sigil){
+  return SYMBOLS[effectiveIndex(sigil)];
+}
+function evaluateGate(){
+  if(!gate)return[];
+  return gate.runes.map(rune=>{
+    const incoming=incomingFor(rune.id);
+    const values=incoming.map(thread=>{
+      const sigil=gate.sigils.find(item=>item.id===thread.from);
+      return sigil?effectiveIndex(sigil):-1;
+    });
+    const matching=values.filter(value=>value===rune.targetIndex).length;
+    const bad=values.filter(value=>value!==rune.targetIndex).length;
+    const ok=incoming.length===rune.need&&bad===0;
+    return{
+      runeId:rune.id,
+      incoming:incoming.length,
+      need:rune.need,
+      matching,
+      bad,
+      ok
+    };
+  });
+}
+function resonance(){
+  const results=evaluateGate();
+  if(!results.length)return 0;
+  const total=results.reduce((sum,result)=>{
+    const countScore=Math.max(0,1-Math.abs(result.incoming-result.need)/Math.max(1,result.need));
+    const purity=result.incoming?result.matching/result.incoming:0;
+    return sum+(countScore*.45+purity*.55);
+  },0);
+  return Math.round(total/results.length*100);
+}
+
+function startGate(){
+  if(!gate)return;
+  session.active=true;
+  session.paused=false;
+  session.solved=false;
+  $("#canvasOverlay").hidden=true;
+  $("#headerStatus").textContent="Open";
+  session.status="Gate entered. Align every receiver, then press Check Gate.";
+  speak("The gate is open. Align every receiver.");
+  playTone(520,true);
+  persistAll();
+  renderAll();
+}
+function togglePause(force=false){
+  if(!session.active||session.solved)return;
+  session.paused=force?true:!session.paused;
+  if(session.paused){
+    $("#overlayTitle").textContent="Gate Paused";
+    $("#overlayText").textContent="The timer and gate interaction are frozen.";
+    $("#overlayMetrics").hidden=true;
+    $("#overlayBeginBtn").hidden=true;
+    $("#overlayResumeBtn").hidden=false;
+    $("#overlayNextBtn").hidden=true;
+    $("#canvasOverlay").hidden=false;
+  }else{
+    $("#canvasOverlay").hidden=true;
+    $("#overlayBeginBtn").hidden=false;
+    $("#overlayResumeBtn").hidden=true;
+  }
+  persistAll();
+  renderControls();
+}
+function showReadyOverlay(){
+  $("#overlayTitle").textContent=session.tutorial?"Guided Gate Ready":"Gate Attuned";
+  $("#overlayText").textContent=session.tutorial
+    ?"A calm four-step introduction is ready. The one-time tutorial reward is granted only after the gate is solved."
+    :"Begin when ready. The timer starts only after you enter the gate.";
+  $("#overlayMetrics").hidden=true;
+  $("#overlayBeginBtn").hidden=false;
+  $("#overlayBeginBtn").textContent="Enter Gate";
+  $("#overlayResumeBtn").hidden=true;
+  $("#overlayNextBtn").hidden=true;
+  $("#canvasOverlay").hidden=false;
+}
+function completeGate(){
+  session.active=false;
+  session.paused=false;
+  session.solved=true;
+  session.tutorialSteps.check=true;
+
+  const config=LEVELS[gate.level];
+  const timeBonus=Math.max(0,Math.round((config.par-session.elapsed)*9));
+  const movePenalty=session.moves*4;
+  const hintPenalty=session.hints*95;
+  const checkPenalty=Math.max(0,session.checks-1)*55;
+  const score=Math.max(250,config.baseScore+timeBonus-movePenalty-hintPenalty-checkPenalty);
+  let lightGain=config.light+Math.max(0,Math.floor((config.par-session.elapsed)/18));
+  let xpGain=config.xp+Math.max(0,Math.floor(score/140));
+
+  if(session.challengeBonus){
+    lightGain+=15;
+    library.progress.redeemedCodes=[
+      session.challengeCode,
+      ...library.progress.redeemedCodes.filter(code=>code!==session.challengeCode)
+    ].slice(0,MAX_REDEEMED);
+  }
+  if(session.tutorial&&!library.progress.tutorialRewarded){
+    lightGain+=25;
+    xpGain+=100;
+    library.progress.tutorialRewarded=true;
+  }
+
+  library.progress.light+=lightGain;
+  library.progress.xp+=xpGain;
+  library.progress.streak++;
+  const best=library.progress.bestByLevel[gate.level];
+  if(!best||session.elapsed<best)library.progress.bestByLevel[gate.level]=session.elapsed;
+  library.progress.recent.push({
+    level:gate.level,
+    elapsed:session.elapsed,
+    hints:session.hints,
+    checks:session.checks
+  });
+  library.progress.recent=library.progress.recent.slice(-12);
+
+  const record=normalizeRecord({
+    id:uid("record"),
+    name:library.progress.playerName,
+    score,
+    elapsed:session.elapsed,
+    level:gate.level,
+    moves:session.moves,
+    hints:session.hints,
+    seed:gate.seed,
+    date:new Date().toISOString()
+  });
+  library.progress.records.push(record);
+  library.progress.records.sort((a,b)=>b.score-a.score||a.elapsed-b.elapsed);
+  library.progress.records=library.progress.records.slice(0,MAX_RECORDS);
+
+  const loreId=`${gate.level}:${gate.seed%12}`;
+  if(!library.progress.lore.includes(loreId))library.progress.lore.push(loreId);
+
+  session.lastScore={score,light:lightGain,xp:xpGain};
+  session.status=`Gate solved · ${score} points · +${lightGain} Light · +${xpGain} XP.`;
+  persistAll();
+  renderAll();
+  renderRecords();
+
+  $("#overlayTitle").textContent=session.tutorial?"Guided Gate Complete":"Gate Stabilized";
+  $("#overlayText").textContent=session.challengeBonus
+    ?"Friend challenge solved. The one-time 15-Light challenge bonus is included."
+    :`${LEVELS[gate.level].label} gate completed with full resonance.`;
+  $("#overlayMetrics").innerHTML=`
+    <div><strong>${score}</strong><span>Score</span></div>
+    <div><strong>${formatTime(session.elapsed)}</strong><span>Time</span></div>
+    <div><strong>+${lightGain}</strong><span>Light</span></div>
+    <div><strong>+${xpGain}</strong><span>XP</span></div>`;
+  $("#overlayMetrics").hidden=false;
+  $("#overlayBeginBtn").hidden=true;
+  $("#overlayResumeBtn").hidden=true;
+  $("#overlayNextBtn").hidden=false;
+  $("#canvasOverlay").hidden=false;
+  playSolvedChord();
+  speak(`Gate stabilized. Score ${score}.`);
+}
+function checkGate(){
+  if(!session.active||session.paused||session.solved){
+    if(!session.active&&!session.solved)showToast("Enter the gate before checking it.");
+    return;
+  }
+  session.checks++;
+  if(session.tutorial)session.tutorialSteps.check=true;
+  const results=evaluateGate();
+  if(results.every(result=>result.ok)){
+    completeGate();
+    return;
+  }
+  library.progress.streak=0;
+  const first=results.find(result=>!result.ok);
+  highlight.runeId=first?.runeId||null;
+  highlight.until=performance.now()+1800;
+  const rune=gate.runes.find(item=>item.id===first?.runeId);
+  session.status=first
+    ?`Not aligned: receiver ${SYMBOLS[rune.targetIndex]} needs exactly ${first.need} matching thread${first.need===1?"":"s"}; it has ${first.incoming}, including ${first.bad} noisy.`
+    :"The gate is not aligned yet.";
+  speak("The gate is not yet aligned.");
+  playTone(220,false);
+  persistAll();
+  renderAll();
+}
+
+function remember(){
+  if(!gate)return;
+  undoStack.push(JSON.stringify({
+    sigils:gate.sigils,
+    threads:gate.threads,
+    selectedSigilId,
+    moves:session.moves,
+    status:session.status,
+    tutorialSteps:session.tutorialSteps
+  }));
+  if(undoStack.length>80)undoStack.shift();
+  redoStack=[];
+}
+function restoreHistory(serialized){
+  const value=JSON.parse(serialized);
+  gate.sigils=value.sigils.map(sigil=>({...sigil,orientation:normalizeOrientation(sigil.orientation)}));
+  gate.threads=value.threads;
+  selectedSigilId=value.selectedSigilId;
+  session.moves=value.moves;
+  session.status=value.status;
+  session.tutorialSteps=value.tutorialSteps;
+}
+function undo(){
+  if(!undoStack.length)return showToast("Nothing to undo.");
+  redoStack.push(JSON.stringify({
+    sigils:gate.sigils,
+    threads:gate.threads,
+    selectedSigilId,
+    moves:session.moves,
+    status:session.status,
+    tutorialSteps:session.tutorialSteps
+  }));
+  restoreHistory(undoStack.pop());
+  persistAll();
+  renderAll();
+}
+function redo(){
+  if(!redoStack.length)return showToast("Nothing to redo.");
+  undoStack.push(JSON.stringify({
+    sigils:gate.sigils,
+    threads:gate.threads,
+    selectedSigilId,
+    moves:session.moves,
+    status:session.status,
+    tutorialSteps:session.tutorialSteps
+  }));
+  restoreHistory(redoStack.pop());
+  persistAll();
+  renderAll();
+}
+function selectSigil(id){
+  if(!gate.sigils.some(sigil=>sigil.id===id))return;
+  selectedSigilId=id;
+  if(session.tutorial)session.tutorialSteps.select=true;
+  const sigil=selectedSigil();
+  session.status=`Selected sigil ${effectiveSymbol(sigil)}. Rotate it or weave it into a receiver.`;
+  persistAll();
+  renderAll();
+}
+function selectedSigil(){
+  return gate?.sigils.find(sigil=>sigil.id===selectedSigilId)||null;
+}
+function rotateSelected(delta){
+  const sigil=selectedSigil();
+  if(!sigil||!session.active||session.paused||session.solved){
+    if(!sigil)showToast("Select a sigil first.");
+    return false;
+  }
+  remember();
+  sigil.orientation=normalizeOrientation(sigil.orientation+delta);
+  session.moves++;
+  session.status=`Sigil rotated to visible rune ${effectiveSymbol(sigil)}.`;
+  if(session.tutorial)session.tutorialSteps.rotate=true;
+  persistAll();
+  renderAll();
+  playTone(delta>0?540:480,true);
+  return true;
+}
+function toggleThread(sigilId,runeId){
+  if(!session.active||session.paused||session.solved)return false;
+  const sigil=gate.sigils.find(item=>item.id===sigilId);
+  const rune=gate.runes.find(item=>item.id===runeId);
+  if(!sigil||!rune)return false;
+  remember();
+  const existing=gate.threads.find(thread=>thread.from===sigilId&&thread.to===runeId);
+  if(existing){
+    gate.threads=gate.threads.filter(thread=>thread.id!==existing.id);
+    session.status=`Thread removed from ${effectiveSymbol(sigil)} to receiver ${SYMBOLS[rune.targetIndex]}.`;
+  }else{
+    gate.threads.push({id:uid("thread"),from:sigilId,to:runeId});
+    session.status=`Thread woven from ${effectiveSymbol(sigil)} to receiver ${SYMBOLS[rune.targetIndex]}.`;
+  }
+  session.moves++;
+  if(session.tutorial)session.tutorialSteps.thread=true;
+  persistAll();
+  renderAll();
+  playTone(existing?360:660,true);
+  return true;
+}
+function setInteractionMode(id){
+  if(!MODES.some(mode=>mode.id===id))return;
+  interactionMode=id;
+  renderModes();
+  renderControls();
+}
+function spendLight(cost){
+  if(library.progress.light<cost){
+    showToast(`Not enough Light. ${cost} required.`);
+    return false;
+  }
+  library.progress.light-=cost;
+  session.hints++;
+  return true;
+}
+function revealMisalignment(){
+  if(!session.active||session.paused||session.solved)return showToast("Enter an active gate first.");
+  const result=evaluateGate().find(item=>!item.ok);
+  if(!result)return showToast("Every receiver is already aligned.");
+  const rune=gate.runes.find(item=>item.id===result.runeId);
+  const useful=gate.sigils.find(sigil=>sigil.solutionRuneId===rune.id);
+  if(!spendLight(8))return;
+  highlight.runeId=rune.id;
+  highlight.sigilId=useful?.id||null;
+  highlight.until=performance.now()+3000;
+  session.status=`Reveal: receiver ${SYMBOLS[rune.targetIndex]} needs ${rune.need} exact matching thread${rune.need===1?"":"s"}. Current: ${result.incoming}; noisy: ${result.bad}.`;
+  persistAll();
+  renderAll();
+  speak(session.status);
+}
+function autoThread(){
+  if(!session.active||session.paused||session.solved)return showToast("Enter an active gate first.");
+  const results=evaluateGate();
+  const targetResult=results.find(result=>!result.ok&&result.incoming<result.need);
+  if(!targetResult)return showToast("No receiver is missing a thread. Use Stabilize or Remove Noise instead.");
+  const rune=gate.runes.find(item=>item.id===targetResult.runeId);
+  let candidate=gate.sigils.find(sigil=>
+    effectiveIndex(sigil)===rune.targetIndex &&
+    !gate.threads.some(thread=>thread.from===sigil.id&&thread.to===rune.id)
+  );
+  let rotateCandidate=false;
+  if(!candidate){
+    candidate=gate.sigils.find(sigil=>
+      sigil.solutionRuneId===rune.id &&
+      !gate.threads.some(thread=>thread.from===sigil.id&&thread.to===rune.id)
+    );
+    rotateCandidate=Boolean(candidate);
+  }
+  if(!candidate)return showToast("No available source can be auto-threaded.");
+  if(!spendLight(14))return;
+  remember();
+  if(rotateCandidate)candidate.orientation=candidate.solutionOrientation;
+  gate.threads.push({id:uid("thread"),from:candidate.id,to:rune.id});
+  selectedSigilId=candidate.id;
+  session.moves++;
+  session.status=`Auto-Thread aligned ${effectiveSymbol(candidate)} with receiver ${SYMBOLS[rune.targetIndex]}.`;
+  highlight.sigilId=candidate.id;
+  highlight.runeId=rune.id;
+  highlight.until=performance.now()+2200;
+  persistAll();
+  renderAll();
+  playTone(720,true);
+}
+function stabilizeSigil(){
+  if(!session.active||session.paused||session.solved)return showToast("Enter an active gate first.");
+  let candidate=selectedSigil();
+  let rune=null;
+  if(candidate){
+    const connected=gate.threads
+      .filter(thread=>thread.from===candidate.id)
+      .map(thread=>gate.runes.find(item=>item.id===thread.to))
+      .filter(Boolean);
+    rune=connected.find(item=>item.targetIndex!==effectiveIndex(candidate))||connected[0]||null;
+  }
+  if(!candidate||!rune){
+    const wrong=gate.threads.find(thread=>{
+      const sigil=gate.sigils.find(item=>item.id===thread.from);
+      const targetRune=gate.runes.find(item=>item.id===thread.to);
+      return sigil&&targetRune&&effectiveIndex(sigil)!==targetRune.targetIndex;
+    });
+    if(wrong){
+      candidate=gate.sigils.find(item=>item.id===wrong.from);
+      rune=gate.runes.find(item=>item.id===wrong.to);
+    }
+  }
+  if(!candidate||!rune){
+    const result=evaluateGate().find(item=>!item.ok);
+    rune=gate.runes.find(item=>item.id===result?.runeId);
+    candidate=gate.sigils.find(item=>item.solutionRuneId===rune?.id);
+  }
+  if(!candidate||!rune)return showToast("No sigil needs stabilization.");
+  const orientation=normalizeOrientation(rune.targetIndex-candidate.baseIndex);
+  if(candidate.orientation===orientation)return showToast("That sigil already displays the required rune.");
+  if(!spendLight(18))return;
+  remember();
+  candidate.orientation=orientation;
+  selectedSigilId=candidate.id;
+  session.moves++;
+  session.status=`Stabilized sigil to ${SYMBOLS[rune.targetIndex]}.`;
+  highlight.sigilId=candidate.id;
+  highlight.runeId=rune.id;
+  highlight.until=performance.now()+2200;
+  persistAll();
+  renderAll();
+  playTone(640,true);
+}
+function removeNoise(){
+  if(!session.active||session.paused||session.solved)return showToast("Enter an active gate first.");
+  const results=evaluateGate();
+  let removable=null;
+  for(const result of results){
+    const rune=gate.runes.find(item=>item.id===result.runeId);
+    const incoming=incomingFor(rune.id);
+    removable=incoming.find(thread=>{
+      const sigil=gate.sigils.find(item=>item.id===thread.from);
+      return sigil&&effectiveIndex(sigil)!==rune.targetIndex;
+    });
+    if(!removable&&incoming.length>rune.need){
+      removable=incoming[incoming.length-1];
+    }
+    if(removable)break;
+  }
+  if(!removable)return showToast("No noisy or unnecessary thread is present.");
+  if(!spendLight(11))return;
+  remember();
+  gate.threads=gate.threads.filter(thread=>thread.id!==removable.id);
+  session.moves++;
+  session.status="One noisy or unnecessary thread was removed.";
+  persistAll();
+  renderAll();
+  playTone(410,true);
+}
+
+function levelCode(level){
+  return{initiate:"I",weaver:"W",keeper:"K",oracle:"O"}[level]||"W";
+}
+function levelFromCode(code){
+  return{I:"initiate",W:"weaver",K:"keeper",O:"oracle"}[code]||null;
+}
+function gateCode(gateValue=gate){
+  const payload=`${gateValue.seed.toString(36).toUpperCase()}-${levelCode(gateValue.level)}`;
+  const check=(hashString(payload)%46656).toString(36).toUpperCase().padStart(3,"0");
+  return`LG-${payload}-${check}`;
+}
+function parseGateCode(code){
+  const clean=safeText(code).trim().toUpperCase();
+  const match=/^LG-([0-9A-Z]+)-([IWKO])-([0-9A-Z]{3})$/.exec(clean);
+  if(!match)return null;
+  const payload=`${match[1]}-${match[2]}`;
+  const expected=(hashString(payload)%46656).toString(36).toUpperCase().padStart(3,"0");
+  if(match[3]!==expected)return null;
+  const seed=parseInt(match[1],36);
+  const level=levelFromCode(match[2]);
+  if(!Number.isFinite(seed)||seed<0||seed>2147483647||!level)return null;
+  return{code:clean,seed,level};
+}
+function loadChallengeCode(){
+  const parsed=parseGateCode($("#gateCodeInput").value);
+  if(!parsed)return showToast("Gate code rejected: invalid format or checksum.");
+  const already=library.progress.redeemedCodes.includes(parsed.code);
+  generateGate(parsed.seed,parsed.level,{challengeCode:already?null:parsed.code});
+  showToast(already
+    ?"Gate loaded. This code's challenge bonus was already redeemed."
+    :"Friend gate loaded. Solve it for a one-time 15-Light bonus.");
+}
+function dailySeed(){
+  return hashString(`LUMIN-DAILY-${localDay()}`)&0x7fffffff;
+}
+function copyCurrentCode(){
+  copyText(gateCode(),"Current gate code copied.");
+}
+function copyScoreText(){
+  const text=session.lastScore
+    ?`I stabilized ${gate.title} in ${formatTime(session.elapsed)} with ${session.lastScore.score} points. Gate code: ${gateCode()}`
+    :`Try ${gate.title} in Lumin Gate. Gate code: ${gateCode()}`;
+  copyText(text,"Gate score text copied.");
+}
+
+function setupCanvas(){
+  dpr=Math.min(2,Math.max(1,window.devicePixelRatio||1));
+  gateCanvas.width=Math.round(W*dpr);
+  gateCanvas.height=Math.round(H*dpr);
+  auroraCanvas.width=Math.round(W*dpr);
+  auroraCanvas.height=Math.round(132*dpr);
+  gateCtx.setTransform(dpr,0,0,dpr,0,0);
+  auroraCtx.setTransform(dpr,0,0,dpr,0,0);
+}
+function canvasPoint(event){
+  const rect=gateCanvas.getBoundingClientRect();
+  return{
+    x:(event.clientX-rect.left)*(W/Math.max(1,rect.width)),
+    y:(event.clientY-rect.top)*(H/Math.max(1,rect.height))
+  };
+}
+function hitSigil(x,y){
+  for(let index=gate.sigils.length-1;index>=0;index--){
+    const sigil=gate.sigils[index];
+    if(Math.hypot(x-sigil.x,y-sigil.y)<=sigil.radius+10)return sigil;
+  }
+  return null;
+}
+function hitRune(x,y){
+  for(const rune of gate.runes){
+    if(x>=rune.x-45&&x<=rune.x+45&&y>=rune.y-45&&y<=rune.y+45)return rune;
+  }
+  return null;
+}
+
+gateCanvas.addEventListener("pointerdown",event=>{
+  if(!session.active||session.paused||session.solved)return;
+  const point=canvasPoint(event);
+  const sigil=hitSigil(point.x,point.y);
+  const rune=hitRune(point.x,point.y);
+
+  if(sigil){
+    selectSigil(sigil.id);
+    if(interactionMode==="rotate"){
+      rotateSelected(1);
+      return;
+    }
+    if(interactionMode==="move"){
+      remember();
+      pointerState={
+        type:"move",
+        id:sigil.id,
+        offsetX:point.x-sigil.x,
+        offsetY:point.y-sigil.y,
+        moved:false,
+        pointerId:event.pointerId
+      };
+      gateCanvas.setPointerCapture?.(event.pointerId);
+    }
+    return;
+  }
+
+  if(rune&&interactionMode==="weave"){
+    const selected=selectedSigil();
+    if(!selected)return showToast("Select a sigil before choosing a receiver.");
+    toggleThread(selected.id,rune.id);
+  }
+});
+gateCanvas.addEventListener("pointermove",event=>{
+  if(!pointerState||pointerState.type!=="move")return;
+  const point=canvasPoint(event);
+  const sigil=gate.sigils.find(item=>item.id===pointerState.id);
+  if(!sigil)return;
+  sigil.x=clamp(point.x-pointerState.offsetX,sigil.radius+8,W-sigil.radius-8);
+  sigil.y=clamp(point.y-pointerState.offsetY,sigil.radius+8,H-190);
+  pointerState.moved=true;
+});
+gateCanvas.addEventListener("pointerup",event=>{
+  if(!pointerState)return;
+  if(pointerState.moved){
+    session.moves++;
+    session.status="Sigil position reorganized. Its rune alignment is unchanged.";
+  }else if(undoStack.length){
+    undoStack.pop();
+  }
+  pointerState=null;
+  persistAll();
+  renderAll();
+});
+gateCanvas.addEventListener("pointercancel",()=>{
+  pointerState=null;
+  persistAll();
+  renderAll();
+});
+gateCanvas.addEventListener("contextmenu",event=>event.preventDefault());
+
+function drawAurora(time){
+  const motion=document.body.dataset.motion!=="reduced";
+  const t=motion?time*.00012:0;
+  auroraCtx.clearRect(0,0,W,132);
+  const background=auroraCtx.createLinearGradient(0,0,0,132);
+  background.addColorStop(0,"#081633");
+  background.addColorStop(1,"#040a19");
+  auroraCtx.fillStyle=background;
+  auroraCtx.fillRect(0,0,W,132);
+
+  const bands=[
+    {y:29,color:"rgba(112,211,229,.22)",amp:18,speed:1},
+    {y:55,color:"rgba(149,132,223,.17)",amp:14,speed:1.4},
+    {y:81,color:"rgba(206,121,174,.12)",amp:20,speed:.7}
+  ];
+  for(const band of bands){
+    auroraCtx.beginPath();
+    auroraCtx.moveTo(0,band.y);
+    for(let x=0;x<=W;x+=12){
+      auroraCtx.lineTo(x,band.y+Math.sin(x*.013+t*band.speed*12)*band.amp);
+    }
+    auroraCtx.lineTo(W,132);
+    auroraCtx.lineTo(0,132);
+    auroraCtx.closePath();
+    const gradient=auroraCtx.createLinearGradient(0,band.y,0,132);
+    gradient.addColorStop(0,band.color);
+    gradient.addColorStop(1,"rgba(0,0,0,0)");
+    auroraCtx.fillStyle=gradient;
+    auroraCtx.fill();
+  }
+
+  auroraCtx.fillStyle="rgba(255,255,255,.70)";
+  for(let index=0;index<34;index++){
+    const x=(index*97)%W;
+    const y=(index*43)%105;
+    const pulse=motion?.42+Math.sin(t*9+index)*.18:.45;
+    auroraCtx.globalAlpha=clamp(pulse,.18,.72);
+    auroraCtx.beginPath();
+    auroraCtx.arc(x,y,1+(index%3)*.25,0,Math.PI*2);
+    auroraCtx.fill();
+  }
+  auroraCtx.globalAlpha=1;
+}
+function drawGate(time){
+  if(!gate)return;
+  const motion=document.body.dataset.motion!=="reduced";
+  const t=motion?time*.001:0;
+  gateCtx.clearRect(0,0,W,H);
+
+  const background=gateCtx.createLinearGradient(0,0,0,H);
+  background.addColorStop(0,"#0c1730");
+  background.addColorStop(.55,"#071126");
+  background.addColorStop(1,"#040914");
+  gateCtx.fillStyle=background;
+  gateCtx.fillRect(0,0,W,H);
+
+  for(const star of gate.stars){
+    gateCtx.globalAlpha=star.alpha*(motion?.72+Math.sin(t*.8+star.x*.03)*.20:.78);
+    gateCtx.fillStyle="#ffffff";
+    gateCtx.beginPath();
+    gateCtx.arc(star.x,star.y,star.size,0,Math.PI*2);
+    gateCtx.fill();
+  }
+  gateCtx.globalAlpha=1;
+
+  const results=evaluateGate();
+  drawThreads(t,results);
+  gate.sigils.forEach((sigil,index)=>drawSigil(sigil,index,t));
+  gate.runes.forEach((rune,index)=>drawRune(rune,results[index],t));
+  drawFieldLabels();
+}
+function drawThreads(t,results){
+  gate.threads.forEach((thread,index)=>{
+    const sigil=gate.sigils.find(item=>item.id===thread.from);
+    const rune=gate.runes.find(item=>item.id===thread.to);
+    if(!sigil||!rune)return;
+    const matching=effectiveIndex(sigil)===rune.targetIndex;
+    const result=results.find(item=>item.runeId===rune.id);
+    const excess=result&&result.incoming>result.need;
+    const color=matching&&!excess?sigil.color:"#d0717d";
+
+    const controlX=(sigil.x+rune.x)/2;
+    const controlY=Math.min(sigil.y,rune.y)-65-Math.abs(sigil.x-rune.x)*.05;
+    gateCtx.beginPath();
+    gateCtx.moveTo(sigil.x,sigil.y);
+    gateCtx.quadraticCurveTo(controlX,controlY,rune.x,rune.y);
+    gateCtx.lineWidth=matching?3:2.5;
+    gateCtx.strokeStyle=color;
+    gateCtx.globalAlpha=matching?.75:.55;
+    gateCtx.stroke();
+    gateCtx.globalAlpha=1;
+
+    if(document.body.dataset.motion!=="reduced"){
+      const ratio=(t*.18+index*.27)%1;
+      const x=(1-ratio)*(1-ratio)*sigil.x+2*(1-ratio)*ratio*controlX+ratio*ratio*rune.x;
+      const y=(1-ratio)*(1-ratio)*sigil.y+2*(1-ratio)*ratio*controlY+ratio*ratio*rune.y;
+      gateCtx.fillStyle=color;
+      gateCtx.beginPath();
+      gateCtx.arc(x,y,3.4,0,Math.PI*2);
+      gateCtx.fill();
+    }
+  });
+}
+function drawSigil(sigil,index,t){
+  const selected=sigil.id===selectedSigilId;
+  const highlighted=performance.now()<highlight.until&&sigil.id===highlight.sigilId;
+  const angle=sigil.orientation*(Math.PI*2/SYMBOLS.length);
+
+  gateCtx.save();
+  gateCtx.translate(sigil.x,sigil.y);
+  if(selected||highlighted){
+    gateCtx.shadowColor=highlighted?"#f2dba0":sigil.color;
+    gateCtx.shadowBlur=22;
+  }
+
+  gateCtx.save();
+  gateCtx.rotate(angle);
+  gateCtx.beginPath();
+  for(let side=0;side<sigil.sides;side++){
+    const theta=side/sigil.sides*Math.PI*2-Math.PI/2;
+    const x=Math.cos(theta)*sigil.radius;
+    const y=Math.sin(theta)*sigil.radius;
+    if(side===0)gateCtx.moveTo(x,y);
+    else gateCtx.lineTo(x,y);
+  }
+  gateCtx.closePath();
+  const gradient=gateCtx.createRadialGradient(0,0,5,0,0,sigil.radius*1.2);
+  gradient.addColorStop(0,"rgba(255,255,255,.12)");
+  gradient.addColorStop(1,`${sigil.color}18`);
+  gateCtx.fillStyle=gradient;
+  gateCtx.fill();
+  gateCtx.strokeStyle=sigil.color;
+  gateCtx.lineWidth=selected?3:2;
+  gateCtx.stroke();
+
+  gateCtx.strokeStyle="rgba(255,255,255,.22)";
+  gateCtx.lineWidth=1;
+  for(let tick=0;tick<SYMBOLS.length;tick++){
+    const theta=tick/SYMBOLS.length*Math.PI*2-Math.PI/2;
+    gateCtx.beginPath();
+    gateCtx.moveTo(Math.cos(theta)*(sigil.radius-7),Math.sin(theta)*(sigil.radius-7));
+    gateCtx.lineTo(Math.cos(theta)*(sigil.radius+3),Math.sin(theta)*(sigil.radius+3));
+    gateCtx.stroke();
+  }
+  gateCtx.restore();
+
+  gateCtx.fillStyle="#07101f";
+  gateCtx.strokeStyle=sigil.color;
+  gateCtx.lineWidth=1;
+  gateCtx.beginPath();
+  gateCtx.arc(0,0,sigil.radius*.48,0,Math.PI*2);
+  gateCtx.fill();
+  gateCtx.stroke();
+
+  gateCtx.fillStyle="#f4f7fb";
+  gateCtx.font='444 27px Georgia, serif';
+  gateCtx.textAlign="center";
+  gateCtx.textBaseline="middle";
+  gateCtx.fillText(effectiveSymbol(sigil),0,1);
+
+  gateCtx.fillStyle=selected?"#b9eff4":"#a8b8ca";
+  gateCtx.font='444 10px "Courier New", monospace';
+  gateCtx.fillText(`S${index+1} · ${sigil.orientation+1}/${SYMBOLS.length}`,0,sigil.radius+18);
+  gateCtx.restore();
+}
+function drawRune(rune,result,t){
+  const highlighted=performance.now()<highlight.until&&rune.id===highlight.runeId;
+  const ok=result?.ok;
+  const stroke=ok?"#79cbb2":highlighted?"#f2dba0":"#80aee4";
+  const pulse=ok&&document.body.dataset.motion!=="reduced"?1+Math.sin(t*3+rune.x)*.025:1;
+
+  gateCtx.save();
+  gateCtx.translate(rune.x,rune.y);
+  gateCtx.scale(pulse,pulse);
+  gateCtx.shadowColor=stroke;
+  gateCtx.shadowBlur=ok||highlighted?20:7;
+
+  gateCtx.fillStyle=ok?"rgba(121,203,178,.12)":"rgba(6,11,24,.82)";
+  gateCtx.strokeStyle=stroke;
+  gateCtx.lineWidth=ok?3:2;
+  roundedRect(gateCtx,-43,-43,86,86,7,true,true);
+
+  gateCtx.shadowBlur=0;
+  gateCtx.fillStyle="#f4f7fb";
+  gateCtx.font='444 30px Georgia, serif';
+  gateCtx.textAlign="center";
+  gateCtx.textBaseline="middle";
+  gateCtx.fillText(SYMBOLS[rune.targetIndex],0,-5);
+
+  gateCtx.fillStyle=ok?"#79cbb2":"#a8b8ca";
+  gateCtx.font='444 10px "Courier New", monospace';
+  gateCtx.fillText(`${result?.incoming||0} / ${rune.need} THREAD${rune.need===1?"":"S"}`,0,23);
+
+  for(let slot=0;slot<rune.need;slot++){
+    const start=-(rune.need-1)*7;
+    gateCtx.fillStyle=slot<(result?.matching||0)?"#79cbb2":"rgba(255,255,255,.18)";
+    gateCtx.beginPath();
+    gateCtx.arc(start+slot*14,35,3.5,0,Math.PI*2);
+    gateCtx.fill();
+  }
+  gateCtx.restore();
+}
+function drawFieldLabels(){
+  gateCtx.fillStyle="rgba(4,7,15,.74)";
+  roundedRect(gateCtx,14,14,320,42,7,true,false);
+  gateCtx.fillStyle="#f4f7fb";
+  gateCtx.font='444 14px "Trebuchet MS", sans-serif';
+  gateCtx.textAlign="left";
+  gateCtx.fillText(`${LEVELS[gate.level].label} · ${interactionMode.toUpperCase()}`,28,40);
+  gateCtx.fillStyle="#b9eff4";
+  gateCtx.textAlign="right";
+  gateCtx.fillText(`${gate.threads.length} threads · ${resonance()}%`,320,40);
+}
+function roundedRect(context,x,y,width,height,radius,fill,stroke){
+  const r=Math.min(radius,width/2,height/2);
+  context.beginPath();
+  context.moveTo(x+r,y);
+  context.arcTo(x+width,y,x+width,y+height,r);
+  context.arcTo(x+width,y+height,x,y+height,r);
+  context.arcTo(x,y+height,x,y,r);
+  context.arcTo(x,y,x+width,y,r);
+  if(fill)context.fill();
+  if(stroke)context.stroke();
+}
+
+function renderAll(){
+  renderMetrics();
+  renderGateInfo();
+  renderModes();
+  renderSelection();
+  renderMatrix();
+  renderTutorial();
+  renderRecords();
+  renderControls();
+  $("#currentCodeText").textContent=gate?gateCode():"—";
+  document.body.dataset.motion=prefs.motion;
+}
+function renderMetrics(){
+  $("#timeMetric").textContent=formatTime(session.elapsed);
+  $("#resonanceMetric").textContent=`${resonance()}%`;
+  $("#moveMetric").textContent=session.moves;
+  $("#lightMetric").textContent=library.progress.light;
+  $("#xpMetric").textContent=library.progress.xp;
+  $("#streakMetric").textContent=library.progress.streak;
+  $("#resonanceFill").style.width=`${resonance()}%`;
+}
+function renderGateInfo(){
+  if(!gate)return;
+  $("#gateTitle").textContent=gate.title;
+  $("#gateHint").textContent=gate.hint;
+  $("#levelLabel").textContent=`${LEVELS[gate.level].label}${prefs.level==="adaptive"?" · Adaptive":""}`;
+  $("#seedLabel").textContent=`Seed ${gate.seed}`;
+}
+function renderModes(){
+  const container=$("#modeTools");
+  container.replaceChildren();
+  MODES.forEach(mode=>{
+    const button=document.createElement("button");
+    button.type="button";
+    button.className=`mode-card${interactionMode===mode.id?" active":""}`;
+    button.style.setProperty("--tool-tone",mode.tone);
+    button.setAttribute("aria-pressed",String(interactionMode===mode.id));
+    const icon=document.createElement("span");
+    icon.className="mode-icon";
+    icon.textContent=mode.icon;
+    const copy=document.createElement("span");
+    copy.className="mode-copy";
+    const title=document.createElement("strong");
+    title.textContent=mode.label;
+    const detail=document.createElement("small");
+    detail.textContent=`${mode.key} · ${mode.description}`;
+    copy.append(title,detail);
+    button.append(icon,copy);
+    button.addEventListener("click",()=>setInteractionMode(mode.id));
+    container.appendChild(button);
+  });
+}
+function renderSelection(){
+  const sigil=selectedSigil();
+  if(!sigil){
+    $("#selectionTitle").textContent="No Sigil Selected";
+    $("#selectionText").textContent="Choose a sigil in the field or Gate Matrix.";
+    $("#rotateLeftBtn").disabled=true;
+    $("#rotateRightBtn").disabled=true;
+    return;
+  }
+  const connected=gate.threads.filter(thread=>thread.from===sigil.id).length;
+  $("#selectionTitle").textContent=`Selected · ${effectiveSymbol(sigil)}`;
+  $("#selectionText").textContent=`Base ${SYMBOLS[sigil.baseIndex]} · rotation step ${sigil.orientation+1} of ${SYMBOLS.length} · ${connected} connected thread${connected===1?"":"s"}.`;
+  $("#rotateLeftBtn").disabled=!session.active||session.paused||session.solved;
+  $("#rotateRightBtn").disabled=!session.active||session.paused||session.solved;
+}
+function renderMatrix(){
+  const container=$("#matrixList");
+  container.replaceChildren();
+
+  gate.sigils.forEach((sigil,index)=>{
+    const row=document.createElement("div");
+    row.className=`matrix-row${sigil.id===selectedSigilId?" selected":""}`;
+    const main=document.createElement("button");
+    main.type="button";
+    main.className="matrix-main";
+    const title=document.createElement("strong");
+    title.textContent=`Sigil ${index+1} · ${effectiveSymbol(sigil)}`;
+    const meta=document.createElement("small");
+    const connectionCount=gate.threads.filter(thread=>thread.from===sigil.id).length;
+    meta.textContent=`Base ${SYMBOLS[sigil.baseIndex]} · step ${sigil.orientation+1}/${SYMBOLS.length} · ${connectionCount} threads`;
+    main.append(title,meta);
+    main.addEventListener("click",()=>selectSigil(sigil.id));
+
+    const actions=document.createElement("div");
+    actions.className="matrix-actions";
+    const left=document.createElement("button");
+    left.type="button";
+    left.className="btn";
+    left.textContent="−";
+    left.setAttribute("aria-label",`Rotate Sigil ${index+1} left`);
+    left.disabled=!session.active||session.paused||session.solved;
+    left.addEventListener("click",()=>{
+      selectSigil(sigil.id);
+      rotateSelected(-1);
+    });
+    const right=document.createElement("button");
+    right.type="button";
+    right.className="btn";
+    right.textContent="+";
+    right.setAttribute("aria-label",`Rotate Sigil ${index+1} right`);
+    right.disabled=!session.active||session.paused||session.solved;
+    right.addEventListener("click",()=>{
+      selectSigil(sigil.id);
+      rotateSelected(1);
+    });
+    actions.append(left,right);
+    row.append(main,actions);
+    container.appendChild(row);
+  });
+
+  const results=evaluateGate();
+  gate.runes.forEach((rune,index)=>{
+    const result=results[index];
+    const row=document.createElement("div");
+    row.className="matrix-row";
+    const main=document.createElement("button");
+    main.type="button";
+    main.className="matrix-main";
+    const title=document.createElement("strong");
+    title.textContent=`Receiver ${index+1} · ${SYMBOLS[rune.targetIndex]}`;
+    const meta=document.createElement("small");
+    meta.className=`rune-state ${result.ok?"ok":"bad"}`;
+    meta.textContent=`${result.incoming}/${rune.need} threads · ${result.bad} noisy · ${result.ok?"aligned":"unresolved"}`;
+    main.append(title,meta);
+    main.disabled=!selectedSigilId||!session.active||session.paused||session.solved;
+    main.addEventListener("click",()=>{
+      if(!selectedSigilId)return showToast("Select a sigil first.");
+      toggleThread(selectedSigilId,rune.id);
+    });
+
+    const actions=document.createElement("div");
+    actions.className="matrix-actions";
+    const toggle=document.createElement("button");
+    toggle.type="button";
+    toggle.className="btn";
+    const connected=gate.threads.some(thread=>thread.from===selectedSigilId&&thread.to===rune.id);
+    toggle.textContent=connected?"Cut":"Weave";
+    toggle.disabled=!selectedSigilId||!session.active||session.paused||session.solved;
+    toggle.addEventListener("click",()=>{
+      if(!selectedSigilId)return;
+      toggleThread(selectedSigilId,rune.id);
+    });
+    actions.appendChild(toggle);
+    row.append(main,actions);
+    container.appendChild(row);
+  });
+}
+function renderTutorial(){
+  const steps=session.tutorialSteps;
+  $("#tutorialTitle").textContent=session.tutorial
+    ?library.progress.tutorialRewarded?"Guided Gate Active · Reward Previously Earned":"Guided Gate Active · One-Time Reward"
+    :"Optional Tutorial";
+  $("#tutorialText").textContent=session.tutorial
+    ?"Complete the four actions below. The gate itself remains a genuine solvable puzzle."
+    :"Load the Guided Gate for a calm four-step introduction. Its reward can be earned only once.";
+  for(const [key,selector] of [
+    ["select","#tutorialSelect"],["rotate","#tutorialRotate"],
+    ["thread","#tutorialThread"],["check","#tutorialCheck"]
+  ]){
+    $(selector).classList.toggle("done",Boolean(steps[key]));
+  }
+}
+function renderRecords(){
+  const container=$("#recordList");
+  container.replaceChildren();
+  const records=[...library.progress.records].sort((a,b)=>b.score-a.score||a.elapsed-b.elapsed);
+  if(!records.length){
+    const empty=document.createElement("div");
+    empty.className="empty-state";
+    empty.textContent="No stabilized gates recorded yet.";
+    container.appendChild(empty);
+    return;
+  }
+  records.slice(0,24).forEach((record,index)=>{
+    const row=document.createElement("article");
+    row.className="record";
+    const rank=document.createElement("div");
+    rank.className="record-rank";
+    rank.textContent=`#${index+1}`;
+    const copy=document.createElement("div");
+    copy.className="record-copy";
+    const title=document.createElement("strong");
+    title.textContent=record.name;
+    const meta=document.createElement("small");
+    meta.textContent=`${LEVELS[record.level].label} · ${formatTime(record.elapsed)} · ${record.moves} moves · ${record.hints} hints`;
+    copy.append(title,meta);
+    const score=document.createElement("div");
+    score.className="record-score";
+    score.textContent=record.score;
+    row.append(rank,copy,score);
+    container.appendChild(row);
+  });
+}
+function renderControls(){
+  $("#statusText").textContent=session.status;
+  $("#headerStatus").textContent=session.solved?"Stabilized":session.paused?"Paused":session.active?"Open":"Attuned";
+  $("#pauseBtn").disabled=!session.active||session.solved;
+  $("#pauseBtn").textContent=session.paused?"Resume · P":"Pause · P";
+  $("#checkBtn").disabled=!session.active||session.paused||session.solved;
+  $("#undoBtn").disabled=!undoStack.length;
+  $("#redoBtn").disabled=!redoStack.length;
+  $("#levelSelect").disabled=session.active&&!session.solved;
+  gateCanvas.setAttribute("aria-label",`${gate.title}. ${LEVELS[gate.level].label} gate. ${gate.sigils.length} sigils, ${gate.runes.length} receivers, ${resonance()} percent resonance.`);
+}
+
+function formatTime(seconds){
+  const safe=Math.max(0,seconds);
+  const minutes=Math.floor(safe/60);
+  const whole=Math.floor(safe%60);
+  const tenths=Math.floor((safe-Math.floor(safe))*10);
+  return`${String(minutes).padStart(2,"0")}:${String(whole).padStart(2,"0")}.${tenths}`;
+}
+function showToast(message){
+  clearTimeout(toastTimer);
+  const toast=$("#toast");
+  toast.textContent=message;
+  toast.classList.add("show");
+  toastTimer=setTimeout(()=>toast.classList.remove("show"),2300);
+}
+async function copyText(text,message){
+  try{
+    await navigator.clipboard.writeText(text);
+    showToast(message);
+  }catch{
+    $("#dataText").value=text;
+    $("#dataDialog").showModal();
+    showToast("Clipboard unavailable. Copy the text from the dialog.");
+  }
+}
+function speak(text){
+  if(prefs.voice!=="on"||!("speechSynthesis" in window))return;
+  try{
+    speechSynthesis.cancel();
+    const utterance=new SpeechSynthesisUtterance(text);
+    utterance.lang="en-US";
+    utterance.rate=.93;
+    utterance.pitch=1.02;
+    speechSynthesis.speak(utterance);
+  }catch{}
+}
+function playTone(frequency,positive=true){
+  if(prefs.sound!=="on")return;
+  try{
+    if(!audioContext)audioContext=new (window.AudioContext||window.webkitAudioContext)();
+    if(audioContext.state==="suspended")audioContext.resume();
+    const oscillator=audioContext.createOscillator();
+    const gain=audioContext.createGain();
+    oscillator.type=positive?"sine":"triangle";
+    oscillator.frequency.value=frequency;
+    gain.gain.setValueAtTime(.025,audioContext.currentTime);
+    gain.gain.exponentialRampToValueAtTime(.001,audioContext.currentTime+.12);
+    oscillator.connect(gain).connect(audioContext.destination);
+    oscillator.start();
+    oscillator.stop(audioContext.currentTime+.13);
+  }catch{}
+}
+function playSolvedChord(){
+  playTone(520,true);
+  setTimeout(()=>playTone(660,true),80);
+  setTimeout(()=>playTone(790,true),160);
+}
+
+function exportImage(){
+  const composite=document.createElement("canvas");
+  composite.width=960;
+  composite.height=760;
+  const context=composite.getContext("2d");
+  context.fillStyle="#060814";
+  context.fillRect(0,0,960,760);
+  context.drawImage(auroraCanvas,0,0,960,132);
+  context.drawImage(gateCanvas,0,140,960,620);
+  context.fillStyle="rgba(4,7,15,.84)";
+  context.fillRect(0,0,960,54);
+  context.fillStyle="#f4f7fb";
+  context.font='444 22px "Trebuchet MS", sans-serif';
+  context.textAlign="left";
+  context.fillText("LUMIN GATE",22,34);
+  context.fillStyle="#b9eff4";
+  context.font='444 13px "Courier New", monospace';
+  context.textAlign="right";
+  context.fillText(`${gate.title} · ${gateCode()}`,938,33);
+  composite.toBlob(blob=>{
+    if(!blob)return showToast("PNG export is unavailable.");
+    const url=URL.createObjectURL(blob);
+    const anchor=document.createElement("a");
+    anchor.href=url;
+    anchor.download=`lumin-gate-${gate.seed}.png`;
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+  },"image/png");
+}
+function exportData(){
+  const payload={
+    schema:"lumin-gate-conservatory",
+    version:4,
+    exportedAt:new Date().toISOString(),
+    library:{
+      progress:library.progress,
+      gate,
+      session
+    }
+  };
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+  const url=URL.createObjectURL(blob);
+  const anchor=document.createElement("a");
+  anchor.href=url;
+  anchor.download="lumin-gate-conservatory.json";
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+function openDataDialog(){
+  $("#dataText").value=JSON.stringify({
+    schema:"lumin-gate-conservatory",
+    version:4,
+    library:{progress:library.progress,gate,session}
+  },null,2);
+  $("#dataDialog").showModal();
+}
+function importDataText(text){
+  if(!text||text.length>MAX_IMPORT_CHARS)return showToast("Import is empty or exceeds one megabyte.");
+  try{
+    const parsed=JSON.parse(text);
+    const source=parsed?.schema==="lumin-gate-conservatory"?parsed.library:parsed;
+    const importedGate=normalizeGate(source?.gate);
+    if(!importedGate)throw new Error("gate");
+    library.progress=normalizeProgress(source?.progress);
+    gate=importedGate;
+    session=normalizeSession(source?.session);
+    session.paused=true;
+    session.active=Boolean(session.active&&!session.solved);
+    selectedSigilId=null;
+    interactionMode="select";
+    undoStack=[];
+    redoStack=[];
+    persistAll();
+    renderAll();
+    if(session.active){
+      $("#overlayTitle").textContent="Imported Gate Paused";
+      $("#overlayText").textContent="The imported timer is preserved. Resume when ready.";
+      $("#overlayMetrics").hidden=true;
+      $("#overlayBeginBtn").hidden=true;
+      $("#overlayResumeBtn").hidden=false;
+      $("#overlayNextBtn").hidden=true;
+      $("#canvasOverlay").hidden=false;
+    }else{
+      showReadyOverlay();
+    }
+    $("#dataDialog").close();
+    showToast("Validated Lumin Gate save imported.");
+  }catch{
+    showToast("Import rejected: invalid Lumin Gate data.");
+  }
+}
+async function copyData(){
+  copyText($("#dataText").value,"Lumin Gate data copied.");
+}
+function resetProgress(){
+  if(!confirm("Reset all Light, XP, records, tutorial reward, redeemed codes, and the current gate on this device?"))return;
+  library=defaultLibrary();
+  gate=null;
+  session=defaultSession();
+  selectedSigilId=null;
+  interactionMode="select";
+  undoStack=[];
+  redoStack=[];
+  generateGate(Math.floor(Math.random()*1_000_000_000),resolvedLevel());
+  $("#playerName").value=library.progress.playerName;
+  showToast("Lumin Gate progress reset.");
+}
+
+function frame(timestamp){
+  const dt=Math.min(.05,Math.max(0,(timestamp-lastFrame)/1000||0));
+  lastFrame=timestamp;
+  if(session.active&&!session.paused&&!session.solved){
+    session.elapsed+=dt;
+  }
+  drawAurora(timestamp);
+  drawGate(timestamp);
+  renderMetrics();
+
+  if(timestamp-lastPersist>2500){
+    lastPersist=timestamp;
+    persistAll();
+  }
+  requestAnimationFrame(frame);
+}
+
+document.addEventListener("keydown",event=>{
+  if(/INPUT|SELECT|TEXTAREA/.test(document.activeElement?.tagName||""))return;
+  if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==="z"){
+    event.preventDefault();
+    event.shiftKey?redo():undo();
+    return;
+  }
+  if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==="y"){
+    event.preventDefault();
+    redo();
+    return;
+  }
+  if(/^Digit[1-4]$/.test(event.code)){
+    event.preventDefault();
+    setInteractionMode(MODES[Number(event.code.slice(-1))-1].id);
+  }
+  if(event.code==="KeyQ"){
+    event.preventDefault();
+    rotateSelected(-1);
+  }
+  if(event.code==="KeyE"){
+    event.preventDefault();
+    rotateSelected(1);
+  }
+  if(event.code==="KeyC"){
+    event.preventDefault();
+    checkGate();
+  }
+  if(event.code==="KeyP"&&session.active){
+    event.preventDefault();
+    togglePause();
+  }
+  if(event.code==="Escape"&&session.active&&!session.paused){
+    event.preventDefault();
+    togglePause(true);
+  }
+  if(event.code==="ArrowRight"&&gate){
+    event.preventDefault();
+    const current=gate.sigils.findIndex(sigil=>sigil.id===selectedSigilId);
+    selectSigil(gate.sigils[(current+1+gate.sigils.length)%gate.sigils.length].id);
+  }
+  if(event.code==="ArrowLeft"&&gate){
+    event.preventDefault();
+    const current=gate.sigils.findIndex(sigil=>sigil.id===selectedSigilId);
+    selectSigil(gate.sigils[(current-1+gate.sigils.length)%gate.sigils.length].id);
+  }
+});
+document.addEventListener("visibilitychange",()=>{
+  if(document.hidden&&session.active&&!session.paused&&!session.solved)togglePause(true);
+});
+window.addEventListener("resize",setupCanvas);
+window.addEventListener("beforeunload",persistAll);
+
+$("#newGateBtn").addEventListener("click",()=>{
+  if(session.active&&!session.solved&&!confirm("Leave the current gate and generate a new one?"))return;
+  generateGate(Math.floor(Math.random()*1_000_000_000),resolvedLevel());
+});
+$("#dailyGateBtn").addEventListener("click",()=>{
+  if(session.active&&!session.solved&&!confirm("Leave the current gate and load today's gate?"))return;
+  generateGate(dailySeed(),resolvedLevel(),{daily:true});
+});
+$("#tutorialBtn").addEventListener("click",()=>{
+  if(session.active&&!session.solved&&!confirm("Leave the current gate and open the Guided Gate?"))return;
+  generateGate(20251114,"initiate",{tutorial:true});
+});
+$("#guideBtn").addEventListener("click",()=>$("#guideDialog").showModal());
+$("#closeGuideBtn").addEventListener("click",()=>$("#guideDialog").close());
+
+$("#levelSelect").addEventListener("change",()=>{
+  savePrefs();
+  renderGateInfo();
+});
+$("#motionSelect").addEventListener("change",event=>{
+  prefs.motion=event.target.value;
+  document.body.dataset.motion=prefs.motion;
+  savePrefs();
+});
+$("#voiceSelect").addEventListener("change",event=>{
+  prefs.voice=event.target.value;
+  savePrefs();
+  if(prefs.voice==="on")speak("Aurora guide voice enabled.");
+});
+$("#soundSelect").addEventListener("change",event=>{
+  prefs.sound=event.target.value;
+  savePrefs();
+  if(prefs.sound==="on")playTone(520,true);
+});
+
+$("#rotateLeftBtn").addEventListener("click",()=>rotateSelected(-1));
+$("#rotateRightBtn").addEventListener("click",()=>rotateSelected(1));
+$("#revealBtn").addEventListener("click",revealMisalignment);
+$("#autoThreadBtn").addEventListener("click",autoThread);
+$("#stabilizeBtn").addEventListener("click",stabilizeSigil);
+$("#removeNoiseBtn").addEventListener("click",removeNoise);
+
+$("#checkBtn").addEventListener("click",checkGate);
+$("#pauseBtn").addEventListener("click",()=>togglePause());
+$("#undoBtn").addEventListener("click",undo);
+$("#redoBtn").addEventListener("click",redo);
+$("#overlayBeginBtn").addEventListener("click",startGate);
+$("#overlayResumeBtn").addEventListener("click",()=>togglePause());
+$("#overlayNextBtn").addEventListener("click",()=>{
+  generateGate(Math.floor(Math.random()*1_000_000_000),resolvedLevel());
+});
+
+$("#redeemCodeBtn").addEventListener("click",loadChallengeCode);
+$("#copyCodeBtn").addEventListener("click",copyCurrentCode);
+$("#copyScoreBtn").addEventListener("click",copyScoreText);
+
+$("#saveNameBtn").addEventListener("click",()=>{
+  library.progress.playerName=safeText($("#playerName").value).replace(/[\u0000-\u001f\u007f]/g,"").trim().slice(0,40)||"Aurora Keeper";
+  $("#playerName").value=library.progress.playerName;
+  persistAll();
+  showToast("Local record name saved.");
+});
+$("#clearRecordsBtn").addEventListener("click",()=>{
+  if(!confirm("Clear every local Lumin Gate record?"))return;
+  library.progress.records=[];
+  persistAll();
+  renderRecords();
+});
+
+$("#exportImageBtn").addEventListener("click",exportImage);
+$("#exportDataBtn").addEventListener("click",exportData);
+$("#importDataBtn").addEventListener("click",()=>$("#importFileInput").click());
+$("#importFileInput").addEventListener("change",async event=>{
+  const file=event.target.files?.[0];
+  event.target.value="";
+  if(!file)return;
+  if(file.size>MAX_IMPORT_CHARS)return showToast("Import rejected: file exceeds one megabyte.");
+  try{
+    importDataText(await file.text());
+  }catch{
+    showToast("Import failed.");
+  }
+});
+$("#resetProgressBtn").addEventListener("click",resetProgress);
+
+$("#copyDataBtn").addEventListener("click",copyData);
+$("#doImportBtn").addEventListener("click",()=>importDataText($("#dataText").value));
+$("#closeDataBtn").addEventListener("click",()=>$("#dataDialog").close());
+
+function boot(){
+  $("#levelSelect").value=prefs.level;
+  $("#motionSelect").value=prefs.motion;
+  $("#voiceSelect").value=prefs.voice;
+  $("#soundSelect").value=prefs.sound;
+  $("#playerName").value=library.progress.playerName;
+  document.body.dataset.motion=prefs.motion;
+  setupCanvas();
+
+  gate=normalizeGate(library.gate);
+  session=normalizeSession(library.session);
+  if(!gate){
+    generateGate(Math.floor(Math.random()*1_000_000_000),resolvedLevel());
+  }else{
+    if(session.active&&!session.solved){
+      session.paused=true;
+      $("#overlayTitle").textContent="Gate Restored";
+      $("#overlayText").textContent="Your elapsed time and gate state were restored. Resume when ready.";
+      $("#overlayMetrics").hidden=true;
+      $("#overlayBeginBtn").hidden=true;
+      $("#overlayResumeBtn").hidden=false;
+      $("#overlayNextBtn").hidden=true;
+      $("#canvasOverlay").hidden=false;
+    }else if(session.solved){
+      $("#overlayTitle").textContent="Stabilized Gate Restored";
+      $("#overlayText").textContent="Generate the next gate when ready.";
+      $("#overlayMetrics").hidden=session.lastScore?false:true;
+      if(session.lastScore){
+        $("#overlayMetrics").innerHTML=`
+          <div><strong>${session.lastScore.score}</strong><span>Score</span></div>
+          <div><strong>${formatTime(session.elapsed)}</strong><span>Time</span></div>
+          <div><strong>+${session.lastScore.light}</strong><span>Light</span></div>
+          <div><strong>+${session.lastScore.xp}</strong><span>XP</span></div>`;
+      }
+      $("#overlayBeginBtn").hidden=true;
+      $("#overlayResumeBtn").hidden=true;
+      $("#overlayNextBtn").hidden=false;
+      $("#canvasOverlay").hidden=false;
+    }else{
+      showReadyOverlay();
+    }
+    renderAll();
+  }
+  requestAnimationFrame(frame);
+}
+
+boot();
+})();
+</script>
+</body>
+</html>
