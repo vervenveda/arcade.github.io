@@ -1,160 +1,801 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>PLERA Sacred Geometry Sanctuary</title>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Cormorant+Garamond:wght@400;600&display=swap" rel="stylesheet">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Sacred Geometry Sanctuary — an intention-driven radial mandala studio and tactical geometry duel with editable layers, local saves, stable exports, and no outside dependencies.">
+<meta name="theme-color" content="#080b13">
+<meta name="color-scheme" content="dark">
+<meta name="referrer" content="same-origin">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data:; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none';">
+<title>Sacred Geometry Sanctuary — After Dark</title>
 <style>
-  :root{
-    --ivory:#f7f3ea;
-    --ivory-soft:#f0e9dc;
-    --midnight:#0f0f1f;
-    --gold:#d9b878;
-    --ink:#1f1c18;
+:root{
+  --bg:#080b13;
+  --bg-2:#0b111a;
+  --panel:#131d29;
+  --panel-2:#182432;
+  --screen:#07131c;
+  --ink:#f3f4f1;
+  --ink-soft:#d4d9de;
+  --muted:#adb8c3;
+  --faint:#788491;
+  --gold:#d9b878;
+  --gold-soft:#f1d99d;
+  --cyan:#68c9dd;
+  --cyan-soft:#ace8ef;
+  --rose:#c875a8;
+  --violet:#8c7ed7;
+  --mint:#79c8ad;
+  --red:#ca6d78;
+  --line:rgba(172,232,239,.15);
+  --line-strong:rgba(172,232,239,.30);
+  --shadow:0 24px 66px rgba(0,0,0,.34);
+  --shadow-small:0 12px 33px rgba(0,0,0,.25);
+  --radius:7px;
+  --weight-text:333;
+  --weight-emphasis:444;
+  --s3:3px;
+  --s7:7px;
+  --s11:11px;
+  --s14:14px;
+  --s24:24px;
+  --s33:33px;
+  --s55:55px;
+  --s66:66px;
+  --max:1240px;
+  --display:"Eurostile Extended","Microgramma D Extended","Bank Gothic","Arial Narrow","Trebuchet MS",sans-serif;
+  --sans:"Trebuchet MS",Verdana,"Segoe UI",sans-serif;
+  --mono:"Courier New",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:84px;font-synthesis:none;text-rendering:geometricPrecision;-webkit-font-smoothing:antialiased}
+body{
+  margin:0;
+  min-width:300px;
+  min-height:100vh;
+  overflow-x:hidden;
+  color:var(--ink);
+  background:var(--bg);
+  font-family:var(--sans);
+  font-size:14px;
+  font-weight:var(--weight-text);
+  line-height:1.65;
+}
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-3;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 14% -3%,rgba(104,201,221,.075),transparent 31rem),
+    radial-gradient(circle at 88% 6%,rgba(217,184,120,.07),transparent 29rem),
+    linear-gradient(180deg,#080b13,#0b111a 50%,#070a10);
+}
+body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-2;
+  pointer-events:none;
+  opacity:.5;
+  background-image:
+    linear-gradient(rgba(140,126,215,.035) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(104,201,221,.03) 1px,transparent 1px);
+  background-size:33px 33px;
+  mask-image:linear-gradient(to bottom,black,transparent 92%);
+}
+body[data-motion="reduced"] *,
+body[data-motion="reduced"] *::before,
+body[data-motion="reduced"] *::after{
+  animation:none!important;
+  transition:none!important;
+}
+a{color:inherit}
+button,input,select{font:inherit}
+button{color:inherit;cursor:pointer}
+strong,b,h1,h2,h3{font-weight:var(--weight-emphasis)}
+::selection{color:#071018;background:var(--cyan-soft)}
+:focus-visible{outline:3px solid var(--cyan-soft);outline-offset:3px}
+[hidden]{display:none!important}
+.wrap{width:min(calc(100% - 22px),var(--max));margin-inline:auto}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 
-    /* Sacred sizes */
-    --h1:33px; --h2:27px; --base:18px; --sm:15px;
-    --r-sm:9px; --r-md:11px; --r-lg:21px;
-  }
+/* Header */
+.site-header{
+  position:sticky;
+  top:0;
+  z-index:1200;
+  border-bottom:1px solid var(--line);
+  background:rgba(8,11,19,.94);
+  backdrop-filter:blur(18px);
+  box-shadow:0 11px 33px rgba(0,0,0,.25);
+}
+.header-inner{
+  min-height:66px;
+  display:grid;
+  grid-template-columns:minmax(190px,1fr) auto minmax(190px,1fr);
+  align-items:center;
+  gap:14px;
+  padding:7px 0;
+}
+.arcade-home{
+  justify-self:start;
+  display:inline-flex;
+  align-items:center;
+  gap:11px;
+  min-width:0;
+  text-decoration:none;
+}
+.brand-mark{
+  width:44px;
+  height:44px;
+  flex:0 0 44px;
+  display:grid;
+  place-items:center;
+  border:1px solid var(--gold);
+  border-radius:50%;
+  color:#1b1207;
+  background:
+    radial-gradient(circle at 34% 25%,rgba(255,255,255,.66),transparent 21%),
+    linear-gradient(145deg,var(--gold-soft),var(--gold));
+  font-family:var(--display);
+  font-size:11px;
+  letter-spacing:.05em;
+  box-shadow:0 0 22px rgba(217,184,120,.14);
+}
+.brand-copy{display:grid;min-width:0;line-height:1.05}
+.brand-copy strong{
+  font-family:var(--display);
+  font-size:11px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+.brand-copy small{
+  margin-top:7px;
+  color:var(--muted);
+  font-family:var(--mono);
+  font-size:11px;
+  white-space:nowrap;
+}
+.game-id{justify-self:center;text-align:center}
+.game-id strong{
+  display:block;
+  font-family:var(--display);
+  font-size:14px;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+}
+.game-id small{
+  display:block;
+  margin-top:3px;
+  color:var(--cyan);
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.11em;
+  text-transform:uppercase;
+}
+.header-state{
+  justify-self:end;
+  color:var(--muted);
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.08em;
+  text-align:right;
+  text-transform:uppercase;
+}
+.header-state strong{color:var(--mint)}
 
-  *{box-sizing:border-box}
-  html,body{margin:0;padding:0}
-  body{
-    font-family:"Cormorant Garamond",serif;
-    font-size:var(--base); line-height:1.44; color:var(--ink);
-    background:
-      radial-gradient(1200px 600px at 60% -10%, #1a2346 0%, #0f142c 55%, #000 100%),
-      #0b0f20;
-    display:flex; justify-content:center; min-height:100vh;
-  }
+/* Intro */
+.intro{
+  padding:55px 0 33px;
+  text-align:center;
+}
+.open-line{
+  display:inline-flex;
+  align-items:center;
+  gap:11px;
+  color:var(--mint);
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+}
+.open-dot{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:var(--mint);
+  box-shadow:0 0 14px rgba(121,200,173,.38);
+}
+.intro h1{
+  margin:24px auto 0;
+  font-family:var(--display);
+  font-size:clamp(55px,8vw,88px);
+  line-height:.86;
+  letter-spacing:-.06em;
+  text-transform:uppercase;
+  text-shadow:3px 3px 0 rgba(104,201,221,.17),-3px -3px 0 rgba(217,184,120,.15);
+}
+.intro p{
+  max-width:840px;
+  margin:24px auto 0;
+  color:var(--ink-soft);
+  font-size:clamp(14px,1.55vw,17px);
+  line-height:1.85;
+}
 
-  .wrap{
-    width:min(92vw, 864px);
-    background:var(--ivory);
-    border:1px solid rgba(0,0,0,.08);
-    border-radius:var(--r-lg);
-    box-shadow:0 9px 27px rgba(0,0,0,.18);
-    margin:27px 0;
-    overflow:hidden;
-  }
+/* Studio */
+.studio{
+  display:grid;
+  grid-template-columns:minmax(330px,.44fr) minmax(450px,.56fr);
+  gap:14px;
+  align-items:start;
+  padding:14px;
+  border:1px solid var(--line-strong);
+  border-radius:var(--radius);
+  background:linear-gradient(180deg,#0c131e,#090e16);
+  box-shadow:var(--shadow);
+}
+.control-stack{display:grid;gap:11px}
+.panel{
+  min-width:0;
+  padding:14px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:linear-gradient(160deg,#162230,#0d151f);
+  box-shadow:var(--shadow-small);
+}
+.panel h2,.panel h3{
+  margin:0;
+  font-family:var(--display);
+  letter-spacing:.02em;
+  text-transform:uppercase;
+}
+.panel h2{font-size:24px}
+.panel h3{font-size:16px}
+.panel-sub{
+  margin:7px 0 0;
+  color:var(--muted);
+  font-size:13px;
+}
+.control-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:7px;
+  margin-top:14px;
+}
+.control-grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+.control-group{
+  display:grid;
+  gap:7px;
+  min-width:0;
+}
+.control-group.full{grid-column:1/-1}
+.control-group label{
+  display:flex;
+  justify-content:space-between;
+  gap:7px;
+  color:var(--muted);
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+}
+.control-group output{color:var(--cyan-soft)}
+input[type="text"],select{
+  width:100%;
+  min-height:44px;
+  padding:7px 11px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  color:var(--ink);
+  background:var(--screen);
+}
+input[type="color"]{
+  width:100%;
+  height:44px;
+  padding:3px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:var(--screen);
+}
+input[type="range"]{width:100%;accent-color:var(--cyan)}
+.button-row{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:7px;
+  margin-top:11px;
+}
+.btn{
+  min-height:42px;
+  padding:7px 11px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  color:var(--ink-soft);
+  background:var(--panel-2);
+  font-family:var(--mono);
+  font-size:11px;
+  font-weight:var(--weight-emphasis);
+  letter-spacing:.05em;
+  text-transform:uppercase;
+}
+.btn:hover:not(:disabled){color:var(--cyan-soft);border-color:var(--cyan);transform:translateY(-1px)}
+.btn:disabled{cursor:not-allowed;opacity:.38}
+.btn.primary{
+  color:#071018;
+  border-color:var(--cyan);
+  background:linear-gradient(135deg,var(--cyan-soft),var(--cyan));
+}
+.btn.gold{
+  color:#1b1207;
+  border-color:var(--gold);
+  background:linear-gradient(135deg,var(--gold-soft),var(--gold));
+}
+.btn.danger{color:#fff;border-color:var(--red);background:var(--red)}
+.status{
+  min-height:48px;
+  display:flex;
+  align-items:center;
+  gap:11px;
+  margin-top:11px;
+  padding:11px 14px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  color:var(--ink-soft);
+  background:var(--screen);
+  font-family:var(--mono);
+  font-size:12px;
+}
+.status-dot{
+  width:7px;
+  height:7px;
+  flex:0 0 7px;
+  border-radius:50%;
+  background:var(--mint);
+  box-shadow:0 0 11px rgba(121,200,173,.32);
+}
 
-  header{
-    padding:21px;
-    text-align:center;
-    background:linear-gradient(180deg, var(--ivory) 0%, var(--ivory-soft) 100%);
-    border-bottom:1px solid rgba(0,0,0,.06);
-  }
-  h1{
-    margin:0;
-    font-family:"Cinzel",serif;
-    font-size:var(--h1);
-    letter-spacing:.06em;
-    color:#2a261f;
-  }
-  .sub{
-    margin:7px 0 0 0; color:#5b5245; font-size:var(--sm);
-  }
+/* Layer stack */
+.layer-list,.library-list{
+  max-height:320px;
+  overflow:auto;
+  display:grid;
+  gap:7px;
+  margin-top:11px;
+  padding-right:3px;
+}
+.empty-state{
+  padding:24px;
+  border:1px dashed var(--line-strong);
+  border-radius:var(--radius);
+  color:var(--muted);
+  background:var(--screen);
+  text-align:center;
+}
+.layer-row,.save-row{
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr) auto;
+  gap:9px;
+  align-items:center;
+  padding:7px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:var(--screen);
+}
+.layer-row.selected{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(104,201,221,.07)}
+.swatch{
+  width:33px;
+  height:33px;
+  border:1px solid rgba(255,255,255,.24);
+  border-radius:50%;
+}
+.row-copy{min-width:0}
+.row-copy strong{
+  display:block;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.row-copy small{
+  display:block;
+  margin-top:3px;
+  color:var(--muted);
+  font-family:var(--mono);
+  font-size:10px;
+}
+.row-actions{
+  display:flex;
+  gap:5px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+}
+.icon-btn{
+  min-width:33px;
+  height:33px;
+  display:grid;
+  place-items:center;
+  padding:0 7px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  color:var(--muted);
+  background:var(--panel-2);
+}
+.icon-btn:hover{color:var(--cyan-soft);border-color:var(--cyan)}
+.icon-btn.favorite{color:#1b1207;border-color:var(--gold);background:var(--gold)}
 
-  main{ padding:21px; }
+/* Mandala stage */
+.stage-panel{
+  position:sticky;
+  top:88px;
+  min-width:0;
+  padding:14px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:linear-gradient(160deg,#162230,#0d151f);
+  box-shadow:var(--shadow-small);
+}
+.stage-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:14px;
+  margin-bottom:11px;
+  color:var(--muted);
+  font-family:var(--mono);
+  font-size:11px;
+  text-transform:uppercase;
+}
+.stage-top strong{color:var(--gold-soft)}
+.mandala-stage{
+  position:relative;
+  width:100%;
+  aspect-ratio:1;
+  overflow:hidden;
+  border:7px solid #05080d;
+  border-radius:var(--radius);
+  background:
+    radial-gradient(circle at 50% 50%,rgba(140,126,215,.12),transparent 31%),
+    radial-gradient(circle at 50% 50%,#101a28,#071018 69%,#05080d);
+  box-shadow:inset 0 0 44px rgba(0,0,0,.62),0 22px 55px rgba(0,0,0,.35);
+}
+.mandala-stage::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:repeating-linear-gradient(to bottom,transparent 0 3px,rgba(255,255,255,.018) 3px 4px);
+}
+#mandalaSvg{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+}
+#mandalaSvg .guide{
+  fill:none;
+  stroke:rgba(172,232,239,.08);
+  stroke-width:1;
+}
+#mandalaSvg .axis{
+  stroke:rgba(217,184,120,.055);
+  stroke-width:.7;
+}
+#mandalaSvg .halo{
+  transform-box:fill-box;
+  transform-origin:center;
+  animation:haloPulse 3.4s ease-in-out infinite;
+}
+#mandalaSvg .layer-group{
+  transform-box:view-box;
+  transform-origin:260px 260px;
+  animation:layerBreathe var(--duration,5s) ease-in-out infinite;
+}
+#mandalaSvg .selected-layer{
+  filter:drop-shadow(0 0 7px rgba(172,232,239,.52));
+}
+@keyframes haloPulse{0%,100%{opacity:.48;transform:scale(.94)}50%{opacity:.78;transform:scale(1.05)}}
+@keyframes layerBreathe{0%,100%{opacity:.84}50%{opacity:1}}
+.stage-caption{
+  margin-top:11px;
+  color:var(--muted);
+  font-family:var(--mono);
+  font-size:11px;
+  text-align:center;
+}
+.composition-stats{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:7px;
+  margin-top:11px;
+}
+.metric{
+  min-width:0;
+  padding:11px 7px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:var(--screen);
+  text-align:center;
+}
+.metric strong{
+  display:block;
+  color:var(--cyan-soft);
+  font-family:var(--mono);
+  font-size:20px;
+}
+.metric:nth-child(2) strong{color:var(--gold-soft)}
+.metric:nth-child(3) strong{color:#e6a1cc}
+.metric:nth-child(4) strong{color:var(--mint)}
+.metric span{
+  display:block;
+  margin-top:3px;
+  color:var(--muted);
+  font-family:var(--mono);
+  font-size:10px;
+  text-transform:uppercase;
+}
 
-  /* Controls row */
-  .row{ display:grid; gap:14px; grid-template-columns:1fr auto; align-items:end; }
-  @media (max-width:720px){ .row{ grid-template-columns:1fr; } }
+/* Duel */
+.duel-section{padding:66px 0 33px}
+.section-head{max-width:820px;margin:0 auto 33px;text-align:center}
+.section-head p:first-child{
+  margin:0;
+  color:var(--gold);
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.15em;
+  text-transform:uppercase;
+}
+.section-head h2{
+  margin:11px 0 0;
+  font-family:var(--display);
+  font-size:clamp(33px,5vw,55px);
+  line-height:1;
+  letter-spacing:-.04em;
+  text-transform:uppercase;
+}
+.section-head p:last-child{max-width:720px;margin:14px auto 0;color:var(--muted)}
+.duel-cabinet{
+  display:grid;
+  grid-template-columns:minmax(320px,.42fr) minmax(430px,.58fr);
+  gap:14px;
+  padding:14px;
+  border:1px solid var(--line-strong);
+  border-radius:var(--radius);
+  background:linear-gradient(180deg,#0c131e,#090e16);
+  box-shadow:var(--shadow);
+}
+.resonance-map{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:7px;
+  margin-top:11px;
+}
+.resonance{
+  padding:11px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  color:var(--ink-soft);
+  background:var(--screen);
+}
+.resonance strong{
+  display:block;
+  color:var(--gold-soft);
+  font-family:var(--mono);
+  font-size:11px;
+  text-transform:uppercase;
+}
+.resonance span{display:block;margin-top:3px;color:var(--muted);font-size:12px}
+.bonus-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:7px;
+  margin-top:11px;
+}
+.duel-board{
+  display:grid;
+  gap:11px;
+  padding:14px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:var(--panel);
+}
+.combatant{
+  padding:14px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:var(--screen);
+}
+.combatant-head{
+  display:flex;
+  justify-content:space-between;
+  gap:11px;
+  align-items:center;
+  font-family:var(--display);
+  font-size:16px;
+  text-transform:uppercase;
+}
+.combatant-head span:last-child{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.bar-track{
+  height:11px;
+  margin-top:11px;
+  overflow:hidden;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:#03070b;
+}
+.bar-fill{
+  height:100%;
+  width:100%;
+  border-radius:var(--radius);
+  transition:width .28s ease;
+}
+.health-player{background:linear-gradient(90deg,var(--mint),var(--cyan))}
+.health-ai{background:linear-gradient(90deg,var(--rose),var(--gold))}
+.energy-player,.energy-ai{background:linear-gradient(90deg,var(--violet),var(--cyan))}
+.combatant-meta{
+  display:flex;
+  justify-content:space-between;
+  gap:11px;
+  margin-top:7px;
+  color:var(--muted);
+  font-family:var(--mono);
+  font-size:10px;
+}
+.ai-aura{
+  padding:11px;
+  border:1px solid var(--gold);
+  border-radius:var(--radius);
+  color:var(--gold-soft);
+  background:rgba(217,184,120,.06);
+  font-family:var(--mono);
+  font-size:11px;
+  text-align:center;
+}
+.battle-log{
+  max-height:240px;
+  overflow:auto;
+  display:grid;
+  gap:7px;
+  padding:7px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:var(--screen);
+}
+.log-entry{
+  padding:7px 9px;
+  border-left:3px solid var(--cyan);
+  color:var(--ink-soft);
+  background:var(--panel-2);
+  font-size:12px;
+}
+.log-entry.ai{border-color:var(--rose)}
+.log-entry.system{border-color:var(--gold)}
+.duel-result{
+  padding:14px;
+  border:1px solid var(--line-strong);
+  border-radius:var(--radius);
+  color:var(--ink);
+  background:linear-gradient(135deg,rgba(104,201,221,.08),rgba(217,184,120,.08));
+  text-align:center;
+}
+.footer{
+  padding:24px 0 33px;
+  color:var(--muted);
+  text-align:center;
+  font-family:var(--mono);
+  font-size:11px;
+}
+.toast{
+  position:fixed;
+  right:14px;
+  bottom:14px;
+  z-index:3000;
+  max-width:min(380px,calc(100% - 28px));
+  padding:11px 14px;
+  border:1px solid var(--cyan);
+  border-radius:var(--radius);
+  color:var(--ink);
+  background:var(--panel);
+  box-shadow:var(--shadow);
+  font-family:var(--mono);
+  font-size:11px;
+  transform:translateY(160%);
+  opacity:0;
+  transition:.18s ease;
+}
+.toast.show{transform:none;opacity:1}
 
-  label{ font-family:"Cinzel",serif; font-size:var(--sm); color:#2a261f; }
-  input[type="text"], select, input[type="color"]{
-    width:100%; padding:11px 14px; border-radius:var(--r-md);
-    border:1px solid rgba(0,0,0,.2); background:#fff; font-size:var(--sm);
-  }
-  .btn{
-    appearance:none; border:none; cursor:pointer;
-    padding:11px 21px; border-radius:var(--r-md);
-    font-family:"Cinzel",serif; font-size:var(--sm);
-    background:var(--gold); color:#111; border:1px solid #b89252;
-    box-shadow:0 3px 7px rgba(0,0,0,.10);
-  }
-  .btn.secondary{ background:var(--ivory-soft); border-color:rgba(0,0,0,.12); }
-  .btn.dark{ background:var(--midnight); color:var(--ivory); border-color:#000; }
-  .btn:disabled{ opacity:.6; cursor:not-allowed; }
-
-  .tools{ display:flex; flex-wrap:wrap; gap:12px; }
-
-  /* Canvas */
-  #plera-geometry{
-    display:flex; justify-content:center; align-items:center;
-    padding:21px; margin:14px 0 0 0;
-    background:#fff; border:1px solid rgba(0,0,0,.08); border-radius:var(--r-lg);
-    min-height:333px;
-  }
-  /* Make SVG responsive inside the ivory card */
-  #plera-geometry svg{
-    max-width:100%;
-    height:auto;
-    display:block;
-  }
-
-  /* Builder */
-  .grid3{ display:grid; gap:14px; grid-template-columns:repeat(3,1fr); }
-  @media (max-width:720px){ .grid3{ grid-template-columns:1fr; } }
-
-  h2{
-    margin:21px 0 7px 0;
-    font-family:"Cinzel",serif; font-size:var(--h2);
-    color:#25221d;
-  }
-  .desc{ font-style:italic; color:#5b5245; margin:7px 0 0 0; }
-
-  /* Battle */
-  #battle-status{
-    margin-top:8px;
-    font-size:var(--sm);
-    color:#3b3428;
-    font-family:"Cinzel",serif;
-  }
-  #battle-log{
-    margin-top:12px; padding:12px; border-radius:var(--r-sm);
-    background:#fff; border:1px solid rgba(0,0,0,.08);
-    white-space:pre-line; max-height:222px; overflow:auto; font-size:var(--sm);
-  }
-
-  /* Make sure WIX doesn't inject junk headers */
-  header::before, header::after{ content:none !important; }
+@media(max-width:1040px){
+  .header-inner{grid-template-columns:1fr auto}.game-id{display:none}
+  .studio,.duel-cabinet{grid-template-columns:1fr}
+  .stage-panel{position:relative;top:auto;order:-1}
+}
+@media(max-width:760px){
+  body{font-size:15px}
+  .control-grid,.control-grid.three{grid-template-columns:1fr}
+  .button-row{grid-template-columns:1fr 1fr}
+  .composition-stats,.bonus-grid{grid-template-columns:1fr 1fr}
+  .library-tools{grid-template-columns:1fr}
+}
+@media(max-width:520px){
+  .wrap{width:min(calc(100% - 14px),var(--max))}
+  .header-inner{grid-template-columns:minmax(0,1fr) auto}
+  .brand-copy small{display:none}
+  .intro{padding-top:33px}
+  .intro h1{font-size:55px}
+  .studio,.panel,.stage-panel,.duel-cabinet,.duel-board{padding:11px}
+  .button-row{grid-template-columns:1fr 1fr}
+  .mandala-stage{border-width:3px}
+  .composition-stats,.bonus-grid,.resonance-map{grid-template-columns:1fr 1fr}
+  .layer-row,.save-row{grid-template-columns:auto minmax(0,1fr)}
+  .row-actions{grid-column:1/-1;justify-content:stretch}
+  .row-actions .icon-btn{flex:1}
+}
+@media(max-width:380px){
+  .brand-copy strong{display:none}
+  .brand-mark{width:40px;height:40px;flex-basis:40px}
+  .header-state{max-width:125px;font-size:10px}
+}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
 </style>
 </head>
 <body>
-  <div class="wrap" id="app">
-    <header>
-      <h1>PLERA Sacred Geometry Sanctuary</h1>
-      <p class="sub">Build your mandala • Seed color from intention • Export SVG • Duel in Geometry Battle</p>
-    </header>
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="arcade-home" href="index.html" aria-label="Return to the Arcade landing page">
+      <span class="brand-mark" aria-hidden="true">SG</span>
+      <span class="brand-copy"><strong>Arcade</strong><small>Return to game hall</small></span>
+    </a>
+    <div class="game-id"><strong>Sacred Geometry</strong><small>Sanctuary & Duel</small></div>
+    <div class="header-state">Studio Status · <strong id="headerStatus">Ready</strong></div>
+  </div>
+</header>
 
-    <main>
-      <!-- Intention + actions -->
-      <section aria-labelledby="intention-title">
-        <h2 id="intention-title">Intention</h2>
-        <div class="row">
-          <div>
-            <label for="intent">Sacred intention</label>
-            <input id="intent" type="text" placeholder="e.g., Courage & Clarity" />
-          </div>
-          <div class="tools">
-            <button class="btn" id="manifest-btn">Manifest</button>
-            <button class="btn secondary" id="clear-btn" title="Remove all layers & reset">Clear Mandala</button>
-            <button class="btn dark" id="export-btn">Export Geometry (SVG)</button>
+<main>
+  <section class="intro">
+    <div class="wrap">
+      <div class="open-line"><span class="open-dot"></span><span>Intention-driven geometry studio online</span></div>
+      <h1>Sacred Geometry Sanctuary</h1>
+      <p>Turn an intention into a harmonic color seed, build true radial geometry one editable layer at a time, preserve favorite sanctuaries, export finished artwork, and let the composition become your tactical advantage in Geometry Duel.</p>
+    </div>
+  </section>
+
+  <section class="wrap studio" aria-label="Sacred geometry studio">
+    <aside class="control-stack">
+      <section class="panel">
+        <h2>Intention Seed</h2>
+        <p class="panel-sub">The same intention always generates the same harmonic palette. Manifesting an empty sanctuary creates a three-layer foundation.</p>
+        <div class="control-grid">
+          <div class="control-group full">
+            <label for="intentInput">Sacred intention</label>
+            <input id="intentInput" type="text" maxlength="80" placeholder="Courage and clarity">
           </div>
         </div>
-
-        <div id="plera-geometry" aria-label="Mandala canvas"></div>
+        <div class="button-row">
+          <button class="btn gold" id="manifestBtn" type="button">Manifest</button>
+          <button class="btn" id="surpriseBtn" type="button">Surprise Me</button>
+          <button class="btn" id="undoBtn" type="button">Undo</button>
+          <button class="btn" id="redoBtn" type="button">Redo</button>
+        </div>
+        <div class="status" aria-live="polite">
+          <span class="status-dot" id="statusDot"></span>
+          <span id="statusText">Ready to receive an intention.</span>
+        </div>
       </section>
 
-      <!-- Builder -->
-      <section aria-labelledby="builder-title">
-        <h2 id="builder-title">Build Your Mandala</h2>
-        <div class="grid3">
-          <div>
-            <label for="mandala-theme">Theme</label>
-            <select id="mandala-theme">
+      <section class="panel">
+        <h3>Layer Builder</h3>
+        <p class="panel-sub">Each layer is repeated around a true radial ring. Select a layer below to edit it.</p>
+        <div class="control-grid three">
+          <div class="control-group">
+            <label for="themeSelect">Theme</label>
+            <select id="themeSelect">
               <option value="healing">Healing</option>
               <option value="courage">Courage</option>
               <option value="focus">Focus</option>
@@ -162,437 +803,1220 @@
               <option value="clarity">Clarity</option>
             </select>
           </div>
-          <div>
-            <label for="mandala-shape">Shape</label>
-            <select id="mandala-shape">
+          <div class="control-group">
+            <label for="shapeSelect">Motif</label>
+            <select id="shapeSelect">
               <option value="circle">Circle</option>
               <option value="triangle">Triangle</option>
+              <option value="square">Square</option>
               <option value="hexagon">Hexagon</option>
               <option value="star">Star</option>
               <option value="lotus">Lotus</option>
               <option value="spiral">Spiral</option>
             </select>
           </div>
-          <div>
-            <label for="mandala-color">Color</label>
-            <input id="mandala-color" type="color" value="#d9b878" />
-          </div>
-        </div>
-        <div class="tools" style="margin-top:12px;">
-          <button class="btn" id="add-layer-btn">Add Layer</button>
-        </div>
-        <p class="desc" id="mandala-desc"></p>
-      </section>
-
-      <!-- Battle -->
-      <section aria-labelledby="battle-title">
-        <h2 id="battle-title">Geometry Battle</h2>
-        <div class="row">
-          <div>
-            <label for="battle-shape">Choose your shape</label>
-            <select id="battle-shape">
-              <option value="circle">Circle</option>
-              <option value="triangle">Triangle</option>
-              <option value="square">Square</option>
-              <option value="spiral">Spiral</option>
+          <div class="control-group">
+            <label for="styleSelect">Rendering</label>
+            <select id="styleSelect">
+              <option value="filled">Filled</option>
+              <option value="outline">Outline</option>
+              <option value="weave">Weave</option>
             </select>
           </div>
-          <div class="tools">
-            <button class="btn" id="battle-btn">Start Battle</button>
+          <div class="control-group">
+            <label for="colorInput">Color</label>
+            <input id="colorInput" type="color" value="#d9b878">
+          </div>
+          <div class="control-group">
+            <label for="countRange">Repetitions <output id="countOutput">8</output></label>
+            <input id="countRange" type="range" min="3" max="24" value="8">
+          </div>
+          <div class="control-group">
+            <label for="radiusRange">Ring radius <output id="radiusOutput">92</output></label>
+            <input id="radiusRange" type="range" min="36" max="205" value="92">
+          </div>
+          <div class="control-group">
+            <label for="rotationRange">Rotation <output id="rotationOutput">0°</output></label>
+            <input id="rotationRange" type="range" min="0" max="359" value="0">
+          </div>
+          <div class="control-group">
+            <label for="scaleRange">Motif scale <output id="scaleOutput">1.0</output></label>
+            <input id="scaleRange" type="range" min="5" max="18" value="10">
+          </div>
+          <div class="control-group">
+            <label for="opacityRange">Opacity <output id="opacityOutput">90%</output></label>
+            <input id="opacityRange" type="range" min="25" max="100" value="90">
           </div>
         </div>
-        <div id="battle-status">You: 50 / 50 • AI: 50 / 50</div>
-        <div id="battle-log" aria-live="polite"></div>
+        <div class="button-row">
+          <button class="btn primary" id="addLayerBtn" type="button">Add Layer</button>
+          <button class="btn" id="updateLayerBtn" type="button">Update Selected</button>
+          <button class="btn" id="duplicateLayerBtn" type="button">Duplicate</button>
+          <button class="btn danger" id="clearBtn" type="button">Clear All</button>
+        </div>
       </section>
-    </main>
-  </div>
+
+      <section class="panel">
+        <h3>Layer Stack</h3>
+        <p class="panel-sub">Visibility, order, duplication, and deletion are controlled here.</p>
+        <div class="layer-list" id="layerList"></div>
+      </section>
+
+      <section class="panel">
+        <h3>Sanctuary Library</h3>
+        <p class="panel-sub">Local saves remain on this device. Favorites stay pinned to the top.</p>
+        <div class="button-row">
+          <button class="btn gold" id="saveBtn" type="button">Save Sanctuary</button>
+          <button class="btn" id="exportSvgBtn" type="button">Export SVG</button>
+          <button class="btn" id="exportPngBtn" type="button">Export PNG</button>
+          <button class="btn" id="exportLibraryBtn" type="button">Export Library</button>
+        </div>
+        <label class="btn" for="importLibraryInput" style="display:grid;place-items:center;margin-top:7px">Import Library</label>
+        <input class="sr-only" id="importLibraryInput" type="file" accept="application/json">
+        <div class="library-list" id="libraryList"></div>
+      </section>
+
+      <section class="panel">
+        <h3>Studio Motion</h3>
+        <div class="control-grid">
+          <div class="control-group">
+            <label for="motionSelect">Animation</label>
+            <select id="motionSelect">
+              <option value="gentle">Gentle breathing</option>
+              <option value="reduced">Reduced motion</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label for="soundSelect">Sound</label>
+            <select id="soundSelect">
+              <option value="off">Sound off</option>
+              <option value="on">Soft tones</option>
+            </select>
+          </div>
+        </div>
+      </section>
+    </aside>
+
+    <section class="stage-panel">
+      <div class="stage-top">
+        <span>Composition Field</span>
+        <strong id="intentionLabel">PLERA</strong>
+      </div>
+      <div class="mandala-stage">
+        <svg id="mandalaSvg" viewBox="0 0 520 520" role="img" aria-labelledby="svgTitle svgDesc">
+          <title id="svgTitle">Sacred geometry mandala</title>
+          <desc id="svgDesc">An editable radial mandala generated from the selected intention and geometry layers.</desc>
+          <defs id="svgDefs"></defs>
+          <g id="guideGroup">
+            <circle class="guide" cx="260" cy="260" r="70"></circle>
+            <circle class="guide" cx="260" cy="260" r="130"></circle>
+            <circle class="guide" cx="260" cy="260" r="195"></circle>
+            <line class="axis" x1="260" y1="28" x2="260" y2="492"></line>
+            <line class="axis" x1="28" y1="260" x2="492" y2="260"></line>
+            <line class="axis" x1="96" y1="96" x2="424" y2="424"></line>
+            <line class="axis" x1="424" y1="96" x2="96" y2="424"></line>
+          </g>
+          <circle class="halo" id="haloCircle" cx="260" cy="260" r="36" fill="#d9b878" opacity=".64"></circle>
+          <g id="layersGroup"></g>
+          <circle cx="260" cy="260" r="7" fill="#f3f4f1" opacity=".82"></circle>
+          <text id="svgIntention" x="260" y="500" text-anchor="middle" fill="#adb8c3" font-family="Courier New, monospace" font-size="11" letter-spacing="2">PLERA</text>
+        </svg>
+      </div>
+      <p class="stage-caption" id="stageCaption">Manifest an intention or add a layer to begin.</p>
+      <div class="composition-stats" aria-label="Mandala battle bonuses">
+        <div class="metric"><strong id="attackMetric">0</strong><span>Attack</span></div>
+        <div class="metric"><strong id="defenseMetric">0</strong><span>Defense</span></div>
+        <div class="metric"><strong id="renewalMetric">0</strong><span>Renewal</span></div>
+        <div class="metric"><strong id="harmonyMetric">0</strong><span>Harmony</span></div>
+      </div>
+    </section>
+  </section>
+
+  <section class="wrap duel-section">
+    <div class="section-head">
+      <p>Composition becomes strategy</p>
+      <h2>Geometry Duel</h2>
+      <p>The duel now uses a clear four-shape resonance cycle, energy management, capped mandala bonuses, visible health, a round limit, and an AI that studies player habits instead of choosing blindly.</p>
+    </div>
+
+    <div class="duel-cabinet">
+      <aside class="panel">
+        <h3>Duel Control</h3>
+        <div class="control-grid">
+          <div class="control-group">
+            <label for="stanceSelect">Your geometry</label>
+            <select id="stanceSelect">
+              <option value="circle">Circle · Guard</option>
+              <option value="triangle">Triangle · Strike</option>
+              <option value="square">Square · Fortify</option>
+              <option value="spiral">Spiral · Renew</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label for="duelLevelSelect">AI level</label>
+            <select id="duelLevelSelect">
+              <option value="gentle">Gentle · exact stance shown</option>
+              <option value="oracle" selected>Oracle · intention shown</option>
+              <option value="eclipse">Eclipse · adaptive and hidden</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="button-row">
+          <button class="btn gold" id="beginDuelBtn" type="button">Begin Duel</button>
+          <button class="btn primary" id="resolveRoundBtn" type="button" disabled>Resolve Round</button>
+          <button class="btn" id="resetDuelBtn" type="button">Reset</button>
+          <button class="btn" id="clearLogBtn" type="button">Clear Log</button>
+        </div>
+
+        <div class="resonance-map">
+          <div class="resonance"><strong>Circle deflects Triangle</strong><span>Guard redirects direct force.</span></div>
+          <div class="resonance"><strong>Triangle pierces Square</strong><span>Focused force breaks fortification.</span></div>
+          <div class="resonance"><strong>Square contains Spiral</strong><span>Structure limits renewal.</span></div>
+          <div class="resonance"><strong>Spiral unwinds Circle</strong><span>Motion opens static defense.</span></div>
+        </div>
+
+        <h3 style="margin-top:14px">Mandala Resonance</h3>
+        <div class="bonus-grid">
+          <div class="metric"><strong id="duelAttack">0</strong><span>Attack</span></div>
+          <div class="metric"><strong id="duelDefense">0</strong><span>Defense</span></div>
+          <div class="metric"><strong id="duelRenewal">0</strong><span>Renewal</span></div>
+          <div class="metric"><strong id="duelHarmony">0</strong><span>Harmony</span></div>
+        </div>
+      </aside>
+
+      <section class="duel-board">
+        <div class="combatant">
+          <div class="combatant-head"><span>You · Sanctuary</span><span id="playerHpText">60 / 60 HP</span></div>
+          <div class="bar-track"><div class="bar-fill health-player" id="playerHpBar"></div></div>
+          <div class="bar-track"><div class="bar-fill energy-player" id="playerEnergyBar"></div></div>
+          <div class="combatant-meta"><span>Health</span><span id="playerEnergyText">8 / 10 energy</span></div>
+        </div>
+
+        <div class="ai-aura" id="aiAura">Begin a duel to read the opposing geometry.</div>
+
+        <div class="combatant">
+          <div class="combatant-head"><span>AI · Eclipse Geometry</span><span id="aiHpText">60 / 60 HP</span></div>
+          <div class="bar-track"><div class="bar-fill health-ai" id="aiHpBar"></div></div>
+          <div class="bar-track"><div class="bar-fill energy-ai" id="aiEnergyBar"></div></div>
+          <div class="combatant-meta"><span>Health</span><span id="aiEnergyText">8 / 10 energy</span></div>
+        </div>
+
+        <div class="duel-result" id="duelResult">Round 0 of 12 · The duel has not begun.</div>
+        <div class="battle-log" id="battleLog" aria-live="polite"></div>
+      </section>
+    </div>
+  </section>
+</main>
+
+<footer class="wrap footer">Sacred Geometry Sanctuary™ · After Dark Edition · Local studio and duel · No account or outside service required</footer>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
-/* =====================================
-   PLERA Sacred Geometry Sanctuary v2.1
-   - SVG stroke colors fixed (no CSS vars in attributes)
-   - SVG responsive inside the ivory card
-   ===================================== */
+(()=>{
+"use strict";
 
-/* ---------- Mandala State ---------- */
-const mandalaLayers = [];
-let pulseTheta = 0;
-let seededColor = "#d9b878";
+const SAVE_KEY="SACRED_GEOMETRY_SANCTUARIES_V3";
+const PREF_KEY="SACRED_GEOMETRY_PREFS_V3";
+const MAX_LIBRARY_BYTES=1024*1024;
+const SVG_NS="http://www.w3.org/2000/svg";
+const MAX_LAYERS=18;
+const MAX_SAVES=40;
+const MAX_HP=60;
+const MAX_ENERGY=10;
+const MAX_ROUNDS=12;
 
-const geometryBox = document.getElementById("plera-geometry");
-const descEl = document.getElementById("mandala-desc");
-const colorEl = document.getElementById("mandala-color");
-
-const intentInput = document.getElementById("intent");
-const manifestBtn = document.getElementById("manifest-btn");
-const clearBtn = document.getElementById("clear-btn");
-const addLayerBtn = document.getElementById("add-layer-btn");
-const exportBtn = document.getElementById("export-btn");
-
-const themeSelect = document.getElementById("mandala-theme");
-const shapeSelect = document.getElementById("mandala-shape");
-
-/* SVG references */
-const SVG_SIZE = 360;
-let svgRoot = null;
-let haloCircle = null;
-let layersGroup = null;
-
-/* Anim loop handle */
-let animationId = null;
-
-/* ---------- Geometry utils ---------- */
-function hslToHex(h,s,l){
-  s /= 100; l /= 100;
-  const c = (1 - Math.abs(2*l - 1)) * s;
-  const x = c * (1 - Math.abs((h/60) % 2 - 1));
-  const m = l - c/2;
-  let r=0,g=0,b=0;
-  if (0<=h && h<60) [r,g,b] = [c,x,0];
-  else if (60<=h && h<120) [r,g,b] = [x,c,0];
-  else if (120<=h && h<180) [r,g,b] = [0,c,x];
-  else if (180<=h && h<240) [r,g,b] = [0,x,c];
-  else if (240<=h && h<300) [r,g,b] = [x,0,c];
-  else [r,g,b] = [c,0,x];
-  const R = Math.round((r+m)*255);
-  const G = Math.round((g+m)*255);
-  const B = Math.round((b+m)*255);
-  return "#" + [R,G,B].map(v=>v.toString(16).padStart(2,"0")).join("");
-}
-
-function seededPastelFromString(str){
-  let hash = 0;
-  for (let i=0;i<str.length;i++){
-    hash = (hash*31 + str.charCodeAt(i)) >>> 0;
-  }
-  const hue = hash % 360;
-  return hslToHex(hue, 60, 80);
-}
-
-/* ---------- SVG construction ---------- */
-function initSvg(){
-  const ns = "http://www.w3.org/2000/svg";
-  svgRoot = document.createElementNS(ns,"svg");
-  svgRoot.setAttribute("width", SVG_SIZE);
-  svgRoot.setAttribute("height", SVG_SIZE);
-  svgRoot.setAttribute("viewBox", `0 0 ${SVG_SIZE} ${SVG_SIZE}`);
-
-  haloCircle = document.createElementNS(ns,"circle");
-  haloCircle.setAttribute("cx", SVG_SIZE/2);
-  haloCircle.setAttribute("cy", SVG_SIZE/2);
-  haloCircle.setAttribute("r", 24);
-  haloCircle.setAttribute("fill", seededColor);
-  haloCircle.setAttribute("opacity", "0.75");
-  svgRoot.appendChild(haloCircle);
-
-  layersGroup = document.createElementNS(ns,"g");
-  svgRoot.appendChild(layersGroup);
-
-  geometryBox.innerHTML = "";
-  geometryBox.appendChild(svgRoot);
-}
-
-function createShapeElement(x,y,radius,shapeType,color){
-  const ns = "http://www.w3.org/2000/svg";
-  let el;
-  switch(shapeType){
-    case "circle":{
-      el = document.createElementNS(ns,"circle");
-      el.setAttribute("cx",x); el.setAttribute("cy",y); el.setAttribute("r",radius);
-    } break;
-    case "triangle":{
-      el = document.createElementNS(ns,"polygon");
-      const h = radius*Math.sqrt(3);
-      el.setAttribute("points", `${x},${y-radius} ${x-radius},${y+h/2} ${x+radius},${y+h/2}`);
-    } break;
-    case "hexagon":{
-      el = document.createElementNS(ns,"polygon");
-      let pts=[];
-      for(let i=0;i<6;i++){
-        const a=Math.PI/3*i;
-        pts.push(`${x+radius*Math.cos(a)},${y+radius*Math.sin(a)}`);
-      }
-      el.setAttribute("points", pts.join(" "));
-    } break;
-    case "star":{
-      el = document.createElementNS(ns,"polygon");
-      let pts=[];
-      for(let i=0;i<10;i++){
-        const a=i*Math.PI/5;
-        const r=i%2===0?radius:radius/2;
-        pts.push(`${x+r*Math.cos(a)},${y+r*Math.sin(a)}`);
-      }
-      el.setAttribute("points", pts.join(" "));
-    } break;
-    case "lotus":{
-      el = document.createElementNS(ns,"polygon");
-      let pts=[];
-      for(let i=0;i<8;i++){
-        const a=i*Math.PI/4;
-        const r=i%2===0?radius:radius/2;
-        pts.push(`${x+r*Math.cos(a)},${y+r*Math.sin(a)}`);
-      }
-      el.setAttribute("points", pts.join(" "));
-    } break;
-    case "spiral":{
-      el = document.createElementNS(ns,"path");
-      let d=`M ${x} ${y}`;
-      for(let t=0;t<6;t++){
-        const a=t*0.55;
-        const r=radius*t*0.55;
-        const nx=x+r*Math.cos(a);
-        const ny=y+r*Math.sin(a);
-        d+=` L ${nx} ${ny}`;
-      }
-      el.setAttribute("d", d);
-      el.setAttribute("fill","none");
-    } break;
-  }
-  const strokeBase = "#0f0f1f"; // matches --midnight
-  el.setAttribute("stroke", strokeBase);
-  el.setAttribute("stroke-width", 2);
-  if (shapeType === "spiral"){
-    el.setAttribute("stroke", color || strokeBase);
-    // fill already set to none above
-  } else {
-    el.setAttribute("fill", color || "#d9b878"); // matches --gold
-  }
-  el.style.transformBox = "fill-box";
-  el.style.transformOrigin = "50% 50%";
-  return el;
-}
-
-/* Build layers once (no animation inside) */
-function renderMandalaStatic(){
-  if(!svgRoot) initSvg();
-  layersGroup.innerHTML = "";
-  const cx = SVG_SIZE/2;
-  const cy = SVG_SIZE/2;
-
-  mandalaLayers.forEach((layer,i)=>{
-    const baseRadius = 40 + i*22;
-    const shapeEl = createShapeElement(cx,cy,baseRadius,layer.shape,layer.color);
-    shapeEl.dataset.index = String(i);
-    layersGroup.appendChild(shapeEl);
-  });
-}
-
-/* Layer description */
-function describeLayer(num, theme, shape){
-  descEl.textContent = `Layer ${num}: ${shape} carrying “${theme}”.`;
-}
-
-/* ---------- Animation loop (lightweight) ---------- */
-function updateAnimationFrame(){
-  if(!svgRoot || !haloCircle) return;
-  const hasLayers = mandalaLayers.length > 0;
-
-  if(!hasLayers){
-    // Keep a calm halo when empty
-    haloCircle.setAttribute("r","24");
-    return;
-  }
-
-  pulseTheta += 0.035;
-
-  const haloR = 24 + 6*Math.sin(pulseTheta*0.8);
-  haloCircle.setAttribute("r", haloR.toFixed(2));
-
-  const children = layersGroup.children;
-  for(let i=0;i<children.length;i++){
-    const el = children[i];
-    const rot = (i*12) + pulseTheta*20;
-    const scale = 1 + 0.06*Math.sin(pulseTheta + i*0.8);
-    el.style.transform = `rotate(${rot}deg) scale(${scale})`;
-  }
-}
-
-function ensureAnimation(){
-  if(animationId !== null) return;
-  const loop = ()=>{
-    updateAnimationFrame();
-    animationId = requestAnimationFrame(loop);
-  };
-  animationId = requestAnimationFrame(loop);
-}
-
-function stopAnimationIfEmpty(){
-  if(mandalaLayers.length === 0 && animationId !== null){
-    cancelAnimationFrame(animationId);
-    animationId = null;
-    pulseTheta = 0;
-    updateAnimationFrame();
-  }
-}
-
-/* ---------- Mandala actions ---------- */
-manifestBtn.addEventListener("click", ()=>{
-  const text = (intentInput.value || "").trim();
-  const seedBase = text || "PLERA";
-  seededColor = seededPastelFromString(seedBase);
-  if(!svgRoot) initSvg();
-  haloCircle.setAttribute("fill", seededColor);
-  colorEl.value = seededColor;
-  renderMandalaStatic();
-  if(mandalaLayers.length) ensureAnimation();
-});
-
-clearBtn.addEventListener("click", ()=>{
-  mandalaLayers.length = 0;
-  pulseTheta = 0;
-  seededColor = seededPastelFromString("PLERA");
-  if(!svgRoot) initSvg();
-  haloCircle.setAttribute("fill", seededColor);
-  colorEl.value = seededColor;
-  renderMandalaStatic();
-  stopAnimationIfEmpty();
-  logLine("Cleared mandala.");
-  descEl.textContent = "";
-});
-
-addLayerBtn.addEventListener("click", ()=>{
-  const theme = themeSelect.value;
-  const shape = shapeSelect.value;
-  const color = colorEl.value;
-  const idx = mandalaLayers.length + 1;
-  mandalaLayers.push({theme,shape,color});
-  describeLayer(idx, theme, shape);
-  renderMandalaStatic();
-  ensureAnimation();
-});
-
-/* Export */
-exportBtn.addEventListener("click", ()=>{
-  if(!svgRoot || mandalaLayers.length === 0){
-    alert("No geometry to export yet.");
-    return;
-  }
-  const serializer = new XMLSerializer();
-  const source = serializer.serializeToString(svgRoot);
-  const blob = new Blob([source], {type:"image/svg+xml"});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url; a.download = "plera-sacred-mandala.svg";
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-});
-
-/* ---------- Geometry Battle ---------- */
-const MAX_HP = 50;
-let playerHealth = MAX_HP;
-let aiHealth = MAX_HP;
-
-const shapesAttributes = {
-  circle:{attack:5,  defense:10, regen:3},
-  triangle:{attack:12, defense:5, regen:2},
-  square:{attack:8, defense:12, regen:1},
-  spiral:{attack:7, defense:4, regen:6}
+const THEMES={
+  healing:{attack:0,defense:1,renewal:3,harmony:1},
+  courage:{attack:3,defense:0,renewal:0,harmony:1},
+  focus:{attack:0,defense:3,renewal:0,harmony:1},
+  love:{attack:0,defense:1,renewal:2,harmony:2},
+  clarity:{attack:2,defense:2,renewal:0,harmony:1}
 };
+const SHAPES={
+  circle:{attack:0,defense:3,renewal:1,harmony:1},
+  triangle:{attack:4,defense:0,renewal:0,harmony:0},
+  square:{attack:1,defense:4,renewal:0,harmony:0},
+  hexagon:{attack:1,defense:2,renewal:0,harmony:2},
+  star:{attack:3,defense:1,renewal:0,harmony:1},
+  lotus:{attack:0,defense:1,renewal:4,harmony:2},
+  spiral:{attack:1,defense:0,renewal:3,harmony:2}
+};
+const STANCES={
+  circle:{label:"Circle",attack:4,defense:10,regen:2,cost:1,intent:"guarded"},
+  triangle:{label:"Triangle",attack:12,defense:3,regen:0,cost:2,intent:"aggressive"},
+  square:{label:"Square",attack:7,defense:12,regen:0,cost:2,intent:"fortified"},
+  spiral:{label:"Spiral",attack:5,defense:4,regen:8,cost:1,intent:"renewing"}
+};
+const COUNTERS={circle:"triangle",triangle:"square",square:"spiral",spiral:"circle"};
+const COUNTER_TO={triangle:"circle",square:"triangle",spiral:"square",circle:"spiral"};
 
-const battleShapeSelect = document.getElementById("battle-shape");
-const battleBtn = document.getElementById("battle-btn");
-const battleLog = document.getElementById("battle-log");
-const battleStatus = document.getElementById("battle-status");
+const $=selector=>document.querySelector(selector);
+const safeText=value=>String(value??"");
+const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
+const deepClone=value=>JSON.parse(JSON.stringify(value));
+const randomChoice=array=>array[Math.floor(Math.random()*array.length)];
 
-function logLine(t){
-  battleLog.textContent += (battleLog.textContent ? "\n" : "") + t;
-  battleLog.scrollTop = battleLog.scrollHeight;
+let layers=[];
+let selectedLayerId=null;
+let intention="PLERA";
+let palette=paletteFromString(intention);
+let undoStack=[];
+let redoStack=[];
+let library=loadLibrary();
+let toastTimer=0;
+let audioContext=null;
+let duel=createDuelState();
+
+function id(){
+  return`layer_${Date.now()}_${Math.random().toString(16).slice(2,8)}`;
+}
+function hexFromHsl(h,s,l){
+  s/=100;l/=100;
+  const c=(1-Math.abs(2*l-1))*s;
+  const x=c*(1-Math.abs((h/60)%2-1));
+  const m=l-c/2;
+  let r=0,g=0,b=0;
+  if(h<60)[r,g,b]=[c,x,0];
+  else if(h<120)[r,g,b]=[x,c,0];
+  else if(h<180)[r,g,b]=[0,c,x];
+  else if(h<240)[r,g,b]=[0,x,c];
+  else if(h<300)[r,g,b]=[x,0,c];
+  else[r,g,b]=[c,0,x];
+  return"#"+[r,g,b].map(value=>Math.round((value+m)*255).toString(16).padStart(2,"0")).join("");
+}
+function hashString(text){
+  let hash=2166136261;
+  for(let i=0;i<text.length;i++){
+    hash^=text.charCodeAt(i);
+    hash=Math.imul(hash,16777619);
+  }
+  return hash>>>0;
+}
+function paletteFromString(text){
+  const hue=hashString(text||"PLERA")%360;
+  return[
+    hexFromHsl(hue,64,68),
+    hexFromHsl((hue+44)%360,58,72),
+    hexFromHsl((hue+138)%360,55,68),
+    hexFromHsl((hue+220)%360,58,73)
+  ];
+}
+function safeLayer(value,index=0){
+  if(!value||typeof value!=="object")return null;
+  const allowedShapes=new Set(Object.keys(SHAPES));
+  const allowedThemes=new Set(Object.keys(THEMES));
+  const allowedStyles=new Set(["filled","outline","weave"]);
+  return{
+    id:safeText(value.id||id()).slice(0,80),
+    theme:allowedThemes.has(value.theme)?value.theme:"healing",
+    shape:allowedShapes.has(value.shape)?value.shape:"circle",
+    style:allowedStyles.has(value.style)?value.style:"filled",
+    color:/^#[0-9a-f]{6}$/i.test(value.color||"")?value.color:palette[index%palette.length],
+    count:Math.round(clamp(Number(value.count)||8,3,24)),
+    radius:Math.round(clamp(Number(value.radius)||80,36,205)),
+    rotation:Math.round(clamp(Number(value.rotation)||0,0,359)),
+    scale:clamp(Number(value.scale)||1,.5,1.8),
+    opacity:clamp(Number(value.opacity)||.9,.25,1),
+    visible:value.visible!==false
+  };
+}
+function snapshot(){
+  return{
+    layers:deepClone(layers),
+    selectedLayerId,
+    intention,
+    palette:[...palette]
+  };
+}
+function restore(value){
+  layers=deepClone(value.layers);
+  selectedLayerId=value.selectedLayerId;
+  intention=value.intention;
+  palette=[...value.palette];
+  $("#intentInput").value=intention==="PLERA"?"":intention;
+  $("#intentionLabel").textContent=intention;
+  $("#svgIntention").textContent=intention.toUpperCase().slice(0,42);
+  $("#haloCircle").setAttribute("fill",palette[0]);
+}
+function remember(){
+  undoStack.push(snapshot());
+  if(undoStack.length>80)undoStack.shift();
+  redoStack=[];
+}
+function undo(){
+  if(!undoStack.length)return setStatus("Nothing to undo.","warn");
+  redoStack.push(snapshot());
+  restore(undoStack.pop());
+  renderAll();
+  setStatus("Previous studio state restored.","good");
+}
+function redo(){
+  if(!redoStack.length)return setStatus("Nothing to redo.","warn");
+  undoStack.push(snapshot());
+  restore(redoStack.pop());
+  renderAll();
+  setStatus("Studio change restored.","good");
 }
 
-function updateBattleStatus(){
-  const p = Math.max(0, Math.round(playerHealth));
-  const a = Math.max(0, Math.round(aiHealth));
-  battleStatus.textContent = `You: ${p} / ${MAX_HP} • AI: ${a} / ${MAX_HP}`;
-}
+function manifest(){
+  const text=safeText($("#intentInput").value).trim().slice(0,80)||"PLERA";
+  remember();
+  intention=text;
+  palette=paletteFromString(text);
+  $("#colorInput").value=palette[0];
+  $("#intentionLabel").textContent=intention;
+  $("#svgIntention").textContent=intention.toUpperCase().slice(0,42);
+  $("#haloCircle").setAttribute("fill",palette[0]);
 
-function calculateMandalaBonus(){
-  let attackBonus=0, defenseBonus=0, regenBonus=0;
-  mandalaLayers.forEach(layer=>{
-    switch(layer.shape){
-      case 'circle': defenseBonus+=2; break;
-      case 'triangle': attackBonus+=3; break;
-      case 'square': defenseBonus+=3; break;
-      case 'spiral': regenBonus+=2; break;
-      case 'star': attackBonus+=2; defenseBonus+=1; break;
-      case 'lotus': regenBonus+=3; break;
-      case 'hexagon': attackBonus+=1; defenseBonus+=1; break;
-    }
-    switch(layer.theme){
-      case 'healing': regenBonus+=2; break;
-      case 'courage': attackBonus+=2; break;
-      case 'focus': defenseBonus+=2; break;
-      case 'love': regenBonus+=1; defenseBonus+=1; break;
-      case 'clarity': attackBonus+=1; defenseBonus+=1; break;
-    }
+  if(!layers.length){
+    layers=[
+      safeLayer({theme:"clarity",shape:"circle",style:"outline",color:palette[0],count:8,radius:64,rotation:0,scale:.85,opacity:.85},0),
+      safeLayer({theme:"love",shape:"lotus",style:"filled",color:palette[1],count:12,radius:116,rotation:15,scale:.95,opacity:.72},1),
+      safeLayer({theme:"courage",shape:"star",style:"weave",color:palette[2],count:16,radius:178,rotation:0,scale:.75,opacity:.68},2)
+    ];
+  }
+  selectedLayerId=layers.at(-1)?.id||null;
+  renderAll();
+  playTone(520);
+  setStatus(`Intention manifested: ${intention}`,"good");
+}
+function surprise(){
+  const intentions=["Quiet Courage","Open Horizon","Radiant Balance","Deep Listening","Joyful Clarity","Renewal","Steady Heart"];
+  $("#intentInput").value=randomChoice(intentions);
+  manifest();
+  const motifs=Object.keys(SHAPES);
+  const themes=Object.keys(THEMES);
+  remember();
+  layers=Array.from({length:Math.floor(4+Math.random()*4)},(_,index)=>safeLayer({
+    theme:randomChoice(themes),
+    shape:randomChoice(motifs),
+    style:randomChoice(["filled","outline","weave"]),
+    color:palette[index%palette.length],
+    count:Math.floor(6+Math.random()*14),
+    radius:48+index*(150/Math.max(1,5))+Math.random()*16,
+    rotation:Math.floor(Math.random()*60),
+    scale:.65+Math.random()*.62,
+    opacity:.48+Math.random()*.42
+  },index));
+  selectedLayerId=layers.at(-1)?.id||null;
+  renderAll();
+  setStatus("A new sanctuary variation appeared.","good");
+}
+function clearAll(){
+  if(!layers.length)return;
+  if(!confirm("Clear every geometry layer?"))return;
+  remember();
+  layers=[];
+  selectedLayerId=null;
+  renderAll();
+  setStatus("The sanctuary field is clear.","good");
+}
+function controlsToLayer(){
+  return safeLayer({
+    id:selectedLayerId||id(),
+    theme:$("#themeSelect").value,
+    shape:$("#shapeSelect").value,
+    style:$("#styleSelect").value,
+    color:$("#colorInput").value,
+    count:Number($("#countRange").value),
+    radius:Number($("#radiusRange").value),
+    rotation:Number($("#rotationRange").value),
+    scale:Number($("#scaleRange").value)/10,
+    opacity:Number($("#opacityRange").value)/100,
+    visible:true
   });
-  return {attackBonus, defenseBonus, regenBonus};
+}
+function addLayer(){
+  if(layers.length>=MAX_LAYERS)return setStatus(`The studio supports up to ${MAX_LAYERS} layers.`,"warn");
+  remember();
+  const layer=controlsToLayer();
+  layer.id=id();
+  layers.push(layer);
+  selectedLayerId=layer.id;
+  renderAll();
+  playTone(620);
+  setStatus(`Added ${layer.shape} layer ${layers.length}.`,"good");
+}
+function updateSelected(){
+  const index=layers.findIndex(layer=>layer.id===selectedLayerId);
+  if(index<0)return setStatus("Select a layer before updating it.","warn");
+  remember();
+  const updated=controlsToLayer();
+  updated.id=selectedLayerId;
+  updated.visible=layers[index].visible;
+  layers[index]=updated;
+  renderAll();
+  setStatus("Selected layer updated.","good");
+}
+function duplicateSelected(){
+  const index=layers.findIndex(layer=>layer.id===selectedLayerId);
+  if(index<0)return setStatus("Select a layer before duplicating it.","warn");
+  if(layers.length>=MAX_LAYERS)return setStatus(`The studio supports up to ${MAX_LAYERS} layers.`,"warn");
+  remember();
+  const copy=deepClone(layers[index]);
+  copy.id=id();
+  copy.rotation=(copy.rotation+Math.round(180/copy.count))%360;
+  copy.radius=clamp(copy.radius+12,36,205);
+  layers.splice(index+1,0,copy);
+  selectedLayerId=copy.id;
+  renderAll();
+  setStatus("Layer duplicated with a harmonic offset.","good");
+}
+function selectLayer(layerId){
+  selectedLayerId=layerId;
+  const layer=layers.find(item=>item.id===layerId);
+  if(layer)loadLayerControls(layer);
+  renderAll();
+}
+function loadLayerControls(layer){
+  $("#themeSelect").value=layer.theme;
+  $("#shapeSelect").value=layer.shape;
+  $("#styleSelect").value=layer.style;
+  $("#colorInput").value=layer.color;
+  $("#countRange").value=layer.count;
+  $("#radiusRange").value=layer.radius;
+  $("#rotationRange").value=layer.rotation;
+  $("#scaleRange").value=Math.round(layer.scale*10);
+  $("#opacityRange").value=Math.round(layer.opacity*100);
+  syncOutputs();
+}
+function moveLayer(layerId,direction){
+  const index=layers.findIndex(layer=>layer.id===layerId);
+  const target=index+direction;
+  if(index<0||target<0||target>=layers.length)return;
+  remember();
+  [layers[index],layers[target]]=[layers[target],layers[index]];
+  renderAll();
+}
+function toggleLayer(layerId){
+  const layer=layers.find(item=>item.id===layerId);
+  if(!layer)return;
+  remember();
+  layer.visible=!layer.visible;
+  renderAll();
+}
+function removeLayer(layerId){
+  const index=layers.findIndex(layer=>layer.id===layerId);
+  if(index<0)return;
+  remember();
+  layers.splice(index,1);
+  if(selectedLayerId===layerId)selectedLayerId=layers[Math.min(index,layers.length-1)]?.id||null;
+  renderAll();
 }
 
-function battleRound(playerShape, aiShape){
-  const p = shapesAttributes[playerShape];
-  const a = shapesAttributes[aiShape];
-  const b = calculateMandalaBonus();
+function renderAll(){
+  renderMandala();
+  renderLayerList();
+  renderLibrary();
+  renderStats();
+  syncButtons();
+}
+function renderMandala(){
+  const group=$("#layersGroup");
+  group.replaceChildren();
 
-  const basePlayerDamage = Math.max(p.attack + b.attackBonus - a.defense/2, 1);
-  const baseAiDamage = Math.max(a.attack - (p.defense + b.defenseBonus)/2, 1);
+  layers.forEach((layer,index)=>{
+    if(!layer.visible)return;
+    const layerGroup=document.createElementNS(SVG_NS,"g");
+    layerGroup.classList.add("layer-group");
+    if(layer.id===selectedLayerId)layerGroup.classList.add("selected-layer");
+    layerGroup.dataset.layerId=layer.id;
+    layerGroup.style.setProperty("--duration",`${4.8+index*.33}s`);
+    layerGroup.setAttribute("opacity",String(layer.opacity));
 
-  const varianceP = 0.8 + Math.random()*0.4; // 0.8–1.2
-  const varianceA = 0.8 + Math.random()*0.4;
+    const points=[];
+    for(let i=0;i<layer.count;i++){
+      const angle=(layer.rotation+i*360/layer.count-90)*Math.PI/180;
+      const x=260+Math.cos(angle)*layer.radius;
+      const y=260+Math.sin(angle)*layer.radius;
+      points.push([x,y]);
+    }
 
-  const playerDamage = Math.max(1, Math.round(basePlayerDamage * varianceP));
-  const aiDamage = Math.max(1, Math.round(baseAiDamage * varianceA));
+    if(layer.style==="weave"&&points.length>2){
+      const weave=document.createElementNS(SVG_NS,"polygon");
+      weave.setAttribute("points",points.map(point=>point.join(",")).join(" "));
+      weave.setAttribute("fill","none");
+      weave.setAttribute("stroke",layer.color);
+      weave.setAttribute("stroke-width","1.4");
+      weave.setAttribute("opacity",".58");
+      layerGroup.appendChild(weave);
+    }
 
-  playerHealth -= aiDamage;
-  aiHealth -= playerDamage;
-  playerHealth += b.regenBonus;
+    points.forEach(([x,y],pointIndex)=>{
+      const angle=layer.rotation+pointIndex*360/layer.count;
+      layerGroup.appendChild(createMotif(layer,x,y,angle));
+    });
 
-  if(playerHealth > MAX_HP) playerHealth = MAX_HP;
-  if(aiHealth > MAX_HP) aiHealth = MAX_HP;
+    group.appendChild(layerGroup);
+  });
 
-  logLine(`You chose ${playerShape}, AI chose ${aiShape}.
-You dealt ${playerDamage}, AI dealt ${aiDamage}.
-Your mandala regen: +${b.regenBonus} HP.`);
-  updateBattleStatus();
+  const visible=layers.filter(layer=>layer.visible).length;
+  $("#stageCaption").textContent=visible
+    ?`${visible} visible layer${visible===1?"":"s"} · ${intention}`
+    :"Manifest an intention or add a layer to begin.";
+  $("#headerStatus").textContent=visible?"Composing":"Ready";
+  $("#svgTitle").textContent=`Sacred geometry mandala for ${intention}`;
+  $("#svgDesc").textContent=`A radial mandala with ${visible} visible geometry layers generated from the intention ${intention}.`;
+}
+function createMotif(layer,x,y,angle){
+  const group=document.createElementNS(SVG_NS,"g");
+  group.setAttribute("transform",`translate(${x} ${y}) rotate(${angle}) scale(${layer.scale})`);
+  const size=14;
+  const shape=layer.shape;
+  let element;
+
+  if(shape==="circle"){
+    element=document.createElementNS(SVG_NS,"circle");
+    element.setAttribute("r",String(size));
+  }else if(shape==="square"){
+    element=document.createElementNS(SVG_NS,"rect");
+    element.setAttribute("x",String(-size));
+    element.setAttribute("y",String(-size));
+    element.setAttribute("width",String(size*2));
+    element.setAttribute("height",String(size*2));
+    element.setAttribute("rx","2");
+  }else if(shape==="triangle"){
+    element=document.createElementNS(SVG_NS,"polygon");
+    element.setAttribute("points",polygonPoints(3,size,-90));
+  }else if(shape==="hexagon"){
+    element=document.createElementNS(SVG_NS,"polygon");
+    element.setAttribute("points",polygonPoints(6,size,0));
+  }else if(shape==="star"){
+    element=document.createElementNS(SVG_NS,"polygon");
+    element.setAttribute("points",starPoints(5,size,size*.44,-90));
+  }else if(shape==="lotus"){
+    const lotus=document.createElementNS(SVG_NS,"g");
+    for(let i=0;i<6;i++){
+      const petal=document.createElementNS(SVG_NS,"ellipse");
+      petal.setAttribute("cx","0");
+      petal.setAttribute("cy",String(-size*.58));
+      petal.setAttribute("rx",String(size*.34));
+      petal.setAttribute("ry",String(size*.78));
+      petal.setAttribute("transform",`rotate(${i*60})`);
+      styleShape(petal,layer);
+      lotus.appendChild(petal);
+    }
+    return lotus;
+  }else{
+    element=document.createElementNS(SVG_NS,"path");
+    let path="M 0 0";
+    for(let step=1;step<=34;step++){
+      const theta=step*.48;
+      const radius=size*(step/34);
+      path+=` L ${(Math.cos(theta)*radius).toFixed(2)} ${(Math.sin(theta)*radius).toFixed(2)}`;
+    }
+    element.setAttribute("d",path);
+    element.setAttribute("fill","none");
+  }
+
+  styleShape(element,layer);
+  group.appendChild(element);
+  return group;
+}
+function styleShape(element,layer){
+  const outline=layer.style==="outline"||layer.shape==="spiral";
+  element.setAttribute("fill",outline?"none":layer.color);
+  element.setAttribute("stroke",layer.color);
+  element.setAttribute("stroke-width",outline?"2":"1.1");
+  element.setAttribute("vector-effect","non-scaling-stroke");
+}
+function polygonPoints(sides,radius,offset){
+  return Array.from({length:sides},(_,index)=>{
+    const angle=(offset+index*360/sides)*Math.PI/180;
+    return`${(Math.cos(angle)*radius).toFixed(2)},${(Math.sin(angle)*radius).toFixed(2)}`;
+  }).join(" ");
+}
+function starPoints(points,outer,inner,offset){
+  return Array.from({length:points*2},(_,index)=>{
+    const radius=index%2===0?outer:inner;
+    const angle=(offset+index*180/points)*Math.PI/180;
+    return`${(Math.cos(angle)*radius).toFixed(2)},${(Math.sin(angle)*radius).toFixed(2)}`;
+  }).join(" ");
+}
+function renderLayerList(){
+  const container=$("#layerList");
+  container.replaceChildren();
+  if(!layers.length){
+    const empty=document.createElement("div");
+    empty.className="empty-state";
+    empty.textContent="No layers yet.";
+    container.appendChild(empty);
+    return;
+  }
+  [...layers].reverse().forEach((layer,reverseIndex)=>{
+    const actualIndex=layers.length-1-reverseIndex;
+    const row=document.createElement("article");
+    row.className=`layer-row${layer.id===selectedLayerId?" selected":""}`;
+
+    const swatch=document.createElement("button");
+    swatch.type="button";
+    swatch.className="swatch";
+    swatch.style.background=layer.color;
+    swatch.title="Select layer";
+    swatch.setAttribute("aria-label",`Select ${layer.shape} layer ${actualIndex+1}`);
+    swatch.addEventListener("click",()=>selectLayer(layer.id));
+
+    const copy=document.createElement("div");
+    copy.className="row-copy";
+    const title=document.createElement("strong");
+    title.textContent=`${actualIndex+1}. ${capitalize(layer.shape)} · ${capitalize(layer.theme)}`;
+    const meta=document.createElement("small");
+    meta.textContent=`${layer.count} repeats · radius ${layer.radius} · ${layer.style}${layer.visible?"":" · hidden"}`;
+    copy.append(title,meta);
+    copy.addEventListener("click",()=>selectLayer(layer.id));
+
+    const actions=document.createElement("div");
+    actions.className="row-actions";
+    actions.append(
+      iconButton(layer.visible?"◉":"○",layer.visible?"Hide layer":"Show layer",()=>toggleLayer(layer.id)),
+      iconButton("↑","Move layer forward",()=>moveLayer(layer.id,1)),
+      iconButton("↓","Move layer backward",()=>moveLayer(layer.id,-1)),
+      iconButton("×","Delete layer",()=>removeLayer(layer.id))
+    );
+
+    row.append(swatch,copy,actions);
+    container.appendChild(row);
+  });
+}
+function iconButton(text,label,handler){
+  const button=document.createElement("button");
+  button.type="button";
+  button.className="icon-btn";
+  button.textContent=text;
+  button.title=label;
+  button.setAttribute("aria-label",label);
+  button.addEventListener("click",handler);
+  return button;
+}
+function capitalize(value){return value.charAt(0).toUpperCase()+value.slice(1);}
+function syncOutputs(){
+  $("#countOutput").value=$("#countRange").value;
+  $("#radiusOutput").value=$("#radiusRange").value;
+  $("#rotationOutput").value=`${$("#rotationRange").value}°`;
+  $("#scaleOutput").value=(Number($("#scaleRange").value)/10).toFixed(1);
+  $("#opacityOutput").value=`${$("#opacityRange").value}%`;
+}
+function syncButtons(){
+  $("#undoBtn").disabled=!undoStack.length;
+  $("#redoBtn").disabled=!redoStack.length;
+  $("#updateLayerBtn").disabled=!selectedLayerId;
+  $("#duplicateLayerBtn").disabled=!selectedLayerId;
+}
+function calculateBonuses(){
+  const raw={attack:0,defense:0,renewal:0,harmony:0};
+  const visible=layers.filter(layer=>layer.visible);
+  const shapeSet=new Set();
+  const themeSet=new Set();
+
+  visible.forEach(layer=>{
+    const shape=SHAPES[layer.shape];
+    const theme=THEMES[layer.theme];
+    const weight=.42+Math.min(1.2,layer.count/16)*.35+layer.opacity*.25;
+    raw.attack+=(shape.attack+theme.attack)*weight;
+    raw.defense+=(shape.defense+theme.defense)*weight;
+    raw.renewal+=(shape.renewal+theme.renewal)*weight;
+    raw.harmony+=(shape.harmony+theme.harmony)*weight;
+    shapeSet.add(layer.shape);
+    themeSet.add(layer.theme);
+  });
+
+  raw.harmony+=shapeSet.size*.8+themeSet.size*.55;
+  return{
+    attack:Math.round(clamp(raw.attack,0,12)),
+    defense:Math.round(clamp(raw.defense,0,12)),
+    renewal:Math.round(clamp(raw.renewal,0,8)),
+    harmony:Math.round(clamp(raw.harmony,0,10))
+  };
+}
+function renderStats(){
+  const bonus=calculateBonuses();
+  $("#attackMetric").textContent=bonus.attack;
+  $("#defenseMetric").textContent=bonus.defense;
+  $("#renewalMetric").textContent=bonus.renewal;
+  $("#harmonyMetric").textContent=bonus.harmony;
+  $("#duelAttack").textContent=bonus.attack;
+  $("#duelDefense").textContent=bonus.defense;
+  $("#duelRenewal").textContent=bonus.renewal;
+  $("#duelHarmony").textContent=bonus.harmony;
 }
 
-battleBtn.addEventListener("click", ()=>{
-  // If duel ended, reset first
-  if(playerHealth <= 0 || aiHealth <= 0){
-    playerHealth = MAX_HP;
-    aiHealth = MAX_HP;
-    battleLog.textContent = "New duel begun. HP reset to 50 for both.\n";
-    updateBattleStatus();
+function loadLibrary(){
+  try{
+    const parsed=JSON.parse(localStorage.getItem(SAVE_KEY)||"[]");
+    if(!Array.isArray(parsed))return[];
+    return parsed.slice(0,MAX_SAVES).map(normalizeSave).filter(Boolean);
+  }catch{return[];}
+}
+function normalizeSave(value){
+  if(!value||typeof value!=="object")return null;
+  const savePalette=Array.isArray(value.palette)?value.palette.filter(color=>/^#[0-9a-f]{6}$/i.test(color)).slice(0,4):[];
+  return{
+    id:safeText(value.id||`save_${Date.now()}_${Math.random().toString(16).slice(2)}`).slice(0,80),
+    name:safeText(value.name||"Untitled Sanctuary").slice(0,48),
+    intention:safeText(value.intention||"PLERA").slice(0,80),
+    createdAt:Number.isFinite(Number(value.createdAt))?Number(value.createdAt):Date.now(),
+    favorite:Boolean(value.favorite),
+    palette:savePalette.length?savePalette:paletteFromString(value.intention||"PLERA"),
+    layers:Array.isArray(value.layers)?value.layers.slice(0,MAX_LAYERS).map(safeLayer).filter(Boolean):[]
+  };
+}
+function persistLibrary(){
+  try{
+    localStorage.setItem(SAVE_KEY,JSON.stringify(library.slice(0,MAX_SAVES)));
+    return true;
+  }catch{
+    setStatus("Local sanctuary storage is unavailable or full.","bad");
+    return false;
+  }
+}
+function saveSanctuary(){
+  if(!layers.length)return setStatus("Add at least one layer before saving.","warn");
+  const proposed=prompt("Name this sanctuary:",intention==="PLERA"?"My Sanctuary":intention);
+  const name=safeText(proposed).trim().slice(0,48);
+  if(!name)return setStatus("Save cancelled.","warn");
+  library.push({
+    id:`save_${Date.now()}_${Math.random().toString(16).slice(2,8)}`,
+    name,
+    intention,
+    createdAt:Date.now(),
+    favorite:false,
+    palette:[...palette],
+    layers:deepClone(layers)
+  });
+  if(library.length>MAX_SAVES)library=library.slice(-MAX_SAVES);
+  if(persistLibrary()){
+    renderLibrary();
+    setStatus(`Saved sanctuary: ${name}`,"good");
+  }
+}
+function renderLibrary(){
+  const container=$("#libraryList");
+  container.replaceChildren();
+  if(!library.length){
+    const empty=document.createElement("div");
+    empty.className="empty-state";
+    empty.textContent="No saved sanctuaries yet.";
+    container.appendChild(empty);
+    return;
+  }
+  [...library].sort((a,b)=>Number(b.favorite)-Number(a.favorite)||b.createdAt-a.createdAt).forEach(save=>{
+    const row=document.createElement("article");
+    row.className="save-row";
+    const swatch=document.createElement("div");
+    swatch.className="swatch";
+    swatch.style.background=`linear-gradient(135deg,${save.palette[0]},${save.palette[1]||save.palette[0]})`;
+
+    const copy=document.createElement("div");
+    copy.className="row-copy";
+    const title=document.createElement("strong");
+    title.textContent=save.name;
+    const meta=document.createElement("small");
+    meta.textContent=`${save.intention} · ${save.layers.length} layers · ${new Date(save.createdAt).toLocaleDateString()}`;
+    copy.append(title,meta);
+
+    const actions=document.createElement("div");
+    actions.className="row-actions";
+    const favorite=iconButton(save.favorite?"★":"☆",save.favorite?"Unpin sanctuary":"Pin sanctuary",()=>toggleSaveFavorite(save.id));
+    favorite.classList.toggle("favorite",save.favorite);
+    actions.append(
+      favorite,
+      iconButton("↗","Load sanctuary",()=>loadSanctuary(save.id)),
+      iconButton("×","Delete sanctuary",()=>deleteSanctuary(save.id))
+    );
+    row.append(swatch,copy,actions);
+    container.appendChild(row);
+  });
+}
+function toggleSaveFavorite(saveId){
+  const save=library.find(item=>item.id===saveId);
+  if(!save)return;
+  save.favorite=!save.favorite;
+  persistLibrary();
+  renderLibrary();
+  showToast(save.favorite?"Sanctuary pinned to the top":"Sanctuary unpinned");
+}
+function loadSanctuary(saveId){
+  const save=library.find(item=>item.id===saveId);
+  if(!save)return;
+  remember();
+  layers=deepClone(save.layers);
+  intention=save.intention;
+  palette=[...save.palette];
+  selectedLayerId=layers.at(-1)?.id||null;
+  $("#intentInput").value=intention==="PLERA"?"":intention;
+  $("#intentionLabel").textContent=intention;
+  $("#svgIntention").textContent=intention.toUpperCase().slice(0,42);
+  $("#haloCircle").setAttribute("fill",palette[0]);
+  if(selectedLayerId)loadLayerControls(layers.at(-1));
+  renderAll();
+  setStatus(`Loaded sanctuary: ${save.name}`,"good");
+}
+function deleteSanctuary(saveId){
+  const save=library.find(item=>item.id===saveId);
+  if(!save)return;
+  if(!confirm(`Delete sanctuary "${save.name}"?`))return;
+  library=library.filter(item=>item.id!==saveId);
+  persistLibrary();
+  renderLibrary();
+  setStatus("Sanctuary deleted.","good");
+}
+function exportLibrary(){
+  const blob=new Blob([JSON.stringify({version:3,sanctuaries:library},null,2)],{type:"application/json"});
+  downloadBlob(blob,"sacred-geometry-sanctuary-library.json");
+}
+function importLibrary(file){
+  if(!file)return;
+  if(file.size>MAX_LIBRARY_BYTES){
+    setStatus("Import rejected: file exceeds 1 MB.","bad");
+    return;
+  }
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{
+      const parsed=JSON.parse(safeText(reader.result));
+      const source=Array.isArray(parsed)?parsed:parsed.sanctuaries;
+      if(!Array.isArray(source))throw new Error("No sanctuary list found.");
+      const imported=source.slice(0,MAX_SAVES).map(normalizeSave).filter(Boolean);
+      const map=new Map(library.map(item=>[item.id,item]));
+      imported.forEach(save=>{
+        let saveId=save.id;
+        while(map.has(saveId))saveId=`${save.id}_${Math.random().toString(16).slice(2,6)}`;
+        map.set(saveId,{...save,id:saveId});
+      });
+      library=[...map.values()].slice(-MAX_SAVES);
+      persistLibrary();
+      renderLibrary();
+      setStatus(`Imported ${imported.length} validated sanctuaries.`,"good");
+    }catch(error){
+      setStatus(`Import rejected: ${error.message||"invalid JSON"}`,"bad");
+    }finally{
+      $("#importLibraryInput").value="";
+    }
+  };
+  reader.readAsText(file);
+}
+function exportSvg(){
+  if(!layers.length)return setStatus("There is no geometry to export.","warn");
+  const clone=$("#mandalaSvg").cloneNode(true);
+  clone.querySelectorAll(".guide,.axis").forEach(element=>element.remove());
+  clone.querySelectorAll(".selected-layer").forEach(element=>element.classList.remove("selected-layer"));
+  clone.querySelectorAll(".layer-group,.halo").forEach(element=>{
+    element.style.animation="none";
+    element.removeAttribute("class");
+  });
+  clone.setAttribute("xmlns",SVG_NS);
+  clone.setAttribute("width","1200");
+  clone.setAttribute("height","1200");
+  const source=new XMLSerializer().serializeToString(clone);
+  downloadBlob(new Blob([source],{type:"image/svg+xml"}),"sacred-geometry-sanctuary.svg");
+}
+function exportPng(){
+  if(!layers.length)return setStatus("There is no geometry to export.","warn");
+  const clone=$("#mandalaSvg").cloneNode(true);
+  clone.querySelectorAll(".guide,.axis").forEach(element=>element.remove());
+  clone.querySelectorAll(".selected-layer").forEach(element=>element.classList.remove("selected-layer"));
+  clone.querySelectorAll(".layer-group,.halo").forEach(element=>element.style.animation="none");
+  clone.setAttribute("xmlns",SVG_NS);
+  clone.setAttribute("width","1200");
+  clone.setAttribute("height","1200");
+  const source=new XMLSerializer().serializeToString(clone);
+  const blob=new Blob([source],{type:"image/svg+xml"});
+  const url=URL.createObjectURL(blob);
+  const image=new Image();
+  image.onload=()=>{
+    const canvas=document.createElement("canvas");
+    canvas.width=1200;
+    canvas.height=1200;
+    const context=canvas.getContext("2d");
+    context.fillStyle="#07131c";
+    context.fillRect(0,0,1200,1200);
+    context.drawImage(image,0,0,1200,1200);
+    URL.revokeObjectURL(url);
+    canvas.toBlob(png=>{
+      if(png)downloadBlob(png,"sacred-geometry-sanctuary.png");
+    },"image/png");
+  };
+  image.onerror=()=>{
+    URL.revokeObjectURL(url);
+    setStatus("PNG export could not be generated.","bad");
+  };
+  image.src=url;
+}
+function downloadBlob(blob,filename){
+  const url=URL.createObjectURL(blob);
+  const anchor=document.createElement("a");
+  anchor.href=url;
+  anchor.download=filename;
+  anchor.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+
+function createDuelState(){
+  return{
+    active:false,
+    complete:false,
+    round:0,
+    playerHp:MAX_HP,
+    aiHp:MAX_HP,
+    playerEnergy:8,
+    aiEnergy:8,
+    aiStance:null,
+    playerHistory:[],
+    aiHistory:[]
+  };
+}
+function beginDuel(){
+  duel=createDuelState();
+  duel.active=true;
+  duel.aiStance=chooseAIStance();
+  $("#resolveRoundBtn").disabled=false;
+  $("#battleLog").replaceChildren();
+  addLog("The geometry field opens. Your sanctuary bonuses are active.","system");
+  renderDuel();
+  playTone(420);
+}
+function resetDuel(){
+  duel=createDuelState();
+  $("#resolveRoundBtn").disabled=true;
+  $("#battleLog").replaceChildren();
+  renderDuel();
+}
+function resolveRound(){
+  if(!duel.active||duel.complete)return;
+  let playerStance=$("#stanceSelect").value;
+  let aiStance=duel.aiStance||chooseAIStance();
+
+  if(duel.playerEnergy<STANCES[playerStance].cost){
+    playerStance="circle";
+    $("#stanceSelect").value="circle";
+    addLog("Energy was too low. Your geometry settled into Circle.","system");
+  }
+  if(duel.aiEnergy<STANCES[aiStance].cost)aiStance="circle";
+
+  duel.round++;
+  duel.playerEnergy=clamp(duel.playerEnergy-STANCES[playerStance].cost,0,MAX_ENERGY);
+  duel.aiEnergy=clamp(duel.aiEnergy-STANCES[aiStance].cost,0,MAX_ENERGY);
+
+  const bonus=calculateBonuses();
+  const playerCounter=COUNTERS[playerStance]===aiStance;
+  const aiCounter=COUNTERS[aiStance]===playerStance;
+
+  const playerAttack=STANCES[playerStance].attack+bonus.attack*.42+(playerCounter?4:0);
+  const playerDefense=STANCES[playerStance].defense+bonus.defense*.42+(aiCounter?-1.5:0);
+  const aiAttack=STANCES[aiStance].attack+(aiCounter?4:0)+duel.round*.18;
+  const aiDefense=STANCES[aiStance].defense+(playerCounter?-1.5:0)+Math.min(3,duel.round*.12);
+
+  const playerDamage=Math.max(1,Math.round(playerAttack-aiDefense*.54+(Math.random()-.5)*2));
+  const aiDamage=Math.max(1,Math.round(aiAttack-playerDefense*.54+(Math.random()-.5)*2));
+  const playerRegen=Math.round(STANCES[playerStance].regen+bonus.renewal*.40);
+  const aiRegen=Math.round(STANCES[aiStance].regen*.72);
+
+  duel.aiHp=clamp(duel.aiHp-playerDamage+aiRegen,0,MAX_HP);
+  duel.playerHp=clamp(duel.playerHp-aiDamage+playerRegen,0,MAX_HP);
+
+  const harmonyRecovery=1+Math.floor(bonus.harmony/4);
+  duel.playerEnergy=clamp(duel.playerEnergy+harmonyRecovery,0,MAX_ENERGY);
+  duel.aiEnergy=clamp(duel.aiEnergy+1,0,MAX_ENERGY);
+
+  duel.playerHistory.push(playerStance);
+  duel.aiHistory.push(aiStance);
+
+  addLog(`Round ${duel.round}: ${STANCES[playerStance].label} faced ${STANCES[aiStance].label}. You dealt ${playerDamage} and renewed ${playerRegen}.`,playerCounter?"system":"player");
+  addLog(`The AI dealt ${aiDamage} and renewed ${aiRegen}.${aiCounter?" Its geometry held resonance advantage.":""}`,"ai");
+
+  if(duel.playerHp<=0||duel.aiHp<=0||duel.round>=MAX_ROUNDS){
+    completeDuel();
     return;
   }
 
-  const playerShape = battleShapeSelect.value;
-  const aiOptions = Object.keys(shapesAttributes);
-  const aiShape = aiOptions[Math.floor(Math.random()*aiOptions.length)];
+  duel.aiStance=chooseAIStance();
+  renderDuel();
+}
+function completeDuel(){
+  duel.complete=true;
+  duel.active=false;
+  $("#resolveRoundBtn").disabled=true;
+  let message;
+  if(duel.playerHp===duel.aiHp)message="The geometries resolve in balance.";
+  else if(duel.playerHp>duel.aiHp)message="Victory. Your sanctuary held the stronger resonance.";
+  else message="The Eclipse geometry prevails this time.";
+  addLog(message,"system");
+  renderDuel();
+  playTone(duel.playerHp>=duel.aiHp?620:230);
+}
+function chooseAIStance(){
+  const level=$("#duelLevelSelect").value;
+  const options=Object.keys(STANCES).filter(shape=>STANCES[shape].cost<=duel.aiEnergy||duel.aiEnergy===0);
+  if(level==="gentle")return randomChoice(options);
 
-  battleRound(playerShape, aiShape);
+  const history=duel.playerHistory;
+  const prediction=history.length?mostFrequent(history.slice(level==="oracle"?-3:-6)):$("#stanceSelect").value;
+  const counter=COUNTER_TO[prediction];
 
-  if(playerHealth <= 0 && aiHealth <= 0){
-    logLine("It’s a cosmic draw — both geometries collapse at once.");
-  } else if(playerHealth <= 0){
-    logLine("You were defeated. Click “Start Battle” again to begin a new duel.");
-  } else if(aiHealth <= 0){
-    logLine("Victory! Your mandala outshone the AI. Click “Start Battle” again to reset.");
+  if(level==="oracle"){
+    return Math.random()<.62&&options.includes(counter)?counter:randomChoice(options);
+  }
+
+  const distribution=Object.keys(STANCES).map(shape=>({
+    shape,
+    probability:(history.filter(item=>item===shape).length+1)/(history.length+4)
+  }));
+  let best=-Infinity;
+  let bestShapes=[];
+  options.forEach(aiShape=>{
+    let expected=0;
+    distribution.forEach(item=>{
+      const aiCounter=COUNTERS[aiShape]===item.shape?4:0;
+      const playerCounter=COUNTERS[item.shape]===aiShape?4:0;
+      expected+=item.probability*((STANCES[aiShape].attack+aiCounter)-(STANCES[item.shape].defense+playerCounter*.5));
+    });
+    if(duel.aiHp<24)expected+=STANCES[aiShape].regen*.65+STANCES[aiShape].defense*.22;
+    if(expected>best+.001){best=expected;bestShapes=[aiShape];}
+    else if(Math.abs(expected-best)<.001)bestShapes.push(aiShape);
+  });
+  return randomChoice(bestShapes);
+}
+function mostFrequent(items){
+  const counts={};
+  items.forEach(item=>counts[item]=(counts[item]||0)+1);
+  return Object.keys(counts).sort((a,b)=>counts[b]-counts[a])[0]||"circle";
+}
+function auraText(){
+  if(!duel.active&&!duel.complete)return"Begin a duel to read the opposing geometry.";
+  if(duel.complete)return"The field is closed.";
+  const level=$("#duelLevelSelect").value;
+  if(level==="gentle")return`AI stance revealed: ${STANCES[duel.aiStance].label}.`;
+  if(level==="oracle")return`AI intention: ${STANCES[duel.aiStance].intent}.`;
+  return"AI aura: obscured by eclipse.";
+}
+function renderDuel(){
+  const bonus=calculateBonuses();
+  $("#duelAttack").textContent=bonus.attack;
+  $("#duelDefense").textContent=bonus.defense;
+  $("#duelRenewal").textContent=bonus.renewal;
+  $("#duelHarmony").textContent=bonus.harmony;
+
+  $("#playerHpText").textContent=`${Math.round(duel.playerHp)} / ${MAX_HP} HP`;
+  $("#aiHpText").textContent=`${Math.round(duel.aiHp)} / ${MAX_HP} HP`;
+  $("#playerEnergyText").textContent=`${duel.playerEnergy} / ${MAX_ENERGY} energy`;
+  $("#aiEnergyText").textContent=`${duel.aiEnergy} / ${MAX_ENERGY} energy`;
+  $("#playerHpBar").style.width=`${duel.playerHp/MAX_HP*100}%`;
+  $("#aiHpBar").style.width=`${duel.aiHp/MAX_HP*100}%`;
+  $("#playerEnergyBar").style.width=`${duel.playerEnergy/MAX_ENERGY*100}%`;
+  $("#aiEnergyBar").style.width=`${duel.aiEnergy/MAX_ENERGY*100}%`;
+  $("#aiAura").textContent=auraText();
+
+  let result=`Round ${duel.round} of ${MAX_ROUNDS}`;
+  if(!duel.active&&!duel.complete)result+=" · The duel has not begun.";
+  else if(duel.complete)result+=duel.playerHp===duel.aiHp?" · Balanced result.":duel.playerHp>duel.aiHp?" · Sanctuary victory.":" · Eclipse victory.";
+  else result+=" · Choose a geometry and resolve the round.";
+  $("#duelResult").textContent=result;
+}
+function addLog(message,type="player"){
+  const entry=document.createElement("div");
+  entry.className=`log-entry ${type}`;
+  entry.textContent=message;
+  $("#battleLog").appendChild(entry);
+  $("#battleLog").scrollTop=$("#battleLog").scrollHeight;
+}
+
+function setStatus(message,tone="neutral"){
+  $("#statusText").textContent=message;
+  $("#statusDot").style.background=tone==="warn"?"var(--gold)":tone==="bad"?"var(--red)":"var(--mint)";
+}
+function showToast(message){
+  clearTimeout(toastTimer);
+  const toast=$("#toast");
+  toast.textContent=message;
+  toast.classList.add("show");
+  toastTimer=setTimeout(()=>toast.classList.remove("show"),2100);
+}
+function playTone(frequency){
+  if($("#soundSelect").value!=="on")return;
+  try{
+    if(!audioContext)audioContext=new (window.AudioContext||window.webkitAudioContext)();
+    if(audioContext.state==="suspended")audioContext.resume();
+    const oscillator=audioContext.createOscillator();
+    const gain=audioContext.createGain();
+    oscillator.type="sine";
+    oscillator.frequency.value=frequency;
+    gain.gain.setValueAtTime(.032,audioContext.currentTime);
+    gain.gain.exponentialRampToValueAtTime(.001,audioContext.currentTime+.12);
+    oscillator.connect(gain).connect(audioContext.destination);
+    oscillator.start();
+    oscillator.stop(audioContext.currentTime+.13);
+  }catch{}
+}
+function loadPreferences(){
+  try{
+    const saved=JSON.parse(localStorage.getItem(PREF_KEY)||"{}");
+    if(saved.motion==="reduced")$("#motionSelect").value="reduced";
+    if(saved.sound==="on")$("#soundSelect").value="on";
+  }catch{}
+  document.body.dataset.motion=$("#motionSelect").value;
+}
+function savePreferences(){
+  try{
+    localStorage.setItem(PREF_KEY,JSON.stringify({
+      motion:$("#motionSelect").value,
+      sound:$("#soundSelect").value
+    }));
+  }catch{}
+}
+
+["countRange","radiusRange","rotationRange","scaleRange","opacityRange"].forEach(idValue=>{
+  $(`#${idValue}`).addEventListener("input",syncOutputs);
+});
+$("#manifestBtn").addEventListener("click",manifest);
+$("#intentInput").addEventListener("keydown",event=>{if(event.key==="Enter")manifest();});
+$("#surpriseBtn").addEventListener("click",surprise);
+$("#undoBtn").addEventListener("click",undo);
+$("#redoBtn").addEventListener("click",redo);
+$("#addLayerBtn").addEventListener("click",addLayer);
+$("#updateLayerBtn").addEventListener("click",updateSelected);
+$("#duplicateLayerBtn").addEventListener("click",duplicateSelected);
+$("#clearBtn").addEventListener("click",clearAll);
+$("#saveBtn").addEventListener("click",saveSanctuary);
+$("#exportSvgBtn").addEventListener("click",exportSvg);
+$("#exportPngBtn").addEventListener("click",exportPng);
+$("#exportLibraryBtn").addEventListener("click",exportLibrary);
+$("#importLibraryInput").addEventListener("change",event=>importLibrary(event.target.files?.[0]));
+$("#motionSelect").addEventListener("change",()=>{
+  document.body.dataset.motion=$("#motionSelect").value;
+  savePreferences();
+});
+$("#soundSelect").addEventListener("change",()=>{
+  savePreferences();
+  if($("#soundSelect").value==="on")playTone(520);
+});
+$("#beginDuelBtn").addEventListener("click",beginDuel);
+$("#resolveRoundBtn").addEventListener("click",resolveRound);
+$("#resetDuelBtn").addEventListener("click",resetDuel);
+$("#clearLogBtn").addEventListener("click",()=>$("#battleLog").replaceChildren());
+$("#duelLevelSelect").addEventListener("change",()=>{
+  if(duel.active){
+    duel.aiStance=chooseAIStance();
+    renderDuel();
   }
 });
 
-/* ---------- Init ---------- */
-function initSanctuary(){
-  seededColor = seededPastelFromString("PLERA");
-  initSvg();
-  haloCircle.setAttribute("fill", seededColor);
-  colorEl.value = seededColor;
-  renderMandalaStatic();
-  updateBattleStatus();
-}
-initSanctuary();
-ensureAnimation(); // keep the loop ready; halo stays calm until layers are added
+document.addEventListener("keydown",event=>{
+  if(/INPUT|SELECT|TEXTAREA/.test(document.activeElement?.tagName||""))return;
+  const key=event.key.toLowerCase();
+  if(key==="z"&&(event.metaKey||event.ctrlKey)){event.preventDefault();event.shiftKey?redo():undo();}
+  if(key==="y"&&(event.metaKey||event.ctrlKey)){event.preventDefault();redo();}
+  if(key==="a"){event.preventDefault();addLayer();}
+  if(key==="m"){event.preventDefault();manifest();}
+});
+
+loadPreferences();
+syncOutputs();
+$("#haloCircle").setAttribute("fill",palette[0]);
+renderAll();
+renderDuel();
+setStatus("Ready to receive an intention.","good");
+})();
 </script>
 </body>
 </html>
