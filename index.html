@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="Arcade — a calm neon game hall for classic play, strategy, logic, creativity, trivia, learning paths, and experimental browser games.">
+<meta name="description" content="Arcade — a calm neon game hall with forty-two verified cabinets organized into strategy, language, visual logic, creativity, trivia, action, and simulation shelves.">
 <meta name="theme-color" content="#080b13">
 <meta name="color-scheme" content="dark">
 <meta name="referrer" content="same-origin">
@@ -47,20 +47,20 @@
   --size-55:55px;
   --size-66:66px;
   --max:1240px;
-  --display:"Eurostile Extended","Microgramma D Extended","Bank Gothic","Arial Narrow","Trebuchet MS",sans-serif;
-  --sans:"Trebuchet MS",Verdana,"Segoe UI",sans-serif;
+  --display:"Avenir Next Condensed","Brandon Grotesque","Helvetica Neue","Arial Narrow","Trebuchet MS",sans-serif;
+  --sans:"Avenir Next","Helvetica Neue","Trebuchet MS",Verdana,"Segoe UI",sans-serif;
   --mono:"Courier New",ui-monospace,SFMono-Regular,Menlo,monospace;
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth;scroll-padding-top:88px;font-synthesis:none;text-rendering:geometricPrecision;-webkit-font-smoothing:antialiased}
-body{margin:0;min-width:300px;min-height:100vh;overflow-x:hidden;color:var(--ink);background:var(--black);font-family:var(--sans);font-size:14px;font-weight:var(--weight-text);line-height:1.65}
+body{margin:0;min-width:300px;min-height:100vh;overflow-x:hidden;color:var(--ink);background:var(--black);font-family:var(--sans);font-size:16px;font-weight:var(--weight-text);line-height:1.65}
 body::before{content:"";position:fixed;inset:0;z-index:-3;pointer-events:none;background:radial-gradient(circle at 14% -2%,rgba(99,205,221,.075),transparent 30rem),radial-gradient(circle at 88% 7%,rgba(207,108,168,.07),transparent 28rem),linear-gradient(180deg,#080b13,#0b1019 46%,#070a10)}
 body::after{content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;opacity:.55;background-image:linear-gradient(rgba(137,121,214,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(99,205,221,.03) 1px,transparent 1px);background-size:33px 33px;mask-image:linear-gradient(to bottom,black,transparent 88%)}
 body.menu-open{overflow:hidden}
 a{color:inherit}
 button,input,select{font:inherit}
 button{color:inherit;cursor:pointer}
-strong,b,h1,h2,h3{font-weight:var(--weight-emphasis)}
+strong,b{font-weight:var(--weight-emphasis)}h1,h2,h3{font-weight:var(--weight-text)}
 ::selection{color:var(--black);background:var(--cyan-soft)}
 :focus-visible{outline:3px solid var(--cyan-soft);outline-offset:3px}
 [hidden]{display:none!important}
@@ -72,15 +72,15 @@ strong,b,h1,h2,h3{font-weight:var(--weight-emphasis)}
 .site-header{position:sticky;top:0;z-index:1200;border-bottom:1px solid var(--line);background:rgba(8,11,19,.94);backdrop-filter:blur(18px);box-shadow:0 11px 33px rgba(0,0,0,.28)}
 .nav{min-height:66px;display:grid;grid-template-columns:minmax(190px,1fr) auto minmax(190px,1fr);align-items:center;gap:14px;padding:7px 0}
 .home-brand{justify-self:start;display:inline-flex;align-items:center;gap:11px;min-width:0;text-decoration:none}
-.brand-mark{width:44px;height:44px;flex:0 0 44px;display:grid;place-items:center;border:1px solid var(--cyan);border-radius:var(--radius);color:var(--cyan-soft);background:#0b1520;font-family:var(--display);font-size:14px;font-weight:var(--weight-emphasis);letter-spacing:.08em;box-shadow:var(--glow-cyan)}
+.brand-mark{width:44px;height:44px;flex:0 0 44px;display:grid;place-items:center;border:1px solid var(--cyan);border-radius:var(--radius);color:var(--cyan-soft);background:#0b1520;font-family:var(--display);font-size:16px;font-weight:var(--weight-emphasis);letter-spacing:.08em;box-shadow:var(--glow-cyan)}
 .brand-copy{display:grid;line-height:1.05;min-width:0}
-.brand-copy strong{font-family:var(--display);font-size:11px;letter-spacing:.16em;text-transform:uppercase;white-space:nowrap}
-.brand-copy small{margin-top:7px;color:var(--muted);font-family:var(--mono);font-size:11px;white-space:nowrap}
+.brand-copy strong{font-family:var(--display);font-size:13px;letter-spacing:.16em;text-transform:uppercase;white-space:nowrap}
+.brand-copy small{margin-top:7px;color:var(--muted);font-family:var(--mono);font-size:13px;white-space:nowrap}
 .arcade-id{justify-self:center;text-align:center;text-decoration:none}
-.arcade-id strong{display:block;font-family:var(--display);font-size:14px;letter-spacing:.22em;text-transform:uppercase}
-.arcade-id small{display:block;margin-top:3px;color:var(--pink);font-family:var(--mono);font-size:11px;letter-spacing:.13em;text-transform:uppercase}
+.arcade-id strong{display:block;font-family:var(--display);font-size:16px;letter-spacing:.22em;text-transform:uppercase}
+.arcade-id small{display:block;margin-top:3px;color:var(--pink);font-family:var(--mono);font-size:13px;letter-spacing:.13em;text-transform:uppercase}
 .nav-actions{justify-self:end;display:flex;align-items:center;gap:7px}
-.nav-link,.menu-button{min-height:40px;display:inline-flex;align-items:center;justify-content:center;padding:7px 11px;border:1px solid var(--line);border-radius:var(--radius);color:var(--ink-soft);background:rgba(20,29,42,.74);text-decoration:none;font-family:var(--mono);font-size:11px;font-weight:var(--weight-emphasis);letter-spacing:.08em;text-transform:uppercase}
+.nav-link,.menu-button{min-height:40px;display:inline-flex;align-items:center;justify-content:center;padding:7px 11px;border:1px solid var(--line);border-radius:var(--radius);color:var(--ink-soft);background:rgba(20,29,42,.74);text-decoration:none;font-family:var(--mono);font-size:13px;font-weight:var(--weight-emphasis);letter-spacing:.08em;text-transform:uppercase}
 .nav-link:hover,.menu-button:hover{color:var(--cyan-soft);border-color:var(--cyan);background:rgba(99,205,221,.07)}
 .pin-counter{color:var(--pink-soft)}
 .menu-button{display:none}
@@ -90,34 +90,34 @@ strong,b,h1,h2,h3{font-weight:var(--weight-emphasis)}
 .hero::after{content:"";position:absolute;left:0;right:0;bottom:0;height:7px;background:linear-gradient(90deg,var(--cyan),var(--violet),var(--pink))}
 .hero-inner{min-height:calc(100svh - 66px);display:grid;grid-template-columns:minmax(0,1.06fr) minmax(340px,.94fr);gap:55px;align-items:center;padding:66px 0 73px}
 .hero-copy{max-width:720px}
-.open-sign{display:inline-flex;align-items:center;gap:11px;color:var(--mint);font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase}
+.open-sign{display:inline-flex;align-items:center;gap:11px;color:var(--mint);font-family:var(--mono);font-size:13px;letter-spacing:.14em;text-transform:uppercase}
 .open-dot{width:7px;height:7px;border-radius:50%;background:var(--mint);box-shadow:0 0 14px rgba(120,199,173,.42)}
-.hero h1{margin:24px 0 0;font-family:var(--display);font-size:clamp(66px,10.5vw,132px);font-weight:var(--weight-emphasis);line-height:.78;letter-spacing:-.075em;text-transform:uppercase;color:var(--ink);text-shadow:3px 3px 0 rgba(99,205,221,.28),-3px -3px 0 rgba(207,108,168,.24)}
-.hero-subtitle{margin:24px 0 0;color:var(--pink-soft);font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase}
-.hero-lead{max-width:690px;margin:24px 0 0;color:var(--ink-soft);font-size:clamp(14px,1.5vw,17px);line-height:1.85}
+.hero h1{margin:24px 0 0;font-family:var(--display);font-size:clamp(68px,10.5vw,134px);font-weight:var(--weight-emphasis);line-height:.78;letter-spacing:-.075em;text-transform:uppercase;color:var(--ink);text-shadow:2px 2px 0 rgba(99,205,221,.20),-2px -2px 0 rgba(207,108,168,.17)}
+.hero-subtitle{margin:24px 0 0;color:var(--pink-soft);font-family:var(--mono);font-size:13px;letter-spacing:.22em;text-transform:uppercase}
+.hero-lead{max-width:690px;margin:24px 0 0;color:var(--ink-soft);font-size:clamp(16px,1.5vw,19px);line-height:1.85}
 .hero-actions{display:flex;align-items:stretch;gap:11px;flex-wrap:wrap;margin-top:33px}
-.btn{min-height:48px;display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:11px 17px;border:1px solid transparent;border-radius:var(--radius);text-decoration:none;font-family:var(--mono);font-size:11px;font-weight:var(--weight-emphasis);letter-spacing:.08em;text-transform:uppercase;transition:transform .16s ease,border-color .16s ease,background .16s ease}
+.btn{min-height:48px;display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:11px 17px;border:1px solid transparent;border-radius:var(--radius);text-decoration:none;font-family:var(--mono);font-size:13px;font-weight:var(--weight-emphasis);letter-spacing:.08em;text-transform:uppercase;transition:transform .16s ease,border-color .16s ease,background .16s ease}
 .btn:hover{transform:translateY(-2px)}
 .btn-primary{color:var(--black);background:linear-gradient(135deg,var(--cyan-soft),var(--cyan));box-shadow:var(--glow-cyan)}
 .btn-secondary{color:var(--ink);border-color:var(--line-strong);background:rgba(20,29,42,.76)}
 .btn-secondary:hover{border-color:var(--pink);background:rgba(207,108,168,.07)}
 .hero-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;margin-top:33px;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--line)}
 .stat{padding:14px;background:rgba(11,16,26,.96)}
-.stat strong{display:block;color:var(--cyan-soft);font-family:var(--mono);font-size:24px}
-.stat span{display:block;margin-top:3px;color:var(--muted);font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.stat strong{display:block;color:var(--cyan-soft);font-family:var(--mono);font-size:26px}
+.stat span{display:block;margin-top:3px;color:var(--muted);font-family:var(--mono);font-size:13px;letter-spacing:.08em;text-transform:uppercase}
 
 /* Cabinet illustration */
 .cabinet-stage{position:relative;min-height:540px;display:grid;place-items:center}
 .cabinet-glow{position:absolute;width:390px;height:390px;border-radius:50%;background:radial-gradient(circle,rgba(99,205,221,.10),rgba(207,108,168,.05) 44%,transparent 70%);filter:blur(4px)}
 .arcade-cabinet{position:relative;width:min(100%,390px);padding:14px 14px 24px;border:1px solid var(--line-strong);border-radius:var(--radius);background:linear-gradient(160deg,#1a2633,#0a0f17 72%);box-shadow:0 33px 66px rgba(0,0,0,.42),var(--glow-pink)}
-.marquee{padding:14px;border:1px solid rgba(207,108,168,.28);border-radius:var(--radius);color:var(--pink-soft);background:#0b1019;text-align:center;font-family:var(--display);font-size:24px;letter-spacing:.18em;text-transform:uppercase;text-shadow:0 0 14px rgba(207,108,168,.26)}
+.marquee{padding:14px;border:1px solid rgba(207,108,168,.28);border-radius:var(--radius);color:var(--pink-soft);background:#0b1019;text-align:center;font-family:var(--display);font-size:26px;letter-spacing:.18em;text-transform:uppercase;text-shadow:0 0 14px rgba(207,108,168,.26)}
 .cabinet-screen{position:relative;height:230px;margin-top:14px;overflow:hidden;border:7px solid #05070b;border-radius:var(--radius);background:radial-gradient(circle at 50% 44%,rgba(137,121,214,.20),transparent 34%),linear-gradient(180deg,#07131d,#090815)}
 .cabinet-screen::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(to bottom,transparent 0 3px,rgba(255,255,255,.025) 3px 4px);pointer-events:none}
 .pixel-grid{position:absolute;inset:24px;display:grid;grid-template-columns:repeat(7,1fr);grid-template-rows:repeat(6,1fr);gap:7px;transform:perspective(440px) rotateX(4deg)}
 .pixel{border-radius:var(--radius);background:rgba(99,205,221,.18);box-shadow:0 0 7px rgba(99,205,221,.11)}
 .pixel:nth-child(3n){background:rgba(207,108,168,.20);box-shadow:0 0 7px rgba(207,108,168,.10)}
 .pixel:nth-child(5n){background:rgba(214,179,106,.24)}
-.screen-copy{position:absolute;inset:0;display:grid;place-items:center;text-align:center;font-family:var(--mono);font-size:14px;letter-spacing:.14em;color:var(--cyan-soft);text-shadow:0 0 11px rgba(99,205,221,.28)}
+.screen-copy{position:absolute;inset:0;display:grid;place-items:center;text-align:center;font-family:var(--mono);font-size:16px;letter-spacing:.14em;color:var(--cyan-soft);text-shadow:0 0 11px rgba(99,205,221,.28)}
 .control-deck{display:grid;grid-template-columns:1fr auto;align-items:center;gap:24px;margin-top:14px;padding:17px;border:1px solid var(--line);border-radius:var(--radius);background:#101720}
 .joystick{position:relative;width:66px;height:66px;display:grid;place-items:center}
 .stick{width:7px;height:44px;border-radius:7px;background:#a9b0b8;transform:rotate(12deg);transform-origin:bottom;box-shadow:0 0 7px rgba(255,255,255,.08)}
@@ -126,21 +126,21 @@ strong,b,h1,h2,h3{font-weight:var(--weight-emphasis)}
 .action-buttons{display:flex;gap:14px}
 .arcade-button{width:44px;height:44px;border-radius:50%;border:3px solid rgba(255,255,255,.09);background:var(--cyan);box-shadow:var(--glow-cyan)}
 .arcade-button:last-child{background:var(--pink);box-shadow:var(--glow-pink)}
-.coin-slot{margin:14px auto 0;width:88px;height:24px;display:grid;place-items:center;border:1px solid var(--line);border-radius:var(--radius);color:var(--amber);background:#070a0f;font-family:var(--mono);font-size:11px}
+.coin-slot{margin:14px auto 0;width:88px;height:24px;display:grid;place-items:center;border:1px solid var(--line);border-radius:var(--radius);color:var(--amber);background:#070a0f;font-family:var(--mono);font-size:13px}
 
 /* Section system */
 .section{padding:clamp(66px,9vw,112px) 0}
 .section-alt{border-block:1px solid var(--line);background:rgba(11,16,26,.72)}
 .section-head{max-width:840px;margin:0 auto 33px;text-align:center}
-.eyebrow{margin:0;color:var(--pink);font-family:var(--mono);font-size:11px;font-weight:var(--weight-emphasis);letter-spacing:.16em;text-transform:uppercase}
-.section-head h2{margin:11px 0 0;font-family:var(--display);font-size:clamp(33px,5vw,55px);line-height:1;letter-spacing:-.045em;text-transform:uppercase}
+.eyebrow{margin:0;color:var(--pink);font-family:var(--mono);font-size:13px;font-weight:var(--weight-emphasis);letter-spacing:.16em;text-transform:uppercase}
+.section-head h2{margin:11px 0 0;font-family:var(--display);font-size:clamp(35px,5vw,57px);line-height:1;letter-spacing:-.045em;text-transform:uppercase}
 .section-head p:last-child{max-width:720px;margin:14px auto 0;color:var(--muted)}
 
 /* Pinned shelf */
 .pinned-section{padding:55px 0;border-bottom:1px solid var(--line);background:linear-gradient(180deg,rgba(207,108,168,.035),rgba(99,205,221,.025))}
 .pinned-shell{padding:14px;border:1px solid rgba(207,108,168,.23);border-radius:var(--radius);background:rgba(12,17,27,.82);box-shadow:var(--glow-pink)}
 .pinned-head{display:flex;align-items:end;justify-content:space-between;gap:24px;margin-bottom:14px}
-.pinned-head h2{margin:7px 0 0;font-family:var(--display);font-size:33px;letter-spacing:-.03em;text-transform:uppercase}
+.pinned-head h2{margin:7px 0 0;font-family:var(--display);font-size:35px;letter-spacing:-.03em;text-transform:uppercase}
 .pinned-head p{max-width:560px;margin:0;color:var(--muted)}
 .empty-pins{padding:24px;border:1px dashed var(--line-strong);border-radius:var(--radius);color:var(--muted);text-align:center}
 
@@ -149,11 +149,11 @@ strong,b,h1,h2,h3{font-weight:var(--weight-emphasis)}
 .wing{height:100%;display:flex;flex-direction:column;padding:24px;border:1px solid var(--line);border-radius:var(--radius);background:linear-gradient(160deg,#16212d,#0e151e);transition:transform .16s ease,border-color .16s ease}
 .wing:hover{transform:translateY(-3px);border-color:var(--accent)}
 .wing-top{display:flex;align-items:center;justify-content:space-between;gap:11px}
-.wing-code{color:var(--accent);font-family:var(--mono);font-size:11px;letter-spacing:.13em}
-.wing-count{color:var(--muted);font-family:var(--mono);font-size:11px}
-.wing h3{margin:24px 0 7px;font-family:var(--display);font-size:24px;letter-spacing:-.02em;text-transform:uppercase}
+.wing-code{color:var(--accent);font-family:var(--mono);font-size:13px;letter-spacing:.13em}
+.wing-count{color:var(--muted);font-family:var(--mono);font-size:13px}
+.wing h3{margin:24px 0 7px;font-family:var(--display);font-size:26px;letter-spacing:-.02em;text-transform:uppercase}
 .wing p{margin:0;color:var(--muted)}
-.wing button{margin-top:auto;padding-top:24px;align-self:flex-start;border:0;color:var(--accent);background:transparent;font-family:var(--mono);font-size:11px;font-weight:var(--weight-emphasis);letter-spacing:.08em;text-transform:uppercase}
+.wing button{margin-top:auto;padding-top:24px;align-self:flex-start;border:0;color:var(--accent);background:transparent;font-family:var(--mono);font-size:13px;font-weight:var(--weight-emphasis);letter-spacing:.08em;text-transform:uppercase}
 
 /* Catalog controls */
 .catalog-shell{padding:14px;border:1px solid var(--line);border-radius:var(--radius);background:rgba(8,11,19,.82);box-shadow:var(--shadow)}
@@ -161,10 +161,10 @@ strong,b,h1,h2,h3{font-weight:var(--weight-emphasis)}
 .field{width:100%;min-height:48px;padding:0 14px;border:1px solid var(--line);border-radius:var(--radius);color:var(--ink);background:#101821;outline:none}
 .field::placeholder{color:var(--faint)}
 .field:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(99,205,221,.09)}
-.control-button{min-height:48px;padding:7px 11px;border:1px solid var(--line);border-radius:var(--radius);color:var(--ink-soft);background:#121b25;font-family:var(--mono);font-size:11px;font-weight:var(--weight-emphasis);letter-spacing:.06em;text-transform:uppercase}
+.control-button{min-height:48px;padding:7px 11px;border:1px solid var(--line);border-radius:var(--radius);color:var(--ink-soft);background:#121b25;font-family:var(--mono);font-size:13px;font-weight:var(--weight-emphasis);letter-spacing:.06em;text-transform:uppercase}
 .control-button:hover{border-color:var(--cyan);color:var(--cyan-soft)}
 .control-button[aria-pressed="true"]{color:var(--black);border-color:var(--pink);background:var(--pink)}
-.result-note{margin:11px 0 0;color:var(--muted);font-family:var(--mono);font-size:11px;text-align:center}
+.result-note{margin:11px 0 0;color:var(--muted);font-family:var(--mono);font-size:13px;text-align:center}
 
 /* Cabinet cards */
 .game-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px;align-items:stretch;grid-auto-rows:1fr}
@@ -172,68 +172,79 @@ strong,b,h1,h2,h3{font-weight:var(--weight-emphasis)}
 .game-card:hover{transform:translateY(-3px);border-color:var(--tone)}
 .game-screen{position:relative;height:132px;display:grid;place-items:center;overflow:hidden;border:7px solid #080b10;border-radius:var(--radius);background:radial-gradient(circle at 50% 38%,color-mix(in srgb,var(--tone) 22%,transparent),transparent 44%),linear-gradient(180deg,#07131c,#0b0c18)}
 .game-screen::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(to bottom,transparent 0 3px,rgba(255,255,255,.025) 3px 4px)}
-.game-icon{position:relative;z-index:1;font-size:33px;filter:saturate(.78);text-shadow:0 0 14px color-mix(in srgb,var(--tone) 34%,transparent)}
+.game-icon{position:relative;z-index:1;font-size:35px;filter:saturate(.78);text-shadow:0 0 14px color-mix(in srgb,var(--tone) 34%,transparent)}
 .game-top{display:flex;align-items:center;justify-content:space-between;gap:11px;margin-top:11px}
-.game-category{color:var(--tone);font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
-.pin-button{width:36px;height:36px;display:grid;place-items:center;border:1px solid var(--line);border-radius:var(--radius);color:var(--muted);background:#0b1119;font-size:17px}
+.game-category{color:var(--tone);font-family:var(--mono);font-size:13px;letter-spacing:.08em;text-transform:uppercase}
+.pin-button{width:36px;height:36px;display:grid;place-items:center;border:1px solid var(--line);border-radius:var(--radius);color:var(--muted);background:#0b1119;font-size:19px}
 .pin-button:hover{color:var(--pink-soft);border-color:var(--pink)}
 .pin-button[aria-pressed="true"]{color:var(--black);border-color:var(--pink);background:var(--pink);box-shadow:var(--glow-pink)}
-.game-card h3{margin:14px 0 7px;font-family:var(--display);font-size:18px;line-height:1.15;letter-spacing:-.02em;text-transform:uppercase;overflow-wrap:anywhere}
-.game-card p{margin:0;color:var(--muted);font-size:13px}
+.game-card h3{margin:14px 0 7px;font-family:var(--display);font-size:20px;line-height:1.15;letter-spacing:-.02em;text-transform:uppercase;overflow-wrap:anywhere}
+.game-card p{margin:0;color:var(--muted);font-size:15px}
 .game-actions{display:grid;grid-template-columns:1fr;gap:7px;margin-top:auto;padding-top:17px}
-.launch{min-height:42px;display:flex;align-items:center;justify-content:space-between;gap:11px;padding:7px 11px;border:1px solid color-mix(in srgb,var(--tone) 54%,transparent);border-radius:var(--radius);color:var(--ink);background:color-mix(in srgb,var(--tone) 10%,#101720);text-decoration:none;font-family:var(--mono);font-size:11px;font-weight:var(--weight-emphasis);letter-spacing:.06em;text-transform:uppercase}
+.launch{min-height:42px;display:flex;align-items:center;justify-content:space-between;gap:11px;padding:7px 11px;border:1px solid color-mix(in srgb,var(--tone) 54%,transparent);border-radius:var(--radius);color:var(--ink);background:color-mix(in srgb,var(--tone) 10%,#101720);text-decoration:none;font-family:var(--mono);font-size:13px;font-weight:var(--weight-emphasis);letter-spacing:.06em;text-transform:uppercase}
 .launch:hover{color:var(--black);background:var(--tone)}
 .no-results{display:none;margin-top:14px;padding:24px;border:1px dashed var(--line-strong);border-radius:var(--radius);color:var(--muted);text-align:center}
+
+
+/* Grouped category shelves */
+.catalog-groups{display:grid;gap:24px}
+.category-shelf{padding:14px;border:1px solid var(--line);border-radius:var(--radius);background:rgba(8,11,19,.48)}
+.category-shelf-head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:end;margin-bottom:14px;padding-bottom:11px;border-bottom:1px solid color-mix(in srgb,var(--shelf-tone) 40%,transparent)}
+.category-shelf-head h3{margin:0;color:var(--ink);font-family:var(--display);font-size:26px;font-weight:var(--weight-text);letter-spacing:.015em;text-transform:uppercase}
+.category-shelf-head p{max-width:720px;margin:7px 0 0;color:var(--muted);font-size:15px}
+.category-shelf-count{color:var(--shelf-tone);font-family:var(--mono);font-size:13px;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+.category-shelf .game-grid{margin:0}
+@media(max-width:620px){.category-shelf-head{grid-template-columns:1fr}.category-shelf-count{white-space:normal}}
 
 /* Featured */
 .featured-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:14px;align-items:stretch}
 .featured-cabinet,.community-panel{border:1px solid var(--line);border-radius:var(--radius);background:linear-gradient(160deg,#192635,#0e151f)}
 .featured-cabinet{min-height:360px;display:grid;grid-template-columns:1fr auto;gap:33px;align-items:center;padding:33px;border-color:rgba(99,205,221,.26);box-shadow:var(--glow-cyan)}
-.featured-cabinet h3{margin:11px 0 7px;font-family:var(--display);font-size:clamp(33px,4.5vw,55px);line-height:.95;letter-spacing:-.045em;text-transform:uppercase}
+.featured-cabinet h3{margin:11px 0 7px;font-family:var(--display);font-size:clamp(35px,4.5vw,57px);line-height:.95;letter-spacing:-.045em;text-transform:uppercase}
 .featured-cabinet p{color:var(--ink-soft)}
-.featured-symbol{width:132px;height:132px;display:grid;place-items:center;border:7px solid #070b10;border-radius:var(--radius);background:#08141c;font-size:55px;box-shadow:inset 0 0 33px rgba(99,205,221,.10)}
+.featured-symbol{width:132px;height:132px;display:grid;place-items:center;border:7px solid #070b10;border-radius:var(--radius);background:#08141c;font-size:57px;box-shadow:inset 0 0 33px rgba(99,205,221,.10)}
 .community-panel{padding:24px}
-.community-panel h3{margin:7px 0 14px;font-family:var(--display);font-size:24px;text-transform:uppercase}
+.community-panel h3{margin:7px 0 14px;font-family:var(--display);font-size:26px;text-transform:uppercase}
 .update-list{display:grid;gap:7px}
 .update{padding:14px;border:1px solid var(--line);border-radius:var(--radius);background:#101821}
-.update strong{display:block;color:var(--pink-soft);font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.update strong{display:block;color:var(--pink-soft);font-family:var(--mono);font-size:13px;letter-spacing:.08em;text-transform:uppercase}
 .update span{display:block;margin-top:7px;color:var(--muted)}
 
 /* Paths/future/kids/network */
 .path-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;align-items:stretch}
 .path-card{height:100%;padding:24px;border:1px solid var(--line);border-radius:var(--radius);background:#111a24}
-.path-card h3{margin:7px 0;font-family:var(--display);font-size:24px;text-transform:uppercase}
+.path-card h3{margin:7px 0;font-family:var(--display);font-size:26px;text-transform:uppercase}
 .path-card p{margin:0;color:var(--muted)}
 .path-steps{display:flex;flex-wrap:wrap;gap:7px;margin-top:17px}
-.path-steps a{padding:7px 11px;border:1px solid var(--line);border-radius:var(--radius);color:var(--ink-soft);background:#0b121a;text-decoration:none;font-family:var(--mono);font-size:11px}
+.path-steps a{padding:7px 11px;border:1px solid var(--line);border-radius:var(--radius);color:var(--ink-soft);background:#0b121a;text-decoration:none;font-family:var(--mono);font-size:13px}
 .path-steps a:hover{color:var(--black);border-color:var(--cyan);background:var(--cyan)}
 .future-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}
 .future-card{padding:17px;border:1px dashed rgba(137,121,214,.34);border-radius:var(--radius);background:rgba(20,29,42,.68)}
-.future-card small{color:var(--violet);font-family:var(--mono);font-size:11px;text-transform:uppercase}
-.future-card h3{margin:14px 0 7px;font-size:18px}
+.future-card small{color:var(--violet);font-family:var(--mono);font-size:13px;text-transform:uppercase}
+.future-card h3{margin:14px 0 7px;font-size:20px}
 .future-card p{margin:0;color:var(--muted)}
 .family-panel{display:grid;grid-template-columns:1fr auto;gap:33px;align-items:center;padding:33px;border:1px solid rgba(120,199,173,.28);border-radius:var(--radius);background:linear-gradient(135deg,rgba(120,199,173,.07),rgba(99,205,221,.035));box-shadow:0 0 22px rgba(120,199,173,.07)}
-.family-panel h2{margin:7px 0;font-family:var(--display);font-size:33px;text-transform:uppercase}
+.family-panel h2{margin:7px 0;font-family:var(--display);font-size:35px;text-transform:uppercase}
 .family-panel p{max-width:760px;margin:0;color:var(--ink-soft)}
 .family-actions{display:grid;gap:7px;min-width:220px}
 .network-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px}
 .network-card{padding:17px;border:1px solid var(--line);border-radius:var(--radius);background:#111923;text-decoration:none;transition:transform .16s ease,border-color .16s ease}
 .network-card:hover{transform:translateY(-3px);border-color:var(--pink)}
-.network-card strong{display:block;font-family:var(--display);font-size:16px;letter-spacing:.02em;text-transform:uppercase}
-.network-card span{display:block;margin-top:7px;color:var(--muted);font-size:12px}
+.network-card strong{display:block;font-family:var(--display);font-size:18px;letter-spacing:.02em;text-transform:uppercase}
+.network-card span{display:block;margin-top:7px;color:var(--muted);font-size:14px}
 
 /* Footer/mobile menu */
 footer{padding:24px 0 33px;border-top:1px solid var(--line);background:#05070c;color:var(--muted)}
-.footer-grid{display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;font-family:var(--mono);font-size:11px}
+.footer-grid{display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;font-family:var(--mono);font-size:13px}
 .footer-links{display:flex;gap:14px;flex-wrap:wrap}
 .footer-links a{text-decoration:none}
 .footer-links a:hover{color:var(--cyan-soft)}
 .mobile-panel{display:none;border-top:1px solid var(--line);background:#0b1019}
 .mobile-panel.open{display:grid}
-.mobile-panel a{padding:14px;border-bottom:1px solid rgba(158,232,239,.08);text-align:center;text-decoration:none;font-family:var(--mono);font-size:11px;text-transform:uppercase}
+.mobile-panel a{padding:14px;border-bottom:1px solid rgba(158,232,239,.08);text-align:center;text-decoration:none;font-family:var(--mono);font-size:13px;text-transform:uppercase}
 
 /* Toast */
-.toast{position:fixed;right:14px;bottom:14px;z-index:3000;max-width:min(380px,calc(100% - 28px));padding:11px 14px;border:1px solid var(--pink);border-radius:var(--radius);color:var(--ink);background:#121923;box-shadow:var(--shadow),var(--glow-pink);font-family:var(--mono);font-size:11px;transform:translateY(160%);opacity:0;transition:.18s ease}
+.toast{position:fixed;right:14px;bottom:14px;z-index:3000;max-width:min(380px,calc(100% - 28px));padding:11px 14px;border:1px solid var(--pink);border-radius:var(--radius);color:var(--ink);background:#121923;box-shadow:var(--shadow),var(--glow-pink);font-family:var(--mono);font-size:13px;transform:translateY(160%);opacity:0;transition:.18s ease}
 .toast.show{transform:none;opacity:1}
 
 @media(max-width:1080px){
@@ -249,14 +260,14 @@ footer{padding:24px 0 33px;border-top:1px solid var(--line);background:#05070c;c
   .control-grid{grid-template-columns:1fr 1fr}.control-grid label:first-child{grid-column:1/-1}
 }
 @media(max-width:620px){
-  .wrap{width:min(calc(100% - 22px),var(--max))}.brand-copy small{display:none}.hero-inner{min-height:auto;padding:55px 0 66px}.hero h1{font-size:66px}.hero-stats{grid-template-columns:1fr}.hero-actions .btn{width:100%}
+  .wrap{width:min(calc(100% - 22px),var(--max))}.brand-copy small{display:none}.hero-inner{min-height:auto;padding:55px 0 66px}.hero h1{font-size:68px}.hero-stats{grid-template-columns:1fr}.hero-actions .btn{width:100%}
   .pinned-head{display:block}.pinned-head p{margin-top:11px}
   .wing-grid,.game-grid,.path-grid,.future-grid,.network-grid{grid-template-columns:1fr}
   .control-grid{grid-template-columns:1fr}.control-grid label:first-child{grid-column:auto}
   .family-panel{grid-template-columns:1fr}.family-actions{min-width:0}
   .footer-grid{display:block;text-align:center}.footer-links{justify-content:center;margin-top:11px}
 }
-@media(max-width:420px){.brand-copy strong{display:none}.brand-mark{width:40px;height:40px;flex-basis:40px}.menu-button span:last-child{display:none}.hero h1{font-size:55px}.arcade-cabinet{padding:11px}.control-deck{grid-template-columns:1fr;justify-items:center}}
+@media(max-width:420px){.brand-copy strong{display:none}.brand-mark{width:40px;height:40px;flex-basis:40px}.menu-button span:last-child{display:none}.hero h1{font-size:57px}.arcade-cabinet{padding:11px}.control-deck{grid-template-columns:1fr;justify-items:center}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation:none!important;transition:none!important}}
 @media print{header,.hero-actions,.facility-strip,.catalog-shell,.pin-button,.mobile-panel,.toast{display:none!important}body{color:#111;background:#fff}body::before,body::after{display:none}.section,.section-alt,.pinned-section{color:#111;background:#fff}.game-card,.wing,.path-card,.future-card,.network-card,.featured-cabinet,.community-panel,.family-panel{color:#111;background:#fff;box-shadow:none}}
 </style>
@@ -278,7 +289,7 @@ footer{padding:24px 0 33px;border-top:1px solid var(--line);background:#05070c;c
     </div>
   </div>
   <nav class="mobile-panel" id="mobilePanel" aria-label="Mobile navigation">
-    <a href="#pinned">Pinned Cabinets</a><a href="#wings">Arcade Wings</a><a href="#catalog">Game Library</a><a href="#featured">Cabinet of the Day</a><a href="#paths">Learning Paths</a><a href="#building">Future Wings</a><a href="#family">Kids & Families</a>
+    <a href="#pinned">Pinned Cabinets</a><a href="#wings">Game Categories</a><a href="#catalog">Game Library</a><a href="#featured">Cabinet of the Day</a><a href="#paths">Learning Paths</a><a href="#building">Future Wings</a><a href="#family">Kids & Families</a>
   </nav>
 </header>
 
@@ -289,7 +300,7 @@ footer{padding:24px 0 33px;border-top:1px solid var(--line);background:#05070c;c
       <div class="open-sign"><span class="open-dot"></span><span>The hall is open</span></div>
       <h1>Arcade</h1>
       <p class="hero-subtitle">Insert curiosity · choose a cabinet · begin</p>
-      <p class="hero-lead">A low-light game hall for cult classics, strategy, visual puzzles, creative experiments, trivia, practical learning, and curious minds of every age.</p>
+      <p class="hero-lead">A low-light game hall with forty-two verified cabinets arranged into clear strategy, language, visual-logic, creative, knowledge, action, and simulation shelves.</p>
       <div class="hero-actions">
         <a class="btn btn-primary" href="#catalog">Enter the Game Hall</a>
         <button class="btn btn-secondary" id="randomHero" type="button">Random Cabinet</button>
@@ -297,7 +308,7 @@ footer{padding:24px 0 33px;border-top:1px solid var(--line);background:#05070c;c
       </div>
       <div class="hero-stats">
         <div class="stat"><strong id="gameCount">0</strong><span>Playable cabinets</span></div>
-        <div class="stat"><strong>06</strong><span>Arcade wings</span></div>
+        <div class="stat"><strong>06</strong><span>Curated categories</span></div>
         <div class="stat"><strong id="heroPinCount">0</strong><span>Pinned favorites</span></div>
       </div>
     </div>
@@ -335,25 +346,25 @@ footer{padding:24px 0 33px;border-top:1px solid var(--line);background:#05070c;c
 
 <section class="section" id="wings">
   <div class="wrap">
-    <div class="section-head"><p class="eyebrow">Six entrances</p><h2>Arcade Wings</h2><p>Each entrance immediately filters the complete cabinet registry so games remain easy to find.</p></div>
+    <div class="section-head"><p class="eyebrow">Six clear entrances</p><h2>Game Categories</h2><p>Each category opens a dedicated shelf and filters the verified forty-two-cabinet registry.</p></div>
     <div class="wing-grid" id="wingGrid"></div>
   </div>
 </section>
 
 <section class="section section-alt" id="catalog">
   <div class="wrap">
-    <div class="section-head"><p class="eyebrow">Complete cabinet registry</p><h2>Game Library</h2><p>Search titles, skills, themes, or categories. Sort the room, show only pins, or let the Arcade choose.</p></div>
+    <div class="section-head"><p class="eyebrow">Verified cabinet registry</p><h2>Game Library</h2><p>Every supplied filename is represented once. Search across the shelves, filter a category, show only pins, or let the Arcade choose.</p></div>
     <div class="catalog-shell">
       <div class="control-grid">
         <label><span style="position:absolute;left:-9999px">Search games</span><input class="field" id="search" type="search" placeholder="Search games, skills, themes…"></label>
-        <label><span style="position:absolute;left:-9999px">Filter by arcade wing</span><select class="field" id="category"><option value="all">All arcade wings</option><option value="classic">Classic Arcade</option><option value="brain">Brain & Logic</option><option value="strategy">Strategy Hall</option><option value="creative">Creative Studio</option><option value="trivia">Trivia Library</option><option value="discovery">Discovery Lab</option></select></label>
+        <label><span style="position:absolute;left:-9999px">Filter by game category</span><select class="field" id="category"><option value="all">All game categories</option><option value="strategy">Strategy Table</option><option value="word">Word &amp; Language</option><option value="puzzle">Visual Logic &amp; Puzzles</option><option value="creative">Creative &amp; Contemplative</option><option value="trivia">Trivia &amp; Knowledge</option><option value="action">Action &amp; Simulation</option></select></label>
         <label><span style="position:absolute;left:-9999px">Sort games</span><select class="field" id="sort"><option value="registry">Registry order</option><option value="az">Title A–Z</option><option value="za">Title Z–A</option><option value="category">Group by wing</option></select></label>
         <button class="control-button" id="pinnedOnly" type="button" aria-pressed="false">Pinned only</button>
         <button class="control-button" id="randomCatalog" type="button">Surprise me</button>
       </div>
       <p class="result-note" id="resultNote" aria-live="polite"></p>
     </div>
-    <div class="game-grid" id="gameGrid" style="margin-top:14px"></div>
+    <div class="catalog-groups" id="catalogGroups" style="margin-top:14px"></div>
     <div class="no-results" id="noResults">No cabinet matches the current search and filters.</div>
   </div>
 </section>
@@ -371,7 +382,7 @@ footer{padding:24px 0 33px;border-top:1px solid var(--line);background:#05070c;c
         <h3>The Arcade is never finished.</h3>
         <div class="update-list">
           <div class="update"><strong>Pin system online</strong><span>Favorites are saved locally and appear in the Pinned Cabinets shelf.</span></div>
-          <div class="update"><strong>Forty-three cabinets</strong><span>The complete registry remains searchable, sortable, and filterable.</span></div>
+          <div class="update"><strong>Forty-two verified cabinets</strong><span>Every supplied filename appears exactly once and remains searchable, sortable, and filterable.</span></div>
           <div class="update"><strong>Comfortable neon</strong><span>Glows are restrained, motion is minimal, and reduced-motion preferences are respected.</span></div>
           <div class="update"><strong>Free play</strong><span>No account, remote service, or outside dependency is required.</span></div>
         </div>
@@ -443,69 +454,496 @@ const BASE="./";
 const PIN_KEY="arcade_pinned_cabinets_v2";
 
 const games = [
-    {id:"affixsix",title:"AffixSix™",file:"AffixSix™_index.html",category:"discovery",icon:"✳️",tags:"math number pattern six",description:"A number-and-pattern experience built around six-part structures."},
-    {id:"backgammon",title:"Backgammon",file:"Backgammon_index.html",category:"strategy",icon:"🎲",tags:"board classic strategy dice",description:"Play one of the world's enduring strategy board games."},
-    {id:"checkers-lab",title:"Checkers Variant Lab",file:"Checkers_Variant_Lab_index.html",category:"strategy",icon:"⚫",tags:"checkers board strategy variants",description:"Explore classic checkers and experiment with alternate rule systems."},
-    {id:"chess-studio",title:"Chess Studio",file:"Chess_Studio_index.html",category:"strategy",icon:"♟️",tags:"chess planning board tactics",description:"Practice planning, tactics, and spatial reasoning through chess."},
-    {id:"chromatic-focus",title:"Chromatic Focus",file:"Chromatic_focus_index.html",category:"brain",icon:"🌈",tags:"focus color attention",description:"Train visual attention through shifting chromatic challenges."},
-    {id:"civic-compass",title:"Civic Compass",file:"Civic_Compass_inndex.html",category:"discovery",icon:"🧭",tags:"civics citizenship government",description:"Navigate civic ideas, public responsibilities, and community choices."},
-    {id:"color-clash",title:"Color Clash",file:"Color_Clash_index.html",category:"creative",icon:"💥",tags:"color creative arcade",description:"A lively color challenge with quick arcade-style decisions."},
-    {id:"colorshift-cascade",title:"Colorshift Cascade",file:"Colorshift_Cascade_index.html",category:"creative",icon:"🔷",tags:"color matching reaction",description:"Follow shifting colors through a cascading visual puzzle."},
-    {id:"critter-crafter",title:"Critter Crafter",file:"Critter_Crafter_index.html",category:"creative",icon:"🦊",tags:"animals design creative",description:"Build imaginative creatures through playful design choices."},
-    {id:"geometry-guide",title:"Geometry Sanctuary Guide",file:"Geometry_Sanctuary_Guide_index.html",category:"discovery",icon:"📐",tags:"geometry learning guide",description:"A companion guide for exploring geometric ideas and forms."},
-    {id:"geometry-sanctuary",title:"Geometry Sanctuary",file:"Geometry_Sanctuary_index.html",category:"discovery",icon:"△",tags:"geometry shapes math",description:"Discover geometric structure through an immersive visual space."},
-    {id:"hangman",title:"Hangman",file:"Hangman_index.html",category:"classic",icon:"🔠",tags:"words spelling classic",description:"A familiar word game for vocabulary and spelling practice."},
-    {id:"haystack-escape",title:"Haystack Escape",file:"Haystack_Escape_index.html",category:"brain",icon:"🌾",tags:"escape puzzle logic",description:"Solve your way out through observation and logical clues."},
-    {id:"sudoku",title:"Jenny's Sudoku",file:"Jenny's_Sudoku_index.html",category:"strategy",icon:"🔢",tags:"sudoku numbers logic",description:"A focused number-grid challenge for deductive reasoning."},
-    {id:"new-word",title:"Learn a New Word",file:"Learn_a_New_Word_index.html",category:"classic",icon:"📖",tags:"vocabulary language words",description:"Build vocabulary one word at a time through interactive play."},
-    {id:"lumin-gate",title:"Lumin Gate",file:"Lumin_Gate_index.html",category:"brain",icon:"🚪",tags:"logic light puzzle",description:"Open the gate by solving a luminous logic challenge."},
-    {id:"mandala-rings",title:"Mandala Rings",file:"Mandala_Rings_index.html",category:"creative",icon:"🌀",tags:"mandala pattern art",description:"Create and explore repeating circular forms and patterns."},
-    {id:"mind-garden",title:"Mind Garden",file:"Mind_Garden_index.html",category:"brain",icon:"🧠",tags:"mindfulness focus brain",description:"A calm space for attention, reflection, and mental play."},
-    {id:"mini-iq",title:"Mini IQ",file:"Mini_IQ_index.html",category:"brain",icon:"💡",tags:"iq puzzles reasoning",description:"A compact set of reasoning and intelligence challenges."},
-    {id:"connect-four",title:"Orion's Connect Four",file:"Orions_connect_four_index.html",category:"strategy",icon:"🔴",tags:"connect four board strategy",description:"Connect four while planning ahead and blocking your opponent."},
-    {id:"pocket-arcade",title:"Pocket Arcade",file:"Pocket_Arcade_index.html",category:"classic",icon:"🕹️",tags:"mini games arcade collection",description:"A compact collection of small arcade-style experiences."},
-    {id:"quantum-orb",title:"Quantum Orb",file:"Quantum_Orb_index.html",category:"brain",icon:"🔮",tags:"quantum puzzle logic",description:"A futuristic puzzle built around movement, focus, and possibility."},
-    {id:"sacred-geometry",title:"Sacred Geometry",file:"Sacred_Geometry_index.html",category:"discovery",icon:"✺",tags:"geometry pattern sacred",description:"Explore symmetry, proportion, and repeating geometric structures."},
-    {id:"signal-garden",title:"Signal Garden",file:"Signal_Garden_index.html",category:"brain",icon:"📡",tags:"signal logic pattern",description:"Detect, interpret, and follow signals through a patterned environment."},
-    {id:"sixbysix",title:"SixbySix",file:"SixbySix_index.html",category:"strategy",icon:"6️⃣",tags:"grid numbers logic",description:"A six-by-six grid challenge requiring careful planning."},
-    {id:"tictactoe",title:"Tic-Tac-Toe",file:"Tictactoe_index.html",category:"strategy",icon:"⭕",tags:"classic grid strategy",description:"A timeless grid game that introduces planning and anticipation."},
-    {id:"trivia-esl",title:"ESL Trivia",file:"Trivia_ESL_index.html",category:"trivia",icon:"🗣️",tags:"english language esl trivia",description:"Practice English vocabulary and language knowledge through trivia."},
-    {id:"trivia-sovereign-arts",title:"Sovereign Arts Trivia",file:"Trivia_Soveriegn_arts_index.html",category:"trivia",icon:"🖼️",tags:"arts culture trivia",description:"Explore independent creativity, arts knowledge, and cultural ideas."},
-    {id:"trivia-ancients",title:"Ancients Trivia",file:"Trivia_ancients_index.html",category:"trivia",icon:"🏺",tags:"ancient history trivia",description:"Test your knowledge of ancient peoples, places, and civilizations."},
-    {id:"trivia-arts",title:"Arts Trivia",file:"Trivia_arts_index.html",category:"trivia",icon:"🎭",tags:"art artists trivia",description:"Challenge your knowledge of visual art, artists, and creative history."},
-    {id:"trivia-bible",title:"Bible Trivia",file:"Trivia_bible_index.html",category:"trivia",icon:"📜",tags:"bible scripture trivia",description:"Explore people, places, themes, and stories from biblical texts."},
-    {id:"trivia-canon",title:"Canon Trivia",file:"Trivia_canon_index.html",category:"trivia",icon:"📚",tags:"canon literature trivia",description:"Test your knowledge of influential works and cultural traditions."},
-    {id:"trivia-daily-news",title:"The Verifier Daily News Quiz",file:"Trivia_daily_news_index.html",category:"trivia",icon:"📰",tags:"daily news current events verifier quiz trivia",description:"Test current-events awareness through a daily news quiz from The Verifier."},
-    {id:"trivia-health",title:"Health Trivia",file:"Trivia_health_index.html",category:"trivia",icon:"🩺",tags:"health wellness trivia",description:"Build practical knowledge about the body, health, and wellness."},
-    {id:"trivia-music",title:"Music Trivia",file:"Trivia_music_index.html",category:"trivia",icon:"🎵",tags:"music composers trivia",description:"Explore instruments, traditions, rhythm, and musical history."},
-    {id:"trivia-oddball",title:"Oddball Trivia",file:"Trivia_oddball_index.html",category:"trivia",icon:"🤹",tags:"odd facts trivia",description:"A surprising collection of strange, memorable, and unexpected facts."},
-    {id:"trivia-remnant",title:"Remnant Nations Trivia",file:"Trivia_remnenat_nations_index.html",category:"trivia",icon:"🗺️",tags:"nations cultures history trivia",description:"Explore peoples, identities, histories, and lesser-known national stories."},
-    {id:"trivia-testament",title:"The Testament Trivia",file:"Trivia_testament_index.html",category:"trivia",icon:"📖",tags:"testament biblical bible scripture five level quiz trivia",description:"A five-level biblical quiz exploring people, events, teachings, and scriptural knowledge."},
-    {id:"trivia-testament-kids",title:"The Testament Trivia — Kids Mode",file:"Trivia_testament_kids_index.html",category:"trivia",icon:"🌟",tags:"testament kids bible biblical scripture family quiz trivia",description:"A younger-player edition of Testament Trivia with an approachable family-friendly format."},
-    {id:"balloon-brigade",title:"Balloon Brigade",file:"balloon_brigade_index.html",category:"classic",icon:"🎈",tags:"balloon cooperative birthday arcade action co-op",description:"A colorful cooperative birthday-edition arcade challenge built for quick shared play."},
-    {id:"stadium-showdown",title:"Stadium Showdown",file:"statium_showdown_index.html",category:"classic",icon:"🏟️",tags:"stadium sports showdown arcade competition",description:"Enter a fast sports-themed arcade showdown with energetic competitive play."},
-    {id:"lawn-care-trivia",title:"Lawn Care Quiz — Thyme to Grow",file:"trivia_lawn_care_index.html",category:"trivia",icon:"🌱",tags:"lawn care gardening plants quiz trivia thyme grow",description:"Test practical lawn-care and growing knowledge through a green-thumb trivia challenge."},
-    {id:"virtual-lawn-mower",title:"Virtual Lawn Mower — Thyme to Grow",file:"virtual_lawn_mower_index.html",category:"classic",icon:"🌿",tags:"virtual lawn mower gardening simulation arcade thyme grow",description:"A playful lawn-mowing simulation that turns yard care into an arcade experience."},
-  ];
+  {
+    "id":"backgammon",
+    "title":"Backgammon",
+    "file":"Backgammon_index.html",
+    "category":"strategy",
+    "icon":"🎲",
+    "tags":"board classic strategy dice tabletop",
+    "description":"A refined edition of one of the world's enduring race-and-strategy board games."
+  },
+  {
+    "id":"checkers-lab",
+    "title":"Checkers Variant Lab",
+    "file":"Checkers_Variant_Lab_index.html",
+    "category":"strategy",
+    "icon":"⚫",
+    "tags":"checkers board strategy variants tabletop",
+    "description":"Play traditional checkers and explore alternate rule systems in a dedicated strategy laboratory."
+  },
+  {
+    "id":"chess-studio",
+    "title":"Chess Studio",
+    "file":"Chess_Studio_index.html",
+    "category":"strategy",
+    "icon":"♟️",
+    "tags":"chess planning board tactics tabletop",
+    "description":"Practice planning, tactics, position, and spatial reasoning through an approachable chess studio."
+  },
+  {
+    "id":"sudoku",
+    "title":"Jenny's Sudoku",
+    "file":"Jenny's_Sudoku_index.html",
+    "category":"strategy",
+    "icon":"🔢",
+    "tags":"sudoku numbers logic grid",
+    "description":"A focused number-grid challenge for patient deduction and careful placement."
+  },
+  {
+    "id":"connect-four",
+    "title":"Orion's Connect Four",
+    "file":"Orions_connect_four_index.html",
+    "category":"strategy",
+    "icon":"🔴",
+    "tags":"connect four board strategy grid",
+    "description":"Connect four while reading the board, planning ahead, and blocking an opponent."
+  },
+  {
+    "id":"sixbysix",
+    "title":"SixbySix",
+    "file":"SixbySix_index.html",
+    "category":"strategy",
+    "icon":"6️⃣",
+    "tags":"six grid numbers logic strategy",
+    "description":"A six-by-six grid challenge that rewards deliberate planning and pattern awareness."
+  },
+  {
+    "id":"tictactoe",
+    "title":"Tic-Tac-Toe",
+    "file":"Tictactoe_index.html",
+    "category":"strategy",
+    "icon":"⭕",
+    "tags":"classic grid strategy planning",
+    "description":"A timeless first strategy game built around anticipation, blocking, and clean visual play."
+  },
+  {
+    "id":"hangman",
+    "title":"Hangman",
+    "file":"Hangman_index.html",
+    "category":"word",
+    "icon":"🔠",
+    "tags":"words spelling vocabulary language classic",
+    "description":"A familiar word game for spelling, vocabulary, inference, and letter-pattern practice."
+  },
+  {
+    "id":"new-word",
+    "title":"Learn a New Word",
+    "file":"Learn_a_New_Word_index.html",
+    "category":"word",
+    "icon":"📖",
+    "tags":"vocabulary language words learning",
+    "description":"Build vocabulary one word at a time through an accessible interactive learning routine."
+  },
+  {
+    "id":"trivia-esl",
+    "title":"ESL Trivia",
+    "file":"Trivia_ESL_index.html",
+    "category":"word",
+    "icon":"🗣️",
+    "tags":"english language esl vocabulary trivia",
+    "description":"Practice English vocabulary, comprehension, and everyday language knowledge through trivia."
+  },
+  {
+    "id":"affixsix",
+    "title":"AffixSix™",
+    "file":"AffixSix™_index.html",
+    "category":"puzzle",
+    "icon":"✳️",
+    "tags":"math number pattern six logic puzzle",
+    "description":"A distinctive number-and-pattern experience built around six-part structures."
+  },
+  {
+    "id":"chromatic-focus",
+    "title":"Chromatic Focus",
+    "file":"a_chromatic_focus_game_index.html",
+    "category":"puzzle",
+    "icon":"🌈",
+    "tags":"focus color attention visual logic",
+    "description":"Train visual attention and response control through carefully shifting chromatic challenges."
+  },
+  {
+    "id":"color-clash",
+    "title":"Color Clash",
+    "file":"a_color_clash_game_index.html",
+    "category":"puzzle",
+    "icon":"💥",
+    "tags":"color visual reaction puzzle arcade",
+    "description":"A lively color-matching challenge built around quick recognition and controlled decisions."
+  },
+  {
+    "id":"colorshift-cascade",
+    "title":"Colorshift Cascade",
+    "file":"a_colorshift_cascade_game_index.html",
+    "category":"puzzle",
+    "icon":"🔷",
+    "tags":"color matching sequence reaction visual",
+    "description":"Follow shifting colors through a cascading visual-sequence puzzle."
+  },
+  {
+    "id":"haystack-escape",
+    "title":"Haystack Escape",
+    "file":"a_haystack_escape_game_index.html",
+    "category":"puzzle",
+    "icon":"🌾",
+    "tags":"maze escape farm logic path puzzle",
+    "description":"Navigate progressive farm labyrinths through observation, route planning, and careful movement."
+  },
+  {
+    "id":"lumin-gate",
+    "title":"Lumin Gate",
+    "file":"a_lumin_gate_game_index.html",
+    "category":"puzzle",
+    "icon":"🚪",
+    "tags":"rune logic light threads puzzle",
+    "description":"Rotate luminous sigils and weave exact rune connections to stabilize each aurora gate."
+  },
+  {
+    "id":"signal-garden",
+    "title":"Signal Garden",
+    "file":"a_signal_garden_game_index.html",
+    "category":"puzzle",
+    "icon":"📡",
+    "tags":"signal logic pattern visual puzzle",
+    "description":"Detect, interpret, and follow signals through a patterned experimental garden."
+  },
+  {
+    "id":"critter-crafter",
+    "title":"Critter Crafter",
+    "file":"a_critter_crafter_game_index.html",
+    "category":"creative",
+    "icon":"🦊",
+    "tags":"animals fusion design creative collection",
+    "description":"Combine magical ingredients, discover stable species, and raise a living local bestiary."
+  },
+  {
+    "id":"geometry-sanctuary",
+    "title":"Geometry Sanctuary",
+    "file":"a_geometry_sanctuary_game_index.html",
+    "category":"creative",
+    "icon":"△",
+    "tags":"geometry shapes visual creative sanctuary",
+    "description":"Explore geometric form, composition, and quiet visual structure in an immersive sanctuary."
+  },
+  {
+    "id":"mandala-rings",
+    "title":"Mandala Rings",
+    "file":"a_mandala_rings_game_index.html",
+    "category":"creative",
+    "icon":"🌀",
+    "tags":"mandala strategy rings pattern art",
+    "description":"Place, move, and complete patterned rings in a contemplative geometric board studio."
+  },
+  {
+    "id":"mind-garden",
+    "title":"Mind Garden",
+    "file":"a_mind_garden_game_index.html",
+    "category":"creative",
+    "icon":"🌿",
+    "tags":"garden mindfulness creativity stewardship",
+    "description":"Grow a living conservatory through planting, care, weather, habitats, and gentle stewardship."
+  },
+  {
+    "id":"quantum-orb",
+    "title":"Quantum Storyseed Orb",
+    "file":"a_quantum_storyseed_orb_game_index.html",
+    "category":"creative",
+    "icon":"🔮",
+    "tags":"story seed writing imagination quantum orb",
+    "description":"Turn luminous prompts and unexpected combinations into new story seeds and imaginative directions."
+  },
+  {
+    "id":"sacred-geometry",
+    "title":"Sacred Geometry Sanctuary",
+    "file":"a_sacred_geometry_game_index.html",
+    "category":"creative",
+    "icon":"✺",
+    "tags":"sacred geometry mandala creative pattern",
+    "description":"Build radial forms, save visual studies, and explore symbolic geometric composition."
+  },
+  {
+    "id":"trivia-sovereign-arts",
+    "title":"Sovereign Arts Trivia",
+    "file":"Trivia_Soveriegn_arts_index.html",
+    "category":"trivia",
+    "icon":"🖼️",
+    "tags":"sovereign arts culture independent creativity trivia",
+    "description":"Explore independent creativity, visual culture, and sovereign artistic traditions."
+  },
+  {
+    "id":"trivia-ancients",
+    "title":"Ancients Trivia",
+    "file":"Trivia_ancients_index.html",
+    "category":"trivia",
+    "icon":"🏺",
+    "tags":"ancient history civilizations trivia",
+    "description":"Test knowledge of ancient peoples, places, innovations, and civilizations."
+  },
+  {
+    "id":"trivia-arts",
+    "title":"Arts Trivia",
+    "file":"Trivia_arts_index.html",
+    "category":"trivia",
+    "icon":"🎭",
+    "tags":"art artists visual culture trivia",
+    "description":"Challenge knowledge of visual art, artists, media, movements, and creative history."
+  },
+  {
+    "id":"trivia-bible",
+    "title":"Bible Trivia",
+    "file":"Trivia_bible_index.html",
+    "category":"trivia",
+    "icon":"📜",
+    "tags":"bible scripture people places stories trivia",
+    "description":"Explore people, places, themes, and stories from biblical texts."
+  },
+  {
+    "id":"trivia-canon",
+    "title":"Canon Trivia",
+    "file":"Trivia_canon_index.html",
+    "category":"trivia",
+    "icon":"📚",
+    "tags":"canon literature influential works culture trivia",
+    "description":"Test knowledge of influential works, traditions, and cultural canons."
+  },
+  {
+    "id":"civic-compass",
+    "title":"Civic Compass Trivia",
+    "file":"Trivia_civic_Compass_inndex.html",
+    "category":"trivia",
+    "icon":"🧭",
+    "tags":"civic compass civics citizenship government trivia",
+    "description":"Navigate civic knowledge, public responsibilities, institutions, and community choices."
+  },
+  {
+    "id":"trivia-daily-news",
+    "title":"The Verifier Daily News Quiz",
+    "file":"Trivia_daily_news_index.html",
+    "category":"trivia",
+    "icon":"📰",
+    "tags":"daily news current events verifier quiz trivia",
+    "description":"Practice current-events awareness through the Arcade's connected daily news quiz."
+  },
+  {
+    "id":"trivia-health",
+    "title":"Health Trivia",
+    "file":"Trivia_health_index.html",
+    "category":"trivia",
+    "icon":"🩺",
+    "tags":"health body wellness medical trivia",
+    "description":"Build practical knowledge about the body, health, prevention, and wellness."
+  },
+  {
+    "id":"lawn-care-trivia",
+    "title":"Lawn Care Trivia",
+    "file":"Trivia_lawn_care_index.html",
+    "category":"trivia",
+    "icon":"🌱",
+    "tags":"lawn care gardening plants trivia",
+    "description":"Test practical lawn, soil, plant, seasonal, and garden-care knowledge."
+  },
+  {
+    "id":"mini-iq",
+    "title":"Mini IQ Trivia",
+    "file":"Trivia_mini_IQ_index.html",
+    "category":"trivia",
+    "icon":"💡",
+    "tags":"mini iq reasoning knowledge trivia",
+    "description":"A compact collection of reasoning questions, patterns, and intelligence challenges."
+  },
+  {
+    "id":"trivia-music",
+    "title":"Music Trivia",
+    "file":"Trivia_music_index.html",
+    "category":"trivia",
+    "icon":"🎵",
+    "tags":"music instruments composers traditions trivia",
+    "description":"Explore instruments, rhythm, composers, genres, and musical history."
+  },
+  {
+    "id":"trivia-oddball",
+    "title":"Oddball Trivia",
+    "file":"Trivia_oddball_index.html",
+    "category":"trivia",
+    "icon":"🤹",
+    "tags":"odd facts surprising knowledge trivia",
+    "description":"A surprising collection of strange, memorable, and unexpected facts."
+  },
+  {
+    "id":"trivia-remnant",
+    "title":"Remnant Nations Trivia",
+    "file":"Trivia_remnenat_nations_index.html",
+    "category":"trivia",
+    "icon":"🗺️",
+    "tags":"remnant nations cultures history identity trivia",
+    "description":"Explore peoples, identities, histories, and lesser-known national stories."
+  },
+  {
+    "id":"trivia-testament",
+    "title":"The Testament Trivia",
+    "file":"Trivia_testament_index.html",
+    "category":"trivia",
+    "icon":"📖",
+    "tags":"testament biblical scripture quiz trivia",
+    "description":"A layered biblical quiz exploring people, events, teachings, and scriptural knowledge."
+  },
+  {
+    "id":"trivia-testament-kids",
+    "title":"The Testament Trivia — Kids",
+    "file":"Trivia_testament_kids_index.html",
+    "category":"trivia",
+    "icon":"🌟",
+    "tags":"testament kids bible scripture family trivia",
+    "description":"A younger-player Testament edition with an approachable family-friendly format."
+  },
+  {
+    "id":"pocket-arcade",
+    "title":"Pocket Arcade",
+    "file":"Pocket_Arcade_index.htm",
+    "category":"action",
+    "icon":"🕹️",
+    "tags":"mini games pocket arcade collection action",
+    "description":"A compact collection of quick arcade experiences gathered into one portable cabinet."
+  },
+  {
+    "id":"balloon-brigade",
+    "title":"Balloon Brigade",
+    "file":"a_balloon_brigade_game_index.html",
+    "category":"action",
+    "icon":"🎈",
+    "tags":"balloon cooperative birthday arcade action",
+    "description":"A colorful balloon-rescue challenge built for lively quick play and coordinated movement."
+  },
+  {
+    "id":"stadium-showdown",
+    "title":"Stadium Showdown",
+    "file":"a_statium_showdown_game_index.html",
+    "category":"action",
+    "icon":"🏟️",
+    "tags":"stadium sports showdown arcade action competition",
+    "description":"Enter four timing-based sporting events in a polished championship arcade circuit."
+  },
+  {
+    "id":"thyme-to-mow",
+    "title":"Thyme to Mow",
+    "file":"a_thyme_to_mow_game_index.html",
+    "category":"action",
+    "icon":"🌿",
+    "tags":"lawn mower gardening simulation yard action",
+    "description":"Care for a changing yard with mower routes, tools, obstacles, and practical lawn strategy."
+  }
+];
 
 const paths = [
-    {title:"Strategy Initiation",description:"Build from simple grids toward deeper tactical play.",ids:["tictactoe","connect-four","checkers-lab","backgammon","chess-studio"]},
-    {title:"Pattern Intelligence",description:"Move through focus, signals, geometry, and number structures.",ids:["chromatic-focus","signal-garden","geometry-sanctuary","affixsix","sixbysix"]},
-    {title:"Creative Circuit",description:"Explore color, character design, mandalas, and visual experimentation.",ids:["critter-crafter","mandala-rings","color-clash","colorshift-cascade","chromatic-focus"]},
-    {title:"Knowledge Run",description:"Travel through language, history, art, music, current events, and unexpected facts.",ids:["trivia-esl","trivia-ancients","trivia-arts","trivia-daily-news","trivia-music","trivia-oddball"]},
-    {title:"Testament Trail",description:"Explore biblical knowledge through the general and younger-player Testament editions.",ids:["trivia-bible","trivia-testament","trivia-testament-kids"]},
-    {title:"Outdoor Action Run",description:"Move from cooperative celebration to sports competition and green-thumb arcade play.",ids:["balloon-brigade","stadium-showdown","lawn-care-trivia","virtual-lawn-mower"]}
-  ];
+  {
+    "title":"Strategy Initiation",
+    "description":"Build from simple grids toward deeper tactical and board-game play.",
+    "ids":[
+      "tictactoe",
+      "connect-four",
+      "sixbysix",
+      "checkers-lab",
+      "backgammon",
+      "chess-studio"
+    ]
+  },
+  {
+    "title":"Word Builder",
+    "description":"Move from vocabulary discovery into spelling and English-language practice.",
+    "ids":[
+      "new-word",
+      "hangman",
+      "trivia-esl"
+    ]
+  },
+  {
+    "title":"Visual Logic Circuit",
+    "description":"Train focus, sequence recognition, signal reading, mazes, and rune logic.",
+    "ids":[
+      "chromatic-focus",
+      "color-clash",
+      "colorshift-cascade",
+      "signal-garden",
+      "haystack-escape",
+      "lumin-gate"
+    ]
+  },
+  {
+    "title":"Creative Conservatory",
+    "description":"Travel through creature making, story seeds, gardens, mandalas, and geometry.",
+    "ids":[
+      "critter-crafter",
+      "quantum-orb",
+      "mind-garden",
+      "mandala-rings",
+      "geometry-sanctuary",
+      "sacred-geometry"
+    ]
+  },
+  {
+    "title":"Knowledge Expedition",
+    "description":"Explore arts, history, civics, health, music, news, faith, and unexpected facts.",
+    "ids":[
+      "trivia-arts",
+      "trivia-ancients",
+      "civic-compass",
+      "trivia-health",
+      "trivia-music",
+      "trivia-daily-news",
+      "trivia-oddball"
+    ]
+  },
+  {
+    "title":"Action Run",
+    "description":"Move through quick cabinets, balloons, championship sports, and living-yard simulation.",
+    "ids":[
+      "pocket-arcade",
+      "balloon-brigade",
+      "stadium-showdown",
+      "thyme-to-mow"
+    ]
+  }
+];
 
 const categories={
-  classic:{label:"Classic Arcade",code:"CLS",accent:"#63cddd",description:"Quick-play favorites, language games, simulations, and familiar arcade experiences."},
-  brain:{label:"Brain & Logic",code:"LOG",accent:"#8979d6",description:"Puzzles, pattern recognition, focus challenges, and reasoning experiments."},
-  strategy:{label:"Strategy Hall",code:"STR",accent:"#d6b36a",description:"Board games, grid challenges, planning, and tactical decision-making."},
-  creative:{label:"Creative Studio",code:"CRT",accent:"#cf6ca8",description:"Color, composition, design, mandalas, and imaginative play."},
-  trivia:{label:"Trivia Library",code:"TRV",accent:"#78c7ad",description:"History, arts, music, health, languages, cultures, and unusual knowledge."},
-  discovery:{label:"Discovery Lab",code:"DSC",accent:"#7ba5d8",description:"Geometry, civics, mathematical structure, practical learning, and exploration."}
+  "strategy":{
+    "label":"Strategy Table",
+    "code":"STR",
+    "accent":"#d6b36a",
+    "description":"Board games, number grids, tactical planning, and deliberate two-player thinking."
+  },
+  "word":{
+    "label":"Word & Language",
+    "code":"WRD",
+    "accent":"#78c7ad",
+    "description":"Vocabulary, spelling, English-language practice, and approachable word play."
+  },
+  "puzzle":{
+    "label":"Visual Logic & Puzzles",
+    "code":"LOG",
+    "accent":"#8979d6",
+    "description":"Color, signal, rune, maze, attention, and pattern-recognition challenges."
+  },
+  "creative":{
+    "label":"Creative & Contemplative",
+    "code":"CRT",
+    "accent":"#cf6ca8",
+    "description":"Creature design, story prompts, gardens, mandalas, and geometric studios."
+  },
+  "trivia":{
+    "label":"Trivia & Knowledge",
+    "code":"TRV",
+    "accent":"#63cddd",
+    "description":"Arts, history, civics, health, faith, music, news, languages, and unusual facts."
+  },
+  "action":{
+    "label":"Action & Simulation",
+    "code":"ACT",
+    "accent":"#d98964",
+    "description":"Sports, balloons, lawn care, quick cabinets, and hands-on simulation play."
+  }
 };
-const categoryOrder=["classic","brain","strategy","creative","trivia","discovery"];
+const categoryOrder=["strategy", "word", "puzzle", "creative", "trivia", "action"];
 const $=selector=>document.querySelector(selector);
 const escapeHTML=value=>String(value).replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char]));
 const urlFor=game=>BASE+encodeURI(game.file);
@@ -576,9 +1014,30 @@ function currentPool(){
 }
 function renderGames(){
   const shown=currentPool();
-  $("#gameGrid").innerHTML=shown.map(gameCard).join("");
+  const grouped=categoryOrder
+    .map(categoryId=>({
+      categoryId,
+      games:shown.filter(game=>game.category===categoryId)
+    }))
+    .filter(group=>group.games.length);
+
+  $("#catalogGroups").innerHTML=grouped.map(group=>{
+    const meta=categories[group.categoryId];
+    return `<section class="category-shelf" style="--shelf-tone:${meta.accent}" aria-labelledby="shelf-${group.categoryId}">
+      <div class="category-shelf-head">
+        <div>
+          <h3 id="shelf-${group.categoryId}">${escapeHTML(meta.label)}</h3>
+          <p>${escapeHTML(meta.description)}</p>
+        </div>
+        <span class="category-shelf-count">${group.games.length} ${group.games.length===1?"cabinet":"cabinets"}</span>
+      </div>
+      <div class="game-grid">${group.games.map(gameCard).join("")}</div>
+    </section>`;
+  }).join("");
+
   $("#noResults").style.display=shown.length?"none":"block";
-  $("#resultNote").textContent=`${shown.length} of ${games.length} cabinets shown · ${pins.size} pinned`;
+  const categoryBreakdown=grouped.map(group=>`${categories[group.categoryId].code} ${group.games.length}`).join(" · ");
+  $("#resultNote").textContent=`${shown.length} of ${games.length} cabinets shown · ${pins.size} pinned${categoryBreakdown?` · ${categoryBreakdown}`:""}`;
 }
 function renderWings(){
   $("#wingGrid").innerHTML=categoryOrder.map(id=>{
@@ -587,7 +1046,7 @@ function renderWings(){
     return `<article class="wing" style="--accent:${category.accent}">
       <div class="wing-top"><span class="wing-code">${category.code}</span><span class="wing-count">${count} cabinets</span></div>
       <h3>${escapeHTML(category.label)}</h3><p>${escapeHTML(category.description)}</p>
-      <button type="button" data-wing="${id}">Enter wing →</button>
+      <button type="button" data-wing="${id}">Open category →</button>
     </article>`;
   }).join("");
 }
