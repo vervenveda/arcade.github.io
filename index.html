@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="Arcade — a calm neon game hall with forty-two verified cabinets organized into strategy, language, visual logic, creativity, trivia, action, and simulation shelves.">
+<meta name="description" content="Arcade — a calm neon game hall with 58 verified and connected cabinets organized into strategy, language, visual logic, creativity, trivia, action, and simulation shelves.">
 <meta name="theme-color" content="#080b13">
 <meta name="color-scheme" content="dark">
 <meta name="referrer" content="same-origin">
@@ -270,6 +270,269 @@ footer{padding:24px 0 33px;border-top:1px solid var(--line);background:#05070c;c
 @media(max-width:420px){.brand-copy strong{display:none}.brand-mark{width:40px;height:40px;flex-basis:40px}.menu-button span:last-child{display:none}.hero h1{font-size:57px}.arcade-cabinet{padding:11px}.control-deck{grid-template-columns:1fr;justify-items:center}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation:none!important;transition:none!important}}
 @media print{header,.hero-actions,.facility-strip,.catalog-shell,.pin-button,.mobile-panel,.toast{display:none!important}body{color:#111;background:#fff}body::before,body::after{display:none}.section,.section-alt,.pinned-section{color:#111;background:#fff}.game-card,.wing,.path-card,.future-card,.network-card,.featured-cabinet,.community-panel,.family-panel{color:#111;background:#fff;box-shadow:none}}
+
+/* ==========================================================
+   2026 INFRASTRUCTURE AUDIT · BREATHING-ROOM REFINEMENT
+   Preserves the Arcade After Dark identity while opening the
+   layout and connecting public games across Verve N Veda.
+   ========================================================== */
+.wrap{width:min(calc(100% - 40px),1280px)}
+.section{padding:clamp(88px,10vw,132px) 0}
+.section-head{max-width:900px;margin-bottom:44px}
+.section-head p:last-child{margin-top:18px;line-height:1.8}
+.hero-inner{gap:66px;padding:82px 0 96px}
+.hero-lead{line-height:1.9}
+.hero-actions{margin-top:38px}
+.hero-stats{margin-top:40px}
+.wing-grid{gap:18px}
+.wing-card{padding:24px}
+.catalog-shell{padding:22px}
+.catalog-tools{gap:14px;margin-bottom:28px}
+.catalog-groups{gap:38px}
+.category-shelf{padding-top:8px}
+.category-shelf-head{margin-bottom:20px}
+.game-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;grid-auto-rows:1fr}
+.game-card{min-height:340px;padding:20px}
+.game-screen{min-height:116px}
+.game-card h3{margin-top:18px;font-size:22px}
+.game-card p{font-size:15px;line-height:1.72}
+.game-source{display:block;margin-top:10px;color:var(--mint);font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.game-actions{margin-top:auto;padding-top:24px}
+.launch{min-height:46px;padding:11px 14px}
+.path-grid,.future-grid{gap:18px}
+.path-card,.future-card{padding:28px}
+.family-panel{padding:44px;gap:44px}
+.network-grid{gap:18px}
+.network-card{padding:22px}
+@media(max-width:980px){.game-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.game-card{min-height:330px}}
+@media(max-width:650px){.wrap{width:min(calc(100% - 28px),1280px)}.section{padding:76px 0}.catalog-shell{padding:14px}.game-grid{grid-template-columns:1fr;gap:14px}.game-card{min-height:0;padding:18px}.family-panel{padding:28px}}
+
+
+
+/* ------------------------------------------------------------
+   Centering and type-spacing refinement
+   ------------------------------------------------------------ */
+body{
+  text-align:center;
+}
+
+.hero-copy,
+.section-head,
+.pinned-head,
+.wing,
+.category-shelf-head,
+.game-card,
+.featured-cabinet,
+.community-panel,
+.path-card,
+.future-card,
+.family-panel,
+.network-card,
+footer{
+  text-align:center;
+}
+
+.hero-copy,
+.hero-lead,
+.section-head p,
+.pinned-head p,
+.wing p,
+.category-shelf-head p,
+.game-card p,
+.featured-cabinet p,
+.path-card p,
+.future-card p,
+.family-panel p,
+.network-card p{
+  margin-left:auto;
+  margin-right:auto;
+}
+
+.hero-actions,
+.hero-stats,
+.wing-top,
+.game-top,
+.game-actions,
+.path-steps,
+.footer-links{
+  justify-content:center;
+}
+
+.open-sign{
+  justify-content:center;
+  width:100%;
+}
+
+/* Remove overly compressed display spacing that caused letters to collide. */
+.hero h1,
+.section-head h2,
+.pinned-head h2,
+.wing h3,
+.category-shelf-head h3,
+.game-card h3,
+.featured-cabinet h3,
+.community-panel h3,
+.path-card h3,
+.future-card h3,
+.family-panel h2,
+.network-card h3,
+.marquee{
+  letter-spacing:.015em;
+  line-height:1.16;
+  overflow-wrap:normal;
+  word-break:normal;
+  text-wrap:balance;
+}
+
+.hero h1{
+  line-height:.94;
+  letter-spacing:.025em;
+}
+
+.section-head h2{
+  line-height:1.12;
+  letter-spacing:.025em;
+  padding-top:3px;
+}
+
+.eyebrow{
+  display:block;
+  width:100%;
+  margin:0 auto;
+  padding:0;
+  line-height:1.45;
+  letter-spacing:.14em;
+  text-align:center;
+}
+
+.pinned-head{
+  display:grid;
+  grid-template-columns:1fr;
+  justify-items:center;
+  align-items:center;
+  gap:14px;
+}
+
+.pinned-head p{
+  max-width:680px;
+}
+
+.wing-grid,
+.game-grid,
+.path-grid,
+.future-grid,
+.network-grid{
+  justify-items:stretch;
+}
+
+.wing{
+  align-items:center;
+}
+
+.wing-top{
+  width:100%;
+}
+
+.wing h3{
+  width:100%;
+  margin-top:24px;
+  line-height:1.18;
+}
+
+.wing button{
+  align-self:center;
+}
+
+.category-shelf-head{
+  grid-template-columns:1fr;
+  justify-items:center;
+  align-items:center;
+}
+
+.category-shelf-count{
+  white-space:normal;
+}
+
+.game-card{
+  align-items:stretch;
+}
+
+.game-top{
+  width:100%;
+}
+
+.game-category{
+  min-width:0;
+  line-height:1.35;
+  text-align:left;
+  overflow-wrap:anywhere;
+}
+
+.game-card h3{
+  min-height:2.65em;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.game-actions{
+  width:100%;
+}
+
+.launch{
+  justify-content:center;
+  text-align:center;
+}
+
+/* Keep cabinet labels fully inside their frames. */
+.screen-copy{
+  inset:14px;
+  line-height:1.35;
+  letter-spacing:.11em;
+}
+
+.coin-slot{
+  width:110px;
+  min-height:33px;
+  height:auto;
+  padding:5px 10px;
+  line-height:1.2;
+  white-space:nowrap;
+  overflow:hidden;
+}
+
+.control-grid{
+  align-items:stretch;
+}
+
+.control-grid label,
+.control-button{
+  min-width:0;
+}
+
+.field,
+.control-button{
+  height:100%;
+  min-height:52px;
+  text-align:center;
+}
+
+@media(max-width:980px){
+  .hero-copy,
+  .section-head,
+  .pinned-head,
+  .wing,
+  .game-card,
+  .featured-cabinet,
+  .community-panel,
+  .path-card,
+  .future-card,
+  .family-panel,
+  .network-card{
+    text-align:center;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -297,10 +560,10 @@ footer{padding:24px 0 33px;border-top:1px solid var(--line);background:#05070c;c
 <section class="hero" id="top">
   <div class="wrap hero-inner">
     <div class="hero-copy">
-      <div class="open-sign"><span class="open-dot"></span><span>The hall is open</span></div>
+      <div class="open-sign"><span>The hall is open</span></div>
       <h1>Arcade</h1>
       <p class="hero-subtitle">Insert curiosity · choose a cabinet · begin</p>
-      <p class="hero-lead">A low-light game hall with forty-two verified cabinets arranged into clear strategy, language, visual-logic, creative, knowledge, action, and simulation shelves.</p>
+      <p class="hero-lead">A low-light game hall with 58 verified and connected cabinets arranged into clear strategy, language, visual-logic, creative, knowledge, action, and simulation shelves.</p>
       <div class="hero-actions">
         <a class="btn btn-primary" href="#catalog">Enter the Game Hall</a>
         <button class="btn btn-secondary" id="randomHero" type="button">Random Cabinet</button>
@@ -346,18 +609,19 @@ footer{padding:24px 0 33px;border-top:1px solid var(--line);background:#05070c;c
 
 <section class="section" id="wings">
   <div class="wrap">
-    <div class="section-head"><p class="eyebrow">Six clear entrances</p><h2>Game Categories</h2><p>Each category opens a dedicated shelf and filters the verified forty-two-cabinet registry.</p></div>
+    <div class="section-head"><p class="eyebrow">Seven clear entrances</p><h2>Game Categories</h2><p>Each category opens a dedicated shelf and filters the verified 58-cabinet registry.</p></div>
     <div class="wing-grid" id="wingGrid"></div>
   </div>
 </section>
 
 <section class="section section-alt" id="catalog">
+  <!-- Registry includes native Arcade cabinets plus selected public games from Bazaar Art and Aurora Sanctuary. -->
   <div class="wrap">
     <div class="section-head"><p class="eyebrow">Verified cabinet registry</p><h2>Game Library</h2><p>Every supplied filename is represented once. Search across the shelves, filter a category, show only pins, or let the Arcade choose.</p></div>
     <div class="catalog-shell">
       <div class="control-grid">
         <label><span style="position:absolute;left:-9999px">Search games</span><input class="field" id="search" type="search" placeholder="Search games, skills, themes…"></label>
-        <label><span style="position:absolute;left:-9999px">Filter by game category</span><select class="field" id="category"><option value="all">All game categories</option><option value="strategy">Strategy Table</option><option value="word">Word &amp; Language</option><option value="puzzle">Visual Logic &amp; Puzzles</option><option value="creative">Creative &amp; Contemplative</option><option value="trivia">Trivia &amp; Knowledge</option><option value="action">Action &amp; Simulation</option></select></label>
+        <label><span style="position:absolute;left:-9999px">Filter by game category</span><select class="field" id="category"><option value="all">All game categories</option><option value="strategy">Strategy Table</option><option value="word">Word &amp; Language</option><option value="puzzle">Visual Logic &amp; Puzzles</option><option value="creative">Creative &amp; Contemplative</option><option value="trivia">Trivia &amp; Knowledge</option><option value="action">Action &amp; Simulation</option><option value="sanctuary">Sanctuary Play</option></select></label>
         <label><span style="position:absolute;left:-9999px">Sort games</span><select class="field" id="sort"><option value="registry">Registry order</option><option value="az">Title A–Z</option><option value="za">Title Z–A</option><option value="category">Group by wing</option></select></label>
         <button class="control-button" id="pinnedOnly" type="button" aria-pressed="false">Pinned only</button>
         <button class="control-button" id="randomCatalog" type="button">Surprise me</button>
@@ -382,7 +646,7 @@ footer{padding:24px 0 33px;border-top:1px solid var(--line);background:#05070c;c
         <h3>The Arcade is never finished.</h3>
         <div class="update-list">
           <div class="update"><strong>Pin system online</strong><span>Favorites are saved locally and appear in the Pinned Cabinets shelf.</span></div>
-          <div class="update"><strong>Forty-two verified cabinets</strong><span>Every supplied filename appears exactly once and remains searchable, sortable, and filterable.</span></div>
+          <div class="update"><strong>58 verified and connected cabinets</strong><span>Arcade originals and selected public games from Bazaar Art and Aurora Sanctuary remain searchable, sortable, filterable, and pinnable in one hall.</span></div>
           <div class="update"><strong>Comfortable neon</strong><span>Glows are restrained, motion is minimal, and reduced-motion preferences are respected.</span></div>
           <div class="update"><strong>Free play</strong><span>No account, remote service, or outside dependency is required.</span></div>
         </div>
@@ -423,7 +687,7 @@ footer{padding:24px 0 33px;border-top:1px solid var(--line);background:#05070c;c
 
 <section class="section" id="network">
   <div class="wrap">
-    <div class="section-head"><p class="eyebrow">Connected network</p><h2>Beyond the Game Hall</h2><p>Continue into the wider Verve N Veda system without leaving the internal repository network.</p></div>
+    <div class="section-head"><p class="eyebrow">Connected network</p><h2>Beyond the Game Hall</h2><p>Continue into the wider Verve N Veda public network through direct landing-page doorways.</p></div>
     <div class="network-grid">
       <a class="network-card" href="../"><strong>Verve N Veda</strong><span>Main public gateway.</span></a>
       <a class="network-card" href="../khaemenesacademy.github.io/"><strong>Khaemenes Academy</strong><span>Courses and learning portals.</span></a>
@@ -455,382 +719,542 @@ const PIN_KEY="arcade_pinned_cabinets_v2";
 
 const games = [
   {
-    "id":"backgammon",
-    "title":"Backgammon",
-    "file":"Backgammon_index.html",
-    "category":"strategy",
-    "icon":"🎲",
-    "tags":"board classic strategy dice tabletop",
-    "description":"A refined edition of one of the world's enduring race-and-strategy board games."
+    "id": "backgammon",
+    "title": "Backgammon",
+    "file": "Backgammon_index.html",
+    "category": "strategy",
+    "icon": "🎲",
+    "tags": "board classic strategy dice tabletop",
+    "description": "A refined edition of one of the world's enduring race-and-strategy board games."
   },
   {
-    "id":"checkers-lab",
-    "title":"Checkers Variant Lab",
-    "file":"Checkers_Variant_Lab_index.html",
-    "category":"strategy",
-    "icon":"⚫",
-    "tags":"checkers board strategy variants tabletop",
-    "description":"Play traditional checkers and explore alternate rule systems in a dedicated strategy laboratory."
+    "id": "checkers-lab",
+    "title": "Checkers Variant Lab",
+    "file": "Checkers_Variant_Lab_index.html",
+    "category": "strategy",
+    "icon": "⚫",
+    "tags": "checkers board strategy variants tabletop",
+    "description": "Play traditional checkers and explore alternate rule systems in a dedicated strategy laboratory."
   },
   {
-    "id":"chess-studio",
-    "title":"Chess Studio",
-    "file":"Chess_Studio_index.html",
-    "category":"strategy",
-    "icon":"♟️",
-    "tags":"chess planning board tactics tabletop",
-    "description":"Practice planning, tactics, position, and spatial reasoning through an approachable chess studio."
+    "id": "chess-studio",
+    "title": "Chess Studio",
+    "file": "Chess_Studio_index.html",
+    "category": "strategy",
+    "icon": "♟️",
+    "tags": "chess planning board tactics tabletop",
+    "description": "Practice planning, tactics, position, and spatial reasoning through an approachable chess studio."
   },
   {
-    "id":"sudoku",
-    "title":"Jenny's Sudoku",
-    "file":"Jenny's_Sudoku_index.html",
-    "category":"strategy",
-    "icon":"🔢",
-    "tags":"sudoku numbers logic grid",
-    "description":"A focused number-grid challenge for patient deduction and careful placement."
+    "id": "sudoku",
+    "title": "Jenny's Sudoku",
+    "file": "Jenny's_Sudoku_index.html",
+    "category": "strategy",
+    "icon": "🔢",
+    "tags": "sudoku numbers logic grid",
+    "description": "A focused number-grid challenge for patient deduction and careful placement."
   },
   {
-    "id":"connect-four",
-    "title":"Orion's Connect Four",
-    "file":"Orions_connect_four_index.html",
-    "category":"strategy",
-    "icon":"🔴",
-    "tags":"connect four board strategy grid",
-    "description":"Connect four while reading the board, planning ahead, and blocking an opponent."
+    "id": "connect-four",
+    "title": "Orion's Connect Four",
+    "file": "Orions_connect_four_index.html",
+    "category": "strategy",
+    "icon": "🔴",
+    "tags": "connect four board strategy grid",
+    "description": "Connect four while reading the board, planning ahead, and blocking an opponent."
   },
   {
-    "id":"sixbysix",
-    "title":"SixbySix",
-    "file":"SixbySix_index.html",
-    "category":"strategy",
-    "icon":"6️⃣",
-    "tags":"six grid numbers logic strategy",
-    "description":"A six-by-six grid challenge that rewards deliberate planning and pattern awareness."
+    "id": "sixbysix",
+    "title": "SixbySix",
+    "file": "SixbySix_index.html",
+    "category": "strategy",
+    "icon": "6️⃣",
+    "tags": "six grid numbers logic strategy",
+    "description": "A six-by-six grid challenge that rewards deliberate planning and pattern awareness."
   },
   {
-    "id":"tictactoe",
-    "title":"Tic-Tac-Toe",
-    "file":"Tictactoe_index.html",
-    "category":"strategy",
-    "icon":"⭕",
-    "tags":"classic grid strategy planning",
-    "description":"A timeless first strategy game built around anticipation, blocking, and clean visual play."
+    "id": "tictactoe",
+    "title": "Tic-Tac-Toe",
+    "file": "Tictactoe_index.html",
+    "category": "strategy",
+    "icon": "⭕",
+    "tags": "classic grid strategy planning",
+    "description": "A timeless first strategy game built around anticipation, blocking, and clean visual play."
   },
   {
-    "id":"hangman",
-    "title":"Hangman",
-    "file":"Hangman_index.html",
-    "category":"word",
-    "icon":"🔠",
-    "tags":"words spelling vocabulary language classic",
-    "description":"A familiar word game for spelling, vocabulary, inference, and letter-pattern practice."
+    "id": "hangman",
+    "title": "Hangman",
+    "file": "Hangman_index.html",
+    "category": "word",
+    "icon": "🔠",
+    "tags": "words spelling vocabulary language classic",
+    "description": "A familiar word game for spelling, vocabulary, inference, and letter-pattern practice."
   },
   {
-    "id":"new-word",
-    "title":"Learn a New Word",
-    "file":"Learn_a_New_Word_index.html",
-    "category":"word",
-    "icon":"📖",
-    "tags":"vocabulary language words learning",
-    "description":"Build vocabulary one word at a time through an accessible interactive learning routine."
+    "id": "new-word",
+    "title": "Learn a New Word",
+    "file": "Learn_a_New_Word_index.html",
+    "category": "word",
+    "icon": "📖",
+    "tags": "vocabulary language words learning",
+    "description": "Build vocabulary one word at a time through an accessible interactive learning routine."
   },
   {
-    "id":"trivia-esl",
-    "title":"ESL Trivia",
-    "file":"Trivia_ESL_index.html",
-    "category":"word",
-    "icon":"🗣️",
-    "tags":"english language esl vocabulary trivia",
-    "description":"Practice English vocabulary, comprehension, and everyday language knowledge through trivia."
+    "id": "trivia-esl",
+    "title": "ESL Trivia",
+    "file": "Trivia_ESL_index.html",
+    "category": "word",
+    "icon": "🗣️",
+    "tags": "english language esl vocabulary trivia",
+    "description": "Practice English vocabulary, comprehension, and everyday language knowledge through trivia."
   },
   {
-    "id":"affixsix",
-    "title":"AffixSix™",
-    "file":"AffixSix™_index.html",
-    "category":"puzzle",
-    "icon":"✳️",
-    "tags":"math number pattern six logic puzzle",
-    "description":"A distinctive number-and-pattern experience built around six-part structures."
+    "id": "affixsix",
+    "title": "AffixSix™",
+    "file": "AffixSix™_index.html",
+    "category": "puzzle",
+    "icon": "✳️",
+    "tags": "math number pattern six logic puzzle",
+    "description": "A distinctive number-and-pattern experience built around six-part structures."
   },
   {
-    "id":"chromatic-focus",
-    "title":"Chromatic Focus",
-    "file":"a_chromatic_focus_game_index.html",
-    "category":"puzzle",
-    "icon":"🌈",
-    "tags":"focus color attention visual logic",
-    "description":"Train visual attention and response control through carefully shifting chromatic challenges."
+    "id": "chromatic-focus",
+    "title": "Chromatic Focus",
+    "file": "a_chromatic_focus_game_index.html",
+    "category": "puzzle",
+    "icon": "🌈",
+    "tags": "focus color attention visual logic",
+    "description": "Train visual attention and response control through carefully shifting chromatic challenges."
   },
   {
-    "id":"color-clash",
-    "title":"Color Clash",
-    "file":"a_color_clash_game_index.html",
-    "category":"puzzle",
-    "icon":"💥",
-    "tags":"color visual reaction puzzle arcade",
-    "description":"A lively color-matching challenge built around quick recognition and controlled decisions."
+    "id": "color-clash",
+    "title": "Color Clash",
+    "file": "a_color_clash_game_index.html",
+    "category": "puzzle",
+    "icon": "💥",
+    "tags": "color visual reaction puzzle arcade",
+    "description": "A lively color-matching challenge built around quick recognition and controlled decisions."
   },
   {
-    "id":"colorshift-cascade",
-    "title":"Colorshift Cascade",
-    "file":"a_colorshift_cascade_game_index.html",
-    "category":"puzzle",
-    "icon":"🔷",
-    "tags":"color matching sequence reaction visual",
-    "description":"Follow shifting colors through a cascading visual-sequence puzzle."
+    "id": "colorshift-cascade",
+    "title": "Colorshift Cascade",
+    "file": "a_colorshift_cascade_game_index.html",
+    "category": "puzzle",
+    "icon": "🔷",
+    "tags": "color matching sequence reaction visual",
+    "description": "Follow shifting colors through a cascading visual-sequence puzzle."
   },
   {
-    "id":"haystack-escape",
-    "title":"Haystack Escape",
-    "file":"a_haystack_escape_game_index.html",
-    "category":"puzzle",
-    "icon":"🌾",
-    "tags":"maze escape farm logic path puzzle",
-    "description":"Navigate progressive farm labyrinths through observation, route planning, and careful movement."
+    "id": "haystack-escape",
+    "title": "Haystack Escape",
+    "file": "a_haystack_escape_game_index.html",
+    "category": "puzzle",
+    "icon": "🌾",
+    "tags": "maze escape farm logic path puzzle",
+    "description": "Navigate progressive farm labyrinths through observation, route planning, and careful movement."
   },
   {
-    "id":"lumin-gate",
-    "title":"Lumin Gate",
-    "file":"a_lumin_gate_game_index.html",
-    "category":"puzzle",
-    "icon":"🚪",
-    "tags":"rune logic light threads puzzle",
-    "description":"Rotate luminous sigils and weave exact rune connections to stabilize each aurora gate."
+    "id": "lumin-gate",
+    "title": "Lumin Gate",
+    "file": "a_lumin_gate_game_index.html",
+    "category": "puzzle",
+    "icon": "🚪",
+    "tags": "rune logic light threads puzzle",
+    "description": "Rotate luminous sigils and weave exact rune connections to stabilize each aurora gate."
   },
   {
-    "id":"signal-garden",
-    "title":"Signal Garden",
-    "file":"a_signal_garden_game_index.html",
-    "category":"puzzle",
-    "icon":"📡",
-    "tags":"signal logic pattern visual puzzle",
-    "description":"Detect, interpret, and follow signals through a patterned experimental garden."
+    "id": "signal-garden",
+    "title": "Signal Garden",
+    "file": "a_signal_garden_game_index.html",
+    "category": "puzzle",
+    "icon": "📡",
+    "tags": "signal logic pattern visual puzzle",
+    "description": "Detect, interpret, and follow signals through a patterned experimental garden."
   },
   {
-    "id":"critter-crafter",
-    "title":"Critter Crafter",
-    "file":"a_critter_crafter_game_index.html",
-    "category":"creative",
-    "icon":"🦊",
-    "tags":"animals fusion design creative collection",
-    "description":"Combine magical ingredients, discover stable species, and raise a living local bestiary."
+    "id": "critter-crafter",
+    "title": "Critter Crafter",
+    "file": "a_critter_crafter_game_index.html",
+    "category": "creative",
+    "icon": "🦊",
+    "tags": "animals fusion design creative collection",
+    "description": "Combine magical ingredients, discover stable species, and raise a living local bestiary."
   },
   {
-    "id":"geometry-sanctuary",
-    "title":"Geometry Sanctuary",
-    "file":"a_geometry_sanctuary_game_index.html",
-    "category":"creative",
-    "icon":"△",
-    "tags":"geometry shapes visual creative sanctuary",
-    "description":"Explore geometric form, composition, and quiet visual structure in an immersive sanctuary."
+    "id": "geometry-sanctuary",
+    "title": "Geometry Sanctuary",
+    "file": "a_geometry_sanctuary_game_index.html",
+    "category": "creative",
+    "icon": "△",
+    "tags": "geometry shapes visual creative sanctuary",
+    "description": "Explore geometric form, composition, and quiet visual structure in an immersive sanctuary."
   },
   {
-    "id":"mandala-rings",
-    "title":"Mandala Rings",
-    "file":"a_mandala_rings_game_index.html",
-    "category":"creative",
-    "icon":"🌀",
-    "tags":"mandala strategy rings pattern art",
-    "description":"Place, move, and complete patterned rings in a contemplative geometric board studio."
+    "id": "mandala-rings",
+    "title": "Mandala Rings",
+    "file": "a_mandala_rings_game_index.html",
+    "category": "creative",
+    "icon": "🌀",
+    "tags": "mandala strategy rings pattern art",
+    "description": "Place, move, and complete patterned rings in a contemplative geometric board studio."
   },
   {
-    "id":"mind-garden",
-    "title":"Mind Garden",
-    "file":"a_mind_garden_game_index.html",
-    "category":"creative",
-    "icon":"🌿",
-    "tags":"garden mindfulness creativity stewardship",
-    "description":"Grow a living conservatory through planting, care, weather, habitats, and gentle stewardship."
+    "id": "mind-garden",
+    "title": "Mind Garden",
+    "file": "a_mind_garden_game_index.html",
+    "category": "creative",
+    "icon": "🌿",
+    "tags": "garden mindfulness creativity stewardship",
+    "description": "Grow a living conservatory through planting, care, weather, habitats, and gentle stewardship."
   },
   {
-    "id":"quantum-orb",
-    "title":"Quantum Storyseed Orb",
-    "file":"a_quantum_storyseed_orb_game_index.html",
-    "category":"creative",
-    "icon":"🔮",
-    "tags":"story seed writing imagination quantum orb",
-    "description":"Turn luminous prompts and unexpected combinations into new story seeds and imaginative directions."
+    "id": "quantum-orb",
+    "title": "Quantum Storyseed Orb",
+    "file": "a_quantum_storyseed_orb_game_index.html",
+    "category": "creative",
+    "icon": "🔮",
+    "tags": "story seed writing imagination quantum orb",
+    "description": "Turn luminous prompts and unexpected combinations into new story seeds and imaginative directions."
   },
   {
-    "id":"sacred-geometry",
-    "title":"Sacred Geometry Sanctuary",
-    "file":"a_sacred_geometry_game_index.html",
-    "category":"creative",
-    "icon":"✺",
-    "tags":"sacred geometry mandala creative pattern",
-    "description":"Build radial forms, save visual studies, and explore symbolic geometric composition."
+    "id": "sacred-geometry",
+    "title": "Sacred Geometry Sanctuary",
+    "file": "a_sacred_geometry_game_index.html",
+    "category": "creative",
+    "icon": "✺",
+    "tags": "sacred geometry mandala creative pattern",
+    "description": "Build radial forms, save visual studies, and explore symbolic geometric composition."
   },
   {
-    "id":"trivia-sovereign-arts",
-    "title":"Sovereign Arts Trivia",
-    "file":"Trivia_Soveriegn_arts_index.html",
-    "category":"trivia",
-    "icon":"🖼️",
-    "tags":"sovereign arts culture independent creativity trivia",
-    "description":"Explore independent creativity, visual culture, and sovereign artistic traditions."
+    "id": "trivia-sovereign-arts",
+    "title": "Sovereign Arts Trivia",
+    "file": "Trivia_Soveriegn_arts_index.html",
+    "category": "trivia",
+    "icon": "🖼️",
+    "tags": "sovereign arts culture independent creativity trivia",
+    "description": "Explore independent creativity, visual culture, and sovereign artistic traditions."
   },
   {
-    "id":"trivia-ancients",
-    "title":"Ancients Trivia",
-    "file":"Trivia_ancients_index.html",
-    "category":"trivia",
-    "icon":"🏺",
-    "tags":"ancient history civilizations trivia",
-    "description":"Test knowledge of ancient peoples, places, innovations, and civilizations."
+    "id": "trivia-ancients",
+    "title": "Ancients Trivia",
+    "file": "Trivia_ancients_index.html",
+    "category": "trivia",
+    "icon": "🏺",
+    "tags": "ancient history civilizations trivia",
+    "description": "Test knowledge of ancient peoples, places, innovations, and civilizations."
   },
   {
-    "id":"trivia-arts",
-    "title":"Arts Trivia",
-    "file":"Trivia_arts_index.html",
-    "category":"trivia",
-    "icon":"🎭",
-    "tags":"art artists visual culture trivia",
-    "description":"Challenge knowledge of visual art, artists, media, movements, and creative history."
+    "id": "trivia-arts",
+    "title": "Arts Trivia",
+    "file": "Trivia_arts_index.html",
+    "category": "trivia",
+    "icon": "🎭",
+    "tags": "art artists visual culture trivia",
+    "description": "Challenge knowledge of visual art, artists, media, movements, and creative history."
   },
   {
-    "id":"trivia-bible",
-    "title":"Bible Trivia",
-    "file":"Trivia_bible_index.html",
-    "category":"trivia",
-    "icon":"📜",
-    "tags":"bible scripture people places stories trivia",
-    "description":"Explore people, places, themes, and stories from biblical texts."
+    "id": "trivia-bible",
+    "title": "Bible Trivia",
+    "file": "Trivia_bible_index.html",
+    "category": "trivia",
+    "icon": "📜",
+    "tags": "bible scripture people places stories trivia",
+    "description": "Explore people, places, themes, and stories from biblical texts."
   },
   {
-    "id":"trivia-canon",
-    "title":"Canon Trivia",
-    "file":"Trivia_canon_index.html",
-    "category":"trivia",
-    "icon":"📚",
-    "tags":"canon literature influential works culture trivia",
-    "description":"Test knowledge of influential works, traditions, and cultural canons."
+    "id": "trivia-canon",
+    "title": "Canon Trivia",
+    "file": "Trivia_canon_index.html",
+    "category": "trivia",
+    "icon": "📚",
+    "tags": "canon literature influential works culture trivia",
+    "description": "Test knowledge of influential works, traditions, and cultural canons."
   },
   {
-    "id":"civic-compass",
-    "title":"Civic Compass Trivia",
-    "file":"Trivia_civic_Compass_inndex.html",
-    "category":"trivia",
-    "icon":"🧭",
-    "tags":"civic compass civics citizenship government trivia",
-    "description":"Navigate civic knowledge, public responsibilities, institutions, and community choices."
+    "id": "civic-compass",
+    "title": "Civic Compass Trivia",
+    "file": "Trivia_civic_Compass_inndex.html",
+    "category": "trivia",
+    "icon": "🧭",
+    "tags": "civic compass civics citizenship government trivia",
+    "description": "Navigate civic knowledge, public responsibilities, institutions, and community choices."
   },
   {
-    "id":"trivia-daily-news",
-    "title":"The Verifier Daily News Quiz",
-    "file":"Trivia_daily_news_index.html",
-    "category":"trivia",
-    "icon":"📰",
-    "tags":"daily news current events verifier quiz trivia",
-    "description":"Practice current-events awareness through the Arcade's connected daily news quiz."
+    "id": "trivia-daily-news",
+    "title": "The Verifier Daily News Quiz",
+    "file": "Trivia_daily_news_index.html",
+    "category": "trivia",
+    "icon": "📰",
+    "tags": "daily news current events verifier quiz trivia",
+    "description": "Practice current-events awareness through the Arcade's connected daily news quiz."
   },
   {
-    "id":"trivia-health",
-    "title":"Health Trivia",
-    "file":"Trivia_health_index.html",
-    "category":"trivia",
-    "icon":"🩺",
-    "tags":"health body wellness medical trivia",
-    "description":"Build practical knowledge about the body, health, prevention, and wellness."
+    "id": "trivia-health",
+    "title": "Health Trivia",
+    "file": "Trivia_health_index.html",
+    "category": "trivia",
+    "icon": "🩺",
+    "tags": "health body wellness medical trivia",
+    "description": "Build practical knowledge about the body, health, prevention, and wellness."
   },
   {
-    "id":"lawn-care-trivia",
-    "title":"Lawn Care Trivia",
-    "file":"Trivia_lawn_care_index.html",
-    "category":"trivia",
-    "icon":"🌱",
-    "tags":"lawn care gardening plants trivia",
-    "description":"Test practical lawn, soil, plant, seasonal, and garden-care knowledge."
+    "id": "lawn-care-trivia",
+    "title": "Lawn Care Trivia",
+    "file": "Trivia_lawn_care_index.html",
+    "category": "trivia",
+    "icon": "🌱",
+    "tags": "lawn care gardening plants trivia",
+    "description": "Test practical lawn, soil, plant, seasonal, and garden-care knowledge."
   },
   {
-    "id":"mini-iq",
-    "title":"Mini IQ Trivia",
-    "file":"Trivia_mini_IQ_index.html",
-    "category":"trivia",
-    "icon":"💡",
-    "tags":"mini iq reasoning knowledge trivia",
-    "description":"A compact collection of reasoning questions, patterns, and intelligence challenges."
+    "id": "mini-iq",
+    "title": "Mini IQ Trivia",
+    "file": "Trivia_mini_IQ_index.html",
+    "category": "trivia",
+    "icon": "💡",
+    "tags": "mini iq reasoning knowledge trivia",
+    "description": "A compact collection of reasoning questions, patterns, and intelligence challenges."
   },
   {
-    "id":"trivia-music",
-    "title":"Music Trivia",
-    "file":"Trivia_music_index.html",
-    "category":"trivia",
-    "icon":"🎵",
-    "tags":"music instruments composers traditions trivia",
-    "description":"Explore instruments, rhythm, composers, genres, and musical history."
+    "id": "trivia-music",
+    "title": "Music Trivia",
+    "file": "Trivia_music_index.html",
+    "category": "trivia",
+    "icon": "🎵",
+    "tags": "music instruments composers traditions trivia",
+    "description": "Explore instruments, rhythm, composers, genres, and musical history."
   },
   {
-    "id":"trivia-oddball",
-    "title":"Oddball Trivia",
-    "file":"Trivia_oddball_index.html",
-    "category":"trivia",
-    "icon":"🤹",
-    "tags":"odd facts surprising knowledge trivia",
-    "description":"A surprising collection of strange, memorable, and unexpected facts."
+    "id": "trivia-oddball",
+    "title": "Oddball Trivia",
+    "file": "Trivia_oddball_index.html",
+    "category": "trivia",
+    "icon": "🤹",
+    "tags": "odd facts surprising knowledge trivia",
+    "description": "A surprising collection of strange, memorable, and unexpected facts."
   },
   {
-    "id":"trivia-remnant",
-    "title":"Remnant Nations Trivia",
-    "file":"Trivia_remnenat_nations_index.html",
-    "category":"trivia",
-    "icon":"🗺️",
-    "tags":"remnant nations cultures history identity trivia",
-    "description":"Explore peoples, identities, histories, and lesser-known national stories."
+    "id": "trivia-remnant",
+    "title": "Remnant Nations Trivia",
+    "file": "Trivia_remnenat_nations_index.html",
+    "category": "trivia",
+    "icon": "🗺️",
+    "tags": "remnant nations cultures history identity trivia",
+    "description": "Explore peoples, identities, histories, and lesser-known national stories."
   },
   {
-    "id":"trivia-testament",
-    "title":"The Testament Trivia",
-    "file":"Trivia_testament_index.html",
-    "category":"trivia",
-    "icon":"📖",
-    "tags":"testament biblical scripture quiz trivia",
-    "description":"A layered biblical quiz exploring people, events, teachings, and scriptural knowledge."
+    "id": "trivia-testament",
+    "title": "The Testament Trivia",
+    "file": "Trivia_testament_index.html",
+    "category": "trivia",
+    "icon": "📖",
+    "tags": "testament biblical scripture quiz trivia",
+    "description": "A layered biblical quiz exploring people, events, teachings, and scriptural knowledge."
   },
   {
-    "id":"trivia-testament-kids",
-    "title":"The Testament Trivia — Kids",
-    "file":"Trivia_testament_kids_index.html",
-    "category":"trivia",
-    "icon":"🌟",
-    "tags":"testament kids bible scripture family trivia",
-    "description":"A younger-player Testament edition with an approachable family-friendly format."
+    "id": "trivia-testament-kids",
+    "title": "The Testament Trivia — Kids",
+    "file": "Trivia_testament_kids_index.html",
+    "category": "trivia",
+    "icon": "🌟",
+    "tags": "testament kids bible scripture family trivia",
+    "description": "A younger-player Testament edition with an approachable family-friendly format."
   },
   {
-    "id":"pocket-arcade",
-    "title":"Pocket Arcade",
-    "file":"Pocket_Arcade_index.htm",
-    "category":"action",
-    "icon":"🕹️",
-    "tags":"mini games pocket arcade collection action",
-    "description":"A compact collection of quick arcade experiences gathered into one portable cabinet."
+    "id": "pocket-arcade",
+    "title": "Pocket Arcade",
+    "file": "Pocket_Arcade_index.htm",
+    "category": "action",
+    "icon": "🕹️",
+    "tags": "mini games pocket arcade collection action",
+    "description": "A compact collection of quick arcade experiences gathered into one portable cabinet."
   },
   {
-    "id":"balloon-brigade",
-    "title":"Balloon Brigade",
-    "file":"a_balloon_brigade_game_index.html",
-    "category":"action",
-    "icon":"🎈",
-    "tags":"balloon cooperative birthday arcade action",
-    "description":"A colorful balloon-rescue challenge built for lively quick play and coordinated movement."
+    "id": "balloon-brigade",
+    "title": "Balloon Brigade",
+    "file": "a_balloon_brigade_game_index.html",
+    "category": "action",
+    "icon": "🎈",
+    "tags": "balloon cooperative birthday arcade action",
+    "description": "A colorful balloon-rescue challenge built for lively quick play and coordinated movement."
   },
   {
-    "id":"stadium-showdown",
-    "title":"Stadium Showdown",
-    "file":"a_statium_showdown_game_index.html",
-    "category":"action",
-    "icon":"🏟️",
-    "tags":"stadium sports showdown arcade action competition",
-    "description":"Enter four timing-based sporting events in a polished championship arcade circuit."
+    "id": "stadium-showdown",
+    "title": "Stadium Showdown",
+    "file": "a_statium_showdown_game_index.html",
+    "category": "action",
+    "icon": "🏟️",
+    "tags": "stadium sports showdown arcade action competition",
+    "description": "Enter four timing-based sporting events in a polished championship arcade circuit."
   },
   {
-    "id":"thyme-to-mow",
-    "title":"Thyme to Mow",
-    "file":"a_thyme_to_mow_game_index.html",
-    "category":"action",
-    "icon":"🌿",
-    "tags":"lawn mower gardening simulation yard action",
-    "description":"Care for a changing yard with mower routes, tools, obstacles, and practical lawn strategy."
+    "id": "thyme-to-mow",
+    "title": "Thyme to Mow",
+    "file": "a_thyme_to_mow_game_index.html",
+    "category": "action",
+    "icon": "🌿",
+    "tags": "lawn mower gardening simulation yard action",
+    "description": "Care for a changing yard with mower routes, tools, obstacles, and practical lawn strategy."
+  },
+  {
+    "id": "bazaar-mirror-me",
+    "title": "Mirror Me",
+    "url": "../bazaarart.github.io/apps/Game_kids_mirror_me_index.html",
+    "category": "creative",
+    "icon": "◇",
+    "tags": "bazaar art kids movement symmetry mirror creative game",
+    "source": "Bazaar Art",
+    "description": "A playful movement and symmetry experience for younger artists, families, and creative classrooms."
+  },
+  {
+    "id": "bazaar-palette-forge",
+    "title": "Palette Forge",
+    "url": "../bazaarart.github.io/apps/Game_palette_forge_index.html",
+    "category": "creative",
+    "icon": "◒",
+    "tags": "bazaar art color palette creative game",
+    "source": "Bazaar Art",
+    "description": "Forge new color combinations through a focused creative challenge built around palette discovery."
+  },
+  {
+    "id": "bazaar-geometry-sanctuary",
+    "title": "Geometry Sanctuary — Bazaar Edition",
+    "url": "../bazaarart.github.io/apps/Geometry_sancturay_index.html",
+    "category": "creative",
+    "icon": "△",
+    "tags": "bazaar art geometry pattern visual harmony",
+    "source": "Bazaar Art",
+    "description": "A Bazaar Art edition for exploring pattern, geometry, balance, and visual harmony."
+  },
+  {
+    "id": "bazaar-creator-quiz",
+    "title": "What Kind of Creator?",
+    "url": "../bazaarart.github.io/apps/Inspiration_Kind_of_Creator_index.html",
+    "category": "creative",
+    "icon": "⌖",
+    "tags": "bazaar art creator quiz strengths pathways",
+    "source": "Bazaar Art",
+    "description": "A creative personality activity that reveals tendencies, strengths, and possible artistic pathways."
+  },
+  {
+    "id": "bazaar-inspiration-wheel",
+    "title": "Inspiration Wheel",
+    "url": "../bazaarart.github.io/apps/Inspiration_wheel_index.html",
+    "category": "creative",
+    "icon": "✺",
+    "tags": "bazaar art wheel prompt subject mood game",
+    "source": "Bazaar Art",
+    "description": "Spin for a fresh subject, mood, medium, or direction whenever a creative session needs momentum."
+  },
+  {
+    "id": "bazaar-spinspire",
+    "title": "SpinSpire Art Prompt Generator",
+    "url": "../bazaarart.github.io/apps/SpinSpire_Art_Prompt_Generator_index.html",
+    "category": "creative",
+    "icon": "◎",
+    "tags": "bazaar art prompt generator drawing painting writing",
+    "source": "Bazaar Art",
+    "description": "Generate layered prompts for drawing, painting, writing, and mixed-media play."
+  },
+  {
+    "id": "bazaar-sixbitbun",
+    "title": "SixBitBun",
+    "url": "../bazaarart.github.io/apps/SixBitBun_index.html",
+    "category": "creative",
+    "icon": "6",
+    "tags": "bazaar art compact mini game playful experimentation",
+    "source": "Bazaar Art",
+    "description": "A compact creative mini-game designed for quick, playful experimentation."
+  },
+  {
+    "id": "bazaar-word-alchemy",
+    "title": "Word Alchemy",
+    "url": "../bazaarart.github.io/apps/Word_alchemy_game_index.html",
+    "category": "word",
+    "icon": "Aa",
+    "tags": "bazaar art words combinations prompts story game",
+    "source": "Bazaar Art",
+    "description": "Transform words into surprising combinations, story sparks, and imaginative prompts."
+  },
+  {
+    "id": "aurora-color-alchemy",
+    "title": "Color Alchemy",
+    "url": "../aurora.github.io/color_alchemy_index.html",
+    "category": "sanctuary",
+    "icon": "◐",
+    "tags": "aurora sanctuary color mood intuition creative play",
+    "source": "Aurora Sanctuary",
+    "description": "Explore color as a language for mood, intuition, and restorative creative play."
+  },
+  {
+    "id": "aurora-creative-odyssey",
+    "title": "Creative Mind Odyssey",
+    "url": "../aurora.github.io/creative_mind_odyssey_index.html",
+    "category": "sanctuary",
+    "icon": "✦",
+    "tags": "aurora sanctuary imaginative journey prompts discovery",
+    "source": "Aurora Sanctuary",
+    "description": "A guided imaginative journey through prompts, possibilities, and playful discovery."
+  },
+  {
+    "id": "aurora-creative-wheel",
+    "title": "Creative Wheel",
+    "url": "../aurora.github.io/creative_wheel_index.html",
+    "category": "sanctuary",
+    "icon": "✺",
+    "tags": "aurora sanctuary wheel prompt direction medium subject",
+    "source": "Aurora Sanctuary",
+    "description": "Turn the wheel for a new direction, medium, subject, or creative spark."
+  },
+  {
+    "id": "aurora-inspiration-mosaic",
+    "title": "Inspiration Mosaic",
+    "url": "../aurora.github.io/insiration_mosaic_index.html",
+    "category": "sanctuary",
+    "icon": "◇",
+    "tags": "aurora sanctuary inspiration mosaic collage ideas",
+    "source": "Aurora Sanctuary",
+    "description": "Gather fragments of color, language, image, and thought into a living inspiration board."
+  },
+  {
+    "id": "aurora-niche-venn",
+    "title": "Niche Venn",
+    "url": "../aurora.github.io/niche_venn_index.html",
+    "category": "sanctuary",
+    "icon": "◑",
+    "tags": "aurora sanctuary venn interests strengths values audience",
+    "source": "Aurora Sanctuary",
+    "description": "Discover playful intersections among your interests, strengths, values, and audience."
+  },
+  {
+    "id": "aurora-starlight-jar",
+    "title": "Starlight Jar",
+    "url": "../aurora.github.io/starlight_jar_index.html",
+    "category": "sanctuary",
+    "icon": "✷",
+    "tags": "aurora sanctuary gratitude jar kindness beauty courage",
+    "source": "Aurora Sanctuary",
+    "description": "Collect small lights from the day—kindness, beauty, courage, and moments worth keeping."
+  },
+  {
+    "id": "aurora-story-spark",
+    "title": "Story Spark",
+    "url": "../aurora.github.io/story_spark_index.html",
+    "category": "sanctuary",
+    "icon": "⌇",
+    "tags": "aurora sanctuary story writing prompt fiction game",
+    "source": "Aurora Sanctuary",
+    "description": "Open a doorway into character, scene, conflict, wonder, and narrative possibility."
+  },
+  {
+    "id": "aurora-daily-spark",
+    "title": "Daily Spark",
+    "url": "../aurora.github.io/daily_spark_index.html",
+    "category": "sanctuary",
+    "icon": "✧",
+    "tags": "aurora sanctuary daily inspiration prompt playful challenge",
+    "source": "Aurora Sanctuary",
+    "description": "Receive one small invitation to begin with curiosity, creativity, and motion."
   }
 ];
 
@@ -941,12 +1365,18 @@ const categories={
     "code":"ACT",
     "accent":"#d98964",
     "description":"Sports, balloons, lawn care, quick cabinets, and hands-on simulation play."
+  },
+  "sanctuary":{
+    "label":"Sanctuary Play",
+    "code":"AUR",
+    "accent":"#78c7ad",
+    "description":"Restorative creativity, reflective play, story sparks, color, gratitude, and gentle discovery from Aurora Sanctuary."
   }
 };
-const categoryOrder=["strategy", "word", "puzzle", "creative", "trivia", "action"];
+const categoryOrder=["strategy", "word", "puzzle", "creative", "trivia", "action", "sanctuary"];
 const $=selector=>document.querySelector(selector);
 const escapeHTML=value=>String(value).replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char]));
-const urlFor=game=>BASE+encodeURI(game.file);
+const urlFor=game=>game.url||BASE+encodeURI(game.file);
 let pins=loadPins();
 let pinnedOnly=false;
 let toastTimer=0;
@@ -978,6 +1408,7 @@ function gameCard(game){
       <span class="game-category">${escapeHTML(meta.code)} · ${escapeHTML(meta.label)}</span>
       <button class="pin-button" type="button" data-pin="${escapeHTML(game.id)}" aria-pressed="${pinned}" aria-label="${pinned?"Unpin":"Pin"} ${escapeHTML(game.title)}" title="${pinned?"Unpin from":"Pin to"} favorites">${pinned?"★":"☆"}</button>
     </div>
+    ${game.source?`<span class="game-source">Connected cabinet · ${escapeHTML(game.source)}</span>`:""}
     <h3>${escapeHTML(game.title)}</h3>
     <p>${escapeHTML(game.description)}</p>
     <div class="game-actions"><a class="launch" href="${escapeHTML(urlFor(game))}"><span>Launch game</span><span>→</span></a></div>
