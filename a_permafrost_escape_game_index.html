@@ -1,0 +1,2628 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Permafrost Escape — a sovereign, local-first educational engineering simulation built with vanilla HTML, CSS, and JavaScript.">
+<meta name="theme-color" content="#07110f">
+<meta name="color-scheme" content="dark">
+<meta name="referrer" content="same-origin">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' data: blob:; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'none'; media-src 'self' data: blob:; object-src 'none'; frame-src 'none'; worker-src 'self' blob:; base-uri 'self'; form-action 'self';">
+<title>Permafrost Escape — Khaemenes Interactive Learning Engine</title>
+<style>
+:root{
+  --bg:#06100e;
+  --bg-2:#0a1714;
+  --panel:#10221d;
+  --panel-2:#173027;
+  --screen:#071713;
+  --ink:#f2f5ef;
+  --ink-soft:#d8e2dc;
+  --muted:#a9b8b0;
+  --faint:#728279;
+  --mint:#74d2ad;
+  --mint-soft:#b9efd6;
+  --cyan:#6cc8d7;
+  --cyan-soft:#b8edf3;
+  --amber:#ddb86e;
+  --amber-soft:#f1d99f;
+  --rose:#cf7e91;
+  --red:#d46f75;
+  --line:rgba(185,239,214,.16);
+  --line-strong:rgba(185,239,214,.31);
+  --shadow:0 24px 66px rgba(0,0,0,.36);
+  --shadow-small:0 12px 33px rgba(0,0,0,.24);
+  --radius:7px;
+  --weight-text:333;
+  --weight-emphasis:444;
+  --s3:3px;
+  --s7:7px;
+  --s11:11px;
+  --s14:14px;
+  --s24:24px;
+  --s33:33px;
+  --s55:55px;
+  --s66:66px;
+  --max:1440px;
+  --display:"Avenir Next Condensed","Brandon Grotesque","Helvetica Neue","Arial Narrow","Trebuchet MS",sans-serif;
+  --sans:"Avenir Next","Helvetica Neue","Trebuchet MS",Verdana,"Segoe UI",sans-serif;
+  --mono:"Courier New",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html{
+  scroll-behavior:smooth;
+  scroll-padding-top:82px;
+  font-synthesis:none;
+  text-rendering:geometricPrecision;
+  -webkit-font-smoothing:antialiased;
+}
+body{
+  margin:0;
+  min-width:310px;
+  min-height:100vh;
+  overflow-x:hidden;
+  color:var(--ink);
+  background:
+    radial-gradient(circle at 12% -5%,rgba(116,210,173,.10),transparent 32rem),
+    radial-gradient(circle at 91% 3%,rgba(221,184,110,.08),transparent 30rem),
+    linear-gradient(180deg,var(--bg),#081512 55%,#050b0a);
+  font-family:var(--sans);
+  font-size:16px;
+  font-weight:var(--weight-text);
+  line-height:1.62;
+}
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-1;
+  pointer-events:none;
+  opacity:.38;
+  background-image:
+    linear-gradient(rgba(108,200,215,.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(116,210,173,.025) 1px,transparent 1px);
+  background-size:33px 33px;
+  mask-image:linear-gradient(to bottom,black,transparent 96%);
+}
+body[data-motion="reduced"] *,
+body[data-motion="reduced"] *::before,
+body[data-motion="reduced"] *::after{
+  animation:none!important;
+  transition:none!important;
+  scroll-behavior:auto!important;
+}
+a{color:inherit}
+button,input,select,textarea{font:inherit}
+button{color:inherit;cursor:pointer}
+strong,b{font-weight:var(--weight-emphasis)}
+h1,h2,h3{font-weight:var(--weight-text)}
+::selection{color:#06130f;background:var(--mint-soft)}
+:focus-visible{outline:3px solid var(--mint-soft);outline-offset:3px}
+[hidden]{display:none!important}
+.wrap{width:min(calc(100% - 22px),var(--max));margin-inline:auto}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+/* Header */
+.site-header{
+  position:sticky;
+  top:0;
+  z-index:1200;
+  border-bottom:1px solid var(--line);
+  background:rgba(6,16,14,.94);
+  backdrop-filter:blur(18px);
+  box-shadow:0 11px 33px rgba(0,0,0,.24);
+}
+.header-inner{
+  min-height:66px;
+  display:grid;
+  grid-template-columns:minmax(220px,1fr) auto minmax(220px,1fr);
+  align-items:center;
+  gap:14px;
+  padding:7px 0;
+}
+.arcade-home{
+  justify-self:start;
+  display:inline-flex;
+  align-items:center;
+  gap:11px;
+  min-width:0;
+  text-decoration:none;
+}
+.brand-mark{
+  width:44px;
+  height:44px;
+  flex:0 0 44px;
+  display:grid;
+  place-items:center;
+  border:1px solid var(--mint);
+  border-radius:var(--radius);
+  color:#06130f;
+  background:
+    radial-gradient(circle at 34% 25%,rgba(255,255,255,.68),transparent 20%),
+    linear-gradient(145deg,var(--mint-soft),var(--mint));
+  font-family:var(--mono);
+  font-size:11px;
+  font-weight:var(--weight-emphasis);
+  letter-spacing:.04em;
+  box-shadow:0 0 22px rgba(116,210,173,.15);
+}
+.brand-copy{display:grid;min-width:0;line-height:1.05}
+.brand-copy strong{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  font-family:var(--display);
+  font-size:12px;
+  letter-spacing:.11em;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+.brand-copy small{
+  margin-top:7px;
+  color:var(--muted);
+  font-family:var(--mono);
+  font-size:11px;
+  white-space:nowrap;
+}
+.game-id{justify-self:center;text-align:center}
+.game-id strong{
+  display:block;
+  font-family:var(--display);
+  font-size:14px;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+}
+.game-id small{
+  display:block;
+  margin-top:3px;
+  color:var(--cyan-soft);
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.09em;
+  text-transform:uppercase;
+}
+.header-status{
+  justify-self:end;
+  padding:7px 11px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  color:var(--muted);
+  background:var(--screen);
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.07em;
+  text-align:right;
+  text-transform:uppercase;
+}
+.header-status strong{color:var(--mint)}
+
+/* Hero */
+main{padding:24px 0 36px}
+.hero{
+  padding:24px;
+  border:1px solid var(--line-strong);
+  border-radius:var(--radius);
+  background:linear-gradient(145deg,rgba(16,34,29,.96),rgba(7,20,17,.96));
+  box-shadow:var(--shadow);
+}
+.hero-top{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:24px;
+  align-items:center;
+}
+.eyebrow{
+  color:var(--amber);
+  font-family:var(--mono);
+  font-size:12px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+}
+h1{
+  margin:11px 0;
+  font-family:var(--display);
+  font-size:clamp(40px,6vw,72px);
+  line-height:.91;
+  letter-spacing:-.045em;
+  text-transform:uppercase;
+}
+.hero p{
+  max-width:930px;
+  margin:0;
+  color:var(--ink-soft);
+  font-size:clamp(16px,1.35vw,19px);
+}
+.badges{
+  display:flex;
+  max-width:340px;
+  justify-content:flex-end;
+  gap:7px;
+  flex-wrap:wrap;
+}
+.badge{
+  padding:7px 10px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  color:var(--mint-soft);
+  background:rgba(255,255,255,.025);
+  font-family:var(--mono);
+  font-size:11px;
+  text-transform:uppercase;
+}
+.tabs{
+  display:flex;
+  gap:7px;
+  flex-wrap:wrap;
+  margin-top:18px;
+}
+.tab,.btn{
+  min-height:44px;
+  padding:8px 12px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  color:var(--ink-soft);
+  background:var(--panel-2);
+  font-family:var(--mono);
+  font-size:11px;
+  font-weight:var(--weight-emphasis);
+  letter-spacing:.04em;
+  text-transform:uppercase;
+}
+.tab:hover:not(:disabled),.btn:hover:not(:disabled){
+  color:var(--mint-soft);
+  border-color:var(--mint);
+  transform:translateY(-1px);
+}
+.tab.active,.btn.primary{
+  color:#05120e;
+  border-color:var(--mint);
+  background:linear-gradient(135deg,var(--mint-soft),var(--mint));
+}
+.btn.amber{
+  color:#1c1305;
+  border-color:var(--amber);
+  background:linear-gradient(135deg,var(--amber-soft),var(--amber));
+}
+.btn.cyan{
+  color:#07191c;
+  border-color:var(--cyan);
+  background:linear-gradient(135deg,var(--cyan-soft),var(--cyan));
+}
+.btn.danger{color:#fff;border-color:var(--red);background:var(--red)}
+.btn:disabled{cursor:not-allowed;opacity:.38}
+
+/* Layout */
+.section{display:none}
+.section.active{display:block}
+.layout{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 370px;
+  gap:14px;
+  margin-top:14px;
+}
+.side{
+  display:grid;
+  gap:11px;
+  align-content:start;
+}
+.panel{
+  min-width:0;
+  padding:14px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:linear-gradient(160deg,var(--panel),#0b1b17);
+  box-shadow:var(--shadow-small);
+}
+.panel h2,.panel h3{
+  margin:0;
+  font-family:var(--display);
+  letter-spacing:.025em;
+  text-transform:uppercase;
+}
+.panel h2{font-size:26px}
+.panel h3{font-size:18px}
+.sub{margin:7px 0 0;color:var(--muted);font-size:14px}
+.actions{
+  display:flex;
+  justify-content:center;
+  gap:7px;
+  flex-wrap:wrap;
+  margin-top:14px;
+}
+.row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:7px;
+  margin-top:11px;
+}
+label{
+  display:block;
+  color:var(--muted);
+  font-family:var(--mono);
+  font-size:11px;
+  text-transform:uppercase;
+}
+input,select,textarea{
+  width:100%;
+  min-height:44px;
+  margin-top:5px;
+  padding:8px 10px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  color:var(--ink);
+  background:var(--screen);
+}
+textarea{
+  min-height:260px;
+  resize:vertical;
+  font-family:var(--mono);
+  font-size:13px;
+}
+.data-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+  margin-top:14px;
+}
+
+/* HUD */
+.hud{
+  display:grid;
+  grid-template-columns:repeat(6,minmax(0,1fr));
+  gap:7px;
+  margin-bottom:11px;
+}
+.metric{
+  min-width:0;
+  padding:10px 7px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:var(--screen);
+  text-align:center;
+}
+.metric strong{
+  display:block;
+  color:var(--mint-soft);
+  font-family:var(--mono);
+  font-size:19px;
+  overflow-wrap:anywhere;
+}
+.metric:nth-child(2) strong{color:var(--amber-soft)}
+.metric:nth-child(3) strong{color:var(--rose)}
+.metric:nth-child(4) strong{color:var(--cyan-soft)}
+.metric:nth-child(5) strong{color:var(--sky,#8dbfdc)}
+.metric:nth-child(6) strong{color:var(--ink)}
+.metric span{
+  display:block;
+  margin-top:3px;
+  color:var(--muted);
+  font-family:var(--mono);
+  font-size:10px;
+  text-transform:uppercase;
+}
+
+/* Canvas */
+.canvas-shell{
+  position:relative;
+  aspect-ratio:16/10;
+  min-height:500px;
+  overflow:hidden;
+  border:7px solid #030807;
+  border-radius:var(--radius);
+  background:#0b211b;
+  box-shadow:inset 0 0 50px rgba(0,0,0,.65),0 22px 55px rgba(0,0,0,.34);
+  touch-action:none;
+  user-select:none;
+}
+canvas{
+  display:block;
+  width:100%;
+  height:100%;
+  touch-action:none;
+}
+.canvas-shell::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:repeating-linear-gradient(to bottom,transparent 0 3px,rgba(255,255,255,.012) 3px 4px);
+}
+.overlay{
+  position:absolute;
+  inset:0;
+  z-index:30;
+  display:grid;
+  place-items:center;
+  padding:22px;
+  background:rgba(3,8,7,.78);
+  backdrop-filter:blur(5px);
+  text-align:center;
+}
+.overlay-card{
+  width:min(100%,590px);
+  padding:24px;
+  border:1px solid var(--line-strong);
+  border-radius:var(--radius);
+  background:var(--panel);
+  box-shadow:var(--shadow);
+}
+.overlay-card h3{
+  margin:0;
+  font-family:var(--display);
+  font-size:32px;
+  text-transform:uppercase;
+}
+.overlay-card p{margin:11px 0 0;color:var(--muted)}
+.overlay-metrics{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:7px;
+  margin-top:17px;
+}
+.overlay-metrics div{
+  padding:11px 7px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:var(--screen);
+}
+.overlay-metrics strong{
+  display:block;
+  color:var(--mint-soft);
+  font-family:var(--mono);
+  font-size:21px;
+}
+.overlay-metrics span{
+  display:block;
+  color:var(--muted);
+  font-family:var(--mono);
+  font-size:10px;
+  text-transform:uppercase;
+}
+.status{
+  min-height:54px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin-top:11px;
+  padding:11px 14px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  color:var(--ink-soft);
+  background:var(--screen);
+  text-align:center;
+}
+.canvas-help{
+  display:flex;
+  justify-content:space-between;
+  gap:11px;
+  flex-wrap:wrap;
+  margin-top:7px;
+  color:var(--muted);
+  font-family:var(--mono);
+  font-size:10px;
+}
+.objectives{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:7px;
+  margin-top:11px;
+}
+.objective{
+  padding:8px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  color:var(--muted);
+  background:var(--screen);
+  text-align:center;
+}
+.objective strong{
+  display:block;
+  color:var(--ink);
+  font-family:var(--mono);
+  font-size:12px;
+}
+.objective small{display:block;margin-top:3px;font-size:10px}
+.objective.good{border-color:var(--mint);background:rgba(116,210,173,.08)}
+.objective.warn{border-color:var(--amber);background:rgba(221,184,110,.06)}
+.objective.danger{border-color:var(--red);background:rgba(212,111,117,.06)}
+
+/* Tools */
+.tool-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:7px;
+  margin-top:11px;
+}
+.tool{
+  min-height:68px;
+  padding:9px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  color:var(--ink-soft);
+  background:var(--screen);
+  text-align:left;
+}
+.tool:hover{border-color:var(--mint)}
+.tool.active{
+  color:#06130f;
+  border-color:var(--mint);
+  background:var(--mint);
+  box-shadow:0 0 0 2px rgba(116,210,173,.12);
+}
+.tool b{
+  display:block;
+  font-family:var(--display);
+  font-size:11px;
+  text-transform:uppercase;
+}
+.tool small{display:block;margin-top:3px;color:inherit;opacity:.74;font-size:10px}
+.tool em{
+  display:block;
+  margin-top:3px;
+  color:var(--amber-soft);
+  font-family:var(--mono);
+  font-size:9px;
+  font-style:normal;
+}
+.tool.active em{color:#173127}
+.selection-card{
+  margin-top:11px;
+  padding:11px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:var(--screen);
+}
+.selection-card strong{
+  display:block;
+  color:var(--mint-soft);
+  font-family:var(--display);
+  font-size:13px;
+  text-transform:uppercase;
+}
+.selection-card p{margin:7px 0 0;color:var(--muted);font-size:13px}
+
+/* Logs and memory */
+.log{
+  max-height:280px;
+  overflow:auto;
+  display:grid;
+  gap:6px;
+  margin-top:10px;
+  padding-right:3px;
+}
+.log-item{
+  padding:8px 10px;
+  border-left:3px solid var(--mint);
+  border-radius:var(--radius);
+  color:var(--ink-soft);
+  background:var(--screen);
+  font-size:13px;
+}
+.log-item.warn{border-left-color:var(--amber)}
+.log-item.danger{border-left-color:var(--red)}
+.memory{display:grid;gap:7px;margin-top:10px}
+.memory-row{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:10px;
+  align-items:center;
+  padding:9px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:var(--screen);
+}
+.memory-row span{color:var(--muted)}
+.memory-row strong{color:var(--mint-soft);font-family:var(--mono);font-size:13px}
+.advice{
+  margin-top:11px;
+  padding:14px;
+  border:1px solid var(--line);
+  border-left:3px solid var(--cyan);
+  border-radius:var(--radius);
+  background:var(--screen);
+}
+.advice strong{
+  display:block;
+  color:var(--cyan-soft);
+  font-family:var(--display);
+  text-transform:uppercase;
+}
+.advice p{margin:7px 0 0;color:var(--ink-soft)}
+.advice small{display:block;margin-top:9px;color:var(--muted)}
+
+/* Validation and science */
+.validation-list{
+  display:grid;
+  gap:7px;
+  margin-top:11px;
+}
+.validation-line{
+  display:flex;
+  justify-content:space-between;
+  gap:11px;
+  padding:8px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  color:var(--muted);
+  background:var(--screen);
+}
+.validation-line strong{font-family:var(--mono)}
+.validation-line.ok strong{color:var(--mint)}
+.validation-line.bad strong{color:var(--red)}
+.science-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:11px;
+  margin-top:11px;
+}
+.science-card{
+  padding:11px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:var(--screen);
+}
+.science-card strong{
+  display:block;
+  color:var(--amber-soft);
+  font-family:var(--display);
+  text-transform:uppercase;
+}
+.science-card p{margin:7px 0 0;color:var(--muted);font-size:13px}
+
+/* Footer and toast */
+footer{
+  padding:24px 0 33px;
+  color:var(--faint);
+  text-align:center;
+  font-family:var(--mono);
+  font-size:11px;
+}
+.toast{
+  position:fixed;
+  right:14px;
+  bottom:14px;
+  z-index:3000;
+  max-width:min(420px,calc(100% - 28px));
+  padding:11px 14px;
+  border:1px solid var(--mint);
+  border-radius:var(--radius);
+  color:var(--ink);
+  background:var(--panel);
+  box-shadow:var(--shadow);
+  font-family:var(--mono);
+  font-size:11px;
+  transform:translateY(160%);
+  opacity:0;
+  transition:.18s ease;
+}
+.toast.show{transform:none;opacity:1}
+
+@media(max-width:1100px){
+  .header-inner{grid-template-columns:1fr auto}.game-id{display:none}
+  .layout{grid-template-columns:1fr}
+  .side{grid-template-columns:1fr 1fr}
+  .side .wide{grid-column:1/-1}
+}
+@media(max-width:780px){
+  .hero-top{grid-template-columns:1fr}
+  .badges{justify-content:flex-start;max-width:none}
+  .hud{grid-template-columns:repeat(3,1fr)}
+  .side{grid-template-columns:1fr}
+  .side .wide{grid-column:auto}
+  .canvas-shell{min-height:440px}
+  .data-grid{grid-template-columns:1fr}
+  .objectives{grid-template-columns:1fr 1fr}
+  .science-grid{grid-template-columns:1fr}
+}
+@media(max-width:520px){
+  .wrap{width:min(calc(100% - 12px),var(--max))}
+  .hero,.panel{padding:11px}
+  .brand-copy small{display:none}
+  .header-status{display:none}
+  h1{font-size:42px}
+  .hud{grid-template-columns:repeat(2,1fr)}
+  .tool-grid,.row{grid-template-columns:1fr}
+  .canvas-shell{min-height:405px;aspect-ratio:1/1}
+  .objectives{grid-template-columns:1fr}
+  .overlay-metrics{grid-template-columns:1fr 1fr}
+}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body data-motion="full">
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="arcade-home" href="index.html" aria-label="Return to the Arcade landing page">
+      <span class="brand-mark" aria-hidden="true">KILE</span>
+      <span class="brand-copy">
+        <strong>Khaemenes Interactive Learning Engine</strong>
+        <small>Sovereign local simulation sandbox</small>
+      </span>
+    </a>
+    <div class="game-id"><strong>Permafrost Escape</strong><small>Arctic Containment Laboratory</small></div>
+    <div class="header-status">System · <strong id="systemState">Ready</strong></div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <div class="hero-top">
+      <div>
+        <div class="eyebrow">Dependency-free educational engineering simulation</div>
+        <h1>Permafrost Escape</h1>
+        <p>Design an Arctic containment vault, reveal hidden hazards, route functional cooling networks, isolate methane and biological risks, preserve power and coolant, and train a transparent local digital crew through the decisions made on this device.</p>
+      </div>
+      <div class="badges">
+        <span class="badge">Vanilla JS</span>
+        <span class="badge">Local-first</span>
+        <span class="badge">No network calls</span>
+        <span class="badge">Deterministic missions</span>
+      </div>
+    </div>
+
+    <nav class="tabs" aria-label="Application sections">
+      <button class="tab active" data-tab="mission" type="button">Mission</button>
+      <button class="tab" data-tab="sandbox" type="button">Vault Architect</button>
+      <button class="tab" data-tab="crew" type="button">Digital Crew</button>
+      <button class="tab" data-tab="science" type="button">Science Brief</button>
+      <button class="tab" data-tab="data" type="button">Data Vault</button>
+    </nav>
+  </section>
+
+  <section id="mission" class="section active">
+    <div class="layout">
+      <div>
+        <section class="panel">
+          <div class="hud">
+            <div class="metric"><strong id="tempMetric">-12.0°C</strong><span>Vault Temp</span></div>
+            <div class="metric"><strong id="pressureMetric">18%</strong><span>Methane</span></div>
+            <div class="metric"><strong id="bioMetric">8%</strong><span>Bio Risk</span></div>
+            <div class="metric"><strong id="powerMetric">100%</strong><span>Power</span></div>
+            <div class="metric"><strong id="coolantMetric">100%</strong><span>Coolant</span></div>
+            <div class="metric"><strong id="integrityMetric">100%</strong><span>Integrity</span></div>
+          </div>
+
+          <div class="canvas-shell">
+            <canvas id="world" width="960" height="600" tabindex="0" aria-label="Interactive permafrost containment vault"></canvas>
+            <div class="overlay" id="overlay">
+              <div class="overlay-card">
+                <h3 id="overlayTitle">Vault Awaiting Command</h3>
+                <p id="overlayText">Generate a deterministic mission. The same seed recreates the same terrain and hazards.</p>
+                <div class="overlay-metrics" id="overlayMetrics" hidden></div>
+                <div class="actions">
+                  <button class="btn primary" id="overlayGenerateBtn" type="button">Generate Mission</button>
+                  <button class="btn amber" id="overlayStartBtn" type="button" hidden>Begin Simulation</button>
+                  <button class="btn cyan" id="overlayResumeBtn" type="button" hidden>Resume</button>
+                  <button class="btn" id="overlayReplayBtn" type="button" hidden>Rebuild Mission</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="objectives">
+            <div class="objective" id="dayObjective"><strong>Day 0 / 45</strong><small>Maintain containment</small></div>
+            <div class="objective" id="methaneObjective"><strong>Methane 18%</strong><small>Keep below 70%</small></div>
+            <div class="objective" id="bioObjective"><strong>Bio Risk 8%</strong><small>Keep below 65%</small></div>
+            <div class="objective" id="integrityObjective"><strong>Integrity 100%</strong><small>Keep above 35%</small></div>
+          </div>
+
+          <div class="status" id="statusText" aria-live="polite">Generate a mission to inspect the vault.</div>
+          <div class="canvas-help">
+            <span>Pointer: select or apply active tool</span>
+            <span>Keyboard: arrows move cursor · Enter applies tool · P pauses</span>
+          </div>
+        </section>
+      </div>
+
+      <aside class="side">
+        <section class="panel">
+          <h3>Mission Control</h3>
+          <div class="row">
+            <label for="seedInput">Mission Seed
+              <input id="seedInput" value="KHAE-2084" maxlength="40">
+            </label>
+            <label for="difficulty">Difficulty
+              <select id="difficulty">
+                <option value="academy">Academy</option>
+                <option value="field" selected>Field</option>
+                <option value="crisis">Crisis</option>
+              </select>
+            </label>
+          </div>
+          <div class="actions">
+            <button class="btn primary" id="generateBtn" type="button">Generate</button>
+            <button class="btn amber" id="startBtn" type="button">Start</button>
+            <button class="btn" id="pauseBtn" type="button">Pause</button>
+            <button class="btn" id="stepBtn" type="button">Advance Day</button>
+            <button class="btn danger" id="resetBtn" type="button">Reset</button>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h3>Engineering Tools</h3>
+          <p class="sub">Select a tool, then use the mission canvas. Pipes connect adjacent traversable cells and carry cooling through their connected network.</p>
+          <div class="tool-grid" id="tools">
+            <button class="tool active" data-tool="inspect" type="button"><b>Inspect</b><small>Reveal exact cell data</small><em>No resource cost</em></button>
+            <button class="tool" data-tool="cooler" type="button"><b>Cooler</b><small>Place active cooling unit</small><em>4 Power · 6 Coolant</em></button>
+            <button class="tool" data-tool="seal" type="button"><b>Containment Seal</b><small>Suppress hazard growth</small><em>3 Power</em></button>
+            <button class="tool" data-tool="sensor" type="button"><b>Sensor</b><small>Reveal nearby hidden risk</small><em>2 Power</em></button>
+            <button class="tool" data-tool="pipe" type="button"><b>Cooling Pipe</b><small>Connect adjacent cells</small><em>1 Power per link</em></button>
+            <button class="tool" data-tool="repair" type="button"><b>Repair</b><small>Restore local and vault integrity</small><em>3 Power</em></button>
+            <button class="tool" data-tool="remove" type="button"><b>Decommission</b><small>Remove a device or pipe link</small><em>No refund</em></button>
+          </div>
+
+          <div class="selection-card">
+            <strong id="selectionTitle">No Cell Selected</strong>
+            <p id="selectionText">Choose a cell on the vault canvas.</p>
+          </div>
+        </section>
+
+        <section class="panel wide">
+          <h3>Mission Log</h3>
+          <div class="log" id="missionLog" aria-live="polite"></div>
+        </section>
+      </aside>
+    </div>
+  </section>
+
+  <section id="sandbox" class="section">
+    <div class="layout">
+      <section class="panel">
+        <h2>Vault Architect Sandbox</h2>
+        <p class="sub">Paint a custom scenario, validate reachability and safety requirements, then copy the approved design into the active mission.</p>
+        <div class="canvas-shell" style="margin-top:12px">
+          <canvas id="editor" width="960" height="600" tabindex="0" aria-label="Interactive vault architect editor"></canvas>
+        </div>
+        <div class="canvas-help">
+          <span>Drag to paint several cells</span>
+          <span>Arrows move cursor · Enter paints selected editor tool</span>
+        </div>
+      </section>
+
+      <aside class="side">
+        <section class="panel">
+          <h3>Placement Palette</h3>
+          <div class="tool-grid" id="editorTools">
+            <button class="tool active" data-edit="rock" type="button"><b>Ice / Rock</b><small>Solid terrain</small></button>
+            <button class="tool" data-edit="ice" type="button"><b>Open Ice</b><small>Traversable vault floor</small></button>
+            <button class="tool" data-edit="chamber" type="button"><b>Chamber</b><small>Operational room</small></button>
+            <button class="tool" data-edit="methane" type="button"><b>Methane</b><small>Pressure hazard</small></button>
+            <button class="tool" data-edit="pathogen" type="button"><b>Pathogen</b><small>Biological hazard</small></button>
+            <button class="tool" data-edit="cooler" type="button"><b>Cooler</b><small>Preinstalled cooling unit</small></button>
+            <button class="tool" data-edit="sensor" type="button"><b>Sensor</b><small>Preinstalled monitoring</small></button>
+            <button class="tool" data-edit="erase" type="button"><b>Erase</b><small>Restore open ice</small></button>
+          </div>
+
+          <div class="actions">
+            <button class="btn primary" id="validateBtn" type="button">Validate Vault</button>
+            <button class="btn cyan" id="autoPrepareBtn" type="button">Prepare Safe Layout</button>
+            <button class="btn" id="editorUndoBtn" type="button">Undo</button>
+            <button class="btn" id="editorRedoBtn" type="button">Redo</button>
+            <button class="btn amber" id="copyToMissionBtn" type="button">Use in Mission</button>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h3>Validation</h3>
+          <div class="validation-list" id="validationList"></div>
+        </section>
+      </aside>
+    </div>
+  </section>
+
+  <section id="crew" class="section">
+    <div class="data-grid">
+      <section class="panel">
+        <h2>Digital Crew Memory</h2>
+        <p class="sub">This is a transparent local decision-memory system. It records tool use and mission outcomes; it does not call a remote AI service.</p>
+        <div class="memory" id="memoryPanel"></div>
+      </section>
+
+      <section class="panel">
+        <h2>Crew Recommendation</h2>
+        <p class="sub">Recommendations combine current risk, connected infrastructure, and the decisions previously stored on this device.</p>
+        <div class="advice" id="crewAdvice">
+          <strong>Awaiting Analysis</strong>
+          <p>Generate a mission to receive a recommendation.</p>
+          <small>The explanation will identify the exact rule and local memory signal used.</small>
+        </div>
+        <div class="actions">
+          <button class="btn primary" id="adviceBtn" type="button">Analyze Mission</button>
+          <button class="btn danger" id="clearMemoryBtn" type="button">Clear Learning</button>
+        </div>
+      </section>
+    </div>
+  </section>
+
+  <section id="science" class="section">
+    <div class="data-grid">
+      <section class="panel">
+        <h2>Science Brief</h2>
+        <div class="science-grid">
+          <article class="science-card"><strong>Permafrost</strong><p>Permafrost is ground that remains frozen for long periods. Thaw can destabilize soil and release gases produced by decomposing organic matter.</p></article>
+          <article class="science-card"><strong>Methane</strong><p>Methane is a powerful greenhouse gas. In this simulation, pressure represents accumulated gas requiring cooling and containment.</p></article>
+          <article class="science-card"><strong>Biological Risk</strong><p>The pathogen layer is a fictionalized containment challenge. Sensors reveal uncertainty; seals and cooling reduce simulated growth.</p></article>
+          <article class="science-card"><strong>Systems Engineering</strong><p>A resilient vault balances energy, coolant, redundancy, monitoring, maintenance, and the ability to isolate local failures.</p></article>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Learning Objectives</h2>
+        <div class="memory">
+          <div class="memory-row"><span>Read a multi-variable system</span><strong>Observe</strong></div>
+          <div class="memory-row"><span>Compare resource tradeoffs</span><strong>Evaluate</strong></div>
+          <div class="memory-row"><span>Design connected infrastructure</span><strong>Create</strong></div>
+          <div class="memory-row"><span>Test a custom scenario</span><strong>Validate</strong></div>
+          <div class="memory-row"><span>Review outcome-based evidence</span><strong>Reflect</strong></div>
+        </div>
+      </section>
+    </div>
+  </section>
+
+  <section id="data" class="section">
+    <div class="data-grid">
+      <section class="panel">
+        <h2>Data Vault</h2>
+        <p class="sub">Export the mission, editor state, preferences, logs, and digital crew memory as validated portable JSON.</p>
+        <textarea id="dataText" spellcheck="false" aria-label="Portable JSON data"></textarea>
+        <input id="importFile" type="file" accept=".json,application/json" hidden>
+        <div class="actions">
+          <button class="btn primary" id="exportBtn" type="button">Prepare Snapshot</button>
+          <button class="btn" id="downloadBtn" type="button">Download JSON</button>
+          <button class="btn" id="copyBtn" type="button">Copy</button>
+          <button class="btn amber" id="importBtn" type="button">Import Text</button>
+          <button class="btn cyan" id="importFileBtn" type="button">Import File</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Sovereignty Controls</h2>
+        <div class="memory">
+          <div class="memory-row"><span>External network access</span><strong>Blocked</strong></div>
+          <div class="memory-row"><span>Third-party libraries</span><strong>None</strong></div>
+          <div class="memory-row"><span>Persistent storage</span><strong>Local only</strong></div>
+          <div class="memory-row"><span>Portable format</span><strong>JSON</strong></div>
+          <div class="memory-row"><span>Maximum import size</span><strong>1 MB</strong></div>
+        </div>
+        <div class="actions">
+          <button class="btn danger" id="wipeBtn" type="button">Wipe Local Data</button>
+        </div>
+      </section>
+    </div>
+  </section>
+</main>
+
+<footer class="wrap">Khaemenes Academy · “To learn is to awaken the light within.” · Single-file sovereign simulation</footer>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(()=>{
+"use strict";
+
+const STORAGE_KEY="KILE_PERMAFROST_V3";
+const PREF_KEY="KILE_PERMAFROST_PREFS_V3";
+const MAX_IMPORT_CHARS=1000000;
+const W=16;
+const H=10;
+const CELL=60;
+const TARGET_DAY=45;
+const DIFFICULTY={
+  academy:{label:"Academy",factor:.82,startingPower:108,startingCoolant:108},
+  field:{label:"Field",factor:1.00,startingPower:100,startingCoolant:100},
+  crisis:{label:"Crisis",factor:1.28,startingPower:92,startingCoolant:92}
+};
+const TOOL_COSTS={
+  cooler:{power:4,coolant:6},
+  seal:{power:3,coolant:0},
+  sensor:{power:2,coolant:0},
+  pipe:{power:1,coolant:0},
+  repair:{power:3,coolant:0}
+};
+const TYPE_COLORS={
+  rock:"#17201e",
+  ice:"#153229",
+  chamber:"#285044",
+  methane:"#8a6a2e",
+  pathogen:"#6b3048"
+};
+const $=selector=>document.querySelector(selector);
+const $$=selector=>[...document.querySelectorAll(selector)];
+const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
+const deepClone=value=>JSON.parse(JSON.stringify(value));
+const safeText=value=>String(value??"");
+
+const world=$("#world");
+const ctx=world.getContext("2d");
+const editor=$("#editor");
+const ectx=editor.getContext("2d");
+
+let state=loadState();
+let prefs=loadPrefs();
+let timer=null;
+let activeTool="inspect";
+let editorTool="rock";
+let pipeStart=null;
+let selectedCell=null;
+let worldCursor={x:1,y:H-2};
+let editorCursor={x:1,y:H-2};
+let editorPointerDown=false;
+let editorUndo=[];
+let editorRedo=[];
+let toastTimer=0;
+
+function defaultPrefs(){
+  return{motion:"full"};
+}
+function loadPrefs(){
+  try{
+    const raw=JSON.parse(localStorage.getItem(PREF_KEY)||"{}");
+    return{motion:raw.motion==="reduced"?"reduced":"full"};
+  }catch{
+    return defaultPrefs();
+  }
+}
+function savePrefs(){
+  try{localStorage.setItem(PREF_KEY,JSON.stringify(prefs));}catch{}
+}
+function baseCell(type="ice"){
+  return{
+    type,
+    risk:0,
+    revealed:false,
+    device:null,
+    integrity:100,
+    pipes:[]
+  };
+}
+function blankGrid(){
+  return Array.from({length:H},(_,y)=>
+    Array.from({length:W},(_,x)=>baseCell(
+      x===0||y===0||x===W-1||y===H-1?"rock":"ice"
+    ))
+  );
+}
+function defaultMemory(){
+  return{
+    missions:0,
+    wins:0,
+    losses:0,
+    totalDays:0,
+    toolUse:{inspect:0,cooler:0,seal:0,sensor:0,pipe:0,repair:0,remove:0},
+    successfulTools:{cooler:0,seal:0,sensor:0,pipe:0,repair:0},
+    lastOutcome:null,
+    lastAdvice:null
+  };
+}
+function freshState(){
+  const difficulty="field";
+  return{
+    version:3,
+    generated:false,
+    seed:"KHAE-2084",
+    difficulty,
+    phase:"idle",
+    day:0,
+    temp:-12,
+    pressure:18,
+    bio:8,
+    power:DIFFICULTY[difficulty].startingPower,
+    coolant:DIFFICULTY[difficulty].startingCoolant,
+    integrity:100,
+    grid:blankGrid(),
+    editorGrid:blankGrid(),
+    memory:defaultMemory(),
+    log:[],
+    status:"Generate a mission to inspect the vault."
+  };
+}
+function hashSeed(text){
+  let hash=2166136261>>>0;
+  for(const character of text){
+    hash^=character.charCodeAt(0);
+    hash=Math.imul(hash,16777619);
+  }
+  return hash>>>0;
+}
+function mulberry32(seed){
+  return function(){
+    let value=seed+=0x6D2B79F5;
+    value=Math.imul(value^value>>>15,value|1);
+    value^=value+Math.imul(value^value>>>7,value|61);
+    return((value^value>>>14)>>>0)/4294967296;
+  };
+}
+function normalizeCell(raw,x,y){
+  const border=x===0||y===0||x===W-1||y===H-1;
+  const allowedTypes=["rock","ice","chamber","methane","pathogen"];
+  const type=border
+    ?"rock"
+    :allowedTypes.includes(raw?.type)?raw.type:"ice";
+  const allowedDevices=["cooler","seal","sensor"];
+  const pipes=Array.isArray(raw?.pipes)
+    ?raw.pipes
+      .map(value=>Array.isArray(value)&&value.length===2?[Math.round(Number(value[0])),Math.round(Number(value[1]))]:null)
+      .filter(Boolean)
+      .filter(([px,py])=>px>=0&&py>=0&&px<W&&py<H)
+      .slice(0,4)
+    :[];
+  return{
+    type,
+    risk:clamp(Number.isFinite(Number(raw?.risk))?Number(raw.risk):0,0,100),
+    revealed:Boolean(raw?.revealed),
+    device:allowedDevices.includes(raw?.device)?raw.device:null,
+    integrity:clamp(Number.isFinite(Number(raw?.integrity))?Number(raw.integrity):100,0,100),
+    pipes
+  };
+}
+function normalizeGrid(raw){
+  const source=Array.isArray(raw)?raw:[];
+  return Array.from({length:H},(_,y)=>
+    Array.from({length:W},(_,x)=>normalizeCell(source[y]?.[x],x,y))
+  );
+}
+function normalizeMemory(raw){
+  const source=raw&&typeof raw==="object"?raw:{};
+  const normalizeToolMap=map=>Object.fromEntries(
+    ["inspect","cooler","seal","sensor","pipe","repair","remove"].map(tool=>[
+      tool,
+      Math.round(clamp(Number.isFinite(Number(map?.[tool]))?Number(map[tool]):0,0,999999))
+    ])
+  );
+  return{
+    missions:Math.round(clamp(Number(source.missions)||0,0,999999)),
+    wins:Math.round(clamp(Number(source.wins)||0,0,999999)),
+    losses:Math.round(clamp(Number(source.losses)||0,0,999999)),
+    totalDays:Math.round(clamp(Number(source.totalDays)||0,0,99999999)),
+    toolUse:normalizeToolMap(source.toolUse),
+    successfulTools:normalizeToolMap(source.successfulTools),
+    lastOutcome:["win","loss"].includes(source.lastOutcome)?source.lastOutcome:null,
+    lastAdvice:source.lastAdvice&&typeof source.lastAdvice==="object"?{
+      title:safeText(source.lastAdvice.title).slice(0,100),
+      recommendation:safeText(source.lastAdvice.recommendation).slice(0,280),
+      basis:safeText(source.lastAdvice.basis).slice(0,360)
+    }:null
+  };
+}
+function normalizeState(raw){
+  const source=raw&&typeof raw==="object"?raw:{};
+  const difficulty=DIFFICULTY[source.difficulty]?source.difficulty:"field";
+  const phase=["idle","ready","running","paused","won","lost"].includes(source.phase)?source.phase:"idle";
+  const normalized={
+    version:3,
+    generated:Boolean(source.generated),
+    seed:safeText(source.seed||"KHAE-2084").replace(/[\u0000-\u001f\u007f]/g,"").slice(0,40)||"KHAE-2084",
+    difficulty,
+    phase:phase==="running"?"paused":phase,
+    day:Math.round(clamp(Number(source.day)||0,0,9999)),
+    temp:clamp(Number.isFinite(Number(source.temp))?Number(source.temp):-12,-40,20),
+    pressure:clamp(Number(source.pressure)||0,0,100),
+    bio:clamp(Number(source.bio)||0,0,100),
+    power:clamp(Number(source.power)||0,0,120),
+    coolant:clamp(Number(source.coolant)||0,0,120),
+    integrity:clamp(Number(source.integrity)||0,0,100),
+    grid:normalizeGrid(source.grid),
+    editorGrid:normalizeGrid(source.editorGrid||source.grid),
+    memory:normalizeMemory(source.memory),
+    log:Array.isArray(source.log)
+      ?source.log.slice(0,60).map(item=>({
+        message:safeText(item?.message||item?.msg).slice(0,260),
+        type:["","warn","danger"].includes(item?.type)?item.type:"",
+        time:Number.isFinite(Number(item?.time||item?.t))?Number(item.time||item.t):Date.now()
+      }))
+      :[],
+    status:safeText(source.status||"Generate a mission to inspect the vault.").slice(0,260)
+  };
+  if(!normalized.generated)normalized.phase="idle";
+  return normalized;
+}
+function loadState(){
+  try{
+    const parsed=JSON.parse(localStorage.getItem(STORAGE_KEY)||"null");
+    return parsed?normalizeState(parsed):freshState();
+  }catch{
+    return freshState();
+  }
+}
+function save(){
+  state.phase=state.phase==="running"?"paused":state.phase;
+  try{
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
+    return true;
+  }catch{
+    showToast("Local storage is unavailable or full.");
+    return false;
+  }
+}
+function clearTimer(){
+  if(timer){
+    clearInterval(timer);
+    timer=null;
+  }
+}
+function startTimer(){
+  clearTimer();
+  timer=setInterval(()=>simulateDay(false),1000);
+}
+function log(message,type=""){
+  state.log.unshift({message:safeText(message).slice(0,260),type,time:Date.now()});
+  state.log=state.log.slice(0,60);
+  state.status=safeText(message).slice(0,260);
+  renderLog();
+  renderStatus();
+}
+function showToast(message){
+  clearTimeout(toastTimer);
+  const toast=$("#toast");
+  toast.textContent=message;
+  toast.classList.add("show");
+  toastTimer=setTimeout(()=>toast.classList.remove("show"),2400);
+}
+function difficultyData(){
+  return DIFFICULTY[state.difficulty]||DIFFICULTY.field;
+}
+function inside(x,y){
+  return x>=0&&y>=0&&x<W&&y<H;
+}
+function traversable(cell){
+  return cell&&cell.type!=="rock";
+}
+function adjacentPositions(x,y){
+  return[
+    {x:x-1,y},
+    {x:x+1,y},
+    {x,y:y-1},
+    {x,y:y+1}
+  ].filter(position=>inside(position.x,position.y));
+}
+function carvePath(grid,rng,start,end){
+  let x=start.x;
+  let y=start.y;
+  grid[y][x].type="chamber";
+  while(x!==end.x||y!==end.y){
+    const moveX=x!==end.x&&(y===end.y||rng()<.58);
+    if(moveX)x+=Math.sign(end.x-x);
+    else y+=Math.sign(end.y-y);
+    grid[y][x].type=rng()<.15?"chamber":"ice";
+  }
+}
+function generateMission(){
+  clearTimer();
+  const seed=$("#seedInput").value.trim()||"KHAE-2084";
+  const difficulty=$("#difficulty").value;
+  const factor=DIFFICULTY[difficulty]?.factor||1;
+  const rng=mulberry32(hashSeed(`${seed}|${difficulty}|KILE-V3`));
+  const grid=blankGrid();
+
+  for(let y=1;y<H-1;y++){
+    for(let x=1;x<W-1;x++){
+      if(rng()<.16)grid[y][x].type="rock";
+    }
+  }
+
+  const start={x:1,y:H-2};
+  const middle={x:Math.floor(W/2),y:1+Math.floor(rng()*(H-2))};
+  const end={x:W-2,y:1};
+  carvePath(grid,rng,start,middle);
+  carvePath(grid,rng,middle,end);
+
+  const open=[];
+  for(let y=1;y<H-1;y++){
+    for(let x=1;x<W-1;x++){
+      if(grid[y][x].type!=="rock")open.push({x,y});
+    }
+  }
+
+  const shuffled=[...open].sort(()=>rng()-.5);
+  let cursor=0;
+  for(let count=0;count<4;count++){
+    const position=shuffled[cursor++];
+    grid[position.y][position.x].type="chamber";
+  }
+
+  const methaneCount=Math.max(3,Math.round(3*factor));
+  const pathogenCount=Math.max(2,Math.round(2*factor));
+  for(let count=0;count<methaneCount;count++){
+    const position=shuffled[cursor++];
+    const cell=grid[position.y][position.x];
+    cell.type="methane";
+    cell.risk=Math.round(34+rng()*32*factor);
+  }
+  for(let count=0;count<pathogenCount;count++){
+    const position=shuffled[cursor++];
+    const cell=grid[position.y][position.x];
+    cell.type="pathogen";
+    cell.risk=Math.round(28+rng()*34*factor);
+  }
+
+  const power=DIFFICULTY[difficulty].startingPower;
+  const coolant=DIFFICULTY[difficulty].startingCoolant;
+  const memory=state.memory||defaultMemory();
+
+  state={
+    version:3,
+    generated:true,
+    seed,
+    difficulty,
+    phase:"ready",
+    day:0,
+    temp:-12,
+    pressure:averageRisk(grid,"methane",18),
+    bio:averageRisk(grid,"pathogen",8),
+    power,
+    coolant,
+    integrity:100,
+    grid,
+    editorGrid:deepClone(grid),
+    memory,
+    log:[],
+    status:"Mission generated. Inspect the vault, place infrastructure, then begin the simulation."
+  };
+  pipeStart=null;
+  selectedCell=null;
+  worldCursor={...start};
+  editorCursor={...start};
+  editorUndo=[];
+  editorRedo=[];
+  log(`Mission ${seed} generated at ${DIFFICULTY[difficulty].label} difficulty.`);
+  showReadyOverlay();
+  renderAll();
+  save();
+}
+function averageRisk(grid,type,fallback=0){
+  const hazards=grid.flat().filter(cell=>cell.type===type);
+  if(!hazards.length)return fallback;
+  return hazards.reduce((sum,cell)=>sum+cell.risk,0)/hazards.length;
+}
+function countType(type,grid=state.grid){
+  return grid.flat().filter(cell=>cell.type===type).length;
+}
+function countDevice(device,grid=state.grid){
+  return grid.flat().filter(cell=>cell.device===device).length;
+}
+function startMission(){
+  if(!state.generated){
+    generateMission();
+    return;
+  }
+  if(["won","lost"].includes(state.phase)){
+    showToast("Rebuild the mission before starting another run.");
+    return;
+  }
+  state.phase="running";
+  startTimer();
+  $("#overlay").hidden=true;
+  log("Simulation started. The vault will advance one day per second.");
+  renderAll();
+  save();
+}
+function pauseMission(forcePause=false){
+  if(state.phase==="running"||forcePause){
+    clearTimer();
+    if(state.phase==="running")state.phase="paused";
+    showPauseOverlay();
+    log("Simulation paused.");
+  }else if(state.phase==="paused"){
+    state.phase="running";
+    startTimer();
+    $("#overlay").hidden=true;
+    log("Simulation resumed.");
+  }
+  renderAll();
+  save();
+}
+function resetMission(){
+  if(!confirm("Reset the active mission while preserving digital crew memory?"))return;
+  clearTimer();
+  const memory=state.memory;
+  const seed=state.seed;
+  const difficulty=state.difficulty;
+  state=freshState();
+  state.memory=memory;
+  state.seed=seed;
+  state.difficulty=difficulty;
+  $("#seedInput").value=seed;
+  $("#difficulty").value=difficulty;
+  pipeStart=null;
+  selectedCell=null;
+  showIdleOverlay();
+  renderAll();
+  save();
+}
+function connectedComponents(){
+  const visited=new Set();
+  const components=[];
+  for(let y=0;y<H;y++){
+    for(let x=0;x<W;x++){
+      const key=`${x},${y}`;
+      const cell=state.grid[y][x];
+      if(visited.has(key)||!traversable(cell))continue;
+      const queue=[{x,y}];
+      const component=[];
+      visited.add(key);
+      for(let head=0;head<queue.length;head++){
+        const current=queue[head];
+        component.push(current);
+        const currentCell=state.grid[current.y][current.x];
+        for(const [px,py] of currentCell.pipes){
+          if(!inside(px,py))continue;
+          const other=state.grid[py][px];
+          const reciprocal=other.pipes.some(([rx,ry])=>rx===current.x&&ry===current.y);
+          const otherKey=`${px},${py}`;
+          if(reciprocal&&traversable(other)&&!visited.has(otherKey)){
+            visited.add(otherKey);
+            queue.push({x:px,y:py});
+          }
+        }
+      }
+      components.push(component);
+    }
+  }
+  return components;
+}
+function cooledCells(){
+  const cooled=new Set();
+  const components=connectedComponents();
+  for(const component of components){
+    const hasCooler=component.some(({x,y})=>state.grid[y][x].device==="cooler");
+    if(hasCooler){
+      component.forEach(({x,y})=>cooled.add(`${x},${y}`));
+    }
+  }
+  for(let y=0;y<H;y++){
+    for(let x=0;x<W;x++){
+      if(state.grid[y][x].device!=="cooler")continue;
+      cooled.add(`${x},${y}`);
+      adjacentPositions(x,y).forEach(position=>cooled.add(`${position.x},${position.y}`));
+    }
+  }
+  return cooled;
+}
+function sensorCoverage(){
+  const covered=new Set();
+  for(let y=0;y<H;y++){
+    for(let x=0;x<W;x++){
+      if(state.grid[y][x].device!=="sensor")continue;
+      for(let sy=y-1;sy<=y+1;sy++){
+        for(let sx=x-1;sx<=x+1;sx++){
+          if(inside(sx,sy))covered.add(`${sx},${sy}`);
+        }
+      }
+    }
+  }
+  return covered;
+}
+function simulateDay(manual=true){
+  if(!state.generated)return showToast("Generate a mission first.");
+  if(["won","lost"].includes(state.phase))return;
+  if(state.phase==="paused"&&!manual)return;
+  if(state.phase==="ready"&&manual)state.phase="paused";
+
+  const factor=difficultyData().factor;
+  const cooled=cooledCells();
+  const sensed=sensorCoverage();
+  const coolers=countDevice("cooler");
+  const sensors=countDevice("sensor");
+  const seals=countDevice("seal");
+  let methaneTotal=0;
+  let methaneCount=0;
+  let pathogenTotal=0;
+  let pathogenCount=0;
+  let integrityTotal=0;
+  let integrityCells=0;
+
+  for(let y=0;y<H;y++){
+    for(let x=0;x<W;x++){
+      const cell=state.grid[y][x];
+      if(cell.type==="rock")continue;
+      integrityCells++;
+      const key=`${x},${y}`;
+      const cooling=cooled.has(key);
+      const sealed=cell.device==="seal";
+      const monitored=sensed.has(key);
+
+      if(monitored)cell.revealed=true;
+
+      if(cell.type==="methane"){
+        methaneCount++;
+        let growth=.78*factor+Math.max(0,state.temp+8)*.045;
+        if(cooling)growth-=1.25;
+        if(sealed)growth-=1.15;
+        cell.risk=clamp(cell.risk+growth,0,100);
+        methaneTotal+=cell.risk;
+      }
+
+      if(cell.type==="pathogen"){
+        pathogenCount++;
+        let growth=.62*factor+Math.max(0,state.temp+5)*.04;
+        if(cooling)growth-=.95;
+        if(sealed)growth-=.82;
+        if(monitored)growth-=.15;
+        cell.risk=clamp(cell.risk+growth,0,100);
+        pathogenTotal+=cell.risk;
+      }
+
+      const localRisk=cell.type==="methane"||cell.type==="pathogen"?cell.risk:0;
+      if(localRisk>68)cell.integrity=clamp(cell.integrity-(localRisk-65)*.035*factor,0,100);
+      integrityTotal+=cell.integrity;
+    }
+  }
+
+  state.day++;
+  state.memory.totalDays++;
+  state.pressure=methaneCount?methaneTotal/methaneCount:0;
+  state.bio=pathogenCount?pathogenTotal/pathogenCount:0;
+
+  const networkCooling=cooled.size*.018;
+  state.temp=clamp(
+    state.temp+(.48*factor)-(coolers*.26)-networkCooling,
+    -30,
+    14
+  );
+
+  const activeCost=coolers*.28+sensors*.10+seals*.05;
+  state.power=clamp(state.power-activeCost,0,120);
+  state.coolant=clamp(state.coolant-coolers*.24,0,120);
+
+  const localIntegrity=integrityCells?integrityTotal/integrityCells:100;
+  const systemicDamage=
+    Math.max(0,state.pressure-68)*.025+
+    Math.max(0,state.bio-63)*.022+
+    Math.max(0,state.temp)*.18;
+  state.integrity=clamp(Math.min(state.integrity,localIntegrity)-systemicDamage,0,100);
+
+  if(state.pressure>70)log("Methane pressure entered the critical band.","danger");
+  if(state.bio>65)log("Biological containment entered the critical band.","danger");
+  if(state.power<25)log("Power reserve is below 25%.","warn");
+  if(state.coolant<20)log("Coolant reserve is below 20%.","warn");
+  if(state.temp>0)log("The vault temperature crossed the thaw threshold.","danger");
+
+  const failed=
+    state.pressure>=100||
+    state.bio>=100||
+    state.integrity<=0||
+    state.power<=0||
+    state.coolant<=0;
+
+  const won=
+    state.day>=TARGET_DAY&&
+    state.pressure<70&&
+    state.bio<65&&
+    state.integrity>35&&
+    state.power>0&&
+    state.coolant>0;
+
+  if(failed)finishMission("loss");
+  else if(won)finishMission("win");
+  else{
+    if(manual)log(`Day ${state.day} advanced manually.`);
+    renderAll();
+    save();
+  }
+}
+function finishMission(outcome){
+  clearTimer();
+  state.phase=outcome==="win"?"won":"lost";
+  state.memory.missions++;
+  state.memory.lastOutcome=outcome;
+  if(outcome==="win"){
+    state.memory.wins++;
+    log(`Mission stabilized through Day ${TARGET_DAY}.`,"");
+  }else{
+    state.memory.losses++;
+    log("Mission failed. The crew stored the outcome for future recommendations.","danger");
+  }
+  awardSuccessfulTools(outcome);
+  showResultOverlay(outcome);
+  renderAll();
+  save();
+}
+function awardSuccessfulTools(outcome){
+  if(outcome!=="win")return;
+  for(const tool of ["cooler","seal","sensor","pipe","repair"]){
+    const used=state.memory.toolUse[tool]||0;
+    if(used>0)state.memory.successfulTools[tool]=(state.memory.successfulTools[tool]||0)+1;
+  }
+}
+function canAfford(tool){
+  const cost=TOOL_COSTS[tool]||{power:0,coolant:0};
+  return state.power>=cost.power&&state.coolant>=cost.coolant;
+}
+function spend(tool){
+  const cost=TOOL_COSTS[tool]||{power:0,coolant:0};
+  state.power=clamp(state.power-cost.power,0,120);
+  state.coolant=clamp(state.coolant-cost.coolant,0,120);
+}
+function useTool(x,y){
+  if(!inside(x,y)||!state.generated)return;
+  const cell=state.grid[y][x];
+  selectedCell={x,y};
+  state.memory.toolUse[activeTool]=(state.memory.toolUse[activeTool]||0)+1;
+
+  if(activeTool==="inspect"){
+    cell.revealed=true;
+    selectedCell={x,y};
+    log(`Cell ${x},${y}: ${cell.type}; risk ${Math.round(cell.risk)}%; integrity ${Math.round(cell.integrity)}%; device ${cell.device||"none"}.`);
+    renderAll();
+    save();
+    return;
+  }
+
+  if(cell.type==="rock"&&activeTool!=="remove"){
+    showToast("Solid rock cannot hold that tool.");
+    return;
+  }
+
+  if(activeTool==="pipe"){
+    handlePipe(x,y);
+    return;
+  }
+
+  if(activeTool==="remove"){
+    removeAt(x,y);
+    return;
+  }
+
+  if(!canAfford(activeTool)){
+    showToast("Insufficient power or coolant for this tool.");
+    return;
+  }
+
+  if(activeTool==="cooler"){
+    if(cell.device){
+      showToast("Remove the existing device first.");
+      return;
+    }
+    spend("cooler");
+    cell.device="cooler";
+    log(`Cooler installed at ${x},${y}.`);
+  }
+
+  if(activeTool==="seal"){
+    if(!["methane","pathogen"].includes(cell.type)){
+      showToast("Containment seals belong on hazard cells.");
+      return;
+    }
+    if(cell.device){
+      showToast("Remove the existing device first.");
+      return;
+    }
+    spend("seal");
+    cell.device="seal";
+    log(`Containment seal installed at ${x},${y}.`);
+  }
+
+  if(activeTool==="sensor"){
+    if(cell.device){
+      showToast("Remove the existing device first.");
+      return;
+    }
+    spend("sensor");
+    cell.device="sensor";
+    for(let sy=y-1;sy<=y+1;sy++){
+      for(let sx=x-1;sx<=x+1;sx++){
+        if(inside(sx,sy))state.grid[sy][sx].revealed=true;
+      }
+    }
+    log(`Sensor installed at ${x},${y}; nearby cells revealed.`);
+  }
+
+  if(activeTool==="repair"){
+    spend("repair");
+    cell.integrity=clamp(cell.integrity+35,0,100);
+    state.integrity=clamp(state.integrity+4,0,100);
+    log(`Cell ${x},${y} repaired; vault integrity improved.`);
+  }
+
+  renderAll();
+  save();
+}
+function handlePipe(x,y){
+  const cell=state.grid[y][x];
+  if(!traversable(cell)){
+    showToast("Pipes require traversable cells.");
+    return;
+  }
+  if(!pipeStart){
+    pipeStart={x,y};
+    selectedCell={x,y};
+    log(`Pipe start selected at ${x},${y}. Choose an adjacent open cell.`);
+    renderAll();
+    return;
+  }
+
+  const distance=Math.abs(pipeStart.x-x)+Math.abs(pipeStart.y-y);
+  if(distance!==1){
+    pipeStart=null;
+    showToast("Pipe endpoints must be adjacent.");
+    renderAll();
+    return;
+  }
+
+  const first=state.grid[pipeStart.y][pipeStart.x];
+  if(!traversable(first)){
+    pipeStart=null;
+    return;
+  }
+
+  const exists=first.pipes.some(([px,py])=>px===x&&py===y);
+  if(exists){
+    pipeStart=null;
+    showToast("Those cells are already connected.");
+    renderAll();
+    return;
+  }
+
+  if(!canAfford("pipe")){
+    pipeStart=null;
+    showToast("Insufficient power for a new pipe link.");
+    renderAll();
+    return;
+  }
+
+  spend("pipe");
+  first.pipes.push([x,y]);
+  cell.pipes.push([pipeStart.x,pipeStart.y]);
+  log(`Cooling pipe connected ${pipeStart.x},${pipeStart.y} to ${x},${y}.`);
+  pipeStart=null;
+  renderAll();
+  save();
+}
+function removeAt(x,y){
+  const cell=state.grid[y][x];
+  if(cell.device){
+    const removed=cell.device;
+    cell.device=null;
+    log(`${removed} removed from ${x},${y}.`);
+    renderAll();
+    save();
+    return;
+  }
+  if(cell.pipes.length){
+    const [px,py]=cell.pipes.pop();
+    const other=state.grid[py][px];
+    other.pipes=other.pipes.filter(([ox,oy])=>!(ox===x&&oy===y));
+    log(`One pipe link removed at ${x},${y}.`);
+    renderAll();
+    save();
+    return;
+  }
+  showToast("No device or pipe link is present.");
+}
+function colorForCell(cell){
+  if(cell.device==="cooler")return"#2f7f8d";
+  if(cell.device==="seal")return"#7f6b32";
+  if(cell.device==="sensor")return"#3f7f65";
+  return TYPE_COLORS[cell.type]||TYPE_COLORS.ice;
+}
+function drawGrid(context,grid,{editorMode=false,cursor=null}={}){
+  context.clearRect(0,0,960,600);
+  context.fillStyle="#07110f";
+  context.fillRect(0,0,960,600);
+
+  drawPipes(context,grid);
+
+  for(let y=0;y<H;y++){
+    for(let x=0;x<W;x++){
+      const cell=grid[y][x];
+      const px=x*CELL;
+      const py=y*CELL;
+
+      context.fillStyle=colorForCell(cell);
+      context.fillRect(px+1,py+1,CELL-2,CELL-2);
+
+      const gradient=context.createLinearGradient(px,py,px+CELL,py+CELL);
+      gradient.addColorStop(0,"rgba(255,255,255,.025)");
+      gradient.addColorStop(1,"rgba(0,0,0,.11)");
+      context.fillStyle=gradient;
+      context.fillRect(px+1,py+1,CELL-2,CELL-2);
+
+      context.strokeStyle="rgba(185,239,214,.13)";
+      context.lineWidth=1;
+      context.strokeRect(px+.5,py+.5,CELL-1,CELL-1);
+
+      if(cell.type==="methane")drawMethane(context,px,py,cell);
+      if(cell.type==="pathogen")drawPathogen(context,px,py,cell);
+      if(cell.type==="chamber")drawChamber(context,px,py);
+      if(cell.device)drawDevice(context,px,py,cell.device);
+
+      if((cell.revealed||editorMode)&&["methane","pathogen"].includes(cell.type)){
+        context.fillStyle="#f2f5ef";
+        context.font='444 10px "Courier New", monospace';
+        context.textAlign="center";
+        context.fillText(`${Math.round(cell.risk)}%`,px+30,py+54);
+      }
+
+      if(cell.integrity<70){
+        context.strokeStyle=cell.integrity<35?"#d46f75":"#ddb86e";
+        context.lineWidth=2;
+        context.strokeRect(px+4,py+4,CELL-8,CELL-8);
+      }
+
+      if(selectedCell&&!editorMode&&selectedCell.x===x&&selectedCell.y===y){
+        context.strokeStyle="#b9efd6";
+        context.lineWidth=3;
+        context.strokeRect(px+5,py+5,CELL-10,CELL-10);
+      }
+
+      if(pipeStart&&!editorMode&&pipeStart.x===x&&pipeStart.y===y){
+        context.strokeStyle="#6cc8d7";
+        context.lineWidth=3;
+        context.strokeRect(px+9,py+9,CELL-18,CELL-18);
+      }
+
+      if(cursor&&cursor.x===x&&cursor.y===y){
+        context.strokeStyle=editorMode?"#ddb86e":"#b9efd6";
+        context.lineWidth=2;
+        context.setLineDash([5,4]);
+        context.strokeRect(px+7,py+7,CELL-14,CELL-14);
+        context.setLineDash([]);
+      }
+    }
+  }
+}
+function drawPipes(context,grid){
+  context.save();
+  context.strokeStyle="#6cc8d7";
+  context.lineWidth=6;
+  context.lineCap="round";
+  context.globalAlpha=.72;
+  const drawn=new Set();
+  for(let y=0;y<H;y++){
+    for(let x=0;x<W;x++){
+      for(const [px,py] of grid[y][x].pipes){
+        const key=[`${x},${y}`,`${px},${py}`].sort().join("|");
+        if(drawn.has(key))continue;
+        drawn.add(key);
+        context.beginPath();
+        context.moveTo(x*CELL+30,y*CELL+30);
+        context.lineTo(px*CELL+30,py*CELL+30);
+        context.stroke();
+      }
+    }
+  }
+  context.restore();
+}
+function drawMethane(context,px,py,cell){
+  const radius=8+cell.risk/12;
+  context.fillStyle="rgba(255,220,120,.70)";
+  context.beginPath();
+  context.arc(px+30,py+30,radius,0,Math.PI*2);
+  context.fill();
+  context.fillStyle="rgba(255,245,195,.55)";
+  context.beginPath();
+  context.arc(px+23,py+24,Math.max(3,radius*.28),0,Math.PI*2);
+  context.fill();
+}
+function drawPathogen(context,px,py,cell){
+  context.fillStyle="rgba(255,150,180,.78)";
+  for(let index=0;index<6;index++){
+    const angle=index/6*Math.PI*2;
+    const distance=8+cell.risk/18;
+    context.beginPath();
+    context.arc(px+30+Math.cos(angle)*distance,py+30+Math.sin(angle)*distance,4,0,Math.PI*2);
+    context.fill();
+  }
+  context.beginPath();
+  context.arc(px+30,py+30,7,0,Math.PI*2);
+  context.fill();
+}
+function drawChamber(context,px,py){
+  context.strokeStyle="rgba(185,239,214,.45)";
+  context.lineWidth=2;
+  context.strokeRect(px+14,py+16,32,28);
+  context.beginPath();
+  context.moveTo(px+30,py+16);
+  context.lineTo(px+30,py+44);
+  context.moveTo(px+14,py+30);
+  context.lineTo(px+46,py+30);
+  context.stroke();
+}
+function drawDevice(context,px,py,device){
+  const symbols={cooler:"C",seal:"S",sensor:"N"};
+  context.fillStyle="#06100e";
+  context.fillRect(px+18,py+18,24,24);
+  context.strokeStyle="rgba(255,255,255,.45)";
+  context.strokeRect(px+18.5,py+18.5,23,23);
+  context.fillStyle="#fff";
+  context.font='444 11px "Courier New", monospace';
+  context.textAlign="center";
+  context.textBaseline="middle";
+  context.fillText(symbols[device]||"?",px+30,py+30);
+}
+function cellFromPointer(canvas,event){
+  const rect=canvas.getBoundingClientRect();
+  return{
+    x:Math.floor((event.clientX-rect.left)*canvas.width/Math.max(1,rect.width)/CELL),
+    y:Math.floor((event.clientY-rect.top)*canvas.height/Math.max(1,rect.height)/CELL)
+  };
+}
+function selectCell(x,y){
+  if(!inside(x,y))return;
+  selectedCell={x,y};
+  renderSelection();
+}
+world.addEventListener("pointerdown",event=>{
+  const {x,y}=cellFromPointer(world,event);
+  if(!inside(x,y))return;
+  selectCell(x,y);
+  useTool(x,y);
+});
+world.addEventListener("keydown",event=>{
+  if(["ArrowLeft","ArrowRight","ArrowUp","ArrowDown","Enter"," "].includes(event.key))event.preventDefault();
+  if(event.key==="ArrowLeft")worldCursor.x=clamp(worldCursor.x-1,0,W-1);
+  if(event.key==="ArrowRight")worldCursor.x=clamp(worldCursor.x+1,0,W-1);
+  if(event.key==="ArrowUp")worldCursor.y=clamp(worldCursor.y-1,0,H-1);
+  if(event.key==="ArrowDown")worldCursor.y=clamp(worldCursor.y+1,0,H-1);
+  if(event.key==="Enter"||event.key===" "){
+    selectCell(worldCursor.x,worldCursor.y);
+    useTool(worldCursor.x,worldCursor.y);
+  }
+  renderAll();
+});
+
+function rememberEditor(){
+  editorUndo.push(JSON.stringify(state.editorGrid));
+  if(editorUndo.length>60)editorUndo.shift();
+  editorRedo=[];
+}
+function paintEditor(x,y,remember=true){
+  if(x<=0||y<=0||x>=W-1||y>=H-1)return;
+  if(remember)rememberEditor();
+  const cell=state.editorGrid[y][x];
+
+  if(editorTool==="erase"||editorTool==="ice"){
+    state.editorGrid[y][x]=baseCell("ice");
+  }else if(editorTool==="cooler"){
+    if(cell.type==="rock")state.editorGrid[y][x]=baseCell("ice");
+    state.editorGrid[y][x].device="cooler";
+  }else if(editorTool==="sensor"){
+    if(cell.type==="rock")state.editorGrid[y][x]=baseCell("ice");
+    state.editorGrid[y][x].device="sensor";
+  }else{
+    cell.type=editorTool;
+    cell.risk=["methane","pathogen"].includes(editorTool)?50:0;
+    cell.device=null;
+    cell.pipes=[];
+    cell.integrity=100;
+  }
+  renderEditor();
+  save();
+}
+editor.addEventListener("pointerdown",event=>{
+  editorPointerDown=true;
+  editor.setPointerCapture?.(event.pointerId);
+  const {x,y}=cellFromPointer(editor,event);
+  rememberEditor();
+  paintEditor(x,y,false);
+});
+editor.addEventListener("pointermove",event=>{
+  if(!editorPointerDown)return;
+  const {x,y}=cellFromPointer(editor,event);
+  paintEditor(x,y,false);
+});
+editor.addEventListener("pointerup",()=>{
+  editorPointerDown=false;
+  renderValidation();
+});
+editor.addEventListener("pointercancel",()=>{editorPointerDown=false});
+editor.addEventListener("keydown",event=>{
+  if(["ArrowLeft","ArrowRight","ArrowUp","ArrowDown","Enter"," "].includes(event.key))event.preventDefault();
+  if(event.key==="ArrowLeft")editorCursor.x=clamp(editorCursor.x-1,1,W-2);
+  if(event.key==="ArrowRight")editorCursor.x=clamp(editorCursor.x+1,1,W-2);
+  if(event.key==="ArrowUp")editorCursor.y=clamp(editorCursor.y-1,1,H-2);
+  if(event.key==="ArrowDown")editorCursor.y=clamp(editorCursor.y+1,1,H-2);
+  if(event.key==="Enter"||event.key===" ")paintEditor(editorCursor.x,editorCursor.y,true);
+  renderEditor();
+});
+function editorUndoAction(){
+  if(!editorUndo.length)return showToast("Nothing to undo.");
+  editorRedo.push(JSON.stringify(state.editorGrid));
+  state.editorGrid=JSON.parse(editorUndo.pop());
+  renderEditor();
+  renderValidation();
+  save();
+}
+function editorRedoAction(){
+  if(!editorRedo.length)return showToast("Nothing to redo.");
+  editorUndo.push(JSON.stringify(state.editorGrid));
+  state.editorGrid=JSON.parse(editorRedo.pop());
+  renderEditor();
+  renderValidation();
+  save();
+}
+function validationReport(grid=state.editorGrid){
+  const chambers=countTypeInGrid(grid,"chamber");
+  const hazards=countTypeInGrid(grid,"methane")+countTypeInGrid(grid,"pathogen");
+  const coolers=countDeviceInGrid(grid,"cooler");
+  const sensors=countDeviceInGrid(grid,"sensor");
+  const reachable=reachableOpenCells(grid);
+  const important=[];
+  for(let y=1;y<H-1;y++){
+    for(let x=1;x<W-1;x++){
+      const cell=grid[y][x];
+      if(["chamber","methane","pathogen"].includes(cell.type))important.push(`${x},${y}`);
+    }
+  }
+  const allImportantReachable=important.every(key=>reachable.has(key));
+  const openCount=grid.flat().filter(traversable).length;
+
+  return[
+    {label:"Operational chambers",ok:chambers>=2,value:`${chambers} / 2 minimum`},
+    {label:"Contained hazards",ok:hazards>=1,value:`${hazards} / 1 minimum`},
+    {label:"Cooling capacity",ok:coolers>=1,value:`${coolers} / 1 minimum`},
+    {label:"Sensor coverage",ok:sensors>=1,value:`${sensors} / 1 recommended`},
+    {label:"Reachable important cells",ok:allImportantReachable,value:allImportantReachable?"Connected":"Disconnected"},
+    {label:"Open workspace",ok:openCount>=28,value:`${openCount} open cells`}
+  ];
+}
+function countTypeInGrid(grid,type){
+  return grid.flat().filter(cell=>cell.type===type).length;
+}
+function countDeviceInGrid(grid,device){
+  return grid.flat().filter(cell=>cell.device===device).length;
+}
+function reachableOpenCells(grid){
+  let start=null;
+  for(let y=1;y<H-1&&!start;y++){
+    for(let x=1;x<W-1;x++){
+      if(traversable(grid[y][x])){
+        start={x,y};
+        break;
+      }
+    }
+  }
+  const visited=new Set();
+  if(!start)return visited;
+  const queue=[start];
+  visited.add(`${start.x},${start.y}`);
+  for(let head=0;head<queue.length;head++){
+    const current=queue[head];
+    for(const next of adjacentPositions(current.x,current.y)){
+      const key=`${next.x},${next.y}`;
+      if(visited.has(key)||!traversable(grid[next.y][next.x]))continue;
+      visited.add(key);
+      queue.push(next);
+    }
+  }
+  return visited;
+}
+function validateEditor(showMessage=true){
+  const report=validationReport();
+  const valid=report.every(item=>item.ok||item.label==="Sensor coverage");
+  renderValidation();
+  if(showMessage)showToast(valid?"Vault layout is valid for simulation.":"Vault needs additional work before simulation.");
+  return valid;
+}
+function autoPrepareEditor(){
+  rememberEditor();
+  const grid=blankGrid();
+  for(let x=1;x<W-1;x++)grid[H-2][x].type="ice";
+  for(let y=1;y<H-1;y++)grid[y][Math.floor(W/2)].type="ice";
+  grid[H-2][1].type="chamber";
+  grid[H-2][4].type="chamber";
+  grid[2][Math.floor(W/2)].type="chamber";
+  grid[4][Math.floor(W/2)+2].type="methane";
+  grid[4][Math.floor(W/2)+2].risk=48;
+  grid[2][Math.floor(W/2)-2].type="pathogen";
+  grid[2][Math.floor(W/2)-2].risk=44;
+  grid[H-2][2].device="cooler";
+  grid[H-2][3].device="sensor";
+  state.editorGrid=grid;
+  renderEditor();
+  renderValidation();
+  save();
+  showToast("A connected safe-start layout was prepared.");
+}
+function copyEditorToMission(){
+  if(!validateEditor(false)){
+    showToast("Validate and repair the custom layout before using it.");
+    return;
+  }
+  clearTimer();
+  state.grid=deepClone(state.editorGrid);
+  state.generated=true;
+  state.phase="ready";
+  state.day=0;
+  state.temp=-12;
+  state.pressure=averageRisk(state.grid,"methane",0);
+  state.bio=averageRisk(state.grid,"pathogen",0);
+  state.power=difficultyData().startingPower;
+  state.coolant=difficultyData().startingCoolant;
+  state.integrity=100;
+  state.log=[];
+  pipeStart=null;
+  selectedCell=null;
+  log("Validated sandbox layout copied into the active mission.");
+  showReadyOverlay();
+  switchTab("mission");
+  renderAll();
+  save();
+}
+
+/* Crew */
+function analyzeMission(){
+  if(!state.generated){
+    showToast("Generate a mission before requesting advice.");
+    return;
+  }
+
+  const cooled=cooledCells();
+  const hazards=state.grid.flat().filter(cell=>["methane","pathogen"].includes(cell.type));
+  const uncooledHazards=[];
+  for(let y=0;y<H;y++){
+    for(let x=0;x<W;x++){
+      const cell=state.grid[y][x];
+      if(["methane","pathogen"].includes(cell.type)&&!cooled.has(`${x},${y}`)){
+        uncooledHazards.push({x,y,cell});
+      }
+    }
+  }
+
+  const toolHistory=Object.entries(state.memory.toolUse)
+    .filter(([tool])=>["cooler","seal","sensor","pipe","repair"].includes(tool))
+    .sort((a,b)=>b[1]-a[1]);
+  const favorite=toolHistory[0];
+
+  let advice;
+  if(state.pressure>68){
+    advice={
+      title:"Methane Containment Priority",
+      recommendation:"Place containment seals on the highest-risk methane cells, then connect those cells to a cooler through adjacent pipe links.",
+      basis:`Methane is ${Math.round(state.pressure)}%, above the 68% intervention threshold. ${uncooledHazards.length} hazard cells are outside active cooling coverage.`
+    };
+  }else if(state.bio>60){
+    advice={
+      title:"Biological Monitoring Priority",
+      recommendation:"Install sensors beside unrevealed pathogen cells, then seal the highest-risk biological chamber.",
+      basis:`Biological risk is ${Math.round(state.bio)}%, above the 60% intervention threshold. Sensors reveal nearby risk and modestly reduce simulated growth.`
+    };
+  }else if(state.power<32){
+    advice={
+      title:"Energy Conservation Priority",
+      recommendation:"Pause new cooler placement, avoid unnecessary sensors, and use repairs only where integrity is visibly damaged.",
+      basis:`Power is ${Math.round(state.power)}%. Active infrastructure consumes power each simulated day.`
+    };
+  }else if(state.coolant<26){
+    advice={
+      title:"Coolant Conservation Priority",
+      recommendation:"Extend existing cooler coverage with pipes instead of installing another cooler.",
+      basis:`Coolant is ${Math.round(state.coolant)}%. Pipe links use power once, while each cooler consumes coolant every day.`
+    };
+  }else if(state.integrity<55){
+    advice={
+      title:"Structural Repair Priority",
+      recommendation:"Repair the lowest-integrity hazard or chamber cell before adding new infrastructure.",
+      basis:`Vault integrity is ${Math.round(state.integrity)}%, below the 55% maintenance threshold.`
+    };
+  }else if(uncooledHazards.length){
+    advice={
+      title:"Network Expansion Priority",
+      recommendation:"Connect the nearest uncovered hazard to an existing cooler network using adjacent pipe links.",
+      basis:`Current global readings are stable, but ${uncooledHazards.length} hazard cell${uncooledHazards.length===1?" is":"s are"} outside cooling coverage.`
+    };
+  }else{
+    const diversify={
+      cooler:"sensor",
+      seal:"pipe",
+      sensor:"seal",
+      pipe:"repair",
+      repair:"cooler"
+    };
+    const next=diversify[favorite?.[0]]||"sensor";
+    advice={
+      title:"Balanced Resilience",
+      recommendation:`Maintain the present network and consider adding one ${next} only where it fills a visible gap.`,
+      basis:favorite&&favorite[1]>0
+        ?`Your most-used tool is ${favorite[0]} (${favorite[1]} uses). The crew recommends diversification rather than repeating the same response.`
+        :"Current readings are stable and the local memory does not yet favor a particular tool."
+    };
+  }
+
+  state.memory.lastAdvice=advice;
+  renderAdvice();
+  save();
+}
+function renderAdvice(){
+  const advice=state.memory.lastAdvice;
+  const panel=$("#crewAdvice");
+  if(!advice){
+    panel.innerHTML="<strong>Awaiting Analysis</strong><p>Generate a mission to receive a recommendation.</p><small>The explanation will identify the exact rule and local memory signal used.</small>";
+    return;
+  }
+  panel.innerHTML=`<strong>${escapeHTML(advice.title)}</strong><p>${escapeHTML(advice.recommendation)}</p><small>${escapeHTML(advice.basis)}</small>`;
+}
+function clearMemory(){
+  if(!confirm("Clear local digital crew learning while preserving the current mission?"))return;
+  state.memory=defaultMemory();
+  renderMemory();
+  renderAdvice();
+  save();
+  showToast("Digital crew memory cleared.");
+}
+
+/* Data */
+function snapshot(){
+  return{
+    schema:"kile-permafrost-v3",
+    version:3,
+    exportedAt:new Date().toISOString(),
+    state
+  };
+}
+function prepareSnapshot(){
+  $("#dataText").value=JSON.stringify(snapshot(),null,2);
+  showToast("Portable snapshot prepared.");
+}
+function downloadSnapshot(){
+  prepareSnapshot();
+  const blob=new Blob([$("#dataText").value],{type:"application/json"});
+  const url=URL.createObjectURL(blob);
+  const anchor=document.createElement("a");
+  anchor.href=url;
+  anchor.download=`permafrost-escape-${safeFilename(state.seed)}.json`;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+async function copySnapshot(){
+  if(!$("#dataText").value.trim())prepareSnapshot();
+  try{
+    await navigator.clipboard.writeText($("#dataText").value);
+    showToast("Snapshot copied.");
+  }catch{
+    $("#dataText").select();
+    showToast("Clipboard unavailable. The snapshot text is selected.");
+  }
+}
+function importSnapshot(text){
+  if(!text||text.length>MAX_IMPORT_CHARS){
+    showToast("Import is empty or exceeds one megabyte.");
+    return;
+  }
+  try{
+    const parsed=JSON.parse(text);
+    if(parsed?.schema!=="kile-permafrost-v3"||!parsed.state)throw new Error("Invalid schema");
+    clearTimer();
+    state=normalizeState(parsed.state);
+    state.phase=state.phase==="running"?"paused":state.phase;
+    pipeStart=null;
+    selectedCell=null;
+    editorUndo=[];
+    editorRedo=[];
+    $("#seedInput").value=state.seed;
+    $("#difficulty").value=state.difficulty;
+    renderAll();
+    save();
+    if(state.phase==="paused")showPauseOverlay();
+    else if(state.phase==="ready")showReadyOverlay();
+    else if(["won","lost"].includes(state.phase))showResultOverlay(state.phase==="won"?"win":"loss");
+    else showIdleOverlay();
+    showToast("Validated snapshot imported.");
+  }catch(error){
+    showToast(`Import rejected: ${error.message}`);
+  }
+}
+function wipeData(){
+  if(!confirm("Permanently wipe all local Permafrost Escape data and crew memory?"))return;
+  clearTimer();
+  localStorage.removeItem(STORAGE_KEY);
+  state=freshState();
+  pipeStart=null;
+  selectedCell=null;
+  editorUndo=[];
+  editorRedo=[];
+  $("#seedInput").value=state.seed;
+  $("#difficulty").value=state.difficulty;
+  $("#dataText").value="";
+  showIdleOverlay();
+  renderAll();
+  showToast("All local Permafrost Escape data was wiped.");
+}
+function safeFilename(value){
+  return safeText(value||"mission").replace(/[\\/:*?"<>|]+/g,"").trim().replace(/\s+/g,"_").slice(0,60)||"mission";
+}
+
+/* Rendering */
+function renderAll(){
+  renderWorld();
+  renderEditor();
+  renderMetrics();
+  renderObjectives();
+  renderLog();
+  renderMemory();
+  renderAdvice();
+  renderSelection();
+  renderValidation();
+  renderControls();
+  renderStatus();
+  document.body.dataset.motion=prefs.motion;
+}
+function renderWorld(){
+  drawGrid(ctx,state.grid,{editorMode:false,cursor:worldCursor});
+}
+function renderEditor(){
+  drawGrid(ectx,state.editorGrid,{editorMode:true,cursor:editorCursor});
+  $("#editorUndoBtn").disabled=!editorUndo.length;
+  $("#editorRedoBtn").disabled=!editorRedo.length;
+}
+function renderMetrics(){
+  $("#tempMetric").textContent=`${state.temp.toFixed(1)}°C`;
+  $("#pressureMetric").textContent=`${Math.round(state.pressure)}%`;
+  $("#bioMetric").textContent=`${Math.round(state.bio)}%`;
+  $("#powerMetric").textContent=`${Math.round(state.power)}%`;
+  $("#coolantMetric").textContent=`${Math.round(state.coolant)}%`;
+  $("#integrityMetric").textContent=`${Math.round(state.integrity)}%`;
+}
+function objectiveClass(value,good,warn){
+  if(good(value))return"good";
+  if(warn(value))return"warn";
+  return"danger";
+}
+function renderObjectives(){
+  const day=$("#dayObjective");
+  const methane=$("#methaneObjective");
+  const bio=$("#bioObjective");
+  const integrity=$("#integrityObjective");
+
+  day.className=`objective ${state.day>=TARGET_DAY?"good":state.day>=TARGET_DAY*.75?"warn":""}`;
+  methane.className=`objective ${objectiveClass(state.pressure,value=>value<55,value=>value<70)}`;
+  bio.className=`objective ${objectiveClass(state.bio,value=>value<50,value=>value<65)}`;
+  integrity.className=`objective ${objectiveClass(state.integrity,value=>value>=65,value=>value>35)}`;
+
+  day.querySelector("strong").textContent=`Day ${state.day} / ${TARGET_DAY}`;
+  methane.querySelector("strong").textContent=`Methane ${Math.round(state.pressure)}%`;
+  bio.querySelector("strong").textContent=`Bio Risk ${Math.round(state.bio)}%`;
+  integrity.querySelector("strong").textContent=`Integrity ${Math.round(state.integrity)}%`;
+}
+function renderLog(){
+  const container=$("#missionLog");
+  container.replaceChildren();
+  if(!state.log.length){
+    const empty=document.createElement("div");
+    empty.className="log-item";
+    empty.textContent="No events yet.";
+    container.appendChild(empty);
+    return;
+  }
+  state.log.forEach(item=>{
+    const row=document.createElement("div");
+    row.className=`log-item ${item.type}`.trim();
+    row.textContent=item.message;
+    container.appendChild(row);
+  });
+}
+function renderMemory(){
+  const memory=state.memory;
+  const rows=[
+    ["Missions",memory.missions],
+    ["Wins",memory.wins],
+    ["Losses",memory.losses],
+    ["Total Simulated Days",memory.totalDays],
+    ["Cooler Uses",memory.toolUse.cooler],
+    ["Seal Uses",memory.toolUse.seal],
+    ["Sensor Uses",memory.toolUse.sensor],
+    ["Pipe Links",memory.toolUse.pipe],
+    ["Repairs",memory.toolUse.repair]
+  ];
+  const container=$("#memoryPanel");
+  container.replaceChildren();
+  rows.forEach(([label,value])=>{
+    const row=document.createElement("div");
+    row.className="memory-row";
+    const name=document.createElement("span");
+    name.textContent=label;
+    const result=document.createElement("strong");
+    result.textContent=value;
+    row.append(name,result);
+    container.appendChild(row);
+  });
+}
+function renderSelection(){
+  if(!selectedCell){
+    $("#selectionTitle").textContent="No Cell Selected";
+    $("#selectionText").textContent="Choose a cell on the vault canvas.";
+    return;
+  }
+  const {x,y}=selectedCell;
+  const cell=state.grid[y][x];
+  $("#selectionTitle").textContent=`Cell ${x},${y} · ${cell.type}`;
+  $("#selectionText").textContent=`Risk ${Math.round(cell.risk)}% · integrity ${Math.round(cell.integrity)}% · device ${cell.device||"none"} · ${cell.pipes.length} pipe link${cell.pipes.length===1?"":"s"} · ${cell.revealed?"revealed":"unrevealed"}.`;
+}
+function renderValidation(){
+  const report=validationReport();
+  const container=$("#validationList");
+  container.replaceChildren();
+  report.forEach(item=>{
+    const row=document.createElement("div");
+    row.className=`validation-line ${item.ok?"ok":"bad"}`;
+    const label=document.createElement("span");
+    label.textContent=item.label;
+    const value=document.createElement("strong");
+    value.textContent=item.value;
+    row.append(label,value);
+    container.appendChild(row);
+  });
+}
+function renderControls(){
+  const running=state.phase==="running";
+  const paused=state.phase==="paused";
+  const finished=["won","lost"].includes(state.phase);
+  $("#systemState").textContent=
+    state.phase==="running"?"Running":
+    state.phase==="paused"?"Paused":
+    state.phase==="won"?"Stabilized":
+    state.phase==="lost"?"Failed":
+    state.generated?"Ready":"Idle";
+
+  $("#startBtn").disabled=!state.generated||running||finished;
+  $("#pauseBtn").disabled=!state.generated||finished||!["running","paused"].includes(state.phase);
+  $("#pauseBtn").textContent=paused?"Resume":"Pause";
+  $("#stepBtn").disabled=!state.generated||running||finished;
+  $("#resetBtn").disabled=!state.generated;
+  $("#difficulty").disabled=running;
+  $("#seedInput").disabled=running;
+}
+function renderStatus(){
+  $("#statusText").textContent=state.status;
+}
+function escapeHTML(value){
+  return safeText(value).replace(/[&<>"']/g,character=>({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#39;"
+  })[character]);
+}
+
+/* Overlays */
+function showIdleOverlay(){
+  $("#overlayTitle").textContent="Vault Awaiting Command";
+  $("#overlayText").textContent="Generate a deterministic mission. The same seed recreates the same terrain and hazards.";
+  $("#overlayMetrics").hidden=true;
+  $("#overlayGenerateBtn").hidden=false;
+  $("#overlayStartBtn").hidden=true;
+  $("#overlayResumeBtn").hidden=true;
+  $("#overlayReplayBtn").hidden=true;
+  $("#overlay").hidden=false;
+}
+function showReadyOverlay(){
+  $("#overlayTitle").textContent="Mission Generated";
+  $("#overlayText").textContent="Inspect the site and place infrastructure now, or begin the simulation immediately.";
+  $("#overlayMetrics").hidden=true;
+  $("#overlayGenerateBtn").hidden=true;
+  $("#overlayStartBtn").hidden=false;
+  $("#overlayResumeBtn").hidden=true;
+  $("#overlayReplayBtn").hidden=false;
+  $("#overlay").hidden=false;
+}
+function showPauseOverlay(){
+  $("#overlayTitle").textContent="Simulation Paused";
+  $("#overlayText").textContent="Time and automated day progression are frozen. Manual inspection remains available after resuming.";
+  $("#overlayMetrics").hidden=true;
+  $("#overlayGenerateBtn").hidden=true;
+  $("#overlayStartBtn").hidden=true;
+  $("#overlayResumeBtn").hidden=false;
+  $("#overlayReplayBtn").hidden=false;
+  $("#overlay").hidden=false;
+}
+function showResultOverlay(outcome){
+  const won=outcome==="win";
+  $("#overlayTitle").textContent=won?"Vault Stabilized":"Containment Failure";
+  $("#overlayText").textContent=won
+    ?`The vault remained operational through Day ${TARGET_DAY}.`
+    :"Review the logs and digital crew recommendation before rebuilding the mission.";
+  $("#overlayMetrics").innerHTML=`
+    <div><strong>${state.day}</strong><span>Days</span></div>
+    <div><strong>${Math.round(state.pressure)}%</strong><span>Methane</span></div>
+    <div><strong>${Math.round(state.bio)}%</strong><span>Bio Risk</span></div>
+    <div><strong>${Math.round(state.integrity)}%</strong><span>Integrity</span></div>`;
+  $("#overlayMetrics").hidden=false;
+  $("#overlayGenerateBtn").hidden=true;
+  $("#overlayStartBtn").hidden=true;
+  $("#overlayResumeBtn").hidden=true;
+  $("#overlayReplayBtn").hidden=false;
+  $("#overlay").hidden=false;
+}
+
+/* Tabs and events */
+function switchTab(id){
+  $$(".tab").forEach(button=>button.classList.toggle("active",button.dataset.tab===id));
+  $$(".section").forEach(section=>section.classList.toggle("active",section.id===id));
+  renderAll();
+}
+$$(".tab").forEach(button=>button.addEventListener("click",()=>switchTab(button.dataset.tab)));
+
+$("#tools").addEventListener("click",event=>{
+  const button=event.target.closest("[data-tool]");
+  if(!button)return;
+  activeTool=button.dataset.tool;
+  pipeStart=null;
+  $("#tools").querySelectorAll(".tool").forEach(tool=>tool.classList.toggle("active",tool===button));
+  renderAll();
+});
+$("#editorTools").addEventListener("click",event=>{
+  const button=event.target.closest("[data-edit]");
+  if(!button)return;
+  editorTool=button.dataset.edit;
+  $("#editorTools").querySelectorAll(".tool").forEach(tool=>tool.classList.toggle("active",tool===button));
+});
+
+$("#generateBtn").addEventListener("click",generateMission);
+$("#overlayGenerateBtn").addEventListener("click",generateMission);
+$("#startBtn").addEventListener("click",startMission);
+$("#overlayStartBtn").addEventListener("click",startMission);
+$("#pauseBtn").addEventListener("click",()=>pauseMission(false));
+$("#overlayResumeBtn").addEventListener("click",()=>pauseMission(false));
+$("#stepBtn").addEventListener("click",()=>simulateDay(true));
+$("#resetBtn").addEventListener("click",resetMission);
+$("#overlayReplayBtn").addEventListener("click",generateMission);
+
+$("#validateBtn").addEventListener("click",()=>validateEditor(true));
+$("#autoPrepareBtn").addEventListener("click",autoPrepareEditor);
+$("#editorUndoBtn").addEventListener("click",editorUndoAction);
+$("#editorRedoBtn").addEventListener("click",editorRedoAction);
+$("#copyToMissionBtn").addEventListener("click",copyEditorToMission);
+
+$("#adviceBtn").addEventListener("click",analyzeMission);
+$("#clearMemoryBtn").addEventListener("click",clearMemory);
+
+$("#exportBtn").addEventListener("click",prepareSnapshot);
+$("#downloadBtn").addEventListener("click",downloadSnapshot);
+$("#copyBtn").addEventListener("click",copySnapshot);
+$("#importBtn").addEventListener("click",()=>importSnapshot($("#dataText").value));
+$("#importFileBtn").addEventListener("click",()=>$("#importFile").click());
+$("#importFile").addEventListener("change",async event=>{
+  const file=event.target.files?.[0];
+  event.target.value="";
+  if(!file)return;
+  if(file.size>MAX_IMPORT_CHARS)return showToast("Import rejected: file exceeds one megabyte.");
+  try{
+    importSnapshot(await file.text());
+  }catch{
+    showToast("Import file could not be read.");
+  }
+});
+$("#wipeBtn").addEventListener("click",wipeData);
+
+document.addEventListener("keydown",event=>{
+  if(/INPUT|SELECT|TEXTAREA/.test(document.activeElement?.tagName||""))return;
+  if(event.key.toLowerCase()==="p"&&["running","paused"].includes(state.phase)){
+    event.preventDefault();
+    pauseMission(false);
+  }
+});
+document.addEventListener("visibilitychange",()=>{
+  if(document.hidden&&state.phase==="running"){
+    pauseMission(true);
+  }
+});
+window.addEventListener("beforeunload",()=>{
+  clearTimer();
+  save();
+});
+
+/* Boot */
+function boot(){
+  $("#seedInput").value=state.seed;
+  $("#difficulty").value=state.difficulty;
+  prefs.motion=window.matchMedia?.("(prefers-reduced-motion: reduce)").matches?"reduced":prefs.motion;
+  document.body.dataset.motion=prefs.motion;
+  savePrefs();
+  renderAll();
+
+  if(state.phase==="paused")showPauseOverlay();
+  else if(state.phase==="ready")showReadyOverlay();
+  else if(state.phase==="won")showResultOverlay("win");
+  else if(state.phase==="lost")showResultOverlay("loss");
+  else showIdleOverlay();
+}
+boot();
+
+})();
+</script>
+</body>
+</html>
