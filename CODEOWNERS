@@ -1,0 +1,15 @@
+# Default ownership
+* @vervenveda
+
+# Core public entry points and governance
+/index.html @vervenveda
+/404.html @vervenveda
+/README.md @vervenveda
+/SECURITY.md @vervenveda
+/PRIVACY.md @vervenveda
+/ACCESSIBILITY.md @vervenveda
+/LICENSE.md @vervenveda
+/COPYRIGHT.md @vervenveda
+/THIRD_PARTY_NOTICES.md @vervenveda
+/.github/workflows/ @vervenveda
+/scripts/ @vervenveda

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://vervenveda.github.io/arcade.github.io/sitemap.xml

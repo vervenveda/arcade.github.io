@@ -1,0 +1,27 @@
+{
+  "name": "Arcade™ — After Dark",
+  "short_name": "Arcade",
+  "description": "A local-first Verve N Veda game hall for strategy, language, puzzles, creativity, trivia, action, and sanctuary play.",
+  "id": "/arcade.github.io/",
+  "start_url": "/arcade.github.io/",
+  "scope": "/arcade.github.io/",
+  "display": "standalone",
+  "background_color": "#080b13",
+  "theme_color": "#080b13",
+  "orientation": "any",
+  "categories": ["games", "education", "entertainment"],
+  "icons": [
+    {
+      "src": "assets/icons/arcade-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icons/arcade-icon-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}
