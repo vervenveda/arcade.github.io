@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="Arcade — a calm neon game hall with 58 verified and connected cabinets organized into strategy, language, visual logic, creativity, trivia, action, and simulation shelves.">
+<meta name="description" content="Arcade — the Verve N Veda game hall with 71 path-verified cabinets across Arcade, Bazaar Art, Aurora Sanctuary, and Khaemenes Preschool.">
 <meta name="theme-color" content="#080b13">
 <meta name="color-scheme" content="dark">
 <meta name="referrer" content="same-origin">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none';">
-<title>Arcade™ — After Dark</title>
+<title>Arcade™ — After Dark | Verve N Veda Game Hall</title>
 <style>
 :root{
   --black:#080b13;
@@ -533,6 +533,58 @@ footer{
   }
 }
 
+/* ==========================================================
+   COMPLETE CROSS-REPOSITORY GAME REGISTRY · JULY 2026
+   ========================================================== */
+.sr-only{
+  position:absolute!important;
+  width:1px!important;
+  height:1px!important;
+  padding:0!important;
+  margin:-1px!important;
+  overflow:hidden!important;
+  clip:rect(0,0,0,0)!important;
+  white-space:nowrap!important;
+  border:0!important;
+}
+.control-grid{
+  grid-template-columns:minmax(250px,1.25fr) 190px 190px 165px auto auto;
+}
+.registry-note{
+  max-width:900px;
+  margin:12px auto 0;
+  color:var(--faint);
+  font-family:var(--mono);
+  font-size:12px;
+  line-height:1.65;
+  text-align:center;
+}
+.game-source{
+  min-height:1.5em;
+  line-height:1.5;
+  overflow-wrap:anywhere;
+}
+.game-card h3{
+  min-height:2.8em;
+}
+.network-grid{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+}
+@media(max-width:1080px){
+  .control-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .control-grid label:first-child{grid-column:1/-1}
+}
+@media(max-width:820px){
+  .control-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .control-grid label:first-child{grid-column:1/-1}
+  .network-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:620px){
+  .control-grid,.network-grid{grid-template-columns:1fr}
+  .control-grid label:first-child{grid-column:auto}
+  .game-card h3{min-height:0}
+}
+
 </style>
 </head>
 <body>
@@ -540,7 +592,7 @@ footer{
 
 <header class="site-header">
   <div class="wrap nav">
-    <a class="home-brand" href="../" aria-label="Return to Verve N Veda home">
+    <a class="home-brand" href="https://vervenveda.github.io/" aria-label="Return to Verve N Veda home">
       <span class="brand-mark" aria-hidden="true">A</span>
       <span class="brand-copy"><strong>Verve N Veda</strong><small>Return to main gateway</small></span>
     </a>
@@ -563,7 +615,7 @@ footer{
       <div class="open-sign"><span>The hall is open</span></div>
       <h1>Arcade</h1>
       <p class="hero-subtitle">Insert curiosity · choose a cabinet · begin</p>
-      <p class="hero-lead">A low-light game hall with 58 verified and connected cabinets arranged into clear strategy, language, visual-logic, creative, knowledge, action, and simulation shelves.</p>
+      <p class="hero-lead">A low-light game hall with 71 path-verified cabinets gathered from Arcade, Bazaar Art, Aurora Sanctuary, and Khaemenes Preschool—organized into clear, searchable shelves.</p>
       <div class="hero-actions">
         <a class="btn btn-primary" href="#catalog">Enter the Game Hall</a>
         <button class="btn btn-secondary" id="randomHero" type="button">Random Cabinet</button>
@@ -571,7 +623,7 @@ footer{
       </div>
       <div class="hero-stats">
         <div class="stat"><strong id="gameCount">0</strong><span>Playable cabinets</span></div>
-        <div class="stat"><strong>06</strong><span>Curated categories</span></div>
+        <div class="stat"><strong id="categoryCount">0</strong><span>Curated categories</span></div>
         <div class="stat"><strong id="heroPinCount">0</strong><span>Pinned favorites</span></div>
       </div>
     </div>
@@ -609,7 +661,7 @@ footer{
 
 <section class="section" id="wings">
   <div class="wrap">
-    <div class="section-head"><p class="eyebrow">Seven clear entrances</p><h2>Game Categories</h2><p>Each category opens a dedicated shelf and filters the verified 58-cabinet registry.</p></div>
+    <div class="section-head"><p class="eyebrow">Eight clear entrances</p><h2>Game Categories</h2><p>Each category opens a dedicated shelf and filters the verified cross-repository cabinet registry.</p></div>
     <div class="wing-grid" id="wingGrid"></div>
   </div>
 </section>
@@ -617,16 +669,18 @@ footer{
 <section class="section section-alt" id="catalog">
   <!-- Registry includes native Arcade cabinets plus selected public games from Bazaar Art and Aurora Sanctuary. -->
   <div class="wrap">
-    <div class="section-head"><p class="eyebrow">Verified cabinet registry</p><h2>Game Library</h2><p>Every supplied filename is represented once. Search across the shelves, filter a category, show only pins, or let the Arcade choose.</p></div>
+    <div class="section-head"><p class="eyebrow">Path-verified cabinet registry</p><h2>Game Library</h2><p>Search by title, skill, category, or repository source. Every listed cabinet uses an exact current path; retired and unverified routes are excluded.</p></div>
     <div class="catalog-shell">
       <div class="control-grid">
-        <label><span style="position:absolute;left:-9999px">Search games</span><input class="field" id="search" type="search" placeholder="Search games, skills, themes…"></label>
-        <label><span style="position:absolute;left:-9999px">Filter by game category</span><select class="field" id="category"><option value="all">All game categories</option><option value="strategy">Strategy Table</option><option value="word">Word &amp; Language</option><option value="puzzle">Visual Logic &amp; Puzzles</option><option value="creative">Creative &amp; Contemplative</option><option value="trivia">Trivia &amp; Knowledge</option><option value="action">Action &amp; Simulation</option><option value="sanctuary">Sanctuary Play</option></select></label>
-        <label><span style="position:absolute;left:-9999px">Sort games</span><select class="field" id="sort"><option value="registry">Registry order</option><option value="az">Title A–Z</option><option value="za">Title Z–A</option><option value="category">Group by wing</option></select></label>
+        <label><span class="sr-only">Search games</span><input class="field" id="search" type="search" placeholder="Search games, skills, themes…"></label>
+        <label><span class="sr-only">Filter by game category</span><select class="field" id="category"><option value="all">All game categories</option><option value="strategy">Strategy Table</option><option value="word">Word &amp; Language</option><option value="puzzle">Visual Logic &amp; Puzzles</option><option value="creative">Creative &amp; Contemplative</option><option value="trivia">Trivia &amp; Knowledge</option><option value="action">Action &amp; Simulation</option><option value="sanctuary">Sanctuary Play</option><option value="family">Early Learning &amp; Family</option></select></label>
+        <label><span class="sr-only">Filter by repository source</span><select class="field" id="sourceFilter"><option value="all">All repository sources</option><option value="Arcade">Arcade</option><option value="Bazaar Art">Bazaar Art</option><option value="Aurora Sanctuary">Aurora Sanctuary</option><option value="Khaemenes Preschool">Khaemenes Preschool</option></select></label>
+        <label><span class="sr-only">Sort games</span><select class="field" id="sort"><option value="registry">Registry order</option><option value="az">Title A–Z</option><option value="za">Title Z–A</option><option value="category">Group by wing</option></select></label>
         <button class="control-button" id="pinnedOnly" type="button" aria-pressed="false">Pinned only</button>
         <button class="control-button" id="randomCatalog" type="button">Surprise me</button>
       </div>
       <p class="result-note" id="resultNote" aria-live="polite"></p>
+      <p class="registry-note">“Verified” means the exact repository path was confirmed during this audit. It does not imply that every game has completed a full gameplay, content, or accessibility review.</p>
     </div>
     <div class="catalog-groups" id="catalogGroups" style="margin-top:14px"></div>
     <div class="no-results" id="noResults">No cabinet matches the current search and filters.</div>
@@ -638,7 +692,7 @@ footer{
     <div class="section-head"><p class="eyebrow">Daily showcase</p><h2>Cabinet of the Day</h2><p>A different game moves into the spotlight each day without requiring a manual homepage update.</p></div>
     <div class="featured-grid">
       <article class="featured-cabinet">
-        <div><p class="eyebrow" id="featuredCategory">Featured cabinet</p><h3 id="featuredTitle">Loading…</h3><p id="featuredText"></p><a class="btn btn-primary" id="featuredLink" href="#">Launch Featured Game</a></div>
+        <div><p class="eyebrow" id="featuredCategory">Featured cabinet</p><h3 id="featuredTitle">Loading…</h3><p id="featuredText"></p><a class="btn btn-primary" id="featuredLink" href="#catalog">Launch Featured Game</a></div>
         <div class="featured-symbol" id="featuredIcon">🕹️</div>
       </article>
       <aside class="community-panel">
@@ -646,9 +700,9 @@ footer{
         <h3>The Arcade is never finished.</h3>
         <div class="update-list">
           <div class="update"><strong>Pin system online</strong><span>Favorites are saved locally and appear in the Pinned Cabinets shelf.</span></div>
-          <div class="update"><strong>58 verified and connected cabinets</strong><span>Arcade originals and selected public games from Bazaar Art and Aurora Sanctuary remain searchable, sortable, filterable, and pinnable in one hall.</span></div>
+          <div class="update"><strong><span id="operatorGameCount">0</span> path-verified cabinets</strong><span>Arcade originals, the Kids Wing, Bazaar Art, Aurora Sanctuary, and verified Khaemenes Preschool games remain searchable, sortable, filterable, and pinnable in one hall.</span></div>
           <div class="update"><strong>Comfortable neon</strong><span>Glows are restrained, motion is minimal, and reduced-motion preferences are respected.</span></div>
-          <div class="update"><strong>Free play</strong><span>No account, remote service, or outside dependency is required.</span></div>
+          <div class="update"><strong>Free play</strong><span>No account is required. Pins stay on this device; connected cabinets may open another public Verve N Veda repository.</span></div>
         </div>
       </aside>
     </div>
@@ -680,7 +734,7 @@ footer{
   <div class="wrap">
     <div class="family-panel">
       <div><p class="eyebrow" style="color:var(--mint)">Younger players</p><h2>Kids & Families</h2><p>Younger learners have connected spaces with gentler visuals, age-aware activities, and broader educational support.</p></div>
-      <div class="family-actions"><a class="btn btn-primary" href="../preschool.github.io/">Enter Preschool</a><a class="btn btn-secondary" href="../khaemenesacademy.github.io/">Visit Khaemenes Academy</a></div>
+      <div class="family-actions"><a class="btn btn-primary" href="https://vervenveda.github.io/Khaemenes_Preschool.github.io/">Enter Khaemenes Preschool</a><a class="btn btn-secondary" href="https://vervenveda.github.io/Khaemenes_Academy.github.io/">Visit Khaemenes Academy</a></div>
     </div>
   </div>
 </section>
@@ -689,14 +743,18 @@ footer{
   <div class="wrap">
     <div class="section-head"><p class="eyebrow">Connected network</p><h2>Beyond the Game Hall</h2><p>Continue into the wider Verve N Veda public network through direct landing-page doorways.</p></div>
     <div class="network-grid">
-      <a class="network-card" href="../"><strong>Verve N Veda</strong><span>Main public gateway.</span></a>
-      <a class="network-card" href="../khaemenesacademy.github.io/"><strong>Khaemenes Academy</strong><span>Courses and learning portals.</span></a>
-      <a class="network-card" href="../Arshif.github.io/"><strong>ARSHIF Archives</strong><span>Research and deep-study halls.</span></a>
-      <a class="network-card" href="../solanar.github.io/"><strong>Solanar</strong><span>Weather, environment, Earth, and sky.</span></a>
-      <a class="network-card" href="../theverifier.github.io/"><strong>The Verifier</strong><span>Information literacy and research.</span></a>
-      <a class="network-card" href="../river_to_road.github.io/"><strong>River to Road</strong><span>Community stewardship.</span></a>
-      <a class="network-card" href="../onenationforall.github.io/"><strong>One Nation For All</strong><span>Civic learning and participation.</span></a>
-      <a class="network-card" href="../the_refrain.github.io/"><strong>The Refrain</strong><span>Music conservatory and recording house.</span></a>
+      <a class="network-card" href="https://vervenveda.github.io/"><strong>Verve N Veda</strong><span>Main public gateway.</span></a>
+      <a class="network-card" href="https://vervenveda.github.io/Khaemenes_Academy.github.io/"><strong>Khaemenes Academy</strong><span>Courses and learning portals.</span></a>
+      <a class="network-card" href="https://vervenveda.github.io/Khaemenes_Preschool.github.io/"><strong>Khaemenes Preschool</strong><span>Early-learning games and activities.</span></a>
+      <a class="network-card" href="https://vervenveda.github.io/bazaarart.github.io/"><strong>Bazaar Art</strong><span>Creative games, prompts, and artist tools.</span></a>
+      <a class="network-card" href="https://vervenveda.github.io/aurora.github.io/"><strong>Aurora Sanctuary</strong><span>Gentle, reflective, and restorative play.</span></a>
+      <a class="network-card" href="https://vervenveda.github.io/Arshif.github.io/"><strong>ARSHIF Archives</strong><span>Research and deep-study halls.</span></a>
+      <a class="network-card" href="https://vervenveda.github.io/solanar.github.io/"><strong>Solanar</strong><span>Weather, environment, Earth, and sky.</span></a>
+      <a class="network-card" href="https://vervenveda.github.io/theverifier.github.io/"><strong>The Verifier</strong><span>Information literacy and research.</span></a>
+      <a class="network-card" href="https://vervenveda.github.io/river_to_road.github.io/"><strong>River to Road</strong><span>Community stewardship.</span></a>
+      <a class="network-card" href="https://vervenveda.github.io/onenationforall.github.io/"><strong>One Nation For All</strong><span>Civic learning and participation.</span></a>
+      <a class="network-card" href="https://vervenveda.github.io/the_refrain.github.io/"><strong>The Refrain</strong><span>Music conservatory and recording house.</span></a>
+      <a class="network-card" href="https://vervenveda.github.io/medicament-hub.github.io/"><strong>Medicament Hub</strong><span>Health learning and wellness resources.</span></a>
     </div>
   </div>
 </section>
@@ -1255,14 +1313,144 @@ const games = [
     "tags": "aurora sanctuary daily inspiration prompt playful challenge",
     "source": "Aurora Sanctuary",
     "description": "Receive one small invitation to begin with curiosity, creativity, and motion."
+  },
+  {
+    "id": "permafrost-escape",
+    "title": "Permafrost Escape",
+    "file": "a_permafrost_escape_game_index.html",
+    "category": "action",
+    "icon": "🧊",
+    "tags": "engineering climate permafrost habitat simulation systems survival",
+    "source": "Arcade",
+    "description": "Stabilize a frozen-environment habitat through careful engineering, climate awareness, and systems decisions."
+  },
+  {
+    "id": "abc-bubbles-kids",
+    "title": "ABC Bubble Adventure",
+    "url": "games/kids/ABC_Bubbles_index.html",
+    "category": "family",
+    "icon": "🔤",
+    "tags": "alphabet letters bubbles early learning preschool family",
+    "source": "Arcade",
+    "description": "A bright letter-recognition adventure for younger players learning the alphabet through bubble play."
+  },
+  {
+    "id": "acts-kindness-kids",
+    "title": "Acts of Kindness",
+    "url": "games/kids/Acts_of_Kindness_index.html",
+    "category": "family",
+    "icon": "💛",
+    "tags": "kindness empathy social emotional choices early learning family",
+    "source": "Arcade",
+    "description": "Explore everyday choices that build empathy, care, cooperation, and community."
+  },
+  {
+    "id": "bubble-pop-kids",
+    "title": "Bubble Pop — Letters & Numbers",
+    "url": "games/kids/Bubble_Pop_index.html",
+    "category": "family",
+    "icon": "🫧",
+    "tags": "letters numbers reaction bubbles early learning family",
+    "source": "Arcade",
+    "description": "Pop playful bubbles while practicing early letter and number recognition."
+  },
+  {
+    "id": "palette-quest-kids",
+    "title": "Palette Quest",
+    "url": "games/kids/Palette_Quest_index.html",
+    "category": "family",
+    "icon": "🎨",
+    "tags": "colors art palette creative early learning family",
+    "source": "Arcade",
+    "description": "Experiment with color relationships through a welcoming visual quest for younger creators."
+  },
+  {
+    "id": "pattern-pirates-kids",
+    "title": "Pattern Pirates",
+    "url": "games/kids/Pattern_Pirates_index.html",
+    "category": "family",
+    "icon": "🏴‍☠️",
+    "tags": "patterns sequences pirates logic early learning family",
+    "source": "Arcade",
+    "description": "Find, continue, and understand patterns while navigating a playful pirate voyage."
+  },
+  {
+    "id": "shapes-kids",
+    "title": "Shapes",
+    "url": "games/kids/Shapes_index.html",
+    "category": "family",
+    "icon": "🔷",
+    "tags": "shapes geometry preschool early learning family",
+    "source": "Arcade",
+    "description": "Recognize foundational shapes through simple, colorful, age-aware play."
+  },
+  {
+    "id": "weather-match-kids",
+    "title": "Pre-K Weather Match",
+    "url": "games/kids/prek_waether_match_index.html",
+    "category": "family",
+    "icon": "🌦️",
+    "tags": "weather matching preschool science early learning family",
+    "source": "Arcade",
+    "description": "Match weather symbols and familiar conditions in a gentle early-science activity."
+  },
+  {
+    "id": "pizza-brick-oven-kids",
+    "title": "Pizza Amorè — Brick Oven Edition",
+    "url": "games/kids/PizzaAmorè_index.html",
+    "category": "family",
+    "icon": "🍕",
+    "tags": "pizza food simulation cooking early learning family",
+    "source": "Arcade",
+    "description": "Build pizzas in a lighthearted brick-oven simulation with playful sequencing and choice."
+  },
+  {
+    "id": "pizza-language-kids",
+    "title": "Pizza Amorè — Language Learning Edition",
+    "url": "games/kids/PizzaAmorè_deluxe_index.html",
+    "category": "family",
+    "icon": "🍕",
+    "tags": "pizza language learning food simulation family",
+    "source": "Arcade",
+    "description": "Combine pizza-building play with approachable language-learning prompts."
+  },
+  {
+    "id": "feelings-garden-preschool",
+    "title": "Noetic Kids — Feelings Garden",
+    "url": "../Khaemenes_Preschool.github.io/apps/feelings_game_index.html",
+    "category": "family",
+    "icon": "🌈",
+    "tags": "feelings emotions social emotional preschool family gentle",
+    "source": "Khaemenes Preschool",
+    "description": "A gentle, private emotions-learning game that helps young children recognize and talk about feelings."
+  },
+  {
+    "id": "shape-garden-preschool",
+    "title": "Shape Garden Academy",
+    "url": "../Khaemenes_Preschool.github.io/apps/shapes_game_index.html",
+    "category": "family",
+    "icon": "🔺",
+    "tags": "shapes tracing matching sides preschool family geometry",
+    "source": "Khaemenes Preschool",
+    "description": "Learn shapes through tracing, matching, sides, real-world examples, speech, and local progress."
+  },
+  {
+    "id": "spelling-garden-preschool",
+    "title": "Colorful Spelling Garden",
+    "url": "../Khaemenes_Preschool.github.io/apps/Spelling_game_index.html",
+    "category": "family",
+    "icon": "🔡",
+    "tags": "spelling letters pictures hints preschool family language",
+    "source": "Khaemenes Preschool",
+    "description": "A bright preschool spelling game with letter tiles, pictures, hints, narration, and local progress."
   }
 ];
 
 const paths = [
   {
-    "title":"Strategy Initiation",
-    "description":"Build from simple grids toward deeper tactical and board-game play.",
-    "ids":[
+    "title": "Strategy Initiation",
+    "description": "Build from simple grids toward deeper tactical and board-game play.",
+    "ids": [
       "tictactoe",
       "connect-four",
       "sixbysix",
@@ -1272,18 +1460,18 @@ const paths = [
     ]
   },
   {
-    "title":"Word Builder",
-    "description":"Move from vocabulary discovery into spelling and English-language practice.",
-    "ids":[
+    "title": "Word Builder",
+    "description": "Move from vocabulary discovery into spelling and English-language practice.",
+    "ids": [
       "new-word",
       "hangman",
       "trivia-esl"
     ]
   },
   {
-    "title":"Visual Logic Circuit",
-    "description":"Train focus, sequence recognition, signal reading, mazes, and rune logic.",
-    "ids":[
+    "title": "Visual Logic Circuit",
+    "description": "Train focus, sequence recognition, signal reading, mazes, and rune logic.",
+    "ids": [
       "chromatic-focus",
       "color-clash",
       "colorshift-cascade",
@@ -1293,9 +1481,9 @@ const paths = [
     ]
   },
   {
-    "title":"Creative Conservatory",
-    "description":"Travel through creature making, story seeds, gardens, mandalas, and geometry.",
-    "ids":[
+    "title": "Creative Conservatory",
+    "description": "Travel through creature making, story seeds, gardens, mandalas, and geometry.",
+    "ids": [
       "critter-crafter",
       "quantum-orb",
       "mind-garden",
@@ -1305,9 +1493,9 @@ const paths = [
     ]
   },
   {
-    "title":"Knowledge Expedition",
-    "description":"Explore arts, history, civics, health, music, news, faith, and unexpected facts.",
-    "ids":[
+    "title": "Knowledge Expedition",
+    "description": "Explore arts, history, civics, health, music, news, faith, and unexpected facts.",
+    "ids": [
       "trivia-arts",
       "trivia-ancients",
       "civic-compass",
@@ -1318,13 +1506,25 @@ const paths = [
     ]
   },
   {
-    "title":"Action Run",
-    "description":"Move through quick cabinets, balloons, championship sports, and living-yard simulation.",
-    "ids":[
+    "title": "Action Run",
+    "description": "Move through quick cabinets, balloons, championship sports, and living-yard simulation.",
+    "ids": [
       "pocket-arcade",
       "balloon-brigade",
       "stadium-showdown",
       "thyme-to-mow"
+    ]
+  },
+  {
+    "title": "First Players",
+    "description": "A gentle trail through letters, shapes, patterns, feelings, spelling, weather, and creative color.",
+    "ids": [
+      "abc-bubbles-kids",
+      "shapes-kids",
+      "pattern-pirates-kids",
+      "feelings-garden-preschool",
+      "spelling-garden-preschool",
+      "weather-match-kids"
     ]
   }
 ];
@@ -1371,9 +1571,15 @@ const categories={
     "code":"AUR",
     "accent":"#78c7ad",
     "description":"Restorative creativity, reflective play, story sparks, color, gratitude, and gentle discovery from Aurora Sanctuary."
+  },
+  "family":{
+    "label":"Early Learning & Family",
+    "code":"FAM",
+    "accent":"#f0c777",
+    "description":"Alphabet, shapes, patterns, feelings, spelling, weather, food play, and gentle first-player experiences."
   }
 };
-const categoryOrder=["strategy", "word", "puzzle", "creative", "trivia", "action", "sanctuary"];
+const categoryOrder=["strategy", "word", "puzzle", "creative", "trivia", "action", "sanctuary", "family"];
 const $=selector=>document.querySelector(selector);
 const escapeHTML=value=>String(value).replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char]));
 const urlFor=game=>game.url||BASE+encodeURI(game.file);
@@ -1408,7 +1614,7 @@ function gameCard(game){
       <span class="game-category">${escapeHTML(meta.code)} · ${escapeHTML(meta.label)}</span>
       <button class="pin-button" type="button" data-pin="${escapeHTML(game.id)}" aria-pressed="${pinned}" aria-label="${pinned?"Unpin":"Pin"} ${escapeHTML(game.title)}" title="${pinned?"Unpin from":"Pin to"} favorites">${pinned?"★":"☆"}</button>
     </div>
-    ${game.source?`<span class="game-source">Connected cabinet · ${escapeHTML(game.source)}</span>`:""}
+    <span class="game-source">${escapeHTML(game.source||"Arcade")}</span>
     <h3>${escapeHTML(game.title)}</h3>
     <p>${escapeHTML(game.description)}</p>
     <div class="game-actions"><a class="launch" href="${escapeHTML(urlFor(game))}"><span>Launch game</span><span>→</span></a></div>
@@ -1436,11 +1642,14 @@ function sortGames(list){
 function currentPool(){
   const query=$("#search").value.trim().toLowerCase();
   const category=$("#category").value;
+  const source=$("#sourceFilter").value;
   return sortGames(games.filter(game=>{
+    const gameSource=game.source||"Arcade";
     const categoryMatch=category==="all"||game.category===category;
+    const sourceMatch=source==="all"||gameSource===source;
     const pinMatch=!pinnedOnly||pins.has(game.id);
-    const haystack=`${game.title} ${game.tags} ${game.description} ${categories[game.category].label}`.toLowerCase();
-    return categoryMatch&&pinMatch&&(!query||haystack.includes(query));
+    const haystack=`${game.title} ${game.tags} ${game.description} ${categories[game.category].label} ${gameSource}`.toLowerCase();
+    return categoryMatch&&sourceMatch&&pinMatch&&(!query||haystack.includes(query));
   }));
 }
 function renderGames(){
@@ -1521,6 +1730,7 @@ document.addEventListener("click",event=>{
 });
 $("#search").addEventListener("input",renderGames);
 $("#category").addEventListener("change",renderGames);
+$("#sourceFilter").addEventListener("change",renderGames);
 $("#sort").addEventListener("change",renderGames);
 $("#pinnedOnly").addEventListener("click",event=>{
   pinnedOnly=!pinnedOnly;
@@ -1556,7 +1766,30 @@ document.addEventListener("keydown",event=>{
 });
 
 $("#gameCount").textContent=String(games.length).padStart(2,"0");
+$("#categoryCount").textContent=String(categoryOrder.length).padStart(2,"0");
+$("#operatorGameCount").textContent=games.length;
 $("#year").textContent=new Date().getFullYear();
+
+window.auditArcade=function(){
+  const ids=games.map(game=>game.id);
+  const urls=games.map(game=>urlFor(game));
+  const duplicateIds=ids.filter((value,index)=>ids.indexOf(value)!==index);
+  const duplicateUrls=urls.filter((value,index)=>urls.indexOf(value)!==index);
+  const missingCategories=games.filter(game=>!categories[game.category]).map(game=>game.id);
+  const staleRoutes=urls.filter(url=>/khaemenesacademy\.github\.io|preschool\.github\.io/i.test(url));
+  const report={
+    cabinets:games.length,
+    categories:categoryOrder.length,
+    sources:[...new Set(games.map(game=>game.source||"Arcade"))].sort(),
+    duplicateIds:[...new Set(duplicateIds)],
+    duplicateUrls:[...new Set(duplicateUrls)],
+    missingCategories,
+    staleRoutes
+  };
+  console.table(report);
+  return report;
+};
+
 renderWings();
 renderPinned();
 renderGames();
