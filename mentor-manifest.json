@@ -1,0 +1,417 @@
+{
+  "version": 1,
+  "sourceId": "verve.arcade",
+  "name": "Verve N Veda Arcade",
+  "classification": "educational",
+  "mentorSearchable": true,
+  "audiences": [
+    "elementary",
+    "middle",
+    "high",
+    "higher-learning",
+    "adult",
+    "parent"
+  ],
+  "roles": [
+    "student",
+    "parent",
+    "educator"
+  ],
+  "homepage": "https://vervenveda.com/arcade.github.io/",
+  "repository": "vervenveda/arcade.github.io",
+  "resources": [
+    {
+      "id": "arcade-home",
+      "title": "Verve N Veda Arcade",
+      "description": "",
+      "url": "https://vervenveda.com/arcade.github.io/",
+      "audiences": [
+        "elementary",
+        "middle",
+        "high",
+        "higher-learning",
+        "adult",
+        "parent"
+      ],
+      "roles": [
+        "student",
+        "parent",
+        "educator"
+      ],
+      "domains": [
+        "games",
+        "logic"
+      ],
+      "skills": [],
+      "tags": [
+        "arcade",
+        "learning-games"
+      ],
+      "mentorEligible": true,
+      "featured": true
+    },
+    {
+      "id": "affix-six",
+      "title": "Affix Six™",
+      "description": "",
+      "url": "https://vervenveda.com/arcade.github.io/AffixSix%E2%84%A2_index.html",
+      "audiences": [
+        "elementary",
+        "middle",
+        "high",
+        "higher-learning",
+        "adult"
+      ],
+      "roles": [
+        "student",
+        "parent",
+        "educator"
+      ],
+      "domains": [
+        "games",
+        "logic"
+      ],
+      "skills": [
+        "word-formation",
+        "vocabulary"
+      ],
+      "tags": [
+        "language",
+        "game"
+      ],
+      "mentorEligible": true,
+      "minutes": 15,
+      "energy": "playful"
+    },
+    {
+      "id": "backgammon",
+      "title": "Backgammon",
+      "description": "",
+      "url": "https://vervenveda.com/arcade.github.io/Backgammon_index.html",
+      "audiences": [
+        "elementary",
+        "middle",
+        "high",
+        "higher-learning",
+        "adult"
+      ],
+      "roles": [
+        "student",
+        "parent",
+        "educator"
+      ],
+      "domains": [
+        "games",
+        "logic"
+      ],
+      "skills": [
+        "strategy",
+        "probability"
+      ],
+      "tags": [
+        "strategy",
+        "board-game"
+      ],
+      "mentorEligible": true,
+      "minutes": 15,
+      "energy": "playful"
+    },
+    {
+      "id": "checkers-lab",
+      "title": "Checkers Variant Lab",
+      "description": "",
+      "url": "https://vervenveda.com/arcade.github.io/Checkers_Variant_Lab_index.html",
+      "audiences": [
+        "elementary",
+        "middle",
+        "high",
+        "higher-learning",
+        "adult"
+      ],
+      "roles": [
+        "student",
+        "parent",
+        "educator"
+      ],
+      "domains": [
+        "games",
+        "logic"
+      ],
+      "skills": [
+        "strategy",
+        "planning"
+      ],
+      "tags": [
+        "strategy",
+        "board-game"
+      ],
+      "mentorEligible": true,
+      "minutes": 15,
+      "energy": "playful"
+    },
+    {
+      "id": "chess-studio",
+      "title": "Chess Studio",
+      "description": "",
+      "url": "https://vervenveda.com/arcade.github.io/Chess_Studio_index.html",
+      "audiences": [
+        "elementary",
+        "middle",
+        "high",
+        "higher-learning",
+        "adult"
+      ],
+      "roles": [
+        "student",
+        "parent",
+        "educator"
+      ],
+      "domains": [
+        "games",
+        "logic"
+      ],
+      "skills": [
+        "strategy",
+        "planning"
+      ],
+      "tags": [
+        "strategy",
+        "chess"
+      ],
+      "mentorEligible": true,
+      "minutes": 15,
+      "energy": "playful"
+    },
+    {
+      "id": "hangman",
+      "title": "Hangman",
+      "description": "",
+      "url": "https://vervenveda.com/arcade.github.io/Hangman_index.html",
+      "audiences": [
+        "elementary",
+        "middle",
+        "high",
+        "higher-learning",
+        "adult"
+      ],
+      "roles": [
+        "student",
+        "parent",
+        "educator"
+      ],
+      "domains": [
+        "games",
+        "logic"
+      ],
+      "skills": [
+        "spelling",
+        "vocabulary"
+      ],
+      "tags": [
+        "language",
+        "word-game"
+      ],
+      "mentorEligible": true,
+      "minutes": 15,
+      "energy": "playful"
+    },
+    {
+      "id": "sudoku",
+      "title": "Jenny's Sudoku",
+      "description": "",
+      "url": "https://vervenveda.com/arcade.github.io/Jenny%27s_Sudoku_index.html",
+      "audiences": [
+        "elementary",
+        "middle",
+        "high",
+        "higher-learning",
+        "adult"
+      ],
+      "roles": [
+        "student",
+        "parent",
+        "educator"
+      ],
+      "domains": [
+        "games",
+        "logic"
+      ],
+      "skills": [
+        "logic",
+        "number-reasoning"
+      ],
+      "tags": [
+        "logic",
+        "puzzle"
+      ],
+      "mentorEligible": true,
+      "minutes": 15,
+      "energy": "playful"
+    },
+    {
+      "id": "new-word",
+      "title": "Learn a New Word",
+      "description": "",
+      "url": "https://vervenveda.com/arcade.github.io/Learn_a_New_Word_index.html",
+      "audiences": [
+        "elementary",
+        "middle",
+        "high",
+        "higher-learning",
+        "adult"
+      ],
+      "roles": [
+        "student",
+        "parent",
+        "educator"
+      ],
+      "domains": [
+        "games",
+        "logic"
+      ],
+      "skills": [
+        "vocabulary",
+        "word-learning"
+      ],
+      "tags": [
+        "language",
+        "words"
+      ],
+      "mentorEligible": true,
+      "minutes": 15,
+      "energy": "playful"
+    },
+    {
+      "id": "connect-four",
+      "title": "Orion's Connect Four",
+      "description": "",
+      "url": "https://vervenveda.com/arcade.github.io/Orions_connect_four_index.html",
+      "audiences": [
+        "elementary",
+        "middle",
+        "high",
+        "higher-learning",
+        "adult"
+      ],
+      "roles": [
+        "student",
+        "parent",
+        "educator"
+      ],
+      "domains": [
+        "games",
+        "logic"
+      ],
+      "skills": [
+        "strategy",
+        "pattern-recognition"
+      ],
+      "tags": [
+        "strategy",
+        "game"
+      ],
+      "mentorEligible": true,
+      "minutes": 15,
+      "energy": "playful"
+    },
+    {
+      "id": "six-by-six",
+      "title": "Six by Six",
+      "description": "",
+      "url": "https://vervenveda.com/arcade.github.io/SixbySix_index.html",
+      "audiences": [
+        "elementary",
+        "middle",
+        "high",
+        "higher-learning",
+        "adult"
+      ],
+      "roles": [
+        "student",
+        "parent",
+        "educator"
+      ],
+      "domains": [
+        "games",
+        "logic"
+      ],
+      "skills": [
+        "logic",
+        "pattern-recognition"
+      ],
+      "tags": [
+        "logic",
+        "puzzle"
+      ],
+      "mentorEligible": true,
+      "minutes": 15,
+      "energy": "playful"
+    },
+    {
+      "id": "tic-tac-toe",
+      "title": "Tic-Tac-Toe",
+      "description": "",
+      "url": "https://vervenveda.com/arcade.github.io/Tictactoe_index.html",
+      "audiences": [
+        "elementary",
+        "middle",
+        "high",
+        "higher-learning",
+        "adult"
+      ],
+      "roles": [
+        "student",
+        "parent",
+        "educator"
+      ],
+      "domains": [
+        "games",
+        "logic"
+      ],
+      "skills": [
+        "strategy",
+        "pattern-recognition"
+      ],
+      "tags": [
+        "strategy",
+        "game"
+      ],
+      "mentorEligible": true,
+      "minutes": 15,
+      "energy": "playful"
+    },
+    {
+      "id": "trivia-esl",
+      "title": "ESL Trivia",
+      "description": "",
+      "url": "https://vervenveda.com/arcade.github.io/Trivia_ESL_index.html",
+      "audiences": [
+        "elementary",
+        "middle",
+        "high",
+        "higher-learning",
+        "adult"
+      ],
+      "roles": [
+        "student",
+        "parent",
+        "educator"
+      ],
+      "domains": [
+        "games",
+        "logic"
+      ],
+      "skills": [
+        "english",
+        "vocabulary"
+      ],
+      "tags": [
+        "language",
+        "trivia"
+      ],
+      "mentorEligible": true,
+      "minutes": 15,
+      "energy": "playful"
+    }
+  ]
+}
