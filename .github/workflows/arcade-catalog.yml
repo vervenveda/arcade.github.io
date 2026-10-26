@@ -1,0 +1,28 @@
+name: Arcade catalog regression
+on:
+  push:
+    branches: [main]
+    paths:
+      - "index.html"
+      - "assets/vnv-beta-link.js"
+      - "games/**"
+      - "Geometry/**"
+      - "tests/arcade-catalog.mjs"
+      - ".github/workflows/arcade-catalog.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  catalog:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v4
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Audit catalog and local destinations
+        run: node tests/arcade-catalog.mjs
