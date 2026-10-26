@@ -291,6 +291,24 @@
   let timerSec = 25;
   let timerInterval = null;
   let aiDepth = 4;
+  let aiJob = null;
+  let gameVersion = 0;
+
+  function cancelPendingAI(){
+    gameVersion++;
+    if(aiJob !== null){ clearTimeout(aiJob); aiJob = null; }
+  }
+
+  function scheduleAI(delay=700){
+    if(mode !== 'hybrid' || currentPlayer !== 'B' || winner) return;
+    if(aiJob !== null) clearTimeout(aiJob);
+    const version = gameVersion;
+    aiJob = setTimeout(()=>{
+      aiJob = null;
+      if(version !== gameVersion || mode !== 'hybrid' || currentPlayer !== 'B' || winner) return;
+      aiMove();
+    },delay);
+  }
 
   // gate for whether A may place a disc
   window.__orion_canPlace = false;
@@ -630,7 +648,7 @@
   }
 
   function aiMove(){
-    if(winner) return;
+    if(winner || mode !== 'hybrid' || currentPlayer !== 'B') return;
     const valid = getValidCols(board);
     if(valid.length === 0) return;
 
@@ -721,6 +739,7 @@
   }
 
   function resetGame(full=false){
+    cancelPendingAI();
     board = Array.from({length: ROWS}, () => Array(COLS).fill(null));
     currentPlayer = 'A';
     winner = null;
@@ -791,7 +810,7 @@
         updateTurnLine();
         stopTimer();
         renderQuestion(); // clears while B moves
-        setTimeout(() => aiMove(), 700);
+        scheduleAI(700);
       } else {
         currentPlayer = 'B';
         updateTurnLine();
@@ -856,7 +875,7 @@
       stopTimer();
       renderQuestion();
       if(mode === 'hybrid'){
-        setTimeout(() => aiMove(), 700);
+        scheduleAI(700);
       }
     }
 
@@ -973,7 +992,7 @@
         renderQuestion();
 
         if(mode === 'hybrid'){
-          setTimeout(() => aiMove(), 600);
+          scheduleAI(600);
         }
       }
     }, 1000);
