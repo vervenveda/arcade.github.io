@@ -12,7 +12,7 @@ const read=p=>fs.readFileSync(path.join(root,p),"utf8");
 const shell=read("assets/arcade-game-shell.js");
 new vm.Script(shell,{filename:"assets/arcade-game-shell.js"});
 const rootGames=[
- "Chess_Studio_index.html","Orions_connect_four_index.html",
+ "Backgammon_index.html","Chess_Studio_index.html","Orions_connect_four_index.html",
  "Jenny's_Sudoku_index.html","SixbySix_index.html","AffixSix™_index.html"
 ];
 const kidsGames=[
@@ -32,6 +32,17 @@ for(const name of rootGames.concat(kidsGames)){
   if(match[1].trim())new vm.Script(match[1],{filename});
  }
 }
+// First individual game-page certification: Backgammon presentation only.
+const backgammon=read("Backgammon_index.html");
+assert(!backgammon.includes('class="vnv-global-strip"'),"Backgammon duplicate top masthead");
+assert(backgammon.includes('data-vnv-support-off'),"Backgammon injected support must remain suppressed");
+assert(backgammon.includes('id="arcadeBackgammonPresentation"'),"Backgammon page-level visual rules missing");
+assert(backgammon.includes('grid-template-columns:minmax(0,1fr) minmax(270px,330px)'),"Backgammon board/sidebar may overflow");
+assert(backgammon.includes('aspect-ratio:1000 / 720'),"Backgammon canvas responsive geometry mismatch");
+assert(backgammon.includes('aria-labelledby="mTitle"')&&backgammon.includes('aria-describedby="mBody"'),"Backgammon modal accessible labels missing");
+assert(backgammon.includes("modalPriorFocus=document.activeElement")&&backgammon.includes("mButtons.querySelector('button')?.focus()"),"Backgammon modal focus management missing");
+assert(backgammon.includes("const dismiss=buttons.find"),"Backgammon mandatory decision Escape rule missing");
+assert(backgammon.includes("src=\"./assets/arcade-game-shell.js\" defer"),"Backgammon shared dock missing");
 function mountOn(url,wide,home=false){
  const nodes=new Map();
  class Element{
@@ -86,6 +97,6 @@ assert(landing.includes('id="arcadeNetwork"')&&landing.includes('id="arcadeLangu
 assert(landing.includes('src="./assets/arcade-game-shell.js" data-arcade-home defer'),"Home dock adapter absent");
 assert(landing.includes("data-vnv-support-off"),"Upstream top support widget not suppressed");
 assert(shell.includes("#vnvBetaProgramLink"),"Existing floating Beta control not deduplicated");
-console.log("PASS: 14 game pages include one correct shell reference and valid inline scripts.");
+console.log("PASS: 15 game pages include one correct shell reference and valid inline scripts.");
 console.log("PASS: single lower-right dock on desktop, mobile, landing and games; Arcade return inside tray.");
 console.log("PENDING: visual/mobile/real-browser validation on actual devices.");
