@@ -4,7 +4,8 @@ on:
     branches: [main]
     paths:
       - "index.html"
-      - "assets/vnv-beta-link.js"
+      - "*.html"
+      - "assets/**"
       - "games/**"
       - "Geometry/**"
       - "tests/arcade-catalog.mjs"
