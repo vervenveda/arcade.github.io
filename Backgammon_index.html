@@ -1,12 +1,12 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-vnv-support-off>
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Backgammon — Mobile Arcade (Premium Free)</title>
 <style>
   :root{
-    --W: clamp(320px, 95vw, 920px);
+    --W: min(calc(100vw - 24px), 1200px);
     --B: calc(var(--W) * 0.88);
     --ink:#0e1116; --muted:#6b7280; --accent:#13c2c2; --panel:#ffffff;
     --good:#10b981; --warn:#f59e0b; --bad:#ef4444;
@@ -19,7 +19,7 @@
   }
   .wrap{
     max-width:var(--W);
-    margin:18px auto 24px;
+    margin:18px auto 96px;
     padding:14px 10px 20px;
   }
   h1{
@@ -56,8 +56,9 @@
   }
 
   canvas{
-    width:calc(var(--B) - 18px);
-    height:calc((var(--B) - 18px)*0.72);
+    width:min(100%, 820px);
+    height:auto;
+    aspect-ratio:1000 / 720;
     max-width:100%;
     background:#e9e2d2;
     border-radius:16px;
@@ -108,44 +109,36 @@
   .kbd{font-family:ui-monospace,Consolas,monospace; background:#f3f4f6; border:1px solid #e5e7eb; padding:1px 6px; border-radius:7px}
   .mini{font-size:12px; color:#6b7280}
 
-  @media(min-width:900px){
-    .gamegrid{grid-template-columns: var(--B) minmax(260px,1fr);}
-    .boardbar{grid-column:1}
-    .side{grid-column:2}
+  @media(min-width:1100px){
+    .gamegrid{grid-template-columns:minmax(0,1fr) minmax(270px,330px);align-items:start}
+    .boardbar{grid-column:1;min-width:0}
+    .side{grid-column:2;min-width:0}
   }
 </style>
-<style id="vnv-global-ecosystem-shell">
-.vnv-global-strip{position:relative;z-index:2147482000;min-height:38px;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:12px;padding:5px 12px;border-bottom:1px solid rgba(160,140,100,.28);background:#121918;color:#eee8dc;font:400 12px/1.2 "Avenir Next",Avenir,"Segoe UI",Arial,sans-serif}
-.vnv-global-strip a{color:inherit;text-decoration:none}.vnv-global-brand{display:flex;align-items:center;gap:8px;white-space:nowrap}.vnv-global-mark{width:26px;height:26px;display:grid;place-items:center;border:1px solid rgba(238,232,220,.38);border-radius:7px;font:500 10px Georgia,serif}.vnv-global-copy{display:grid}.vnv-global-copy strong{font:500 11px Georgia,serif;letter-spacing:.08em;text-transform:uppercase}.vnv-global-copy small{margin-top:1px;color:#bdb5a6;font-size:9px;letter-spacing:.06em;text-transform:uppercase}
-.vnv-global-links{display:flex;align-items:center;justify-content:center;gap:10px;min-width:0;overflow:hidden;white-space:nowrap}.vnv-global-links a{color:#d8d1c5;font-size:10px;letter-spacing:.04em}.vnv-global-links a:hover,.vnv-global-links a:focus-visible{color:#fff}
-.vnv-global-menu{position:relative;justify-self:end}.vnv-global-menu summary{list-style:none;width:30px;height:30px;display:grid;place-items:center;border:1px solid rgba(238,232,220,.28);border-radius:7px;cursor:pointer}.vnv-global-menu summary::-webkit-details-marker{display:none}.vnv-global-lines,.vnv-global-lines:before,.vnv-global-lines:after{content:"";display:block;width:14px;height:1.5px;background:#eee8dc}.vnv-global-lines{position:relative}.vnv-global-lines:before,.vnv-global-lines:after{position:absolute;left:0}.vnv-global-lines:before{top:-5px}.vnv-global-lines:after{top:5px}
-.vnv-global-panel{position:absolute;right:0;top:36px;width:min(300px,calc(100vw - 20px));padding:10px;border:1px solid rgba(238,232,220,.22);border-radius:7px;background:#17201f;box-shadow:0 18px 40px rgba(0,0,0,.28)}.vnv-global-panel p{margin:3px 5px 8px;color:#aaa294;font-size:9px;letter-spacing:.1em;text-transform:uppercase}.vnv-global-panel a{display:block;padding:9px 10px;border-radius:5px;color:#eee8dc;font-size:11px}.vnv-global-panel a:hover,.vnv-global-panel a:focus-visible{background:#22302e}
-@media(max-width:760px){.vnv-global-strip{grid-template-columns:minmax(0,1fr) auto}.vnv-global-links{display:none}.vnv-global-copy small{display:none}}@media print{.vnv-global-strip{display:none!important}}
+
+<style id="arcadeBackgammonPresentation">
+
+/* Backgammon: independent full-page game, professional full-viewport dialogs. */
+.wrap,.boardbar,.side,.panel{box-sizing:border-box;min-width:0}
+.topbar,.panel,.boardbar{border-radius:7px}
+.topbar .row>button{min-height:42px}
+#bg{max-width:100%;touch-action:none}
+button:focus-visible,select:focus-visible{outline:3px solid #087d8b;outline-offset:3px}
+.overlay{padding:clamp(12px,4vw,40px);background:rgba(8,18,29,.82);backdrop-filter:blur(8px);overflow:auto;overscroll-behavior:contain;z-index:2147483000}
+.modal{width:min(720px,100%);max-height:calc(100dvh - 32px);overflow-y:auto;padding:clamp(22px,4vw,42px);border-radius:7px;border:1px solid rgba(180,139,69,.6);background:linear-gradient(165deg,#fffdfa,#f4f0e6);box-shadow:0 25px 70px rgba(0,0,0,.42);text-align:left}
+.modal h2{font:400 clamp(24px,4vw,38px)/1.2 Georgia,serif;color:#18392f;margin:0 0 15px}
+.modal p{font:400 clamp(15px,2vw,18px)/1.65 Georgia,serif;color:#33463f;margin:0 0 24px}
+.modal .btnrow{justify-content:flex-start;gap:10px}
+.modal .btnrow button{min-height:46px;border-radius:7px;padding:11px 18px}
+.modal .mini{margin-top:20px;line-height:1.55}
+body.arcade-game-shell-ready:has(#overlay.show) #arcadeGameTools{display:none!important}
+@media(max-width:600px){.wrap{margin:8px auto 90px;padding:10px 5px 16px}.boardbar{padding:8px 4px}.modal{max-height:100dvh;min-height:100dvh;width:100%;border-radius:0;padding:clamp(24px,7vw,38px);display:flex;flex-direction:column;justify-content:center}.overlay{padding:0;align-items:stretch}.modal .btnrow{display:grid;grid-template-columns:1fr}.modal .btnrow button{width:100%}}
+@media(prefers-reduced-motion:reduce){.toast{transition:none}}
+@media print{#arcadeGameTools,.overlay,.toast{display:none!important}}
+#vnv-global-support-top,#vnv-global-support,#vnvBetaProgramLink,#vnvBetaProgramFallback,#vnvEcosystemMenuButton,a[aria-label="Open the Verve N Veda Beta Program"]{display:none!important}
 </style>
 </head>
 <body>
-<div class="vnv-global-strip" data-vnv-global-strip>
-  <a class="vnv-global-brand" href="https://vervenveda.com/" aria-label="Verve N Veda home">
-    <span class="vnv-global-mark">VNV</span>
-    <span class="vnv-global-copy"><strong>Verve N Veda</strong><small>Arcade · Backgammon</small></span>
-  </a>
-  <nav class="vnv-global-links" aria-label="Verve N Veda network links">
-    <a href="https://vervenveda.com/arcade.github.io/Backgammon_index.html">This Page</a>
-    <a href="https://vervenveda.com/#directory">Ecosystem Directory</a>
-    <a href="https://vervenveda.com/core/directory-agi/">Directory AGI</a>
-    <a href="https://vervenveda.com/cloud/">Public Cloud</a>
-  </nav>
-  <details class="vnv-global-menu">
-    <summary aria-label="Open Verve N Veda ecosystem menu"><span class="vnv-global-lines" aria-hidden="true"></span></summary>
-    <div class="vnv-global-panel"><p>Ecosystem</p>
-      <a href="https://vervenveda.com/">Verve N Veda Gateway</a>
-      <a href="https://vervenveda.com/#directory">Complete Ecosystem Directory</a>
-      <a href="https://vervenveda.com/bazaarart.github.io/">Bazaar Art</a>
-      <a href="https://vervenveda.com/the_refrain.github.io/">The Refrain</a>
-      <a href="https://vervenveda.com/arcade.github.io/">Arcade</a>
-    </div>
-  </details>
-</div>
 <div class="wrap">
   <h1>Backgammon — Mobile Arcade</h1>
   <div class="sub">Premium-free · match play (3/5/7) · doubling cube · save/resume · drag-to-move (tap still works)</div>
@@ -245,7 +238,7 @@
 <div id="toast" class="toast">Saved</div>
 
 <!-- Modal -->
-<div id="overlay" class="overlay" role="dialog" aria-modal="true">
+<div id="overlay" class="overlay" role="dialog" aria-modal="true" aria-labelledby="mTitle" aria-describedby="mBody" aria-hidden="true">
   <div class="modal">
     <h2 id="mTitle">Modal</h2>
     <p id="mBody">Body</p>
@@ -387,24 +380,43 @@ function log(s){
   if(atBottom) logEl.scrollTop = logEl.scrollHeight;
 }
 
+let modalPriorFocus=null;
 function showModal(title, body, buttons, mini=''){
-  mTitle.textContent = title;
-  mBody.innerHTML = body;
-  mButtons.innerHTML = '';
-  mMini.textContent = mini || '';
+  modalPriorFocus=document.activeElement;
+  mTitle.textContent=title;
+  mBody.innerHTML=body;
+  mButtons.innerHTML='';
+  mMini.textContent=mini||'';
   for(const b of buttons){
-    const btn = document.createElement('button');
-    btn.textContent = b.label;
-    btn.className = b.kind==='primary' ? 'primary' : (b.kind==='danger' ? 'danger' : 'ghost');
-    btn.onclick = ()=>{
-      hideModal();
-      b.onClick && b.onClick();
-    };
+    const btn=document.createElement('button');
+    btn.type='button';
+    btn.textContent=b.label;
+    btn.className=b.kind==='primary'?'primary':(b.kind==='danger'?'danger':'ghost');
+    btn.onclick=()=>{hideModal();b.onClick&&b.onClick();};
     mButtons.appendChild(btn);
   }
+  overlay.setAttribute('aria-hidden','false');
   overlay.classList.add('show');
+  mButtons.querySelector('button')?.focus();
 }
-function hideModal(){ overlay.classList.remove('show'); }
+function hideModal(){
+  overlay.classList.remove('show');
+  overlay.setAttribute('aria-hidden','true');
+  if(modalPriorFocus?.isConnected)modalPriorFocus.focus();
+  modalPriorFocus=null;
+}
+overlay.addEventListener('keydown',ev=>{
+  if(!overlay.classList.contains('show'))return;
+  const buttons=[...mButtons.querySelectorAll('button:not([disabled])')];
+  if(ev.key==='Escape'){
+    const dismiss=buttons.find(b=>/^(Cancel|Close)$/i.test(b.textContent.trim()));
+    if(dismiss){ev.preventDefault();dismiss.click();}
+  }else if(ev.key==='Tab'&&buttons.length){
+    const first=buttons[0],last=buttons[buttons.length-1];
+    if(ev.shiftKey&&document.activeElement===first){ev.preventDefault();last.focus();}
+    else if(!ev.shiftKey&&document.activeElement===last){ev.preventDefault();first.focus();}
+  }
+});
 
 function aiSide(){
   if(modeSel.value!=='ai') return 0;
@@ -1726,7 +1738,6 @@ function boot(){
 }
 boot();
 </script>
-<script src="/assets/vnv-beta-link.js" defer></script>
-<script src="https://vervenveda.com/assets/vnv-support.js" defer></script>
+<script src="./assets/arcade-game-shell.js" defer></script>
 </body>
 </html>
