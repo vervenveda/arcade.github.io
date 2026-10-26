@@ -1,3 +1,5 @@
+> **October 26 corrective update:** The original top-left floating game breadcrumb and independent top ecosystem strip were rejected in visual beta review. The current implementation puts **all controls in one lower-right dock** on both the Arcade landing page and 14 pilot game pages. On games, the Arcade return link and optional fullscreen control are inside the open tray. The landing page retains only its native Arcade header with a Network dropdown containing ecosystem links and the language selector. The separate Beta/Support buttons injected by ecosystem automation are visually suppressed. The earlier implementation details below document the superseded pilot, not the current page layout.
+
 # Arcade Academy Utility Dock — Pilot Integration (2026-10-26)
 
 ## Provenance
