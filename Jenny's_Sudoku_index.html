@@ -807,11 +807,44 @@ body.dark #numpad button {
     try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(payload)); }catch(e){}
   }
 
+  function validSavedGrid(grid, allowZero){
+    return Array.isArray(grid) && grid.length===9 && grid.every(row=>
+      Array.isArray(row) && row.length===9 &&
+      row.every(v=>Number.isInteger(v) && v >= (allowZero?0:1) && v<=9));
+  }
+
+  function validSavedGame(saved){
+    if(!saved || !["easy","medium","hard","advanced"].includes(saved.difficulty) ||
+       typeof saved.dark!=="boolean" ||
+       !validSavedGrid(saved.puzzle,true) || !validSavedGrid(saved.current,true) ||
+       !validSavedGrid(saved.solution,false)) return false;
+    const solved=saved.solution;
+    for(let i=0;i<9;i++){
+      if(new Set(solved[i]).size!==9 || new Set(solved.map(row=>row[i])).size!==9) return false;
+    }
+    for(let r=0;r<9;r+=3) for(let c=0;c<9;c+=3){
+      const block=[];
+      for(let dr=0;dr<3;dr++) for(let dc=0;dc<3;dc++) block.push(solved[r+dr][c+dc]);
+      if(new Set(block).size!==9) return false;
+    }
+    if(saved.difficulty==="advanced"){
+      if(new Set(solved.map((row,i)=>row[i])).size!==9 ||
+         new Set(solved.map((row,i)=>row[8-i])).size!==9) return false;
+    }
+    for(let r=0;r<9;r++) for(let c=0;c<9;c++){
+      const given=saved.puzzle[r][c];
+      if(given && (given!==solved[r][c] || saved.current[r][c]!==given)) return false;
+    }
+    return true;
+  }
+
   function loadState(){
     try{
       const raw = localStorage.getItem(STORAGE_KEY);
       if(!raw) return null;
-      return JSON.parse(raw);
+      const parsed = JSON.parse(raw);
+      // Reject malformed browser data before it reaches renderBoard or the solver.
+      return validSavedGame(parsed) ? parsed : null;
     }catch(e){ return null; }
   }
 
@@ -1073,6 +1106,8 @@ body.dark #numpad button {
 
   document.addEventListener('keydown', e => {
     if(!focusedCell || focusedCell.disabled) return;
+    // Do not intercept typing in a focused control other than the Sudoku grid.
+    if(e.target !== focusedCell && e.target !== document.body) return;
     if(e.key >= '1' && e.key <= '9'){
       focusedCell.value = e.key;
       focusedCell.dispatchEvent(new Event('input',{bubbles:true}));
