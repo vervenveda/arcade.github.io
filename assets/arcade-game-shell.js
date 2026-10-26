@@ -95,6 +95,8 @@ function mount(){
  document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!tray.hidden){expand(false);toggle.focus();}});
  dock.append(tray,toggle);
  document.body.append(breadcrumbs,dock);
+ // Show the four tools on roomy desktop screens; keep play space clear on phones.
+ expand(!!(window.matchMedia&&window.matchMedia("(min-width: 800px)").matches));
  window.ArcadeGameShell=Object.freeze({mounted:true,version:"1.0",arcade:URLS.arcade,openTools:()=>expand(true),closeTools:()=>expand(false)});
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",mount,{once:true});else mount();
