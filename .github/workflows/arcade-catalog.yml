@@ -10,6 +10,7 @@ on:
       - "Geometry/**"
       - "tests/arcade-catalog.mjs"
       - "tests/arcade-game-regression.mjs"
+      - "tests/arcade-game-shell-regression.mjs"
       - ".github/workflows/arcade-catalog.yml"
   workflow_dispatch:
 
@@ -30,3 +31,5 @@ jobs:
         run: node tests/arcade-catalog.mjs
       - name: Audit game source and isolated gameplay
         run: node tests/arcade-game-regression.mjs
+      - name: Audit Arcade Academy dock and breadcrumb installation
+        run: node tests/arcade-game-shell-regression.mjs
