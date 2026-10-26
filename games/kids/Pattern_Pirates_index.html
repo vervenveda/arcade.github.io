@@ -392,6 +392,7 @@
   }
 
   /* ---------- Game state ---------- */
+  let nextRoundTimer = null;
   let STATE = {
     N: DEFAULT_N,
     board: [],
@@ -483,11 +484,24 @@
   function generateGoal(age="kids", level="easy", N=6){
     const base = (age==="preschool") ? 2 : (age==="kids"?3:4);
     const len = (level==="easy") ? base : (level==="medium" ? base+1 : base+2);
+    // Select real board tiles along a valid adjacent route, not arbitrary
+    // shape/color pairs that might not exist in the generated map.
     const seq = [];
+    let pos = STATE.piratePos;
+    let previous = -1;
     for(let k=0;k<len;k++){
-      const s = SHAPES[rnd(SHAPES.length)];
-      const c = COLORS[rnd(COLORS.length)];
-      seq.push({shape:s, color:c});
+      const row = Math.floor(pos/N), col = pos%N;
+      const nearby = [];
+      if(row>0) nearby.push(pos-N);
+      if(row<N-1) nearby.push(pos+N);
+      if(col>0) nearby.push(pos-1);
+      if(col<N-1) nearby.push(pos+1);
+      const options = nearby.filter(i=>i!==previous);
+      const next = (options.length ? options : nearby)[rnd((options.length ? options : nearby).length)];
+      const tile = STATE.board[next];
+      seq.push({shape:tile.shape,color:tile.color});
+      previous = pos;
+      pos = next;
     }
     return seq;
   }
@@ -585,12 +599,12 @@
       sfx("move");
       logStatus("Nice! Progress made.", "good");
       if(STATE.goalIdx >= STATE.goalSeq.length){
-        STATE.round++;
         const gained = 10 + (STATE.movesLeft * 2);
         STATE.score += gained;
         sfx("win");
         logStatus(`Round complete! +${gained} points`, "good");
-        setTimeout(()=>startNewMap(false), 900);
+        if(nextRoundTimer !== null) clearTimeout(nextRoundTimer);
+        nextRoundTimer = setTimeout(()=>{nextRoundTimer=null;startNewMap(false);}, 900);
       }
     } else {
       sfx("err");
@@ -688,29 +702,38 @@
 
   /* ---------- Map / Round control ---------- */
   function startNewMap(resetScore=true){
+    if(nextRoundTimer !== null){ clearTimeout(nextRoundTimer); nextRoundTimer = null; }
     const age = $("ageGroup").value;
     const level = $("level").value;
     STATE.N = DEFAULT_N;
     STATE.board = makeBoard(STATE.N, level);
+    if(STATE.piratePos === null) placePirateDefault();
+    if(STATE.piratePos < 0 || STATE.piratePos >= STATE.N*STATE.N) STATE.piratePos = (STATE.N-1)*STATE.N;
     STATE.goalSeq = generateGoal(age, level, STATE.N);
     STATE.goalIdx = 0;
     STATE.movesHistory = [];
     STATE.round = resetScore ? 1 : STATE.round+1;
+    if(resetScore) STATE.score = 0;
     STATE.movesLeft = STATE.goalSeq.length * (level==="easy"?4:(level==="medium"?3:2));
-    if(STATE.piratePos === null) placePirateDefault();
-    if(STATE.piratePos < 0 || STATE.piratePos >= STATE.N*STATE.N) STATE.piratePos = (STATE.N-1)*STATE.N + 0;
     STATE.pendingBridge = false;
     renderBoard();
     logStatus("New map ready. Follow the Map Card.", "info");
   }
 
   function shuffleBoard(){
+    if(nextRoundTimer !== null){ clearTimeout(nextRoundTimer); nextRoundTimer = null; }
     for(let i=STATE.board.length-1;i>0;i--){
       const j = Math.floor(Math.random()*(i+1));
       [STATE.board[i], STATE.board[j]] = [STATE.board[j], STATE.board[i]];
     }
+    const level = $("level").value;
+    STATE.goalSeq = generateGoal($("ageGroup").value,level,STATE.N);
+    STATE.goalIdx = 0;
+    STATE.movesHistory = [];
+    STATE.movesLeft = STATE.goalSeq.length * (level==="easy"?4:(level==="medium"?3:2));
+    STATE.pendingBridge = false;
     renderBoard();
-    logStatus("Board shuffled.", "info");
+    logStatus("Board reshuffled. A reachable new Map Card is ready.", "info");
   }
 
   function renderMovesLog(){
