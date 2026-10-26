@@ -37,6 +37,7 @@ style.textContent=[
 '#arcadeGameTools .arcade-support .arcade-tool-mark{background:#f2e5c8;color:#17392f}',
 '#arcadeGameBreadcrumb a:focus-visible,#arcadeGameBreadcrumb button:focus-visible,#arcadeGameTools a:focus-visible,#arcadeGameTools button:focus-visible{outline:3px solid #edb94d;outline-offset:3px}',
 '#arcadeGameTools a:hover,#arcadeGameTools button:hover{filter:brightness(1.08)}',
+'body.arcade-game-shell-ready:has(dialog[open]) #arcadeGameTools,body.arcade-game-shell-ready:has(dialog[open]) #arcadeGameBreadcrumb,body.arcade-game-shell-ready:has(.tourOverlay[style*="flex"]) #arcadeGameTools,body.arcade-game-shell-ready:has(.tourOverlay[style*="flex"]) #arcadeGameBreadcrumb{display:none!important}',
 '@media(max-width:650px){#arcadeGameBreadcrumb{max-width:calc(100vw - 16px);font-size:11px}#arcadeGameBreadcrumb .arcade-current{max-width:110px}#arcadeGameBreadcrumb button{padding:4px 6px}#arcadeGameTools .arcade-tool-list{max-width:min(95vw,252px)}#arcadeGameTools a{flex:1 1 100px}}',
 '@media(max-width:350px){#arcadeGameBreadcrumb .arcade-current{display:none}}',
 '@media print{#arcadeGameBreadcrumb,#arcadeGameTools{display:none!important}}',
