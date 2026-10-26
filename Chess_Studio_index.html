@@ -229,6 +229,10 @@
     overflow:hidden;
   }
   .sq{
+    border:0;
+    padding:0;
+    border-radius:0;
+    color:inherit;
     width:var(--sq-size);
     height:var(--sq-size);
     display:flex;
@@ -1184,6 +1188,32 @@
   let selectedSquare = null;
   let legalForSelected = [];
   let themeIsModern = false;
+  let aiTimer = null;
+  let positionVersion = 0;
+
+  function invalidateAI(){
+    positionVersion++;
+    if(aiTimer !== null){ clearTimeout(aiTimer); aiTimer = null; }
+  }
+
+  function selectedAISide(){
+    const value = $("selAISide").value;
+    return value === "white" ? "w" : value === "black" ? "b" : null;
+  }
+
+  function queueAIIfNeeded(){
+    const side = selectedAISide();
+    if(!side || state.winner || state.turn !== side || aiTimer !== null) return;
+    const version = positionVersion;
+    setStatus("AI thinking…");
+    aiTimer = setTimeout(()=>{
+      aiTimer = null;
+      if(version !== positionVersion || state.winner || selectedAISide() !== side || state.turn !== side) return;
+      const mv = chooseAIMove(state, $("selLevel").value, side);
+      if(!mv){ setStatus("AI has no legal moves.", "warn"); return; }
+      playMove(mv, false);
+    },150);
+  }
 
   function algebra(i){
     const [r,c] = rc(i);
@@ -1211,17 +1241,20 @@
   function renderBoard(){
     const boardEl = $("board");
     boardEl.innerHTML = "";
-    const sqSize = Math.floor(Math.min(window.innerWidth,900)/11);
-    document.documentElement.style.setProperty("--sq-size", clamp(sqSize,48,88)+"px");
+    const available = Math.max(256, Math.min(window.innerWidth-36, boardEl.parentElement.clientWidth || window.innerWidth-36));
+    const sqSize = Math.floor(available/8);
+    document.documentElement.style.setProperty("--sq-size", clamp(sqSize,32,88)+"px");
 
     for(let i=0;i<64;i++){
       const [r,c] = rc(i);
-      const sq = document.createElement("div");
+      const sq = document.createElement("button");
+      sq.type = "button";
       const dark = (r+c)%2===1;
       sq.className = "sq " + (dark?"dark":"light");
       sq.dataset.idx = i;
 
       const p = state.board[i];
+      sq.setAttribute("aria-label", `${algebra(i)}: ${p ? (isWhite(p) ? "White " : "Black ") + ({p:"pawn",r:"rook",n:"knight",b:"bishop",q:"queen",k:"king"}[p.toLowerCase()]||"piece") : "empty"}`);
       if(p){
         const span = document.createElement("div");
         span.className = "piece";
@@ -1331,6 +1364,7 @@
   }
 
   function playMove(mv, isHuman){
+    invalidateAI();
     // snapshot for undo
     positionHistory.push(cloneState(state));
 
@@ -1365,19 +1399,8 @@
       return;
     }
 
-    const aiSide = $("selAISide").value;
-    const ai = aiSide==="none" ? null : (aiSide==="white" ? "w" : "b");
-
-    if(ai && state.turn===ai){
-      setStatus("AI thinking…");
-      setTimeout(()=>{
-        const mvAI = chooseAIMove(state, $("selLevel").value, ai);
-        if(!mvAI){
-          setStatus("AI has no legal moves.","warn");
-          return;
-        }
-        playMove(mvAI,false);
-      }, 150);
+    if(selectedAISide() && state.turn===selectedAISide()){
+      queueAIIfNeeded();
     }else{
       setStatus("Your move.");
     }
@@ -1418,6 +1441,7 @@
   /* ---------- Undo, New, Save/Load ---------- */
 
   function newGame(){
+    invalidateAI();
     state = makeStartState();
     gameHistory = [];
     positionHistory = [];
@@ -1425,19 +1449,28 @@
     renderBoard();
     renderMoves();
     setStatus("New game started.","good");
+    queueAIIfNeeded();
   }
 
   function undoMove(){
+    invalidateAI();
     if(!positionHistory.length){
       setStatus("Nothing to undo.","warn");
       return;
     }
     state = positionHistory.pop();
     if(gameHistory.length) gameHistory.pop();
+    // In AI games, return the board to the human's turn where possible.
+    const ai = selectedAISide();
+    while(ai && state.turn===ai && positionHistory.length){
+      state = positionHistory.pop();
+      if(gameHistory.length) gameHistory.pop();
+    }
     clearSelection();
     renderBoard();
     renderMoves();
     setStatus("Move undone.","good");
+    queueAIIfNeeded();
   }
 
   function saveGame(){
@@ -1450,23 +1483,40 @@
     setStatus("Game saved locally.","good");
   }
 
+  function validSnapshotState(st){
+    return !!st && Array.isArray(st.board) && st.board.length===64 &&
+      st.board.every(p=>typeof p==="string" && /^[prnbqkPRNBQK]?$/.test(p)) &&
+      st.turn && ["w","b"].includes(st.turn) &&
+      st.castle && ["WK","WQ","BK","BQ"].every(k=>typeof st.castle[k]==="boolean") &&
+      Number.isInteger(st.ep) && st.ep>=-1 && st.ep<64 &&
+      Number.isFinite(st.halfmove) && Number.isFinite(st.fullmove) &&
+      (st.winner===null || ["w","b","d"].includes(st.winner)) &&
+      st.board.filter(p=>p==="K").length===1 && st.board.filter(p=>p==="k").length===1;
+  }
+
   function loadGame(){
-    const raw = localStorage.getItem(SAVE_KEY);
+    let raw;
+    try{ raw = localStorage.getItem(SAVE_KEY); }catch(e){ setStatus("Local storage unavailable.","warn"); return; }
     if(!raw){
       setStatus("No saved game found.","warn");
       return;
     }
     try{
       const snap = JSON.parse(raw);
-      state = snap.state;
-      gameHistory = snap.gameHistory || [];
-      positionHistory = snap.positionHistory || [];
+      if(!validSnapshotState(snap?.state) || !Array.isArray(snap.gameHistory) ||
+         !Array.isArray(snap.positionHistory) ||
+         !snap.positionHistory.every(validSnapshotState)) throw Error("Invalid save structure");
+      invalidateAI();
+      state = cloneState(snap.state);
+      gameHistory = snap.gameHistory;
+      positionHistory = snap.positionHistory.map(cloneState);
       clearSelection();
       renderBoard();
       renderMoves();
       setStatus("Saved game loaded.","good");
+      queueAIIfNeeded();
     }catch(e){
-      setStatus("Failed to load saved game.","warn");
+      setStatus("Failed to load saved game; current board preserved.","warn");
     }
   }
 
@@ -1509,7 +1559,7 @@
   });
 
   $("selLevel").addEventListener("change", savePrefs);
-  $("selAISide").addEventListener("change", savePrefs);
+  $("selAISide").addEventListener("change", ()=>{invalidateAI();savePrefs();queueAIIfNeeded();});
 
   /* ---------- Wire Buttons ---------- */
 
