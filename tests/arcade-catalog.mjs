@@ -52,7 +52,8 @@ for (const [name, stops] of paths) {
 
 const fallbackCount = (html.match(/id="vnvBetaProgramFallback"/g) || []).length;
 assert(fallbackCount === 1, "Exactly one Beta fallback link required");
-assert(html.includes('src="./assets/vnv-beta-link.js"'), "Beta widget must load from this repository");
+assert(html.includes('src="/assets/vnv-beta-link.js"') && html.includes("this.src='./assets/vnv-beta-link.js'"), "Beta widget must fall back to its repository-local script if root path fails");
+assert(html.includes('a[href="https://vervenveda.com/beta/"][aria-label="Open the Verve N Veda Beta Program"]:not(#vnvBetaProgramFallback){display:none!important}'), "Automated Beta rollout duplicates must remain visually suppressed");
 assert(existsSync(resolve(root, "assets/vnv-beta-link.js")), "Local Beta widget missing");
 assert(html.includes("script-src 'self' 'unsafe-inline' https://vervenveda.com"), "Expected narrowed CSP script allowlist missing");
 assert(html.includes("connect-src 'self'"), "Same-origin route checker blocked by CSP");
