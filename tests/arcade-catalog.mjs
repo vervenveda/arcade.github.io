@@ -69,6 +69,42 @@ for (const match of html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)) 
 }
 assert(parsedScripts >= 2, "Expected catalog and language scripts");
 
+// Small DOM-free behavioral checks for the former random/learning-path defects.
+function sourceFunction(name, next) {
+  const start = "function " + name + "(){";
+  return "(" + start + block(start, "function " + next + "(){") + ")";
+}
+const routeState = { href: "unchanged" };
+const matchCards = [
+  { dataset: { id: games[7].id } },
+  { dataset: { id: games[13].id } }
+];
+let visibleCards = matchCards;
+let lastToast = "";
+const randomContext = {
+  GAMES: games,
+  Math: { random: () => 0.99, floor: Math.floor },
+  location: routeState,
+  toast: message => { lastToast = message; },
+  $: id => { if (id !== "gameGrid") throw new Error("Unexpected element"); return { querySelectorAll: () => visibleCards }; }
+};
+const randomGame = vm.runInNewContext(sourceFunction("chooseRandom", "renderFeatured"), randomContext);
+randomGame();
+assert(routeState.href === games[13].url, "Surprise Me did not honor the visible filtered set");
+routeState.href = "unchanged";
+visibleCards = [];
+randomGame();
+assert(routeState.href === "unchanged" && lastToast.includes("No games match"), "Empty search unexpectedly redirects to an unrelated game");
+
+const pathGrid = { innerHTML: "" };
+const pathRender = vm.runInNewContext(sourceFunction("renderPaths", "renderCompanions"), {
+  GAMES: games, PATHS: paths,
+  $: id => { if (id !== "pathGrid") throw new Error("Unexpected path element"); return pathGrid; },
+  esc: value => String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;")
+});
+pathRender();
+assert((pathGrid.innerHTML.match(/<li><a href=/g) || []).length === paths.reduce((total, item) => total + item[1].length, 0), "Guided learning paths contain non-clickable stops");
+
 console.log("Arcade catalog regression:");
 console.log("  Registered games: " + games.length);
 console.log("  Same-repository routes inspected: " + localFiles.length);
