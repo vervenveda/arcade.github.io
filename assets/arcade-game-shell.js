@@ -19,10 +19,10 @@ const beta=new URL(URLS.beta);beta.searchParams.set("source",source||"arcade");b
 const style=document.createElement("style");
 style.id="arcadeGameShellStyles";
 style.textContent=[
-'body.arcade-game-shell-ready #vnvBetaProgramLink,body.arcade-game-shell-ready #vnvBetaProgramFallback,body.arcade-game-shell-ready #vnv-global-support-top,body.arcade-game-shell-ready a[aria-label="Open the Verve N Veda Beta Program"]{display:none!important}',
-'#arcadeGameTools{position:fixed;z-index:2147482450;right:max(9px,env(safe-area-inset-right));bottom:max(9px,env(safe-area-inset-bottom));display:flex;flex-direction:column;align-items:flex-end;gap:6px;max-width:calc(100vw - 18px);font:400 11px/1.25 "Avenir Next","Segoe UI",Arial,sans-serif;color:#17392f}',
-'#arcadeGameTools .arcade-tool-trigger{min-height:42px;min-width:76px;border:1px solid #b48b45;border-radius:7px;background:rgba(255,253,248,.98);color:#17392f;box-shadow:0 6px 24px rgba(0,0,0,.23);font:500 11px/1.3 "Avenir Next","Segoe UI",Arial,sans-serif;cursor:pointer;padding:8px 12px}',
-'#arcadeGameTools .arcade-tool-list{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:5px;padding:6px;border:1px solid rgba(180,139,69,.5);border-radius:7px;background:rgba(255,253,248,.98);box-shadow:0 8px 28px rgba(0,0,0,.22);max-width:min(94vw,480px)}',
+'body.arcade-game-shell-ready #vnvBetaProgramLink,body.arcade-game-shell-ready #vnvBetaProgramFallback,body.arcade-game-shell-ready #vnvEcosystemMenuButton,body.arcade-game-shell-ready #vnv-global-support,body.arcade-game-shell-ready #vnv-global-support-top,body.arcade-game-shell-ready a[aria-label="Open the Verve N Veda Beta Program"]{display:none!important}',
+'#arcadeGameTools{position:fixed;z-index:2147482450;right:max(9px,env(safe-area-inset-right));bottom:max(9px,env(safe-area-inset-bottom));display:flex;flex-direction:row;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:5px;max-width:calc(100vw - 18px);padding:6px;border:1px solid rgba(180,139,69,.65);border-radius:7px;background:rgba(255,253,248,.98);box-shadow:0 8px 26px rgba(0,0,0,.22);font:400 11px/1.25 "Avenir Next","Segoe UI",Arial,sans-serif;color:#17392f}',
+'#arcadeGameTools .arcade-tool-trigger{min-height:42px;min-width:77px;flex:none;border:1px solid #b48b45;border-radius:7px;background:#fffdf8;color:#17392f;box-shadow:none;font:500 11px/1.3 "Avenir Next","Segoe UI",Arial,sans-serif;cursor:pointer;padding:8px 11px}',
+'#arcadeGameTools .arcade-tool-list{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:5px;padding:0;border:0;background:transparent;box-shadow:none;max-width:min(74vw,480px)}',
 '#arcadeGameTools .arcade-tool-list[hidden]{display:none!important}',
 '#arcadeGameTools .arcade-game-route{display:flex;flex:1 1 100%;align-items:center;justify-content:space-between;gap:8px;width:100%;padding:4px 4px 8px;border-bottom:1px solid rgba(23,57,47,.18);font:400 11px/1.3 "Avenir Next","Segoe UI",Arial,sans-serif;color:#17392f}',
 '#arcadeGameTools .arcade-game-route a{min-width:0;min-height:34px;border:0;background:transparent;color:#17392f;display:inline-flex;padding:5px 6px;text-decoration:underline;text-underline-offset:3px;font:400 11px/1.3 "Avenir Next","Segoe UI",Arial,sans-serif}',
@@ -35,6 +35,10 @@ style.textContent=[
 '#arcadeGameTools .arcade-support{background:#597365;color:#fff;border-color:#446152}',
 '#arcadeGameTools .arcade-support .arcade-tool-mark{background:#f2e5c8;color:#17392f}',
 '#arcadeGameTools a:hover,#arcadeGameTools button:hover{filter:brightness(1.08)}',
+'#arcadeGameTools a:focus-visible,#arcadeGameTools button:focus-visible{outline:3px solid #b48b45;outline-offset:2px}',
+'body.arcade-game-shell-ready:has(dialog[open]) #arcadeGameTools,body.arcade-game-shell-ready:has(#tourOverlay[style*="flex"]) #arcadeGameTools{display:none!important}',
+'@media(max-width:650px){#arcadeGameTools{flex-direction:column;align-items:flex-end}#arcadeGameTools .arcade-tool-list{max-width:min(95vw,252px)}#arcadeGameTools a{flex:1 1 100px;min-width:100px}}',
+'@media print{#arcadeGameTools{display:none!important}}',
 '@media(prefers-reduced-motion:reduce){#arcadeGameTools a,#arcadeGameTools button{transform:none!important;transition:none!important}}'
 ].join("\n");
 (document.head||document.documentElement).appendChild(style);
