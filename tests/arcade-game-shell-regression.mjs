@@ -32,7 +32,7 @@ for(const name of rootGames.concat(kidsGames)){
   if(match[1].trim())new vm.Script(match[1],{filename});
  }
 }
-function mountOn(url,wide){
+function mountOn(url,wide,home=false){
  const nodes=new Map();
  class Element{
   constructor(tag){this.tagName=tag;this.children=[];this.attributes={};this.style={};this.hidden=false;
@@ -45,7 +45,7 @@ function mountOn(url,wide){
  }
  const doc=new URL(url);
  const document={
-  currentScript:{src:new URL("assets/arcade-game-shell.js",new URL("https://vervenveda.github.io/arcade.github.io/")).href},
+  currentScript:{src:new URL("assets/arcade-game-shell.js",new URL("https://vervenveda.github.io/arcade.github.io/")).href,hasAttribute:name=>home&&name==="data-arcade-home"},
   readyState:"complete",title:"Arcade Example",fullscreenEnabled:true,fullscreenElement:null,
   documentElement:{requestFullscreen:async()=>{}},
   body:new Element("body"),head:new Element("head"),
@@ -56,16 +56,21 @@ function mountOn(url,wide){
  vm.runInNewContext(shell,{document,window,location,URL,console});
  assert(window.ArcadeGameShell?.mounted,"Shell not initialized");
  const dock=nodes.get("arcadeGameTools"),tray=nodes.get("arcadeGameToolList");
- const crumb=nodes.get("arcadeGameBreadcrumb"),trigger=dock.children[1];
- assert.equal(tray.children.length,4,"Missing utility buttons");
- const links=tray.children.map(node=>node.attributes.href);
+ const trigger=dock.children[1];
+ assert.equal(tray.children.length,home?4:5,"Missing utility buttons or game return row");
+ const links=(home?tray.children:tray.children.slice(1)).map(node=>node.attributes.href);
  assert.equal(links[0],"https://vervenveda.com/Khaemenes_Academy.github.io/student/");
  assert(links[1].startsWith("https://vervenveda.com/beta/?source="));
  assert(links[1].endsWith("#feedback"));
  assert.equal(links[2],"https://buy.stripe.com/aFa8wQ5xf9Scf65caT4AU0s");
  assert.equal(links[3],"https://vervenveda.com/PLERASearch.github.io/");
- assert.equal(crumb.children[0].attributes.href,"https://vervenveda.github.io/arcade.github.io/index.html");
- for(const a of tray.children){assert.equal(a.attributes.rel,"noopener noreferrer");assert.equal(a.attributes.target,"_blank");}
+ assert(!nodes.has("arcadeGameBreadcrumb"),"Unexpected top breadcrumb/header returned");
+ if(!home){
+  const route=tray.children[0];
+  assert.equal(route.children[0].attributes.href,"https://vervenveda.github.io/arcade.github.io/index.html");
+  assert.equal(route.children[0].tagName,"a");
+ }
+ for(const a of (home?tray.children:tray.children.slice(1))){assert.equal(a.attributes.rel,"noopener noreferrer");assert.equal(a.attributes.target,"_blank");}
  assert.equal(tray.hidden,!wide,"Responsive initial dock state wrong");
  trigger.on_click();
  assert.equal(tray.hidden,wide,"Dock toggle failed");
@@ -73,7 +78,14 @@ function mountOn(url,wide){
 }
 mountOn("https://vervenveda.github.io/arcade.github.io/Chess_Studio_index.html",true);
 mountOn("https://vervenveda.github.io/arcade.github.io/games/kids/ABC_Bubbles_index.html",false);
+mountOn("https://vervenveda.github.io/arcade.github.io/index.html",true,true);
+const landing=read("index.html");
+assert.equal((landing.match(/<header>/g)||[]).length,1,"Arcade has duplicate mastheads");
+assert(!landing.includes('class="vnv-global-strip"'),"Duplicate top Verve banner reappeared");
+assert(landing.includes('id="arcadeNetwork"')&&landing.includes('id="arcadeLanguageMount"'),"Network/language dropdown missing");
+assert(landing.includes('src="./assets/arcade-game-shell.js" data-arcade-home defer'),"Home dock adapter absent");
+assert(landing.includes("data-vnv-support-off"),"Upstream top support widget not suppressed");
 assert(shell.includes("#vnvBetaProgramLink"),"Existing floating Beta control not deduplicated");
 console.log("PASS: 14 game pages include one correct shell reference and valid inline scripts.");
-console.log("PASS: simulated desktop and mobile docks, public links, breadcrumbs and toggle.");
+console.log("PASS: single lower-right dock on desktop, mobile, landing and games; Arcade return inside tray.");
 console.log("PENDING: visual/mobile/real-browser validation on actual devices.");
