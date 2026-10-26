@@ -57,6 +57,8 @@ function mount(){
  if(!document.body||document.getElementById("arcadeGameTools"))return;
  document.body.classList.add("arcade-game-shell-ready");
  const breadcrumbs=element("nav",{id:"arcadeGameBreadcrumb","aria-label":"Arcade breadcrumb"});
+ // Avoid covering the pre-existing Verve N Veda global navigation strip.
+ if(typeof document.querySelector==="function" && document.querySelector(".vnv-global-strip"))breadcrumbs.style.top="max(54px,calc(env(safe-area-inset-top) + 46px))";
  breadcrumbs.append(element("a",{href:URLS.arcade},"← Arcade"),element("span",{className:"arcade-sep","aria-hidden":"true"},"/"),element("span",{className:"arcade-current","aria-current":"page"},title));
  if(document.fullscreenEnabled&&typeof document.documentElement.requestFullscreen==="function"){
   const full=element("button",{type:"button","aria-label":"Enter full-screen game view"},"Full Screen");
