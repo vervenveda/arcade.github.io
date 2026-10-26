@@ -180,7 +180,7 @@
         <option value="black">Black (moves down)</option>
       </select>
 
-      <label>AI depth</label>
+      <label>AI difficulty</label>
       <select id="depth">
         <option selected>2</option>
         <option>3</option>
@@ -200,7 +200,7 @@
       <button id="new" class="pill">New game</button>
       <button id="reset" class="pill">Reset board</button>
       <button id="undo" class="pill">Undo</button>
-      <button id="try" class="pill">Try best line</button>
+      <button id="try" class="pill">Preview AI move</button>
       <button id="clearLearn" class="pill">Clear Learning</button>
       <span class="small" id="learnCount">(0 learned positions)</span>
     </div>
@@ -267,7 +267,7 @@
         <div id="log" class="log"></div>
       </div>
       <div class="small" style="margin-top:6px;color:var(--muted)">
-        Heuristic + Learned value guide the AI. Learning persists locally.
+        Learning stays in this browser and influences difficulty levels 3–5. Level 2 remains deliberately forgiving. Changing rules starts a new game.
       </div>
     </aside>
   </div>
@@ -320,13 +320,17 @@ const Z = { table:[], side:0 };
 })();
 function mulberry32(a){return function(){let t=a+=0x6D2B79F5;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296;}}
 function xorHex(a,b){const L=Math.max(a.length,b.length),A=a.padStart(L,'0'),B=b.padStart(L,'0');let o='';for(let i=0;i<L;i++)o+=(parseInt(A[i],16)^parseInt(B[i],16)).toString(16);return o;}
-function hashBoard(b,side){ let h=''.padStart(24,'0'); for(let r=0;r<app.N;r++) for(let c=0;c<app.N;c++){ const p=b[r][c]; if(p===EMPTY) continue; const idx=p===RED?0:p===RED_K?1:p===BLK?2:3; h=xorHex(h,(Z.table[r]&&Z.table[r][c])?Z.table[r][c][idx]:'1'); } if(side===BLK) h=xorHex(h,Z.side); return h; }
+function hashBoard(b,side){ let h=''.padStart(24,'0'); for(let r=0;r<app.N;r++) for(let c=0;c<app.N;c++){ const p=b[r][c]; if(p===EMPTY) continue; const idx=p===RED?0:p===RED_K?1:p===BLK?2:3; h=xorHex(h,(Z.table[r]&&Z.table[r][c])?Z.table[r][c][idx]:'1'); } if(side===BLK) h=xorHex(h,Z.side); return [app.N,app.variant,app.captureRule,app.majority,app.menBack,app.flying,app.continueAfterCrown,h].join(':'); }
 
 /* Learning table (safe for storage failures) */
-const LEARN_KEY='checkers_variant_learning_v1';
+const LEARN_KEY='checkers_variant_learning_v2';
 let LRN;
 try{
   LRN = JSON.parse(localStorage.getItem(LEARN_KEY) || '{}') || {};
+  if(typeof LRN!=='object' || Array.isArray(LRN)) LRN={};
+  for(const [key,e] of Object.entries(LRN)){
+    if(!e || !Number.isFinite(e.v) || Math.abs(e.v)>1 || !Number.isInteger(e.n) || e.n<0) delete LRN[key];
+  }
 }catch(e){
   console.warn('Learning storage unavailable, falling back to in-memory only.', e);
   LRN = {};
@@ -368,6 +372,9 @@ function initialBoard(N){
 
 /* render */
 let legal=[], sel=null, thinking=false, bestPreview=null;
+let aiGeneration=0, completedLearn=null;
+function cancelAI(){ aiGeneration++; thinking=false; }
+
 function renderBoard(){
   setBoardSize();
   boardEl.style.setProperty('--N', app.N);
@@ -379,6 +386,9 @@ function renderBoard(){
       sq.dataset.r=r; sq.dataset.c=c;
       boardEl.appendChild(sq);
       const p=app.board[r][c];
+      sq.tabIndex=(r+c)%2===1?0:-1;
+      sq.setAttribute('role','button');
+      sq.setAttribute('aria-label',`${String.fromCharCode(97+c)}${app.N-r}: ${p===EMPTY?'empty':(isRed(p)?'Red':'Black')+(isK(p)?' king':' man')}`);
       if(p!==EMPTY){
         const d=document.createElement('div');
         d.className='piece '+(isRed(p)?'redp':'blkp')+(isK(p)?' king':'');
@@ -433,12 +443,16 @@ function rerender(){ updateLegal(); renderBoard(); }
 document.getElementById('preset').onchange = e => applyPreset(e.target.value);
 document.getElementById('size').onchange   = e => { app.N=+e.target.value; newGame(true); };
 document.getElementById('mode').onchange   = e => {
+  cancelAI();
   app.mode=e.target.value;
+  renderBoard();
   document.getElementById('human').disabled=(app.mode==='2p');
   if(app.mode==='ai' && !isHumansTurn() && !app.gameOver) aiMove();
 };
 document.getElementById('human').onchange  = e => {
+  cancelAI();
   app.human=e.target.value;
+  renderBoard();
   if(app.mode==='ai' && !isHumansTurn() && !app.gameOver) aiMove();
 };
 document.getElementById('depth').onchange  = e => {
@@ -450,18 +464,18 @@ document.getElementById('depth').onchange  = e => {
 };
 document.getElementById('lr').onchange     = e => app.lr=+e.target.value;
 document.getElementById('hints').onchange  = e => { app.hints=e.target.value; renderBoard(); };
-document.getElementById('capture').onchange= e => { app.captureRule=e.target.value; rerender(); };
-document.getElementById('majority').onchange= e => { app.majority=(e.target.value==='on'); rerender(); };
-document.getElementById('menBack').onchange= e => { app.menBack=(e.target.value==='on'); rerender(); };
-document.getElementById('flying').onchange = e => { app.flying=(e.target.value==='on'); rerender(); };
-document.getElementById('continue').onchange= e => { app.continueAfterCrown=(e.target.value==='on'); rerender(); };
+document.getElementById('capture').onchange= e => { app.captureRule=e.target.value; newGame(true); setMsg("Rules changed — a new game has started."); };
+document.getElementById('majority').onchange= e => { app.majority=(e.target.value==='on'); newGame(true); setMsg("Rules changed — a new game has started."); };
+document.getElementById('menBack').onchange= e => { app.menBack=(e.target.value==='on'); newGame(true); setMsg("Rules changed — a new game has started."); };
+document.getElementById('flying').onchange = e => { app.flying=(e.target.value==='on'); newGame(true); setMsg("Rules changed — a new game has started."); };
+document.getElementById('continue').onchange= e => { app.continueAfterCrown=(e.target.value==='on'); newGame(true); setMsg("Rules changed — a new game has started."); };
 document.getElementById('new').onclick     = ()=> newGame();
 document.getElementById('reset').onclick   = ()=> resetBoard();
 document.getElementById('undo').onclick    = ()=> undo();
 document.getElementById('try').onclick     = ()=> tryBestLine();
 document.getElementById('clearLearn').onclick=()=>{
   if(confirm('Clear learned positions?')){
-    LRN={}; saveLearn();
+    LRN={}; completedLearn=null; saveLearn();
   }
 };
 
@@ -478,7 +492,7 @@ function applyPreset(name){
     setSel('capture','mandatory');
   }else if(name==='russian'){
     app.N=8; setSel('size','8');
-    setSel('majority','on'); setSel('menBack','on'); setSel('flying','on'); setSel('continue','on');
+    setSel('majority','off'); setSel('menBack','on'); setSel('flying','on'); setSel('continue','on');
     setSel('capture','mandatory');
   }else if(name==='giveaway'){
     app.N=8; setSel('size','8');
@@ -498,6 +512,7 @@ function getSel(id){ return document.getElementById(id).value; }
 
 /* boot new games */
 function newGame(silent=false){
+  cancelAI(); sel=null; completedLearn=null;
   setBoardSize();
   app.board = initialBoard(app.N);
   app.turn  = RED;
@@ -507,13 +522,7 @@ function newGame(silent=false){
   if(!silent) pushLog('[New game]');
   if(app.mode==='ai' && !isHumansTurn()) aiMove();
 }
-function resetBoard(){
-  app.board = initialBoard(app.N);
-  app.turn=RED; app.gameOver=false; app.pendingLearn=[];
-  sel=null; app.history=[]; app.log=[]; logEl.textContent='';
-  setMsg('',''); aiBar.style.width='0%'; bestPreview=null;
-  rerender();
-}
+function resetBoard(){ newGame(true); }
 applyPreset('american'); // default
 
 /* ================================
@@ -579,10 +588,10 @@ function generateMoves(board, side){
 function findJumps(board, r, c, p){
   const results=[];
   const N=app.N;
-  function dfs(brd, rr, cc, piece, path, cap){
+  function dfs(brd, rr, cc, piece, path, cap, taken=[]){
     // crowning check
     let becameKing=false;
-    if(!isK(piece)){
+    if(!isK(piece) && app.variant!=='international'){
       if(isRed(piece)&&rr===0){ piece=RED_K; becameKing=true; }
       if(isBlk(piece)&&rr===N-1){ piece=BLK_K; becameKing=true; }
     }
@@ -597,12 +606,13 @@ function findJumps(board, r, c, p){
       for(const [dr,dc] of [[-1,-1],[-1,1],[1,-1],[1,1]]){
         let r1=rr+dr, c1=cc+dc; let oppR=-1, oppC=-1; let sawOpp=false;
         while(inB(r1,c1)){
+          if(taken.includes(r1*N+c1)) break;
           if(brd[r1][c1]===EMPTY){ r1+=dr; c1+=dc; continue; }
           if( (isRed(piece) && isRed(brd[r1][c1])) || (isBlk(piece) && isBlk(brd[r1][c1])) ) break;
           sawOpp=true; oppR=r1; oppC=c1; r1+=dr; c1+=dc;
-          while(inB(r1,c1) && brd[r1][c1]===EMPTY){
+          while(inB(r1,c1) && brd[r1][c1]===EMPTY && !taken.includes(r1*N+c1)){
             const nb=clone(brd); nb[rr][cc]=EMPTY; nb[oppR][oppC]=EMPTY; nb[r1][c1]=piece;
-            dfs(nb, r1, c1, piece, path.concat([{r:r1,c:c1}]), cap+1);
+            dfs(nb, r1, c1, piece, path.concat([{r:r1,c:c1}]), cap+1, taken.concat(oppR*N+oppC));
             extended=true;
             r1+=dr; c1+=dc;
           }
@@ -613,6 +623,7 @@ function findJumps(board, r, c, p){
       for(const [dr,dc] of captureDirs(piece)){
         const mr=rr+dr, mc=cc+dc, lr=rr+2*dr, lc=cc+2*dc;
         if(!inB(lr,lc) || !inB(mr,mc)) continue;
+        if(taken.includes(mr*N+mc) || taken.includes(lr*N+lc)) continue;
         const mid=brd[mr][mc];
         if(mid===EMPTY) continue;
         if( (isRed(piece) && isRed(mid)) || (isBlk(piece) && isBlk(mid)) ) continue;
@@ -620,7 +631,7 @@ function findJumps(board, r, c, p){
 
         const nb=clone(brd);
         nb[rr][cc]=EMPTY; nb[mr][mc]=EMPTY; nb[lr][lc]=piece;
-        dfs(nb, lr, lc, piece, path.concat([{r:lr,c:lc}]), cap+1);
+        dfs(nb, lr, lc, piece, path.concat([{r:lr,c:lc}]), cap+1, taken.concat(mr*N+mc));
         extended=true;
       }
     }
@@ -646,6 +657,10 @@ function applyMove(board, move){
         rr+=dr; cc+=dc;
       }
       r=step.r; c=step.c;
+      if(app.variant!=='international'){
+        if(p===RED && r===0) p=RED_K;
+        if(p===BLK && r===app.N-1) p=BLK_K;
+      }
     }
   }else{
     r=seq[0].r; c=seq[0].c;
@@ -657,6 +672,13 @@ function applyMove(board, move){
 }
 
 /* move selection UI */
+boardEl.addEventListener('keydown', e=>{
+  const cell=e.target.closest('.sq');
+  if(cell && (e.key==='Enter' || e.key===' ')){
+    e.preventDefault(); const {r,c}=cell.dataset; cell.click();
+    boardEl.querySelector(`[data-r="${r}"][data-c="${c}"]`)?.focus();
+  }
+});
 boardEl.addEventListener('click', e=>{
   if(app.gameOver||thinking) return;
   const cell=e.target.closest('.sq'); if(!cell) return;
@@ -673,7 +695,7 @@ boardEl.addEventListener('click', e=>{
   if(sel){
     const mv = legal.find(m=>m.from.r===sel.r && m.from.c===sel.c && m.seq[m.seq.length-1].r===r && m.seq[m.seq.length-1].c===c);
     if(mv){
-      app.history.push({board:clone(app.board), turn:app.turn, logLen:app.log.length});
+      app.history.push({board:clone(app.board), turn:app.turn, logLen:app.log.length, pendingLearn:app.pendingLearn.slice()});
       const h=hashBoard(app.board,app.turn); app.pendingLearn.push({h,side:app.turn});
       const san = moveToText(mv);
       app.board = applyMove(app.board, mv);
@@ -724,41 +746,35 @@ function isHumansTurn(){
   return (app.human==='red' && app.turn===RED) || (app.human==='black' && app.turn===BLK);
 }
 
+// Evaluate the side whose turn is next, in both play and search.
+function winnerFor(board,side,moves){
+  const flat=board.flat(), reds=flat.some(isRed), blacks=flat.some(isBlk);
+  const giveaway=app.variant==='giveaway';
+  if(!reds) return giveaway?RED:BLK;
+  if(!blacks) return giveaway?BLK:RED;
+  if(!moves.length) return giveaway?side:-side;
+  return null;
+}
 function nextTurnOrEnd(){
   sel=null;
-  const flat=app.board.flat();
-  const reds=flat.filter(isRed).length;
-  const blks=flat.filter(isBlk).length;
+  app.turn=-app.turn;
   updateLegal();
-
-  if(app.variant==='giveaway'){
-    const hasMoves = legal.length>0;
-    if(reds===0 || blks===0 || !hasMoves){
-      // In Giveaway, the side who successfully has no moves/pieces wins.
-      const winner = app.turn;
-      endGame(winner, true);
-      return;
-    }
-  }else{
-    if(reds===0 || blks===0 || legal.length===0){
-      const winner = (reds>0 && blks===0)?RED : (blks>0 && reds===0)?BLK : -app.turn;
-      endGame(winner, false);
-      return;
-    }
-  }
-
-  app.turn = -app.turn;
-  rerender();
+  const winner=winnerFor(app.board,app.turn,legal);
+  if(winner!==null){ endGame(winner,app.variant==='giveaway'); renderBoard(); return; }
+  renderBoard();
   if(app.mode==='ai' && !isHumansTurn() && !app.gameOver) aiMove();
 }
 function endGame(winner, giveaway){
+  cancelAI();
   app.gameOver=true;
+  completedLearn=new Map();
   if(winner===RED) setMsg(giveaway?'Red wins (gave away pieces smarter)!':'Red wins!','win');
   else if(winner===BLK) setMsg(giveaway?'Black wins (gave away pieces smarter)!':'Black wins!','win');
   else setMsg('Draw');
   const out = (winner===0)?0 : (winner===RED?1:-1);
   for(const st of app.pendingLearn){
     const G = (st.side===RED ? out : -out);
+    if(!completedLearn.has(st.h)) completedLearn.set(st.h,LRN[st.h]?{...LRN[st.h]}:null);
     updateLearn(st.h,G,app.lr);
   }
   app.pendingLearn=[]; saveLearn();
@@ -767,7 +783,13 @@ function endGame(winner, giveaway){
 /* Undo */
 function undo(){
   if(!app.history.length) return;
+  cancelAI();
+  if(completedLearn){
+    for(const [key,value] of completedLearn){ if(value) LRN[key]=value; else delete LRN[key]; }
+    completedLearn=null; saveLearn();
+  }
   const last=app.history.pop();
+  app.pendingLearn=last.pendingLearn.slice();
   app.board=last.board;
   app.turn=last.turn;
   app.log=app.log.slice(0,last.logLen);
@@ -873,7 +895,9 @@ function orderMoves(mv){
 }
 function search(board, depth, side, alpha, beta){
   const moves=generateMoves(board, side);
-  if(depth===0 || moves.length===0) return evalBoard(board, side)+valLearn(board,side);
+  const winner=winnerFor(board,side,moves);
+  if(winner!==null) return winner===side?100000+depth:-100000-depth;
+  if(depth===0) return evalBoard(board, side)+valLearn(board,side);
   const ord=orderMoves(moves);
   let best=-Infinity;
   for(const mv of ord){
@@ -920,11 +944,14 @@ function pickBestMove(board, depth, side){
   return choice.mv;
 }
 function aiMove(){
+  if(thinking || app.gameOver || app.mode!=='ai' || isHumansTurn()) return;
+  const generation=++aiGeneration;
   thinking=true; renderBoard(); setMsg('');
   setTimeout(()=>{
+    if(generation!==aiGeneration || app.gameOver || app.mode!=='ai' || isHumansTurn()) return;
     const mv=pickBestMove(app.board, app.depth, app.turn);
     if(!mv){
-      endGame(-app.turn, app.variant==='giveaway');
+      endGame(app.variant==='giveaway'?app.turn:-app.turn, app.variant==='giveaway');
       thinking=false; renderBoard(); return;
     }
     const h=hashBoard(app.board, app.turn); app.pendingLearn.push({h,side:app.turn});
