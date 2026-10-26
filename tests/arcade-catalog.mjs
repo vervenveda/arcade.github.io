@@ -50,11 +50,17 @@ for (const [name, stops] of paths) {
   for (const stop of stops) assert(games.some(g => g.title === stop), "Unlinked learning path stop: " + name + " → " + stop);
 }
 
-const fallbackCount = (html.match(/id="vnvBetaProgramFallback"/g) || []).length;
-assert(fallbackCount === 1, "Exactly one Beta fallback link required");
-assert(html.includes('src="/assets/vnv-beta-link.js"') || html.includes('src="./assets/vnv-beta-link.js"'), "Beta widget loader is missing");
-assert(html.includes('a[href="https://vervenveda.com/beta/"][aria-label="Open the Verve N Veda Beta Program"]:not(#vnvBetaProgramFallback){display:none!important}'), "Automated Beta rollout duplicates must remain visually suppressed");
-assert(existsSync(resolve(root, "assets/vnv-beta-link.js")), "Local Beta widget missing");
+// The Academy toolbar owns Beta/Support. Upstream automation may add a hidden
+// fallback anchor and a legacy loader; neither is required for page navigation.
+const fallbackCount=(html.match(/id="vnvBetaProgramFallback"/g)||[]).length;
+assert(fallbackCount<=1,"Duplicate legacy Beta fallback IDs");
+assert(html.includes('src="./assets/arcade-game-shell.js" data-arcade-home defer'),"Unified lower-right home toolbar missing");
+assert(existsSync(resolve(root,"assets/arcade-game-shell.js")),"Shared toolbar asset missing");
+assert(html.includes('id="arcadeNetwork"')&&html.includes('id="arcadeLanguageMount"'),"Native network/language dropdown missing");
+assert((html.match(/<header>/g)||[]).length===1,"Exactly one native Arcade header required");
+assert(!html.includes('class="vnv-global-strip"'),"Duplicate Verve top strip returned");
+assert(html.includes('data-vnv-support-off'),"Legacy injected support top button not disabled");
+assert(html.includes('#vnvEcosystemMenuButton,#vnv-global-support-top'),"Auto-injected ecosystem/support duplicates not hidden");
 assert(html.includes("script-src 'self' 'unsafe-inline' https://vervenveda.com"), "Expected narrowed CSP script allowlist missing");
 assert(html.includes("connect-src 'self'"), "Same-origin route checker blocked by CSP");
 assert(html.includes("window.auditArcadeRoutes=auditArcadeRoutes"), "HTTP route audit entry missing");
