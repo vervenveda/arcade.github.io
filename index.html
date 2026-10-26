@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-arcade-unified-tools data-vnv-support-off>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -31,43 +31,38 @@ footer{padding:30px 0;border-top:1px solid var(--line);color:var(--muted);backgr
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important}}
 a[href="https://vervenveda.com/beta/"][aria-label="Open the Verve N Veda Beta Program"]:not(#vnvBetaProgramFallback){display:none!important}
 </style>
-<style id="vnv-global-ecosystem-shell">
-.vnv-global-strip{position:relative;z-index:2147482000;min-height:38px;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:12px;padding:5px 12px;border-bottom:1px solid rgba(160,140,100,.28);background:#121918;color:#eee8dc;font:400 12px/1.2 "Avenir Next",Avenir,"Segoe UI",Arial,sans-serif}
-.vnv-global-strip a{color:inherit;text-decoration:none}.vnv-global-brand{display:flex;align-items:center;gap:8px;white-space:nowrap}.vnv-global-mark{width:26px;height:26px;display:grid;place-items:center;border:1px solid rgba(238,232,220,.38);border-radius:7px;font:500 10px Georgia,serif}.vnv-global-copy{display:grid}.vnv-global-copy strong{font:500 11px Georgia,serif;letter-spacing:.08em;text-transform:uppercase}.vnv-global-copy small{margin-top:1px;color:#bdb5a6;font-size:9px;letter-spacing:.06em;text-transform:uppercase}
-.vnv-global-links{display:flex;align-items:center;justify-content:center;gap:10px;min-width:0;overflow:hidden;white-space:nowrap}.vnv-global-links a{color:#d8d1c5;font-size:10px;letter-spacing:.04em}.vnv-global-links a:hover,.vnv-global-links a:focus-visible{color:#fff}
-.vnv-global-menu{position:relative;justify-self:end}.vnv-global-menu summary{list-style:none;width:30px;height:30px;display:grid;place-items:center;border:1px solid rgba(238,232,220,.28);border-radius:7px;cursor:pointer}.vnv-global-menu summary::-webkit-details-marker{display:none}.vnv-global-lines,.vnv-global-lines:before,.vnv-global-lines:after{content:"";display:block;width:14px;height:1.5px;background:#eee8dc}.vnv-global-lines{position:relative}.vnv-global-lines:before,.vnv-global-lines:after{position:absolute;left:0}.vnv-global-lines:before{top:-5px}.vnv-global-lines:after{top:5px}
-.vnv-global-panel{position:absolute;right:0;top:36px;width:min(300px,calc(100vw - 20px));padding:10px;border:1px solid rgba(238,232,220,.22);border-radius:7px;background:#17201f;box-shadow:0 18px 40px rgba(0,0,0,.28)}.vnv-global-panel p{margin:3px 5px 8px;color:#aaa294;font-size:9px;letter-spacing:.1em;text-transform:uppercase}.vnv-global-panel a{display:block;padding:9px 10px;border-radius:5px;color:#eee8dc;font-size:11px}.vnv-global-panel a:hover,.vnv-global-panel a:focus-visible{background:#22302e}
-@media(max-width:760px){.vnv-global-strip{grid-template-columns:minmax(0,1fr) auto}.vnv-global-links{display:none}.vnv-global-copy small{display:none}}@media print{.vnv-global-strip{display:none!important}}
+
+<style id="arcade-single-header-repair">
+
+/* Native Arcade header only, no second site banner. */
+.nav-actions .arcade-network-menu{position:relative;flex:none;font:400 11px/1.3 var(--sans)}
+.nav-actions .arcade-network-menu>summary{min-height:42px;display:flex;align-items:center;justify-content:center;padding:8px 12px;border:1px solid var(--line2);border-radius:7px;background:#131e26;color:#d8dfdc;cursor:pointer;list-style:none;letter-spacing:.04em}
+.nav-actions .arcade-network-menu>summary::-webkit-details-marker{display:none}
+.nav-actions .arcade-network-menu[open]>summary{color:var(--cyan);border-color:var(--cyan)}
+.nav-actions .arcade-network-panel{position:absolute;right:0;top:48px;z-index:2001;width:min(310px,calc(100vw - 24px));display:grid;gap:5px;padding:12px;border:1px solid var(--line2);border-radius:7px;background:#101b22;box-shadow:0 18px 44px rgba(0,0,0,.48)}
+.nav-actions .arcade-network-panel>a{min-height:34px;display:block;width:100%;padding:8px 10px;border:0;background:transparent;color:var(--paper);font:400 12px/1.35 var(--sans);letter-spacing:0;text-transform:none}
+.nav-actions .arcade-network-panel>a:hover{background:#21323b;color:var(--cyan)}
+#arcadeLanguageMount{border-top:1px solid var(--line);margin-top:4px;padding-top:6px}
+#arcadeLanguageMount [data-arcade-language-control]{display:grid!important;justify-items:stretch!important;gap:5px!important;padding:5px 0!important;background:transparent!important}
+#arcadeLanguageMount select{max-width:100%!important;width:100%}
+@media(max-width:980px){
+ .nav{grid-template-columns:1fr auto}.arcade-title{display:none}
+ .nav-actions>a,.nav-actions>.arcade-network-menu{display:none}.menu-btn{display:flex}
+ .nav-actions.open{position:fixed;left:12px;right:12px;top:78px;z-index:1500;display:flex;flex-direction:column;align-items:stretch;padding:10px;background:#0d161c;border:1px solid var(--line2);box-shadow:var(--shadow);max-height:calc(100dvh - 94px);overflow-y:auto}
+ .nav-actions.open>a,.nav-actions.open>.arcade-network-menu{display:flex;width:100%}
+ .nav-actions.open>.arcade-network-menu{flex-direction:column}
+ .nav-actions.open>.arcade-network-menu>summary{justify-content:flex-start}
+ .nav-actions.open .arcade-network-panel{position:static;margin-top:5px;width:100%;box-shadow:none}
+}
+/* Ignore reinjected top-floating support/Beta/ecosystem controls. */
+#vnvEcosystemMenuButton,#vnv-global-support-top,#vnv-global-support,#vnvBetaProgramLink,#vnvBetaProgramFallback,
+a[aria-label="Open the Verve N Veda Beta Program"]{display:none!important}
 </style>
 </head>
 <body id="top">
-<div class="vnv-global-strip" data-vnv-global-strip>
-  <a class="vnv-global-brand" href="https://vervenveda.com/" aria-label="Verve N Veda home">
-    <span class="vnv-global-mark">VNV</span>
-    <span class="vnv-global-copy"><strong>Verve N Veda</strong><small>Games</small></span>
-  </a>
-  <nav class="vnv-global-links" aria-label="Verve N Veda network links">
-    <a href="https://vervenveda.com/arcade.github.io/">This Hub</a>
-    <a href="https://vervenveda.com/#directory">Ecosystem Directory</a>
-    <a href="https://vervenveda.com/core/directory-agi/">Directory AGI</a>
-    <a href="https://vervenveda.com/cloud/">Public Cloud</a>
-  </nav>
-  <details class="vnv-global-menu">
-    <summary aria-label="Open Verve N Veda ecosystem menu"><span class="vnv-global-lines" aria-hidden="true"></span></summary>
-    <div class="vnv-global-panel">
-      <p>Ecosystem</p>
-      <a href="https://vervenveda.com/">Verve N Veda Gateway</a>
-      <a href="https://vervenveda.com/#directory">Complete Ecosystem Directory</a>
-      <a href="https://vervenveda.com/Khaemenes_Academy.github.io/">Khaemenes Academy</a>
-      <a href="https://vervenveda.com/PLERASearch.github.io/">PLERA Search</a>
-      <a href="https://vervenveda.com/theverifier.github.io/">The Verifier</a>
-      <a href="https://vervenveda.com/proresource_hub.github.io/">Professional Resources</a>
-      <a href="https://vervenveda.com/Arshif.github.io/">ARSHIF</a>
-    </div>
-  </details>
-</div>
 <a class="skip" href="#catalog">Skip to game catalog</a>
-<header><div class="wrap nav"><a class="brand" href="https://vervenveda.com/" aria-label="Return to Verve N Veda"><span class="brand-mark">VNV</span><span class="brand-copy"><strong>Verve N Veda</strong><small>Public Matrix</small></span></a><a class="arcade-title" href="#top"><strong>Arcade</strong><small>Free Play · Learning · Curiosity</small></a><div class="nav-actions" id="navActions"><a href="#categories">Rooms</a><a href="#catalog">Games</a><a href="#paths">Paths</a><a href="#family">Kids</a><a href="#companions">Extras</a><button class="menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="navActions" aria-label="Open navigation"><span class="menu-lines"></span></button></div></div></header>
+<header><div class="wrap nav"><a class="brand" href="https://vervenveda.com/" aria-label="Return to Verve N Veda"><span class="brand-mark">VNV</span><span class="brand-copy"><strong>Verve N Veda</strong><small>Public Matrix</small></span></a><a class="arcade-title" href="#top"><strong>Arcade</strong><small>Free Play · Learning · Curiosity</small></a><div class="nav-actions" id="navActions"><a href="#categories">Rooms</a><a href="#catalog">Games</a><a href="#paths">Paths</a><a href="#family">Kids</a><a href="#companions">Extras</a><details class="arcade-network-menu" id="arcadeNetwork"><summary aria-label="Open network navigation">Network ▾</summary><div class="arcade-network-panel">
+<a href="https://vervenveda.com/">Verve N Veda Home</a><a href="https://vervenveda.com/#directory">Ecosystem Directory</a><a href="https://vervenveda.com/Khaemenes_Academy.github.io/">Khaemenes Academy</a><a href="https://vervenveda.com/PLERASearch.github.io/">PLERA Search</a><a href="https://vervenveda.com/theverifier.github.io/">The Verifier</a><a href="https://vervenveda.com/proresource_hub.github.io/">Professional Resources</a><a href="https://vervenveda.com/Arshif.github.io/">ARSHIF</a><div id="arcadeLanguageMount"></div></div></details><button class="menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="navActions" aria-label="Open navigation"><span class="menu-lines"></span></button></div></div></header>
 <main>
 <section class="hero"><div class="wrap hero-inner"><div class="open-line"><span class="open-dot"></span> Game Hall Open</div><h1>Arcade<span>Verve N Veda · play with purpose</span></h1><p class="lead">A clean, searchable game hall for strategy, language, puzzles, creativity, trivia, simulation, restorative play, and younger learners. Every active cabinet below points to a file confirmed in its current Verve N Veda source repository.</p><div class="hero-actions"><a class="btn primary" href="#catalog">Browse All Games</a><button class="btn rose" id="randomHero" type="button">Surprise Me</button><a class="btn" href="#family">Kids & Families</a></div><div class="metrics"><div class="metric"><strong>71</strong><span>Active play destinations</span></div><div class="metric"><strong>8</strong><span>Game rooms</span></div><div class="metric"><strong>5</strong><span>Verified source halls</span></div><div class="metric"><strong>2</strong><span>Companion resources</span></div></div></div></section>
 <section class="section alt" id="categories"><div class="wrap"><div class="head"><p class="eyebrow">Choose a room</p><h2>Play your way</h2><p>Start with a game family, or skip directly to the complete searchable catalog.</p></div><div class="category-grid" id="categoryGrid"></div></div></section>
@@ -122,7 +117,7 @@ function init(){
  selector.style.cssText="border-radius:7px;border:1px solid var(--line2);background:var(--panel);color:var(--ink);padding:7px;max-width:190px;";
  for(const [code,name] of Object.entries(languages)){const opt=document.createElement("option");opt.value=code;opt.textContent=code==="en"?name+" (default)":labels.Rooms[code]?name+" (navigation only)":name+" (English fallback)";opt.lang=code;opt.dir=code==="ar"?"rtl":"ltr";selector.append(opt)}
  selector.value=current;selector.addEventListener("change",()=>{current=selector.value;try{localStorage.setItem("vnv_language_v1",current)}catch{}render()});
- const notice=document.createElement("span");notice.style.cssText="color:var(--muted);font-size:12px;line-height:1.4;text-align:center";notice.textContent="Navigation labels only · Game descriptions and instructions retain their original language.";holder.append(selector,notice);document.querySelector("header")?.after(holder);render();
+ const notice=document.createElement("span");notice.style.cssText="color:var(--muted);font-size:12px;line-height:1.4;text-align:center";notice.textContent="Navigation labels only · Game descriptions and instructions retain their original language.";holder.append(selector,notice);document.getElementById("arcadeLanguageMount")?.append(holder);render();
  document.addEventListener("click",event=>{
   if(current==="en"||event.defaultPrevented||event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
   const a=event.target.closest?.("a[href]");if(!a||a.hasAttribute("download"))return;
@@ -137,14 +132,8 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
 </script>
 
 
-<script src="https://vervenveda.com/assets/vnv-support.js" defer></script>
+
 
 <a id="vnvBetaProgramFallback" href="https://vervenveda.com/beta/" aria-label="Open the Verve N Veda Beta Program" style="position:fixed;right:12px;bottom:12px;z-index:1100;padding:9px 12px;border:1px solid var(--line2);border-radius:7px;background:#162129;color:#f4efe5;text-decoration:none;font:600 12px/1.3 system-ui,sans-serif">β Beta Program</a>
-<a href="https://vervenveda.com/beta/" aria-label="Open the Verve N Veda Beta Program" style="position:fixed;right:14px;bottom:14px;z-index:2147483647;padding:9px 12px;border:1px solid currentColor;border-radius:7px;background:#fff;color:#111;text-decoration:none;font:600 13px/1.2 system-ui,sans-serif">β Beta Program</a>
-<a href="https://vervenveda.com/beta/" aria-label="Open the Verve N Veda Beta Program" style="position:fixed;right:14px;bottom:14px;z-index:2147483647;padding:9px 12px;border:1px solid currentColor;border-radius:7px;background:#fff;color:#111;text-decoration:none;font:600 13px/1.2 system-ui,sans-serif">β Beta Program</a>
-<a href="https://vervenveda.com/beta/" aria-label="Open the Verve N Veda Beta Program" style="position:fixed;right:14px;bottom:14px;z-index:2147483647;padding:9px 12px;border:1px solid currentColor;border-radius:7px;background:#fff;color:#111;text-decoration:none;font:600 13px/1.2 system-ui,sans-serif">β Beta Program</a>
-<a href="https://vervenveda.com/beta/" aria-label="Open the Verve N Veda Beta Program" style="position:fixed;right:14px;bottom:14px;z-index:2147483647;padding:9px 12px;border:1px solid currentColor;border-radius:7px;background:#fff;color:#111;text-decoration:none;font:600 13px/1.2 system-ui,sans-serif">β Beta Program</a>
-<a href="https://vervenveda.com/beta/" aria-label="Open the Verve N Veda Beta Program" style="position:fixed;right:14px;bottom:14px;z-index:2147483647;padding:9px 12px;border:1px solid currentColor;border-radius:7px;background:#fff;color:#111;text-decoration:none;font:600 13px/1.2 system-ui,sans-serif">β Beta Program</a>
-<a href="https://vervenveda.com/beta/" aria-label="Open the Verve N Veda Beta Program" style="position:fixed;right:14px;bottom:14px;z-index:2147483647;padding:9px 12px;border:1px solid currentColor;border-radius:7px;background:#fff;color:#111;text-decoration:none;font:600 13px/1.2 system-ui,sans-serif">β Beta Program</a>
-<script src="/assets/vnv-beta-link.js" defer></script>
+<script src="./assets/arcade-game-shell.js" data-arcade-home defer></script>
 </body></html>
