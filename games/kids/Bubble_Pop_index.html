@@ -350,7 +350,7 @@ bubble.style.left = (Math.random() * maxLeft + buffer) + "px";
       setTimeout(()=>createBubble(true), Math.random()*900+300);
     }
 
-    function startGame() {
+    function startGame(timed=false) {
       resetGame();
       paused = false;
       startBtn.disabled = true;
@@ -360,7 +360,15 @@ bubble.style.left = (Math.random() * maxLeft + buffer) + "px";
       maxOnScreen = 3;
       lastScoreProgressed = 0;
       gameInterval = setInterval(spawnBubbles, bubbleInterval);
-      if(timerActive) { startTimerCountdown(); }
+      // Apply timer mode AFTER resetGame(), which intentionally clears prior timer state.
+      if(timed === true){
+        timerActive = true;
+        timeLeft = 60;
+        timerBtn.disabled = true;
+        timerDisplay.textContent = "Time: 60";
+        timerDisplay.style.display = "";
+        startTimerCountdown();
+      }
     }
 
     function pauseGame() {
@@ -395,14 +403,7 @@ bubble.style.left = (Math.random() * maxLeft + buffer) + "px";
 
     function startTimer() {
       if(timerActive) return;
-      timerActive = true;
-      timeLeft = 60;
-      timerDisplay.textContent = "Time: 60";
-      timerDisplay.style.display = ''; // <-- make sure visible
-      timerBtn.disabled = true;
-      resetGame();
-      startGame();
-      startTimerCountdown();
+      startGame(true);
     }
 
     function startTimerCountdown() {
@@ -434,7 +435,7 @@ bubble.style.left = (Math.random() * maxLeft + buffer) + "px";
     }
 
     // --- Button events ---
-    startBtn.addEventListener("click", startGame);
+    startBtn.addEventListener("click", () => startGame(false));
     pauseBtn.addEventListener("click", pauseGame);
     resetBtn.addEventListener("click", resetGame);
     timerBtn.addEventListener("click", startTimer);
