@@ -328,11 +328,16 @@ let aiProfile = (()=> {
     if(!raw) return defaultAIProfile();
     const parsed = JSON.parse(raw);
     const base = defaultAIProfile();
-    parsed.weights = Object.assign({}, base.weights, parsed.weights || {});
-    parsed.games = parsed.games || 0;
-    parsed.wins = parsed.wins || 0;
-    parsed.losses = parsed.losses || 0;
-    return parsed;
+    if(!parsed || typeof parsed!=='object' || Array.isArray(parsed)) return base;
+    const bounds={pip:[-2.5,-0.1],bar:[-4,-0.5],off:[0.5,4],blots:[-3,-0.1],made:[0.1,3]};
+    for(const key of Object.keys(base.weights)){
+      const value=parsed.weights?.[key];
+      if(Number.isFinite(value)) base.weights[key]=clamp(value,...bounds[key]);
+    }
+    for(const key of ['games','wins','losses']){
+      if(Number.isSafeInteger(parsed[key]) && parsed[key]>=0) base[key]=parsed[key];
+    }
+    return base;
   }catch{
     return defaultAIProfile();
   }
@@ -362,6 +367,20 @@ let diceLeft = [];
 let phase = 'preroll'; // 'preroll' | 'moving' | 'over'
 let gameOver = false;
 
+// One generation-checked AI action at a time; stale callbacks cannot cross games.
+let aiEpoch=0, aiPending=false;
+function cancelAI(){ aiEpoch++; aiPending=false; }
+function scheduleAI(action,delay){
+  if(aiPending) return;
+  aiPending=true;
+  const epoch=aiEpoch;
+  setTimeout(()=>{
+    if(epoch!==aiEpoch) return;
+    aiPending=false;
+    if(gameOver || modeSel.value!=='ai') return;
+    action();
+  },delay);
+}
 let selected = null;   // {from:'bar'} or {from:index}
 let hintDots = [];     // [{x,y, move}]
 let undoStack = [];    // snapshots within a turn
@@ -467,7 +486,9 @@ function startMatch(target){
   saveAll();
 }
 
-function startGame(freshLog=false){
+function startGame(freshLog=false,persist=true){
+  cancelAI();
+  sequencesThisTurn=[];
   state = { board: standardSetup(), bar:{[RED]:0,[BLACK]:0}, off:{[RED]:0,[BLACK]:0} };
   turn = RED;
   dice = [];
@@ -487,7 +508,7 @@ function startGame(freshLog=false){
   log(`<b>New game</b>. Red to act.`);
   updateHUD();
   draw();
-  maybeAI();
+  if(persist){ saveAll(); maybeAI(); }
 }
 
 function updateHUD(){
@@ -686,7 +707,7 @@ function legalSequences(s, p, diceArr){
     seen.add(k);
     out.push(seq);
   }
-  return out;
+  return out.filter(seq=>seq.length>0);
 }
 
 /* =========================
@@ -718,6 +739,7 @@ function beginRoll(){
 }
 
 function endTurn(){
+  cancelAI();
   // win check
   const winner = (state.off[RED]===15) ? RED : (state.off[BLACK]===15 ? BLACK : 0);
   if(winner){
@@ -739,6 +761,8 @@ function endTurn(){
 }
 
 function finishGame(winner){
+  if(gameOver) return;
+  cancelAI();
   gameOver = true;
   phase = 'over';
   selected = null;
@@ -833,10 +857,10 @@ function updateAIProfileAfterGame(winner){
 
   // Intuition: push weights in directions that reward patterns present when AI wins,
   // and push away from patterns present when AI loses.
-  w.pip   += dir * -pip   * lr * 0.02;
-  w.bar   += dir * -barD  * lr * 0.04;
+  w.pip   += dir * pip   * lr * 0.02;
+  w.bar   += dir * barD  * lr * 0.04;
   w.off   += dir *  offD  * lr * 0.04;
-  w.blots += dir * -blots * lr * 0.03;
+  w.blots += dir * blots * lr * 0.03;
   w.made  += dir *  made  * lr * 0.02;
 
   // Keep weights in sane ranges
@@ -861,13 +885,18 @@ function offerDouble(offeredBy){
   updateHUD();
   saveAll();
 
+  presentDouble();
+}
+function presentDouble(){
+  if(!cube.pending || gameOver) return;
+  const offeredBy=cube.pending.offeredBy;
   const opp = other(offeredBy);
   const offererName = offeredBy===RED?'Red':'Black';
   const oppName = opp===RED?'Red':'Black';
 
   // If opponent is AI, auto respond
   if(modeSel.value==='ai' && opp === aiSide()){
-    setTimeout(()=> aiRespondToDouble(offeredBy), 350);
+    scheduleAI(()=> aiRespondToDouble(offeredBy), 350);
     return;
   }
 
@@ -900,7 +929,10 @@ function acceptDouble(){
 }
 
 function declineDouble(){
-  if(!cube.pending) return;
+  if(!cube.pending || gameOver) return;
+  cancelAI();
+  gameOver=true; phase='over';
+  selected=null; hintDots=[]; undoStack=[];
   const offerer = cube.pending.offeredBy;
   cube.pending = null;
 
@@ -979,6 +1011,7 @@ function undoStep(){
   updateHUD();
   draw();
   log(`<span class="muted">↶ Undo.</span>`);
+  saveAll();
 }
 
 /* =========================
@@ -1091,7 +1124,7 @@ function chooseAISequence(){
     if(level===1) score += (Math.random()*0.9);
     if(level===2) score += (Math.random()*0.25);
     if(level===3){
-      score += (state.bar[other(turn)] - after.bar[other(turn)])*1.0; // hits
+      score += (after.bar[other(turn)] - state.bar[other(turn)])*1.0; // hits
       score += (blotCount(state,turn) - blotCount(after,turn))*0.45; // safety
     }
 
@@ -1108,7 +1141,7 @@ function aiWantsToDouble(){
   return false;
 }
 function aiRespondToDouble(offeredBy){
-  if(!cube.pending || cube.pending.offeredBy!==offeredBy) return;
+  if(gameOver || modeSel.value!=='ai' || other(offeredBy)!==aiSide() || !cube.pending || cube.pending.offeredBy!==offeredBy) return;
   const aiP = other(offeredBy); // AI is the accepter/decliner side here
 
   // If AI is winning badly, accept; if losing badly, decline
@@ -1123,6 +1156,7 @@ function aiRespondToDouble(offeredBy){
 }
 
 function maybeAI(){
+  if(aiPending) return;
   if(gameOver) return;
   if(modeSel.value!=='ai') return;
   const aiP = aiSide();
@@ -1139,7 +1173,7 @@ function maybeAI(){
       // If human must respond, stop here.
       if(cube.pending) return;
     }
-    setTimeout(()=> beginRoll(), 420);
+    scheduleAI(()=>{ if(turn===aiP && phase==='preroll') beginRoll(); },420);
     return;
   }
 
@@ -1150,15 +1184,9 @@ function maybeAI(){
       endTurn();
       return;
     }
-    let i=0;
-    const step=()=>{
-      if(gameOver || turn!==aiP || phase!=='moving') return;
-      if(i>=seq.length) return;
-      commitMove(seq[i]);
-      i++;
-      if(i<seq.length && turn===aiP && phase==='moving') setTimeout(step, 210);
-    };
-    setTimeout(step, 210);
+    scheduleAI(()=>{
+      if(turn===aiP && phase==='moving' && !cube.pending) commitMove(seq[0]);
+    },210);
   }
 }
 
@@ -1629,8 +1657,12 @@ matchLenSel.onchange = ()=>{
   }
 };
 
-modeSel.onchange = ()=>{ saveAll(); updateHUD(); maybeAI(); };
-humanSel.onchange = ()=>{ saveAll(); updateHUD(); maybeAI(); };
+function playerSettingsChanged(){
+  cancelAI(); hideModal(); saveAll(); updateHUD();
+  if(cube.pending) presentDouble(); else maybeAI();
+}
+modeSel.onchange = playerSettingsChanged;
+humanSel.onchange = playerSettingsChanged;
 hintSel.onchange = ()=>{ saveAll(); draw(); };
 depthSel.onchange = ()=>{ saveAll(); ping('AI tuned'); };
 
@@ -1643,7 +1675,7 @@ resumeBtn.onclick = ()=>{
    Save / Resume
 ========================= */
 function hasSaved(){
-  return !!localStorage.getItem(STORAGE_KEY);
+  try{ return !!localStorage.getItem(STORAGE_KEY); }catch{ return false; }
 }
 function saveAll(){
   try{
@@ -1670,30 +1702,56 @@ function saveAll(){
     console.warn('save failed', e);
   }
 }
+function validSavedGame(v){
+  const count=n=>Number.isInteger(n)&&n>=0&&n<=15;
+  const score=n=>Number.isSafeInteger(n)&&n>=0;
+  if(!v || !v.state || !Array.isArray(v.state.board) || v.state.board.length!==24) return false;
+  const s=v.state;
+  if(!s.board.every(n=>Number.isInteger(n)&&Math.abs(n)<=15) || !s.bar || !s.off) return false;
+  for(const p of [RED,BLACK]){
+    if(!count(s.bar[p]) || !count(s.off[p])) return false;
+    if(s.board.reduce((n,x)=>n+(x*p>0?Math.abs(x):0),0)+s.bar[p]+s.off[p]!==15) return false;
+  }
+  if(!v.match || ![3,5,7].includes(v.match.target) || !v.match.score || !score(v.match.score[RED]) || !score(v.match.score[BLACK])) return false;
+  if(![RED,BLACK].includes(v.turn) || !['preroll','moving','over'].includes(v.phase) || typeof v.gameOver!=='boolean' || v.gameOver!==(v.phase==='over')) return false;
+  if(!v.cube || !Number.isSafeInteger(v.cube.value) || v.cube.value<1 || !Number.isInteger(Math.log2(v.cube.value)) || ![0,RED,BLACK].includes(v.cube.owner)) return false;
+  if(v.cube.pending && (v.cube.pending.offeredBy!==v.turn || v.phase!=='preroll')) return false;
+  if(!Array.isArray(v.dice) || !Array.isArray(v.diceLeft) || v.dice.length>4 || v.diceLeft.length>4) return false;
+  if(![...v.dice,...v.diceLeft].every(n=>Number.isInteger(n)&&n>=1&&n<=6)) return false;
+  const remaining=v.dice.slice();
+  for(const die of v.diceLeft){ const i=remaining.indexOf(die); if(i<0) return false; remaining.splice(i,1); }
+  if(v.phase==='preroll' && (v.dice.length || v.diceLeft.length)) return false;
+  if(v.phase==='moving' && !(v.dice.length===2&&v.dice[0]!==v.dice[1] || v.dice.length===4&&v.dice.every(n=>n===v.dice[0]))) return false;
+  const t=v.settings;
+  return !!t && ['3','5','7'].includes(t.matchLen) && ['ai','2p'].includes(t.mode) && ['red','black'].includes(t.humanSide) && ['on','off'].includes(t.hints) && ['1','2','3'].includes(t.depth);
+}
 function loadAll(){
-  const raw = localStorage.getItem(STORAGE_KEY);
-  if(!raw) return null;
   try{
-    return JSON.parse(raw);
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return null;
+    const saved=JSON.parse(raw);
+    return validSavedGame(saved)?saved:null;
   }catch(e){
     return null;
   }
 }
 function resumePrompt(){
   const saved = loadAll();
-  if(!saved){ ping('Save corrupted'); return; }
+  if(!saved){ ping('Save invalid or unavailable'); maybeAI(); return; }
 
   showModal(
     'Resume last match?',
     `Saved state found: <b>Red ${saved.match?.score?.[RED]||0}</b> · <b>Black ${saved.match?.score?.[BLACK]||0}</b> (to ${saved.match?.target||5}).`,
     [
       {label:'Resume', kind:'primary', onClick:()=> resumeFromSaved(saved)},
-      {label:'Delete Save', kind:'danger', onClick:()=>{ localStorage.removeItem(STORAGE_KEY); ping('Save deleted'); updateHUD(); }},
-      {label:'Cancel', kind:'ghost', onClick:()=>{}}
+      {label:'Delete Save', kind:'danger', onClick:()=>{ try{ localStorage.removeItem(STORAGE_KEY); ping('Save deleted'); }catch{ ping('Storage unavailable'); } updateHUD(); maybeAI(); }},
+      {label:'Cancel', kind:'ghost', onClick:()=>maybeAI()}
     ]
   );
 }
 function resumeFromSaved(saved){
+  if(!validSavedGame(saved)){ ping('Save invalid — current game preserved'); return; }
+  cancelAI();
   // Restore settings first
   if(saved.settings){
     matchLenSel.value = saved.settings.matchLen || String(saved.match?.target||5);
@@ -1717,10 +1775,13 @@ function resumeFromSaved(saved){
   undoStack = [];
   drag.down = drag.active = drag.moved = false;
 
+  sequencesThisTurn=phase==='moving'?legalSequences(state,turn,diceLeft):[];
   log(`<span class="muted">↩ Resumed saved state.</span>`);
   updateHUD();
   draw();
-  maybeAI();
+  if(cube.pending) presentDouble();
+  else if(!gameOver && phase==='moving' && !sequencesThisTurn.length) endTurn();
+  else maybeAI();
 }
 
 /* =========================
@@ -1733,13 +1794,13 @@ function boot(){
 
   // start fresh base
   resetCube();
-  startGame(true);
+  startGame(true,false);
   updateHUD();
 
   // if saved exists, prompt gently (but don’t block)
   if(hasSaved()){
-    setTimeout(()=> resumePrompt(), 380);
-  }
+    resumePrompt();
+  } else { maybeAI(); }
 }
 boot();
 </script>
